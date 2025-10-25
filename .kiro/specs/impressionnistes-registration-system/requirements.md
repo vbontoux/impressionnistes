@@ -40,7 +40,7 @@ The Course des Impressionnistes Registration System is a serverless web applicat
 1. WHEN a team manager adds a crew member, THE Registration_System SHALL require name, date of birth, gender, license number, and category information
 2. WHILE the registration period is active, THE Registration_System SHALL allow team managers to edit crew member information
 3. WHEN a team manager enters a license number, THE Registration_System SHALL validate the alphanumeric format
-4. THE Registration_System SHALL persist crew member information throughout the registration period for potential changes of member information or boat assignement
+4. THE Registration_System SHALL persist crew member information throughout the registration period for potential changes of member information or boat assignment
 5. WHEN the registration period ends, THE Registration_System SHALL prevent team managers from editing crew member information unless granted admin exception
 
 ### Requirement 3
@@ -54,7 +54,7 @@ The Course des Impressionnistes Registration System is a serverless web applicat
 3. WHILE a boat registration is incomplete, THE Registration_System SHALL allow team managers to save partial configurations and return later
 4. WHEN all required seats are assigned crew members, THE Registration_System SHALL mark the boat registration as complete
 5. WHEN a crew member is assigned a seat, THE Registration_System SHALL mark the crew member as assigned to a boat
-6. IF a crew members is already marked as assigned to a seat, THEN THE Registration_System SHALL not allow the team manager to assign the crew member to another boat seat
+6. IF a crew member is already marked as assigned to a seat, THEN THE Registration_System SHALL not allow the team manager to assign the crew member to another boat seat
 7. THE Registration_System SHALL display seat assignments with crew member names in a clear visual format with links to boat registration or crew member information
 
 ### Requirement 4
