@@ -16,6 +16,12 @@ The Course des Impressionnistes Registration System is a serverless web applicat
 - **Seat_Assignment**: The association of a crew member to a specific position (rowing or cox) in a boat
 - **Payment_Gateway**: Stripe integration for processing registration fees
 - **Validation_Process**: Admin review and approval of crew member licenses and registration details
+- **Boat_Rental**: Service allowing external clubs to rent RCPM boats for the competition
+- **Seat_Rental**: Fee charged to external club members rowing in mixed crews with RCPM members
+- **RCPM_Member**: Rower affiliated with the Rowing Club Paris Métropole who has priority access to club boats
+- **External_Club**: Rowing club other than RCPM participating in the competition
+- **Mixed_Crew**: Boat crew containing both RCPM members and external club members
+- **Rental_Priority_Period**: 15-day period before registration closure when RCPM members have exclusive access to their boats
 
 ## 1. Functional Requirements
 
@@ -51,7 +57,7 @@ These requirements define what the system does from a business and user perspect
 
 #### Acceptance Criteria
 
-1. WHEN a team manager creates a boat registration, THE Registration_System SHALL display available categories from the predefined list of 28 competition categories
+1. WHEN a team manager creates a boat registration, THE Registration_System SHALL follow the registration logic (see appendix).
 2. WHEN a team manager selects a boat type, THE Registration_System SHALL configure the appropriate number of rowing seats and cox seats based on the boat configuration
 3. WHILE a boat registration is incomplete, THE Registration_System SHALL allow team managers to save partial configurations and return later
 4. WHEN all required seats are assigned crew members, THE Registration_System SHALL mark the boat registration as complete
@@ -111,7 +117,36 @@ These requirements define what the system does from a business and user perspect
 4. THE Registration_System SHALL track and display registration metrics including total participants and category distribution
 5. THE Registration_System SHALL maintain audit logs of all Admin_User actions with role-based tagging
 
-### FR-8: Dynamic Configuration Management
+### FR-8: Boat Rental Management
+
+**User Story:** As a team manager from an external club, I want to request boat rentals from RCPM, so that my crews can participate in the competition using available boats.
+
+#### Acceptance Criteria
+
+1. WHEN a Team_Manager from an External_Club accesses boat rental options, THE Registration_System SHALL display available RCPM boats for rental based on current availability
+2. WHEN a Team_Manager requests a Boat_Rental, THE Registration_System SHALL record the request with boat type, competition category, and team manager contact information
+3. WHILE the Rental_Priority_Period is active, THE Registration_System SHALL reserve requested boats for RCPM_Members and mark external rental requests as pending
+4. WHEN the Rental_Priority_Period expires, THE Registration_System SHALL automatically confirm pending External_Club rental requests for unreserved boats
+5. WHEN a Boat_Rental is confirmed, THE Registration_System SHALL notify the Team_Manager via email and update the boat availability status
+6. THE Registration_System SHALL calculate rental fees at three times the standard seat price for individual boats (skiffs) and standard seat pricing for crew boats
+7. WHEN an Admin_User manages boat rentals, THE Registration_System SHALL provide tools to manually assign boats to rental requests and override automatic allocation
+8. THE Registration_System SHALL track all Boat_Rental transactions and include rental fees in the team's total payment calculation
+
+### FR-9: Seat Rental for Mixed Crews
+
+**User Story:** As a team manager, I want to manage seat rental fees for external club members in mixed crews, so that I can properly account for all participation costs.
+
+#### Acceptance Criteria
+
+1. WHEN a Team_Manager creates a Mixed_Crew registration, THE Registration_System SHALL identify external club members rowing with RCPM_Members
+2. WHEN external club members are assigned to seats in Mixed_Crews, THE Registration_System SHALL automatically apply Seat_Rental fees to the registration
+3. THE Registration_System SHALL calculate Seat_Rental fees at the standard seat price for each external club member in a Mixed_Crew
+4. WHEN payment is processed for Mixed_Crews, THE Registration_System SHALL include Seat_Rental fees in the total amount due
+5. THE Registration_System SHALL display Seat_Rental charges separately in payment summaries and receipts for transparency
+6. WHEN an Admin_User reviews registrations, THE Registration_System SHALL clearly identify Mixed_Crews and associated Seat_Rental fees
+7. THE Registration_System SHALL generate reports showing Seat_Rental revenue to encourage RCPM club crew formation
+
+### FR-10: Dynamic Configuration Management
 
 **User Story:** As an admin user, I want to be able to change the configuration of the Registration_System, so that I can modify the list of competition categories, registration period dates, and other system parameters dynamically.
 
@@ -126,7 +161,7 @@ These requirements define what the system does from a business and user perspect
 7. WHEN configuration changes are applied, THE Registration_System SHALL log all modifications with timestamps, previous values, new values, and Admin_User identification
 8. IF configuration changes fail validation, THEN THE Registration_System SHALL display clear error messages and prevent the invalid changes from being saved
 
-### FR-9: Home Page Information Display
+### FR-11: Home Page Information Display
 
 **User Story:** As any user, I want to view general information and subscription process details on the home page, so that I can understand the competition and registration procedures before creating an account.
 
@@ -255,62 +290,176 @@ These requirements define the mandatory technical architecture and implementatio
 
 ## Appendix A: Reference Data
 
-### A.1 Competition Categories
+### A.1 Registration Logic
 
-The system shall support the following 28 predefined competition categories:
+The registration logic follows the French Rowing Federation (FFA) rules and competition structure:
 
-| Category Number | Category Name (French) |
-| --------------- | ------------------------------------------------------------ |
-| 1               | FEMME-CADET-QUATRE DE POINTE OU COUPLE AVEC BARREUR          |
-| 2               | HOMME-CADET-QUATRE DE POINTE OU COUPLE AVEC BARREUR          |
-| 3               | MIXTE-CADET-QUATRE DE POINTE OU COUPLE AVEC BARREUR          |
-| 4               | FEMME-CADET-HUIT DE POINTE AVEC BARREUR                      |
-| 5               | HOMME-CADET-HUIT DE POINTE AVEC BARREUR                      |
-| 6               | FEMME-JUNIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-| 7               | HOMME-JUNIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-| 8               | MIXTE-JUNIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-| 9               | HOMME-JUNIOR-QUATRE DE POINTE AVEC BARREUR                   |
-| 10              | FEMME-JUNIOR-HUIT DE POINTE AVEC BARREUR                     |
-| 11              | HOMME-JUNIOR-HUIT DE POINTE AVEC BARREUR                     |
-| 12              | FEMME-SENIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-| 13              | HOMME-SENIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-| 14              | HOMME SENIOR-QUATRE DE POINTE AVEC BARREUR                   |
-| 15              | FEMME-SENIOR-HUIT DE POINTE AVEC BARREUR                     |
-| 16              | HOMME-SENIOR-HUIT DE POINTE AVEC BARREUR                     |
-| 17              | FEMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR YOLETTE |
-| 18              | HOMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR YOLETTE |
-| 19              | MIXTE-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR YOLETTE |
-| 20              | FEMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR         |
-| 21              | HOMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR         |
-| 22              | MIXTE-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR         |
-| 23              | FEMME-MASTER-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-| 24              | HOMME-MASTER-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-| 25              | MIXTE-MASTER-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-| 26              | FEMME-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
-| 27              | HOMME-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
-| 28              | MIXTE-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
+#### Competition Structure
+The Course des Impressionnistes consists of two distinct events:
+- **Semi-marathon (21 km)**: Raced in fours and eights of all configurations
+- **Marathon (42 km)**: Individual race in single sculls (skiffs)
 
-### A.2 Boat Type Configurations
+#### Age Categories (based on average crew age)
+- **J16**: 16 years old and under (safety requirement: must have coxswain)
+- **J18**: 17-18 years old
+- **Senior**: 19 years and older
+- **Master**: 27 years and older (average age ≥ 27)
 
-The system shall support the following boat types with their seat configurations:
+#### Gender Categories and Crew Composition Rules
+- **Men's crews**: More than 50% men
+- **Women's crews**: 100% women
+- **Mixed crews**: At least 1 man and at least 50% women
+- **Substitution rules**: Women can substitute for men in men's or mixed crews; men cannot substitute for women in women's or mixed crews
 
-| Boat Type | Rowing Seats | Cox Seats | Total Seats |
-| --------- | ------------ | --------- | ----------- |
-| SKIFF (1x) | 1 | 0 | 1 |
-| QUATRE AVEC BARREUR | 4 | 1 | 5 |
-| QUATRE SANS BARREUR | 4 | 0 | 4 |
-| HUIT | 8 | 1 | 9 |
+#### Boat Types and Configurations
+Boat notation format: [Gender][Boat Type][Number of Rowers][Oar Type][Coxswain]
+- Gender: H (Homme/Men), F (Femme/Women), M (Mixte/Mixed)
+- Boat Type: o (outrigger), y (yolette)
+- Oar Type: x (sculling/couple), / (sweep/pointe)
+- Coxswain: + (with cox), - (without cox)
+
+Example: H4x+ = Men's four with sculling oars and coxswain
+
+#### Competition Categories (28 total)
+Categories are numbered sequentially for race programming based on the boat configurations allowed for each age group.
+
+| Category Number | category name (in french)                                    |
+  | --------------- | ------------------------------------------------------------ |
+  | 1               | FEMME-CADET-QUATRE DE POINTE OU COUPLE AVEC BARREUR          |
+  | 2               | HOMME-CADET-QUATRE DE POINTE OU COUPLE AVEC BARREUR          |
+  | 3               | MIXTE-CADET-QUATRE DE POINTE OU COUPLE AVEC BARREUR          |
+  | 4               | FEMME-CADET-HUIT DE POINTE AVEC BARREUR                      |
+  | 5               | HOMME-CADET-HUIT DE POINTE AVEC BARREUR                      |
+  | 6               | FEMME-JUNIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
+  | 7               | HOMME-JUNIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
+  | 8               | MIXTE-JUNIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
+  | 9               | HOMME-JUNIOR-QUATRE DE POINTE AVEC BARREUR                   |
+  | 10              | FEMME-JUNIOR-HUIT DE POINTE AVEC BARREUR                     |
+  | 11              | HOMME-JUNIOR-HUIT DE POINTE AVEC BARREUR                     |
+  | 12              | FEMME-SENIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
+  | 13              | HOMME-SENIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
+  | 14              | HOMME SENIOR-QUATRE DE POINTE AVEC BARREUR                   |
+  | 15              | FEMME-SENIOR-HUIT DE POINTE AVEC BARREUR                     |
+  | 16              | HOMME-SENIOR-HUIT DE POINTE AVEC BARREUR                     |
+  | 17              | FEMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR YOLETTE |
+  | 18              | HOMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR YOLETTE |
+  | 19              | MIXTE-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR YOLETTE |
+  | 20              | FEMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR         |
+  | 21              | HOMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR         |
+  | 22              | MIXTE-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR         |
+  | 23              | FEMME-MASTER-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
+  | 24              | HOMME-MASTER-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
+  | 25              | MIXTE-MASTER-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
+  | 26              | FEMME-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
+  | 27              | HOMME-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
+  | 28              | MIXTE-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
+
+#### Registration Flow for Team Managers
+1. **Select Event Type**: Choose between semi-marathon (21km) or marathon (42km) competition
+2. **Configure Boat Setup**: Specify the number of rowers and whether the boat includes a coxswain
+3. **Assign Crew Members**: Allocate registered crew members to specific seats within the boat
+4. **Choose Competition Category**: Select from available categories that match the crew composition (system automatically filters categories based on crew member ages and genders)
+
+
+### A.2 Boat and Seat Rental Rules
+
+#### Boat Rental Priority System
+1. RCPM boats are available for rental based on availability
+2. RCPM members have priority until 15 days before registration closure
+3. After priority period, unreserved boats are allocated to external club requests
+4. Rental pricing: 3x seat price for individual boats (skiffs), standard seat price for crew boats
+
+#### Seat Rental for Mixed Crews
+- External club members rowing in mixed crews with RCPM members pay seat rental fees
+- Seat rental fee equals standard seat price per external member
+- Purpose: Encourage RCPM members to form club-only crews
 
 ## Appendix B: Home Page Content
 
-### B.1 General Information and Subscription Process
+### B.1 General Information About Course des Impressionnistes
 
-*Content to be extracted from /raw-requirements/procedure-inscription-A1.docx*
+**What is the Course des Impressionnistes?**
 
-**Note:** This section should contain the complete text from the French document "procedure-inscription-A1.docx" which includes:
-- General information about the Course des Impressionnistes competition
-- Detailed subscription process and procedures
-- Registration guidelines and requirements
-- Contact information and important dates
+The Course des Impressionnistes is a rowing regatta featuring two distinct events:
 
-The content should be provided in both French (original) and English (translated) versions to support the multilingual requirements of the system.
+**Semi-Marathon (21 km)**
+- Distance: 21 kilometers
+- Boat types: Fours and eights in all configurations
+- Categories: Competitive outriggers and recreational yolettes
+- Oar configurations: Sweep rowing (one oar per rower) or sculling (two oars per rower)
+- Crew compositions: Men's, women's, and mixed crews
+- Age categories: J16, J18, Senior, and Master
+
+**Marathon (42 km)**  
+- Distance: 42 kilometers
+- Boat type: Individual single sculls (skiffs)
+- Categories: Men's and women's in Senior and Master A-H divisions
+
+**Competition Features:**
+- 28 different race categories for the semi-marathon
+- Individual time trial format for the marathon
+- Awards: Medals and trophies for winners, medals for single-entry categories
+- Professional timing and results management
+
+### B.2 Registration and Subscription Process
+
+**Registration Period**
+- Registration opens: March 19th (may open earlier on March 1st if ready)
+- Registration closes: April 19th
+- Payment deadline: April 25th
+- Late changes: Crew substitutions and withdrawals accepted after closure
+
+**Who Can Register**
+- Rowing club team managers register on behalf of their clubs
+- Multiple managers per club allowed (e.g., individual marathon participants)
+- All participants must hold valid French Rowing Federation licenses
+
+**Registration Flow for Team Managers**
+
+**Getting Started**
+Team managers register their club and crews through a simple online process. Each club can have multiple managers, and the system guides you through every step.
+
+**The Registration Journey**
+
+1. **Set Up Your Access**
+   Create your manager account using your club's federation details and contact information. You'll receive secure login credentials to access the registration system throughout the season.
+
+2. **Build Your Team Roster**  
+   Add all potential participants to your club's roster with their essential information: name, birth date, gender, and FFA license number. This roster becomes your pool of available crew members for all boat registrations.
+
+3. **Create Boat Entries**
+   Select from 28 race categories and configure each boat entry by choosing the boat type, oar configuration, and assigning specific crew members to rowing and coxswain positions. The system automatically validates your crew against competition rules.
+
+4. **Handle Equipment Needs**
+   If you need boats, submit rental requests through the system. RCPM boats are available on a priority basis, with club members having first access until two weeks before registration closes.
+
+5. **Process Payments**
+   Review your total costs and complete payment using the integrated secure payment system. You can pay for individual entries or process multiple registrations together, with flexibility to pay before the final deadline.
+
+6. **Ongoing Management**
+   Monitor your registrations, make permitted changes during the open period, and handle any crew substitutions or withdrawals that may be needed after registration closes.
+
+**Key Benefits**
+- Save partial registrations and complete them later
+- Automatic validation against competition rules  
+- Flexible payment options with secure processing
+- Real-time availability for boat rentals
+- Complete registration history and status tracking
+
+**Pricing Structure**
+- Standard seat fee (includes coxswain for coxed boats)
+- Boat rental: 3x seat price for singles, standard rate for crew boats
+- Seat rental: Standard seat price for external members in mixed crews
+
+**Support and Assistance**
+- License verification handled automatically or manually
+- Registration modification allowed during open period
+- Administrative support for complex registrations
+- Comprehensive reporting for club managers
+
+**Important Dates to Remember**
+- March 19: Registration opens
+- April 19: Registration closes  
+- April 25: Payment deadline
+- 15 days before closure: RCPM boat priority ends
+

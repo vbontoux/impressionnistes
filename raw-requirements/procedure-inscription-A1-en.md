@@ -67,29 +67,25 @@ Definition of boat notation:
 - Fifth position: "-" for boats without coxswain or "+" for boats with coxswain
 Example: H4x+ means Male category, 4 rowers sculling with a coxswain
 
-- J16
+List of categories:
+- J16 (for safety reasons, J16 row in boats with coxswain)
   - H4ox+, H4o/+, H8o/+
   - F4ox+, F4o/+, F8o/+
   - M4ox+, M4o/+, M8o/+
-
-> NB: for safety reasons, J16 row in boats with coxswain.
-
 - J18
   - H4ox-, H4o/-, H8o/+
   - F4ox-, F4o/-, H8o/+
   - M4ox-, M4o/-, M8o/+
-
 - Seniors
   - H4ox-, H4o/-, H8o/+
   - F4ox-, F4o/-, H8o/+
   - M4ox-, M4o/-, M8o/+
-
 - Master
   - H4yx+, H4y+, H4x+, H4ox-, H4o/-, H8ox+, H8o/+
   - F4yx+, F4y+, F4x+, F4ox-, F4o/-, F8ox+, F8o/+
   - M4yx+, M4y+, M4x+, M4ox-, M4o/-, M8ox+, M8o/+
 
-> **NB:** races are numbered in sequence from this list to establish the preliminary program
+> **Note:** races are numbered in sequence from this list to establish the preliminary program
 
 ### Groupings, classification and rewards
 
@@ -113,7 +109,7 @@ The categories taken into account are as follows:
 - Male: senior, master A to H
 - Female: senior, master A to H
 
-> **NB:** 42 km races are numbered in sequence from this list according to categories, to establish the preliminary program
+> **Note:** 42 km races are numbered in sequence from this list according to categories, to establish the preliminary program
 
 # Boat and seat rentals
 
@@ -132,11 +128,11 @@ Rowers from external clubs who row in mixed club crews, in RCPM crews will have 
 
 # Registrations and payments
 
-Registrations are made by a club official who opens an account for their structure by entering the information:
+Registrations are made by a club official (team manager) who opens an account for their structure by entering the information:
 
 - Club name and structure number
 - Official name and contact details (email + phone)
-- Username, password
+- Username, password, MFA
 
 The club official registers their crews and makes any boat rental requests.
 
