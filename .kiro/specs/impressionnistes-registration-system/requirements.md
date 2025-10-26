@@ -126,6 +126,19 @@ These requirements define what the system does from a business and user perspect
 7. WHEN configuration changes are applied, THE Registration_System SHALL log all modifications with timestamps, previous values, new values, and Admin_User identification
 8. IF configuration changes fail validation, THEN THE Registration_System SHALL display clear error messages and prevent the invalid changes from being saved
 
+### FR-9: Home Page Information Display
+
+**User Story:** As any user, I want to view general information and subscription process details on the home page, so that I can understand the competition and registration procedures before creating an account.
+
+#### Acceptance Criteria
+
+1. WHEN any user accesses the Registration_System home page, THE Registration_System SHALL display general information about the Course des Impressionnistes competition
+2. THE Registration_System SHALL display the subscription process and registration procedures as defined in Appendix B
+3. THE Registration_System SHALL provide clear navigation options for users to either log in to an existing account or create a new account
+4. THE Registration_System SHALL display current registration period dates and deadlines prominently on the home page
+5. THE Registration_System SHALL show all home page content in the user's selected language (French or English)
+6. THE Registration_System SHALL provide contact information for RCPM organization for users who need assistance
+
 ## 2. Non-Functional Requirements
 
 These requirements define how the system performs and quality attributes.
@@ -287,3 +300,17 @@ The system shall support the following boat types with their seat configurations
 | QUATRE AVEC BARREUR | 4 | 1 | 5 |
 | QUATRE SANS BARREUR | 4 | 0 | 4 |
 | HUIT | 8 | 1 | 9 |
+
+## Appendix B: Home Page Content
+
+### B.1 General Information and Subscription Process
+
+*Content to be extracted from /raw-requirements/procedure-inscription-A1.docx*
+
+**Note:** This section should contain the complete text from the French document "procedure-inscription-A1.docx" which includes:
+- General information about the Course des Impressionnistes competition
+- Detailed subscription process and procedures
+- Registration guidelines and requirements
+- Contact information and important dates
+
+The content should be provided in both French (original) and English (translated) versions to support the multilingual requirements of the system.
