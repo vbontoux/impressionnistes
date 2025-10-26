@@ -55,7 +55,9 @@ The Course des Impressionnistes Registration System is a serverless web applicat
 4. WHEN all required seats are assigned crew members, THE Registration_System SHALL mark the boat registration as complete
 5. WHEN a crew member is assigned a seat, THE Registration_System SHALL mark the crew member as assigned to a boat
 6. IF a crew member is already marked as assigned to a seat, THEN THE Registration_System SHALL not allow the team manager to assign the crew member to another boat seat
-7. THE Registration_System SHALL display seat assignments with crew member names in a clear visual format with links to boat registration or crew member information
+7. IF a crew member is flagged with issues, THEN THE Registration_System SHALL allow the team manager to mark the issue as resolved 
+8. THE Registration_System SHALL display seat assignments with crew member names in a clear visual format with links to boat registration or crew member information and with potential flagged issues
+9. THE Registration_System SHALL log all team manager changes with timestamps and user identification
 
 ### Requirement 4
 
@@ -68,6 +70,7 @@ The Course des Impressionnistes Registration System is a serverless web applicat
 3. THE Registration_System SHALL track partial payments and display payment status to team managers
 4. WHEN payment is completed, THE Registration_System SHALL send confirmation via email and update registration status
 5. IF payment is not completed before the registration period ends, THEN THE Registration_System SHALL notify the team manager of the grace period deadline
+6. IF there are flagged issues for some crew members, THEN THE Registration_System SHALL still allow payment processing
 
 ### Requirement 5
 
@@ -89,9 +92,10 @@ The Course des Impressionnistes Registration System is a serverless web applicat
 
 1. WHEN an Admin_User reviews registrations, THE Registration_System SHALL display crew member information with validation status indicators
 2. WHEN an Admin_User identifies registration issues, THE Registration_System SHALL allow flagging of problems visible to the corresponding team manager
-3. WHILE the registration period is active, THE Registration_System SHALL enable team managers to correct flagged issues autonomously
-4. WHEN the registration period ends, THE Registration_System SHALL allow Admin_Users to manually edit registration information or grant temporary editing access to specific team managers
-5. WHEN an Admin_User grants editing exceptions, THE Registration_System SHALL apply a configurable time limit with automatic expiration
+3. IF a team manager has resolved a flagged issue, THE Registration_System SHALL display the flagged issue as resolved by team manager
+4. WHILE the registration period is active, THE Registration_System SHALL enable team managers to correct flagged issues autonomously
+5. WHEN the registration period ends, THE Registration_System SHALL allow Admin_Users to manually edit registration information or grant temporary editing access to specific team managers
+6. WHEN an Admin_User grants editing exceptions, THE Registration_System SHALL apply a configurable time limit with automatic expiration
 
 ### Requirement 7
 
@@ -116,6 +120,8 @@ The Course des Impressionnistes Registration System is a serverless web applicat
 3. WHEN traffic increases, THE Registration_System SHALL automatically scale Lambda functions and DynamoDB capacity without manual intervention
 4. THE Registration_System SHALL serve the frontend application through Amazon S3 and CloudFront for optimal performance
 5. THE Registration_System SHALL implement Infrastructure as Code using AWS CDK for reproducible deployments
+6. THE Registration_System SHALL backup the data to Amazon S3 on a regular basis (default daily)
+7. WHEN a DevOps_User deploys the infrastructure, THE Registration_System SHALL allow restoration of previous backup data
 
 ### Requirement 9
 
