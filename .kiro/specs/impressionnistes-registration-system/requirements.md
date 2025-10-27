@@ -91,7 +91,7 @@ These requirements define what the system does from a business and user perspect
 
 1. WHEN an Admin_User accesses configuration settings, THE Registration_System SHALL display editable parameters for registration period dates
 2. WHEN an Admin_User modifies seat pricing, THE Registration_System SHALL update rowing seat and cox seat prices for all new registrations
-3. THE Registration_System SHALL provide Admin_Users with access to the predefined list of 28 races
+3. THE Registration_System SHALL provide Admin_Users with access to the predefined list of races for semi-marathon and marathon races list
 4. WHEN an Admin_User sets grace period duration, THE Registration_System SHALL apply the configured delay for payment notifications
 5. THE Registration_System SHALL log all Admin_User configuration changes with timestamps and user identification
 
@@ -303,8 +303,14 @@ The Course des Impressionnistes competition consists of two distinct distances:
 - **Marathon (42 km)**: Individual race in single sculls (skiffs)
 
 #### Age Categories (based on average crew age)
-- **J16**: 16 years old and under (safety requirement: must have coxswain)
-- **J18**: 17-18 years old
+
+Here is how the French Rowing Federation (FFA) defines categories based on age.
+
+- **J14**: aged 14
+- **J15**: aged 15
+- **J16**: aged 16
+- **J17**: aged 17
+- **J18**: aged 18
 - **Senior**: 19 years and older
 - **Master**: 27 years and older (average age ≥ 27)
   - A: Minimum age 27 years
@@ -341,41 +347,52 @@ races are numbered sequentially for race programming based on the boat configura
 The marathon is an individual event in single scull (skiff).
 
 The races taken into account are as follows:
-1. Men: senior and master from A to H
-2. Women: senior and master from A to H
+1.	1X SENIOR WOMAN
+2.	1X SENIOR MAN
+3.	1X MASTER A WOMAN
+4.	1X MASTER A MAN
+5.	1X MASTER B WOMAN
+6.	1X MASTER B MAN
+7.	1X MASTER C WOMAN
+8.	1X MASTER C MAN
+9.	1X MASTER D WOMAN
+10.	1X MASTER D MAN
+11.	1X MASTER E WOMAN
+12.	1X MASTER E MAN
+13.	1X MASTER F WOMAN
+14.	1X MASTER F MAN
 
 ##### Semi-Marathon distance 21 km
 
-| Race Number | category name (in french)                                    |
-| ----------- | ------------------------------------------------------------ |
-| 1           | FEMME-CADET-QUATRE DE POINTE OU COUPLE AVEC BARREUR          |
-| 2           | HOMME-CADET-QUATRE DE POINTE OU COUPLE AVEC BARREUR          |
-| 3           | MIXTE-CADET-QUATRE DE POINTE OU COUPLE AVEC BARREUR          |
-| 4           | FEMME-CADET-HUIT DE POINTE AVEC BARREUR                      |
-| 5           | HOMME-CADET-HUIT DE POINTE AVEC BARREUR                      |
-| 6           | FEMME-JUNIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-| 7           | HOMME-JUNIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-| 8           | MIXTE-JUNIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-| 9           | HOMME-JUNIOR-QUATRE DE POINTE AVEC BARREUR                   |
-| 10          | FEMME-JUNIOR-HUIT DE POINTE AVEC BARREUR                     |
-| 11          | HOMME-JUNIOR-HUIT DE POINTE AVEC BARREUR                     |
-| 12          | FEMME-SENIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-| 13          | HOMME-SENIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-| 14          | HOMME SENIOR-QUATRE DE POINTE AVEC BARREUR                   |
-| 15          | FEMME-SENIOR-HUIT DE POINTE AVEC BARREUR                     |
-| 16          | HOMME-SENIOR-HUIT DE POINTE AVEC BARREUR                     |
-| 17          | FEMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR YOLETTE |
-| 18          | HOMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR YOLETTE |
-| 19          | MIXTE-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR YOLETTE |
-| 20          | FEMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR         |
-| 21          | HOMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR         |
-| 22          | MIXTE-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR         |
-| 23          | FEMME-MASTER-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-| 24          | HOMME-MASTER-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-| 25          | MIXTE-MASTER-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-| 26          | FEMME-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
-| 27          | HOMME-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
-| 28          | MIXTE-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
+The races taken into account are as follows:
+1.	WOMEN-JUNIOR J16-COXED FOUR OR QUAD SCULL
+2.	MEN-JUNIOR J16-COXED FOUR OR QUAD SCULL
+3.	MIXED-JUNIOR J16-COXED FOUR OR QUAD SCULL
+4.	WOMEN-JUNIOR J16-EIGHT WITH COXSWAIN
+5.	MEN-JUNIOR J16-EIGHT WITH COXSWAIN
+6.	WOMEN-JUNIOR J18-FOUR OR QUAD SCULL WITHOUT COXSWAIN
+7.	MEN-JUNIOR J18-FOUR OR QUAD SCULL WITHOUT COXSWAIN
+8.	MIXED-JUNIOR J18-FOUR OR QUAD SCULL WITHOUT COXSWAIN
+9.	MEN-JUNIOR J18-COXED FOUR
+10.	WOMEN-JUNIOR J18-EIGHT WITH COXSWAIN
+11.	MEN-JUNIOR J18-EIGHT WITH COXSWAIN
+12.	WOMEN-SENIOR-FOUR OR QUAD SCULL WITHOUT COXSWAIN
+13.	MEN-SENIOR-FOUR OR QUAD SCULL WITHOUT COXSWAIN
+14.	MEN-SENIOR-COXED FOUR
+15.	WOMEN-SENIOR-EIGHT WITH COXSWAIN
+16.	MEN-SENIOR-EIGHT WITH COXSWAIN
+17.	WOMEN-MASTER-COXED FOUR OR QUAD SCULL YOLETTE
+18.	MEN-MASTER-COXED FOUR OR QUAD SCULL YOLETTE
+19.	MIXED-MASTER-COXED FOUR OR QUAD SCULL YOLETTE
+20.	WOMEN-MASTER-COXED FOUR OR QUAD SCULL
+21.	MEN-MASTER-COXED FOUR OR QUAD SCULL
+22.	MIXED-MASTER-COXED FOUR OR QUAD SCULL
+23.	WOMEN-MASTER-FOUR OR QUAD SCULL WITHOUT COXSWAIN
+24.	MEN-MASTER-FOUR OR QUAD SCULL WITHOUT COXSWAIN
+25.	MIXED-MASTER-FOUR OR QUAD SCULL WITHOUT COXSWAIN
+26.	WOMEN-MASTER-EIGHT OR QUAD SCULL WITH COXSWAIN
+27.	MEN-MASTER-EIGHT OR QUAD SCULL WITH COXSWAIN
+28.	MIXED-MASTER-EIGHT OR QUAD SCULL WITH COXSWAIN
 
 ### A.2 Boat and Seat Rental Rules
 
@@ -405,14 +422,15 @@ The Course des Impressionnistes is a rowing regatta featuring two distinct event
 - Oar configurations: Sweep rowing (one oar per rower) or sculling (two oars per rower)
 - Crew compositions: Men's, women's, and mixed crews
 - Age categories: J16, J18, Senior, and Master
+- [28 different races for the semi-marathon](#semi-marathon-distance-21-km)
 
 **Marathon (42 km)**  
 - Distance: 42 kilometers
 - Boat type: Individual single sculls (skiffs)
 - Races: Men's and women's in Senior and Master A-H divisions
+- 1[4 different races for the marathon](#marathon-distance-42-km)
 
 **Competition Features:**
-- 28 different race categories for the semi-marathon
 - Individual time trial format for the marathon
 - Awards: Medals and trophies for winners, medals for single-entry categories
 - Professional timing and results management
