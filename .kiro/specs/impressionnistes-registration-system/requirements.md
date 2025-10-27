@@ -357,13 +357,6 @@ Categories are numbered sequentially for race programming based on the boat conf
   | 27              | HOMME-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
   | 28              | MIXTE-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
 
-#### Registration Flow for Team Managers
-1. **Select Event Type**: Choose between semi-marathon (21km) or marathon (42km) race
-2. **Configure Boat Setup**: Specify the number of rowers and whether the boat includes a coxswain
-3. **Assign Crew Members**: Allocate registered crew members to specific seats within the boat
-4. **Choose Race Category**: Select from available categories that match the crew composition (system automatically filters categories based on crew member ages and genders)
-
-
 ### A.2 Boat and Seat Rental Rules
 
 #### Boat Rental Priority System
