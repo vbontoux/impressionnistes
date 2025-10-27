@@ -22,7 +22,7 @@ The Course des Impressionnistes Registration System is a web application that en
 - **External_Club**: Rowing club other than RCPM participating in the competition
 - **Mixed_Crew**: Boat crew containing both RCPM members and external club members
 - **Rental_Priority_Period**: 15-day period before registration closure when RCPM members have exclusive access to their boats
-- **Competition**: This is the whole event that takes place every year on May 1st. It is made of multiple races (see races list in appendix)
+- **Competition**: This is the whole event that takes place every year on May 1st. It is made of 2 main distances (21 km and 42 km) with multiple races (see races list in appendix)
 
 ## 1. Functional Requirements
 
@@ -298,7 +298,7 @@ These requirements define the mandatory technical architecture and implementatio
 The registration follows the French Rowing Federation (FFA) rules and competition structure:
 
 #### Distances
-The Course des Impressionnistes conpetition consists of two distinct distances:
+The Course des Impressionnistes competition consists of two distinct distances:
 - **Semi-marathon (21 km)**: Raced in fours and eights of all configurations
 - **Marathon (42 km)**: Individual race in single sculls (skiffs)
 
@@ -307,6 +307,17 @@ The Course des Impressionnistes conpetition consists of two distinct distances:
 - **J18**: 17-18 years old
 - **Senior**: 19 years and older
 - **Master**: 27 years and older (average age ≥ 27)
+  - A: Minimum age 27 years
+  - B: Average age 36 years or over
+  - C: Average age 43 years or over
+  - D: Average age 50 years or over
+  - E: Average age 55 years or over
+  - F: Average age 60 years or over
+  - G: Average age 65 years or over
+  - H: Average age 70 years or over
+  - I: Average age 75 years or over
+  - J: Average age 80 years or over
+  - K: Average age 85 years or over
 
 #### Gender Categories and Crew Composition Rules
 - **Men's crews**: More than 50% men
@@ -323,39 +334,48 @@ Boat notation format: [Gender][Boat Type][Number of Rowers][Oar Type][Coxswain]
 
 Example: H4x+ = Men's four with sculling oars and coxswain
 
-#### Race Categories (28 total)
-Categories are numbered sequentially for race programming based on the boat configurations allowed for each age group.
+#### Races
+races are numbered sequentially for race programming based on the boat configurations allowed for each age group.
 
-| Category Number | category name (in french)                                    |
-  | --------------- | ------------------------------------------------------------ |
-  | 1               | FEMME-CADET-QUATRE DE POINTE OU COUPLE AVEC BARREUR          |
-  | 2               | HOMME-CADET-QUATRE DE POINTE OU COUPLE AVEC BARREUR          |
-  | 3               | MIXTE-CADET-QUATRE DE POINTE OU COUPLE AVEC BARREUR          |
-  | 4               | FEMME-CADET-HUIT DE POINTE AVEC BARREUR                      |
-  | 5               | HOMME-CADET-HUIT DE POINTE AVEC BARREUR                      |
-  | 6               | FEMME-JUNIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-  | 7               | HOMME-JUNIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-  | 8               | MIXTE-JUNIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-  | 9               | HOMME-JUNIOR-QUATRE DE POINTE AVEC BARREUR                   |
-  | 10              | FEMME-JUNIOR-HUIT DE POINTE AVEC BARREUR                     |
-  | 11              | HOMME-JUNIOR-HUIT DE POINTE AVEC BARREUR                     |
-  | 12              | FEMME-SENIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-  | 13              | HOMME-SENIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-  | 14              | HOMME SENIOR-QUATRE DE POINTE AVEC BARREUR                   |
-  | 15              | FEMME-SENIOR-HUIT DE POINTE AVEC BARREUR                     |
-  | 16              | HOMME-SENIOR-HUIT DE POINTE AVEC BARREUR                     |
-  | 17              | FEMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR YOLETTE |
-  | 18              | HOMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR YOLETTE |
-  | 19              | MIXTE-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR YOLETTE |
-  | 20              | FEMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR         |
-  | 21              | HOMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR         |
-  | 22              | MIXTE-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR         |
-  | 23              | FEMME-MASTER-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-  | 24              | HOMME-MASTER-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-  | 25              | MIXTE-MASTER-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
-  | 26              | FEMME-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
-  | 27              | HOMME-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
-  | 28              | MIXTE-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
+##### Marathon distance 42 km
+The marathon is an individual event in single scull (skiff).
+
+The races taken into account are as follows:
+1. Men: senior and master from A to H
+2. Women: senior and master from A to H
+
+##### Semi-Marathon distance 21 km
+
+| Race Number | category name (in french)                                    |
+| ----------- | ------------------------------------------------------------ |
+| 1           | FEMME-CADET-QUATRE DE POINTE OU COUPLE AVEC BARREUR          |
+| 2           | HOMME-CADET-QUATRE DE POINTE OU COUPLE AVEC BARREUR          |
+| 3           | MIXTE-CADET-QUATRE DE POINTE OU COUPLE AVEC BARREUR          |
+| 4           | FEMME-CADET-HUIT DE POINTE AVEC BARREUR                      |
+| 5           | HOMME-CADET-HUIT DE POINTE AVEC BARREUR                      |
+| 6           | FEMME-JUNIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
+| 7           | HOMME-JUNIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
+| 8           | MIXTE-JUNIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
+| 9           | HOMME-JUNIOR-QUATRE DE POINTE AVEC BARREUR                   |
+| 10          | FEMME-JUNIOR-HUIT DE POINTE AVEC BARREUR                     |
+| 11          | HOMME-JUNIOR-HUIT DE POINTE AVEC BARREUR                     |
+| 12          | FEMME-SENIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
+| 13          | HOMME-SENIOR-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
+| 14          | HOMME SENIOR-QUATRE DE POINTE AVEC BARREUR                   |
+| 15          | FEMME-SENIOR-HUIT DE POINTE AVEC BARREUR                     |
+| 16          | HOMME-SENIOR-HUIT DE POINTE AVEC BARREUR                     |
+| 17          | FEMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR YOLETTE |
+| 18          | HOMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR YOLETTE |
+| 19          | MIXTE-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR YOLETTE |
+| 20          | FEMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR         |
+| 21          | HOMME-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR         |
+| 22          | MIXTE-MASTER-QUATRE DE POINTE OU COUPLE AVEC BARREUR         |
+| 23          | FEMME-MASTER-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
+| 24          | HOMME-MASTER-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
+| 25          | MIXTE-MASTER-QUATRE DE POINTE OU COUPLE SANS BARREUR         |
+| 26          | FEMME-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
+| 27          | HOMME-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
+| 28          | MIXTE-MASTER-HUIT DE POINTE OU COUPLE AVEC BARREUR           |
 
 ### A.2 Boat and Seat Rental Rules
 
@@ -381,7 +401,7 @@ The Course des Impressionnistes is a rowing regatta featuring two distinct event
 **Semi-Marathon (21 km)**
 - Distance: 21 kilometers
 - Boat types: Fours and eights in all configurations
-- Categories: Competitive outriggers and recreational yolettes
+- Boat Categories: Competitive outriggers and recreational yolettes
 - Oar configurations: Sweep rowing (one oar per rower) or sculling (two oars per rower)
 - Crew compositions: Men's, women's, and mixed crews
 - Age categories: J16, J18, Senior, and Master
@@ -389,7 +409,7 @@ The Course des Impressionnistes is a rowing regatta featuring two distinct event
 **Marathon (42 km)**  
 - Distance: 42 kilometers
 - Boat type: Individual single sculls (skiffs)
-- Categories: Men's and women's in Senior and Master A-H divisions
+- Races: Men's and women's in Senior and Master A-H divisions
 
 **Competition Features:**
 - 28 different race categories for the semi-marathon
@@ -424,7 +444,7 @@ Team managers register their club and crews through a simple online process. Eac
    Add all potential participants to your club's roster with their essential information: name, birth date, gender, and FFA license number. This roster becomes your pool of available crew members for all boat registrations.
 
 3. **Create Boat Entries**
-   Select from 28 race categories and configure each boat entry by choosing the boat type, oar configuration, and assigning specific crew members to rowing and coxswain positions. The system automatically validates your crew against race rules.
+   Select races and configure each boat entry by choosing the boat type, oar configuration, and assigning specific crew members to rowing and coxswain positions. The system automatically validates your crew against race rules.
 
 4. **Handle Equipment Needs**
    If you need boats, submit rental requests through the system. RCPM boats are available on a priority basis, with club members having first access until two weeks before registration closes.
@@ -434,7 +454,7 @@ Team managers register their club and crews through a simple online process. Eac
 
 6. **Ongoing Management**
    Monitor your registrations, make permitted changes during the open period, and handle any crew substitutions or withdrawals that may be needed after registration closes.
-
+   
 **Key Benefits**
 - Save partial registrations and complete them later
 - Automatic validation against race rules  
