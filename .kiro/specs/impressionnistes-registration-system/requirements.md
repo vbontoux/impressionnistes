@@ -22,7 +22,7 @@ The Course des Impressionnistes Registration System is a web application that en
 - **External_Club**: Rowing club other than RCPM participating in the competition
 - **Mixed_Crew**: Boat crew containing both RCPM members and external club members
 - **Rental_Priority_Period**: 15-day period before registration closure when RCPM members have exclusive access to their boats
-- **Competition**: This is the whole event that takes place every year on May 1st. It is made of 2 main distances (21 km and 42 km) with multiple races (see races list in appendix)
+- **Competition**: The Course des Impressionnistes rowing regatta that takes place every year on May 1st, consisting of 2 main distances (21 km and 42 km) with multiple races (see races list in appendix)
 
 ## 1. Functional Requirements
 
@@ -38,7 +38,7 @@ These requirements define what the system does from a business and user perspect
 2. WHEN a team manager provides valid credentials, THE Registration_System SHALL authenticate the user and establish a secure session
 3. WHEN a team manager remains inactive for 30 minutes, THE Registration_System SHALL automatically log out the user for security
 4. WHEN a team manager requests password recovery, THE Registration_System SHALL send a secure reset link via email
-5. THE Registration_System SHALL store team manager profile information including name, email, rowing club affiliation, and mandatory mobile number
+5. THE Registration_System SHALL store team manager profile information including name, email, rowing club affiliation, and mobile number (required for emergency contact)
 
 ### FR-2: Crew Member Management
 
@@ -59,14 +59,14 @@ These requirements define what the system does from a business and user perspect
 #### Acceptance Criteria
 
 1. WHEN a team manager creates a boat registration, THE Registration_System SHALL propose two different distances (21 or 42 km races)
-2. WHEN a team manager selects a distance, THE Registration_System SHALL display the possible boat types: stiff for the 21km distance; 4 without cox or 4 with cox or 8 with cox for the 42 km distance.
-3. WHEN a team manager selects a boat type, THE Registration_System SHALL display the seats to allow the team manager attach crew members 
-4. WHEN a team manager has attached crew members to each seat, THE Registration_System SHALL display all the possible races among the 28 race categories (see appendix) - filtering out the ones that are not compatible withe crew members age and gender - allowing the team manager to select the race
+2. WHEN a team manager selects a distance, THE Registration_System SHALL display the possible boat types: skiff for the 42km distance; 4 without cox or 4 with cox or 8 with cox for the 21 km distance
+3. WHEN a team manager selects a boat type, THE Registration_System SHALL display available seats for crew member assignment
+4. WHEN a team manager has assigned crew members to each seat, THE Registration_System SHALL display all possible races among the 14 marathon races or 28 semi-marathon races (see appendix), filtering out races that are not compatible with crew members' age and gender, allowing the team manager to select the race
 5. WHILE a boat registration is incomplete, THE Registration_System SHALL allow team managers to save partial configurations and return later
-6. WHEN all required seats are assigned crew members and a race selected, THE Registration_System SHALL mark the boat registration as complete
+6. WHEN crew members are assigned to all required seats and a race is selected, THE Registration_System SHALL mark the boat registration as complete
 7. WHEN a crew member is assigned a seat, THE Registration_System SHALL mark the crew member as assigned to a boat
-8. IF a crew member is already marked as assigned to a seat, THEN THE Registration_System SHALL not allow the team manager to assign the crew member to another boat seat
-9. IF a crew member is flagged with issues, THEN THE Registration_System SHALL allow the team manager to mark the issue as resolved 
+8. IF a crew member is already marked as assigned to a seat, THEN THE Registration_System SHALL NOT allow the team manager to assign the crew member to another boat seat
+9. IF a crew member is flagged with issues (by the Admin_User), THEN THE Registration_System SHALL allow the team manager to mark the issue as resolved
 10. THE Registration_System SHALL display seat assignments with crew member names in a clear visual format with links to boat registration or crew member information and with potential flagged issues
 11. THE Registration_System SHALL log all team manager changes with timestamps and user identification
 
@@ -78,10 +78,12 @@ These requirements define what the system does from a business and user perspect
 
 1. WHEN a team manager initiates payment, THE Registration_System SHALL calculate total fees based on configured rowing seat and cox seat prices
 2. WHEN payment processing occurs, THE Registration_System SHALL integrate with Stripe Payment_Gateway for secure transaction handling
-3. THE Registration_System SHALL track partial payments and display payment status to team managers
-4. WHEN payment is completed, THE Registration_System SHALL send confirmation via email and update registration status
-5. IF payment is not completed before the registration period ends, THEN THE Registration_System SHALL notify the team manager of the grace period deadline
-6. IF there are flagged issues for some crew members, THEN THE Registration_System SHALL still allow payment processing
+3. THE Registration_System SHALL track partial payments and display payment status to team managers by showing the balance between the number of paid seats and the number of seats registered
+4. THE Registration_System SHALL allow modifications to crew members or boat registrations even after payment
+5. THE Registration_System SHALL NOT allow reimbursement in case balance in favor of RCPM (in such case the situation will be fixed afterwards by email)
+6. WHEN payment is completed, THE Registration_System SHALL send confirmation via email and update registration status
+7. IF payment is not completed before the registration period ends, THEN THE Registration_System SHALL notify the team manager of the grace period deadline
+8. IF there are flagged issues for some crew members, THEN THE Registration_System SHALL still allow payment processing
 
 ### FR-5: Admin System Configuration
 
@@ -103,7 +105,7 @@ These requirements define what the system does from a business and user perspect
 
 1. WHEN an Admin_User reviews registrations, THE Registration_System SHALL display crew member information with validation status indicators
 2. WHEN an Admin_User identifies registration issues, THE Registration_System SHALL allow flagging of problems visible to the corresponding team manager
-3. IF a team manager has resolved a flagged issue, THE Registration_System SHALL display the flagged issue as resolved by team manager
+3. IF a team manager has resolved a flagged issue, THE Registration_System SHALL display the flagged issue as resolved by the team manager
 4. WHILE the registration period is active, THE Registration_System SHALL enable team managers to correct flagged issues autonomously
 5. WHEN the registration period ends, THE Registration_System SHALL allow Admin_Users to manually edit registration information or grant temporary editing access to specific team managers
 6. WHEN an Admin_User grants editing exceptions, THE Registration_System SHALL apply a configurable time limit with automatic expiration
@@ -197,7 +199,7 @@ These requirements define how the system performs and quality attributes.
 1. THE Registration_System SHALL automatically scale to handle up to 1000 concurrent users without manual intervention
 2. THE Registration_System SHALL support registration of up to 10,000 crew members and 2,000 boats per competition
 3. THE Registration_System SHALL maintain performance levels as data volume increases throughout the registration period
-4. THE Registration_System SHALL scale down to zero where possible out of the registration period
+4. THE Registration_System SHALL scale down to zero where possible outside the registration period
 
 ### NFR-3: Security Requirements
 
@@ -341,7 +343,7 @@ Boat notation format: [Gender][Boat Type][Number of Rowers][Oar Type][Coxswain]
 Example: H4x+ = Men's four with sculling oars and coxswain
 
 #### Races
-races are numbered sequentially for race programming based on the boat configurations allowed for each age group.
+Races are numbered sequentially for race programming based on the boat configurations allowed for each age group.
 
 ##### Marathon distance 42 km
 The marathon is an individual event in single scull (skiff).
@@ -428,7 +430,7 @@ The Course des Impressionnistes is a rowing regatta featuring two distinct event
 - Distance: 42 kilometers
 - Boat type: Individual single sculls (skiffs)
 - Races: Men's and women's in Senior and Master A-H divisions
-- 1[4 different races for the marathon](#marathon-distance-42-km)
+- [14 different races for the marathon](#marathon-distance-42-km)
 
 **Competition Features:**
 - Individual time trial format for the marathon
