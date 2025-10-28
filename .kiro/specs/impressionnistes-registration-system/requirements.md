@@ -29,6 +29,8 @@ The Course des Impressionnistes Registration System is a web application that en
 - **Early_Bird_Pricing**: Reduced seat prices (rowing and cox seats only, not boat rentals) available during the Early_Bird_Period to incentivize prompt registration
 - **Competition**: The Course des Impressionnistes rowing regatta that takes place every year on May 1st, consisting of 2 main events (21 km and 42 km) with multiple races (see races list in appendix)
 
+---
+
 ## 1. Functional Requirements
 
 These requirements define what the system does from a business and user perspective.
@@ -308,6 +310,8 @@ These requirements define the mandatory technical architecture and implementatio
 6. THE Registration_System SHALL validate all configuration changes to ensure system integrity before applying them
 7. THE Registration_System SHALL notify relevant Admin_Users when DevOps_Users make manual configuration changes
 
+---
+
 ## Appendix A: Reference Data
 
 ### A.1 Competition structure and rules
@@ -424,6 +428,8 @@ The races taken into account are as follows:
 - Seat rental fee equals Base_Seat_Price per external member
 - RCPM members pay zero for their seats in any boat registration
 - Purpose: Encourage RCPM members to form club-only crews while allowing mixed club participation
+
+---
 
 ## Appendix B: System Configuration Parameters
 
