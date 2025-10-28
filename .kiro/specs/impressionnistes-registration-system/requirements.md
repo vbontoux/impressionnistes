@@ -49,8 +49,9 @@ These requirements define what the system does from a business and user perspect
 1. WHEN a team manager adds a crew member, THE Registration_System SHALL require name, date of birth, gender, license number
 2. WHILE the registration period is active, THE Registration_System SHALL allow team managers to edit crew member information
 3. WHEN a team manager enters a license number, THE Registration_System SHALL validate the alphanumeric format
-4. THE Registration_System SHALL persist crew member information throughout and after the registration period for potential changes of member information or boat assignment
-5. WHEN the registration period ends, THE Registration_System SHALL prevent team managers from editing crew member information unless granted admin exception
+4. WHILE a crew member registration is incomplete, THE Registration_System SHALL allow team managers to save partial configurations and return later
+5. THE Registration_System SHALL persist crew member information throughout and after the registration period
+6. WHEN the registration period ends, THE Registration_System SHALL prevent team managers from editing crew member information unless granted by the Admin_User
 
 ### FR-3: Boat Registration and Seat Assignment
 
@@ -59,6 +60,7 @@ These requirements define what the system does from a business and user perspect
 #### Acceptance Criteria
 
 1. WHEN a team manager creates a boat registration, THE Registration_System SHALL propose two different distances (21 or 42 km races)
+<<<<<<< HEAD
 2. WHEN a team manager selects a distance, THE Registration_System SHALL display the possible boat types: skiff for the 42km distance; 4 without cox or 4 with cox or 8 with cox for the 21 km distance
 3. WHEN a team manager selects a boat type, THE Registration_System SHALL display available seats for crew member assignment
 4. WHEN a team manager has assigned crew members to each seat, THE Registration_System SHALL display all possible races among the 14 marathon races or 28 semi-marathon races (see appendix), filtering out races that are not compatible with crew members' age and gender, allowing the team manager to select the race
@@ -69,6 +71,16 @@ These requirements define what the system does from a business and user perspect
 9. IF a crew member is flagged with issues (by the Admin_User), THEN THE Registration_System SHALL allow the team manager to mark the issue as resolved
 10. THE Registration_System SHALL display seat assignments with crew member names in a clear visual format with links to boat registration or crew member information and with potential flagged issues
 11. THE Registration_System SHALL log all team manager changes with timestamps and user identification
+=======
+2. WHEN a team manager selects a distance, THE Registration_System SHALL display the possible boat types: skiff for the 42km distance; 4 without cox or 4 with cox or 8 with cox for the 21 km distance.
+3. WHEN a team manager selects a boat type, THE Registration_System SHALL display the seats to allow the team manager to attach crew members 
+4. WHEN a team manager has attached crew members to each seat, THE Registration_System SHALL display all the possible races among the 28 race categories (see appendix) - filtering out the ones that are not compatible with crew members age and gender - allowing the team manager to select the right race
+5. WHILE a boat registration is incomplete, THE Registration_System SHALL allow team managers to save partial configurations and return later
+6. IF a crew member is already assigned to a seat, THEN THE Registration_System SHALL not allow the team manager to assign the crew member to another boat seat
+7. IF a crew member is flagged with issues (by the Admin_User), THEN THE Registration_System SHALL allow the team manager to mark the flagged issue as resolved
+8. THE Registration_System SHALL display seat assignments with crew member names in a clear visual format with links to boat registration or crew member information and with potential flagged issues
+9. THE Registration_System SHALL log all team manager changes with timestamps and user identification
+>>>>>>> 0ec32f3 (All FR reviewed)
 
 ### FR-4: Payment Processing
 
@@ -78,24 +90,43 @@ These requirements define what the system does from a business and user perspect
 
 1. WHEN a team manager initiates payment, THE Registration_System SHALL calculate total fees based on configured rowing seat and cox seat prices
 2. WHEN payment processing occurs, THE Registration_System SHALL integrate with Stripe Payment_Gateway for secure transaction handling
+<<<<<<< HEAD
 3. THE Registration_System SHALL track partial payments and display payment status to team managers by showing the balance between the number of paid seats and the number of seats registered
 4. THE Registration_System SHALL allow modifications to crew members or boat registrations even after payment
 5. THE Registration_System SHALL NOT allow reimbursement in case balance in favor of RCPM (in such case the situation will be fixed afterwards by email)
 6. WHEN payment is completed, THE Registration_System SHALL send confirmation via email and update registration status
 7. IF payment is not completed before the registration period ends, THEN THE Registration_System SHALL notify the team manager of the grace period deadline
 8. IF there are flagged issues for some crew members, THEN THE Registration_System SHALL still allow payment processing
+=======
+3. THE Registration_System SHALL track partial payments and display payment status to team managers
+4. WHEN payment is completed, THE Registration_System SHALL send a confirmation notification via email and configured channel
+5. IF payment is not completed before the registration period ends, THEN THE Registration_System SHALL notify the team manager via email and configured channel to warn that the registration will not be accepted if not paid in time.
+6. WHEN the registration period ends, THE Registration_System SHALL still allow payment processing
+7. IF there are flagged issues or incomplete boat or crew member information (at any time), THEN THE Registration_System SHALL still allow payment processing based on the number of assigned seats until the Payment Deadline
+>>>>>>> 0ec32f3 (All FR reviewed)
 
-### FR-5: Admin System Configuration
+### FR-5: System Configuration Management
 
-**User Story:** As an admin user, I want to configure system parameters, so that I can manage registration periods, pricing, and races.
+**User Story:** As an admin user, I want to configure and modify system parameters dynamically, so that I can manage registration periods, pricing, races, and other system settings throughout the competition lifecycle.
 
 #### Acceptance Criteria
 
+<<<<<<< HEAD
 1. WHEN an Admin_User accesses configuration settings, THE Registration_System SHALL display editable parameters for registration period dates
 2. WHEN an Admin_User modifies seat pricing, THE Registration_System SHALL update rowing seat and cox seat prices for all new registrations
 3. THE Registration_System SHALL provide Admin_Users with access to the predefined list of races for semi-marathon and marathon races list
 4. WHEN an Admin_User sets grace period duration, THE Registration_System SHALL apply the configured delay for payment notifications
 5. THE Registration_System SHALL log all Admin_User configuration changes with timestamps and user identification
+=======
+1. WHEN an Admin_User accesses the system configuration interface, THE Registration_System SHALL display all configurable parameters (see [Appendix B](#appendix-b-system-configuration-parameters)) in an organized and editable format
+2. WHEN an Admin_User modifies the list of races, THE Registration_System SHALL validate the changes and update the available categories for new boat registrations
+3. WHEN an Admin_User changes registration period start and end dates, THE Registration_System SHALL validate that the start date is before the end date and apply the changes immediately
+4. WHEN an Admin_User updates seat pricing configuration, THE Registration_System SHALL apply the new prices to all future registrations while preserving existing registration pricing
+5. WHEN an Admin_User modifies payment deadline settings, THE Registration_System SHALL update the payment notification timeline for all affected registrations
+6. THE Registration_System SHALL require Admin_User confirmation before applying configuration changes that could affect existing registrations
+7. WHEN configuration changes are applied, THE Registration_System SHALL log all modifications with timestamps, previous values, new values, and Admin_User identification
+8. IF configuration changes fail validation, THEN THE Registration_System SHALL display clear error messages and prevent the invalid changes from being saved
+>>>>>>> 0ec32f3 (All FR reviewed)
 
 ### FR-6: Registration Validation and Management
 
@@ -104,10 +135,14 @@ These requirements define what the system does from a business and user perspect
 #### Acceptance Criteria
 
 1. WHEN an Admin_User reviews registrations, THE Registration_System SHALL display crew member information with validation status indicators
+<<<<<<< HEAD
 2. WHEN an Admin_User identifies registration issues, THE Registration_System SHALL allow flagging of problems visible to the corresponding team manager
+=======
+2. WHEN an Admin_User identifies registration issues, THE Registration_System SHALL allow flagging of problems visible to the corresponding team manager who will be notified immediately through the predefined channels and repeatedly based on the Notification Frequency
+>>>>>>> 0ec32f3 (All FR reviewed)
 3. IF a team manager has resolved a flagged issue, THE Registration_System SHALL display the flagged issue as resolved by the team manager
 4. WHILE the registration period is active, THE Registration_System SHALL enable team managers to correct flagged issues autonomously
-5. WHEN the registration period ends, THE Registration_System SHALL allow Admin_Users to manually edit registration information or grant temporary editing access to specific team managers
+5. WHEN the registration period ends, THE Registration_System SHALL allow Admin_Users to manually edit registration information or grant temporary editing access to relevant team managers
 6. WHEN an Admin_User grants editing exceptions, THE Registration_System SHALL apply a configurable time limit with automatic expiration
 
 ### FR-7: Reporting and Analytics
@@ -132,7 +167,7 @@ These requirements define what the system does from a business and user perspect
 2. WHEN a Team_Manager requests a Boat_Rental, THE Registration_System SHALL record the request with boat type, races, and team manager contact information
 3. WHILE the Rental_Priority_Period is active, THE Registration_System SHALL reserve requested boats for RCPM_Members and mark external rental requests as pending
 4. WHEN the Rental_Priority_Period expires, THE Registration_System SHALL automatically confirm pending External_Club rental requests for unreserved boats
-5. WHEN a Boat_Rental is confirmed, THE Registration_System SHALL notify the Team_Manager via email and update the boat availability status
+5. WHEN a Boat_Rental is confirmed, THE Registration_System SHALL notify the Team_Manager immediately via the defined channels and update the boat availability status
 6. THE Registration_System SHALL calculate rental fees at three times the standard seat price for individual boats (skiffs) and standard seat pricing for crew boats
 7. WHEN an Admin_User manages boat rentals, THE Registration_System SHALL provide tools to manually assign boats to rental requests and override automatic allocation
 8. THE Registration_System SHALL track all Boat_Rental transactions and include rental fees in the team's total payment calculation
@@ -151,33 +186,21 @@ These requirements define what the system does from a business and user perspect
 6. WHEN an Admin_User reviews registrations, THE Registration_System SHALL clearly identify Mixed_Crews and associated Seat_Rental fees
 7. THE Registration_System SHALL generate reports showing Seat_Rental revenue to encourage RCPM club crew formation
 
-### FR-10: Dynamic Configuration Management
-
-**User Story:** As an admin user, I want to be able to change the configuration of the Registration_System, so that I can modify the list of races, registration period dates, and other system parameters dynamically.
-
-#### Acceptance Criteria
-
-1. WHEN an Admin_User accesses the system configuration interface, THE Registration_System SHALL display all configurable parameters in an organized and editable format
-2. WHEN an Admin_User modifies the list of races, THE Registration_System SHALL validate the changes and update the available categories for new boat registrations
-3. WHEN an Admin_User changes registration period start and end dates, THE Registration_System SHALL validate that the start date is before the end date and apply the changes immediately
-4. WHEN an Admin_User updates seat pricing configuration, THE Registration_System SHALL apply the new prices to all future registrations while preserving existing registration pricing
-5. WHEN an Admin_User modifies grace period settings, THE Registration_System SHALL update the payment notification timeline for all affected registrations
-6. THE Registration_System SHALL require Admin_User confirmation before applying configuration changes that could affect existing registrations
-7. WHEN configuration changes are applied, THE Registration_System SHALL log all modifications with timestamps, previous values, new values, and Admin_User identification
-8. IF configuration changes fail validation, THEN THE Registration_System SHALL display clear error messages and prevent the invalid changes from being saved
-
-### FR-11: Home Page Information Display
+### FR-10: Home Page Information Display
 
 **User Story:** As any user, I want to view general information and subscription process details on the home page, so that I can understand the competition and registration procedures before creating an account.
 
 #### Acceptance Criteria
 
 1. WHEN any user accesses the Registration_System home page, THE Registration_System SHALL display general information about the Course des Impressionnistes competition
-2. THE Registration_System SHALL display the subscription process and registration procedures as defined in Appendix B
+2. THE Registration_System SHALL display the subscription process and registration procedures as defined in [Appendix C](#appendix-c-home-page-content)
 3. THE Registration_System SHALL provide clear navigation options for users to either log in to an existing account or create a new account
 4. THE Registration_System SHALL display current registration period dates and deadlines prominently on the home page
 5. THE Registration_System SHALL show all home page content in the user's selected language (French or English)
 6. THE Registration_System SHALL provide contact information for RCPM organization for users who need assistance
+7. THE Registration_System SHALL provide a clear view of unread notification number with link to the notification center
+
+---
 
 ## 2. Non-Functional Requirements
 
@@ -234,12 +257,11 @@ These requirements define how the system performs and quality attributes.
 
 #### Acceptance Criteria
 
-1. WHEN registration events occur, THE Registration_System SHALL send email notifications for confirmations, issues, and deadline reminders
-2. THE Registration_System SHALL repeat notifications via email on a regular basis (default weekly) if there are ongoing issues
-3. THE Registration_System SHALL display in-app notifications through banners or popups for immediate user attention
-4. WHEN approaching registration deadlines, THE Registration_System SHALL notify team managers via both email and in-app notifications
-5. THE Registration_System SHALL provide a notification center within the application for users to review message history
-6. THE Registration_System SHALL ensure all notifications are delivered in the user's selected language preference
+1. WHEN registration events occur, THE Registration_System SHALL send notifications (according to defined notification channels) for confirmations, issues, and deadline reminders
+2. THE Registration_System SHALL repeat email notifications on a regular basis (based on notification frequency parameter) if there are ongoing issues
+3. WHEN approaching registration deadlines, THE Registration_System SHALL notify team managers (according to defined notification channels) and highlight issues in the registration (missing information, information tagged as wrong, ...)
+4. THE Registration_System SHALL provide a notification center within the web application for users to review message history
+5. THE Registration_System SHALL ensure all notifications are delivered in the user's selected language preference
 
 ## 3. Technical Constraints
 
@@ -409,9 +431,61 @@ The races taken into account are as follows:
 - Seat rental fee equals standard seat price per external member
 - Purpose: Encourage RCPM members to form club-only crews
 
-## Appendix B: Home Page Content
+## Appendix B: System Configuration Parameters
 
-### B.1 General Information About Course des Impressionnistes
+This appendix lists all configurable parameters that must be managed through the centralized configuration system and accessible to Admin Users and DevOps Users.
+
+### B.1 Registration Period Parameters
+- **Registration Start Date** (default: March 19th, can be March 1st if ready)
+- **Registration End Date** (default: April 19th)
+- **Payment Deadline** (default: April 25th)
+- **Rental Priority Period Duration** (default: 15 days before registration closure)
+
+### B.2 Pricing Parameters
+- **Standard Rowing Seat Price** (base price for regular seats)
+- **Cox Seat Price** (price for coxswain seats)
+- **Boat Rental Multiplier for Individual Boats** (default: 3x standard seat price for skiffs)
+- **Boat Rental Price for Crew Boats** (default: standard seat pricing)
+- **Seat Rental Price for Mixed Crews** (default: standard seat price per external member)
+
+### B.3 Notification Parameters
+- **Notification Frequency** (default: weekly for ongoing issues)
+- **Session Timeout Duration** (default: 30 minutes for automatic logout)
+- **Notification Channels** (default: email and notification center in the web app)
+
+### B.4 System Configuration Parameters
+- **Temporary Editing Access Duration** (time limit for admin-granted editing exceptions)
+- **Backup Frequency** (default: daily)
+- **Backup Retention Period** (default: 35 days for point-in-time recovery)
+
+### B.5 Competition Data Parameters
+- **Race Categories List** (28 predefined race categories for semi-marathon)
+- **Marathon Race Categories** (Men's and Women's Senior and Master A-H divisions)
+- **Distance Options** (21 km and 42 km)
+- **Boat Type Configurations** (stiff for 21km, 4 without cox/4 with cox/8 with cox for 42km)
+
+### B.6 Capacity Parameters
+- **Maximum Concurrent Users** (default: 1000)
+- **Maximum Crew Members per Competition** (default: 10,000)
+- **Maximum Boats per Competition** (default: 2,000)
+
+### B.7 Performance Parameters
+- **Page Load Timeout** (default: 3 seconds)
+- **User Interaction Response Time** (default: 1 second)
+- **System Uptime Target** (default: 99.5% during registration period)
+
+### B.8 Language and Localization Parameters
+- **Supported Languages** (French and English)
+- **Default Language Detection** (browser-based)
+
+### B.9 Contact and Organization Parameters
+- **RCPM Organization Contact Information**
+- **DevOps User Notification Channels**
+- **Admin User Notification Settings**
+
+## Appendix C: Home Page Content
+
+### C.1 General Information About Course des Impressionnistes
 
 **What is the Course des Impressionnistes?**
 
@@ -437,7 +511,7 @@ The Course des Impressionnistes is a rowing regatta featuring two distinct event
 - Awards: Medals and trophies for winners, medals for single-entry categories
 - Professional timing and results management
 
-### B.2 Registration and Subscription Process
+### C.2 Registration and Subscription Process
 
 **Registration Period**
 - Registration opens: March 19th (may open earlier on March 1st if ready)
