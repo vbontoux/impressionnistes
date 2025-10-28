@@ -17,10 +17,10 @@ The Course des Impressionnistes Registration System is a web application that en
 - **Payment_Gateway**: Stripe integration for processing registration fees
 - **Validation_Process**: Admin review and approval of crew member licenses and registration details
 - **Boat_Rental**: Service allowing external clubs to rent RCPM boats for the competition
-- **Seat_Rental**: Fee charged to external club members rowing in mixed crews with RCPM members
+- **Seat_Rental**: Fee charged to external club members rowing in multi-club crews with RCPM members
 - **RCPM_Member**: Rower affiliated with the Rowing Club Paris Métropole who has priority access to club boats
 - **External_Club**: Rowing club other than RCPM participating in the competition
-- **Mixed_Crew**: Boat crew containing both RCPM members and external club members
+- **Multi_Club_Crew**: Boat crew containing both RCPM members and external club members
 - **Rental_Priority_Period**: 15-day period before registration closure when RCPM members have exclusive access to their boats
 - **Competition**: The Course des Impressionnistes rowing regatta that takes place every year on May 1st, consisting of 2 main distances (21 km and 42 km) with multiple races (see races list in appendix)
 
@@ -138,18 +138,18 @@ These requirements define what the system does from a business and user perspect
 7. WHEN an Admin_User manages boat rentals, THE Registration_System SHALL provide tools to manually assign boats to rental requests and override automatic allocation
 8. THE Registration_System SHALL track all Boat_Rental transactions and include rental fees in the team's total payment calculation
 
-### FR-9: Seat Rental for Mixed Crews
+### FR-9: Seat Rental for Multi-Club Crews
 
-**User Story:** As a team manager, I want to manage seat rental fees for external club members in mixed crews, so that I can properly account for all participation costs.
+**User Story:** As a team manager, I want to manage seat rental fees for external club members in multi-club crews, so that I can properly account for all participation costs.
 
 #### Acceptance Criteria
 
-1. WHEN a Team_Manager creates a Mixed_Crew registration, THE Registration_System SHALL identify external club members rowing with RCPM_Members
-2. WHEN external club members are assigned to seats in Mixed_Crews, THE Registration_System SHALL automatically apply Seat_Rental fees to the registration
-3. THE Registration_System SHALL calculate Seat_Rental fees at the standard seat price for each external club member in a Mixed_Crew
-4. WHEN payment is processed for Mixed_Crews, THE Registration_System SHALL include Seat_Rental fees in the total amount due
+1. WHEN a Team_Manager creates a Multi_Club_Crew registration, THE Registration_System SHALL identify external club members rowing with RCPM_Members
+2. WHEN external club members are assigned to seats in Multi_Club_Crews, THE Registration_System SHALL automatically apply Seat_Rental fees to the registration
+3. THE Registration_System SHALL calculate Seat_Rental fees at the standard seat price for each external club member in a Multi_Club_Crew
+4. WHEN payment is processed for Multi_Club_Crews, THE Registration_System SHALL include Seat_Rental fees in the total amount due
 5. THE Registration_System SHALL display Seat_Rental charges separately in payment summaries and receipts for transparency
-6. WHEN an Admin_User reviews registrations, THE Registration_System SHALL clearly identify Mixed_Crews and associated Seat_Rental fees
+6. WHEN an Admin_User reviews registrations, THE Registration_System SHALL clearly identify Multi_Club_Crews and associated Seat_Rental fees
 7. THE Registration_System SHALL generate reports showing Seat_Rental revenue to encourage RCPM club crew formation
 
 ### FR-10: Home Page Information Display
@@ -239,10 +239,11 @@ These requirements define the mandatory technical architecture and implementatio
 
 #### Acceptance Criteria
 
-1. THE Registration_System SHALL utilize AWS Lambda functions written in Python for all backend processing
+1. THE Registration_System SHALL utilize AWS serverless services in general and Python language where script or lambda functions are necessary
 2. THE Registration_System SHALL store all data in Amazon DynamoDB with encryption at rest enabled
-3. WHEN traffic increases, THE Registration_System SHALL automatically scale Lambda functions and DynamoDB capacity without manual intervention
+3. WHEN traffic increases, THE Registration_System SHALL automatically scale without manual intervention
 4. THE Registration_System SHALL serve the frontend application through Amazon S3 and CloudFront for optimal performance
+5. THE Registration_System SHALL NOT necessarily need an api layer
 
 ### TC-2: Infrastructure as Code Constraint
 
@@ -251,7 +252,7 @@ These requirements define the mandatory technical architecture and implementatio
 #### Acceptance Criteria
 
 1. THE Registration_System SHALL implement Infrastructure as Code using AWS CDK in Python language for reproducible deployments
-2. THE Registration_System SHALL backup the data to Amazon S3 on a regular basis (default daily) with a prefix of the current year and an object name with full date/time
+2. THE Registration_System SHALL backup the application data to Amazon S3 on a regular basis (default daily) with a prefix of the current year and an object name with full date/time
 3. WHEN a DevOps_User deploys the infrastructure, THE Registration_System SHALL allow either the specification of an existing database or the restoration of previous backup data or the creation of a new database
 4. THE Registration_System SHALL maintain configuration versioning to allow DevOps_Users to track changes and rollback if necessary
 
@@ -264,22 +265,7 @@ These requirements define the mandatory technical architecture and implementatio
 1. THE Registration_System SHALL send all application logs to Amazon CloudWatch with structured JSON formatting
 2. WHEN system errors occur, THE Registration_System SHALL trigger CloudWatch alarms and send email notifications to DevOps_Users
 3. THE Registration_System SHALL implement health checks for all critical system components including Lambda functions and DynamoDB
-4. WHEN performance thresholds are exceeded, THE Registration_System SHALL automatically alert DevOps_Users through configured notification channels
-5. THE Registration_System SHALL maintain backup and recovery capabilities with daily DynamoDB backups and 35-day point-in-time recovery
-
-### TC-4: Centralized Configuration Constraint
-
-**Constraint:** All system configuration must be centrally managed and accessible to DevOps users.
-
-#### Acceptance Criteria
-
-1. THE Registration_System SHALL store all configuration parameters in a centralized configuration service accessible to DevOps_Users
-2. WHEN a DevOps_User accesses the configuration store, THE Registration_System SHALL display all system parameters including registration periods, pricing, categories, and notification settings
-3. THE Registration_System SHALL provide DevOps_Users with read-only access to configuration values through AWS Systems Manager Parameter Store or equivalent service
-4. WHEN configuration changes are made through the admin interface, THE Registration_System SHALL automatically update the centralized configuration store
-5. WHEN a DevOps_User needs to manually modify configuration for emergency purposes, THE Registration_System SHALL provide secure CLI or API access with proper authentication
-6. THE Registration_System SHALL validate all configuration changes to ensure system integrity before applying them
-7. THE Registration_System SHALL notify relevant Admin_Users when DevOps_Users make manual configuration changes
+4. WHEN performance thresholds are exceeded, THE Registration_System SHALL automatically alert DevOps_Users through configured notification channels (Slack integration for DevOps would be good to have)
 
 ## Appendix A: Reference Data
 
@@ -318,12 +304,12 @@ Here is how the French Rowing Federation (FFA) defines categories based on age.
 #### Gender Categories and Crew Composition Rules
 - **Men's crews**: More than 50% men
 - **Women's crews**: 100% women
-- **Mixed crews**: At least 1 man and at least 50% women
-- **Substitution rules**: Women can substitute for men in men's or mixed crews; men cannot substitute for women in women's or mixed crews
+- **Mixed-gender crews**: At least 1 man and at least 50% women
+- **Substitution rules**: Women can substitute for men in men's or mixed-gender crews; men cannot substitute for women in women's or mixed-gender crews
 
 #### Boat Types and Configurations
 Boat notation format: [Gender][Boat Type][Number of Rowers][Oar Type][Coxswain]
-- Gender: H (Homme/Men), F (Femme/Women), M (Mixte/Mixed)
+- Gender: H (Homme/Men), F (Femme/Women), M (Mixte/Mixed-gender)
 - Boat Type: o (outrigger), y (yolette)
 - Oar Type: x (sculling/couple), / (sweep/pointe)
 - Coxswain: + (with cox), - (without cox)
@@ -357,12 +343,12 @@ The races taken into account are as follows:
 The races taken into account are as follows:
 1.	WOMEN-JUNIOR J16-COXED FOUR OR QUAD SCULL
 2.	MEN-JUNIOR J16-COXED FOUR OR QUAD SCULL
-3.	MIXED-JUNIOR J16-COXED FOUR OR QUAD SCULL
+3.	MIXED-GENDER-JUNIOR J16-COXED FOUR OR QUAD SCULL
 4.	WOMEN-JUNIOR J16-EIGHT WITH COXSWAIN
 5.	MEN-JUNIOR J16-EIGHT WITH COXSWAIN
 6.	WOMEN-JUNIOR J18-FOUR OR QUAD SCULL WITHOUT COXSWAIN
 7.	MEN-JUNIOR J18-FOUR OR QUAD SCULL WITHOUT COXSWAIN
-8.	MIXED-JUNIOR J18-FOUR OR QUAD SCULL WITHOUT COXSWAIN
+8.	MIXED-GENDER-JUNIOR J18-FOUR OR QUAD SCULL WITHOUT COXSWAIN
 9.	MEN-JUNIOR J18-COXED FOUR
 10.	WOMEN-JUNIOR J18-EIGHT WITH COXSWAIN
 11.	MEN-JUNIOR J18-EIGHT WITH COXSWAIN
@@ -373,16 +359,16 @@ The races taken into account are as follows:
 16.	MEN-SENIOR-EIGHT WITH COXSWAIN
 17.	WOMEN-MASTER-COXED FOUR OR QUAD SCULL YOLETTE
 18.	MEN-MASTER-COXED FOUR OR QUAD SCULL YOLETTE
-19.	MIXED-MASTER-COXED FOUR OR QUAD SCULL YOLETTE
+19.	MIXED-GENDER-MASTER-COXED FOUR OR QUAD SCULL YOLETTE
 20.	WOMEN-MASTER-COXED FOUR OR QUAD SCULL
 21.	MEN-MASTER-COXED FOUR OR QUAD SCULL
-22.	MIXED-MASTER-COXED FOUR OR QUAD SCULL
+22.	MIXED-GENDER-MASTER-COXED FOUR OR QUAD SCULL
 23.	WOMEN-MASTER-FOUR OR QUAD SCULL WITHOUT COXSWAIN
 24.	MEN-MASTER-FOUR OR QUAD SCULL WITHOUT COXSWAIN
-25.	MIXED-MASTER-FOUR OR QUAD SCULL WITHOUT COXSWAIN
+25.	MIXED-GENDER-MASTER-FOUR OR QUAD SCULL WITHOUT COXSWAIN
 26.	WOMEN-MASTER-EIGHT OR QUAD SCULL WITH COXSWAIN
 27.	MEN-MASTER-EIGHT OR QUAD SCULL WITH COXSWAIN
-28.	MIXED-MASTER-EIGHT OR QUAD SCULL WITH COXSWAIN
+28.	MIXED-GENDER-MASTER-EIGHT OR QUAD SCULL WITH COXSWAIN
 
 ### A.2 Boat and Seat Rental Rules
 
@@ -392,8 +378,8 @@ The races taken into account are as follows:
 3. After priority period, unreserved boats are allocated to external club requests
 4. Rental pricing: 3x seat price for individual boats (skiffs), standard seat price for crew boats
 
-#### Seat Rental for Mixed Crews
-- External club members rowing in mixed crews with RCPM members pay seat rental fees
+#### Seat Rental for Multi-Club Crews
+- External club members rowing in multi-club crews with RCPM members pay seat rental fees
 - Seat rental fee equals standard seat price per external member
 - Purpose: Encourage RCPM members to form club-only crews
 
@@ -412,7 +398,7 @@ This appendix lists all configurable parameters that must be managed through the
 - **Cox Seat Price** (price for coxswain seats)
 - **Boat Rental Multiplier for Individual Boats** (default: 3x standard seat price for skiffs)
 - **Boat Rental Price for Crew Boats** (default: standard seat pricing)
-- **Seat Rental Price for Mixed Crews** (default: standard seat price per external member)
+- **Seat Rental Price for Multi-Club Crews** (default: standard seat price per external member)
 
 ### B.3 Notification Parameters
 - **Notification Frequency** (default: weekly for ongoing issues)
@@ -462,7 +448,7 @@ The Course des Impressionnistes is a rowing regatta featuring two distinct event
 - Boat types: Fours and eights in all configurations
 - Boat Categories: Competitive outriggers and recreational yolettes
 - Oar configurations: Sweep rowing (one oar per rower) or sculling (two oars per rower)
-- Crew compositions: Men's, women's, and mixed crews
+- Crew compositions: Men's, women's, and mixed-gender crews
 - Age categories: J16, J18, Senior, and Master
 - [28 different races for the semi-marathon](#semi-marathon-distance-21-km)
 
@@ -525,7 +511,7 @@ Team managers register their club and crews through a simple online process. Eac
 **Pricing Structure**
 - Standard seat fee (includes coxswain for coxed boats)
 - Boat rental: 3x seat price for singles, standard rate for crew boats
-- Seat rental: Standard seat price for external members in mixed crews
+- Seat rental: Standard seat price for external members in multi-club crews
 
 **Support and Assistance**
 - License verification handled automatically or manually
