@@ -6,6 +6,7 @@ The Course des Impressionnistes Registration System is a web application that en
 
 ## Glossary
 
+- **RCPM** : Rowing Club de Port Marly
 - **Registration_System**: The complete web application for managing rowing competition registrations
 - **Team_Manager**: A user representing a rowing club who registers boats and crews for the competition
 - **Admin_User**: RCPM organization staff member who manages system configuration and validates registrations
@@ -13,16 +14,21 @@ The Course des Impressionnistes Registration System is a web application that en
 - **Crew_Member**: An individual rower or coxswain registered to participate in a boat
 - **Boat_Registration**: A complete registration entry containing boat configuration and assigned crew members
 - **Registration_Period**: The time window during which team managers can create and modify registrations
+- **Payment_Period**: The time window during which team managers can make payments
 - **Seat_Assignment**: The association of a crew member to a specific position (rowing or cox) in a boat
 - **Payment_Gateway**: Stripe integration for processing registration fees
 - **Validation_Process**: Admin review and approval of crew member licenses and registration details
 - **Boat_Rental**: Service allowing external clubs to rent RCPM boats for the competition
 - **Seat_Rental**: Fee charged to external club members rowing in multi-club crews with RCPM members
-- **RCPM_Member**: Rower affiliated with the Rowing Club Paris Métropole who has priority access to club boats
+- **RCPM_Member**: Rower affiliated with the RCPM who has priority access to club boats
 - **External_Club**: Rowing club other than RCPM participating in the competition
-- **Multi_Club_Crew**: Boat crew containing both RCPM members and external club members
-- **Rental_Priority_Period**: 15-day period before registration closure when RCPM members have exclusive access to their boats
-- **Competition**: The Course des Impressionnistes rowing regatta that takes place every year on May 1st, consisting of 2 main distances (21 km and 42 km) with multiple races (see races list in appendix)
+- **Multi_Club_Crew**: Boat crew containing both RCPM members and external club members, where external members pay seat rental fees
+- **Rental_Priority_Period**: The period from registration opening until 15 days before registration closure, during which RCPM members have exclusive access to RCPM boats for rental requests
+- **Early_Bird_Period**: Optional time period at the beginning of registration when reduced pricing is offered to encourage early registrations
+- **Base_Seat_Price**: The standard pricing for rowing seats and cox seats used for regular registrations and as the basis for all rental calculations
+- **Early_Bird_Pricing**: Reduced seat prices (rowing and cox seats only, not boat rentals) available during the Early_Bird_Period to incentivize prompt registration
+- **Mixed_Gender_Crew**: Crew composition with at least 1 man and at least 50% women, following FFA rules for gender distribution
+- **Competition**: The Course des Impressionnistes rowing regatta that takes place every year on May 1st, consisting of 2 main events (21 km and 42 km) with multiple races (see races list in appendix)
 
 ## 1. Functional Requirements
 
@@ -59,10 +65,10 @@ These requirements define what the system does from a business and user perspect
 
 #### Acceptance Criteria
 
-1. WHEN a team manager creates a boat registration, THE Registration_System SHALL propose two different distances (21 or 42 km races)
-2. WHEN a team manager selects a distance, THE Registration_System SHALL display the possible boat types: skiff for the 42km distance; 4 without cox or 4 with cox or 8 with cox for the 21 km distance.
-3. WHEN a team manager selects a boat type, THE Registration_System SHALL display the seats to allow the team manager to attach crew members 
-4. WHEN a team manager has attached crew members to each seat, THE Registration_System SHALL display all the possible races among the 28 race categories (see appendix) - filtering out the ones that are not compatible with crew members age and gender - allowing the team manager to select the right race
+1. WHEN a team manager creates a boat registration, THE Registration_System SHALL propose two different events (21 or 42 km races)
+2. WHEN a team manager selects an event, THE Registration_System SHALL display the possible boat types: skiff for the 42km event; 4 without cox or 4 with cox or 8 with cox for the 21 km event
+3. WHEN a team manager selects a boat type, THE Registration_System SHALL display available seats for crew member assignment
+4. WHEN a team manager has assigned crew members to each seat, THE Registration_System SHALL display all possible races among the 14 marathon races or 28 semi-marathon races (see appendix), filtering out races that are not compatible with crew members' age and gender, allowing the team manager to select the race
 5. WHILE a boat registration is incomplete, THE Registration_System SHALL allow team managers to save partial configurations and return later
 6. IF a crew member is already assigned to a seat, THEN THE Registration_System SHALL not allow the team manager to assign the crew member to another boat seat
 7. IF a crew member is flagged with issues (by the Admin_User), THEN THE Registration_System SHALL allow the team manager to mark the flagged issue as resolved
@@ -75,13 +81,15 @@ These requirements define what the system does from a business and user perspect
 
 #### Acceptance Criteria
 
-1. WHEN a team manager initiates payment, THE Registration_System SHALL calculate total fees based on configured rowing seat and cox seat prices
-2. WHEN payment processing occurs, THE Registration_System SHALL integrate with Stripe Payment_Gateway for secure transaction handling
-3. THE Registration_System SHALL track partial payments and display payment status to team managers
-4. WHEN payment is completed, THE Registration_System SHALL send a confirmation notification via email and configured channel
-5. IF payment is not completed before the registration period ends, THEN THE Registration_System SHALL notify the team manager via email and configured channel to warn that the registration will not be accepted if not paid in time.
-6. WHEN the registration period ends, THE Registration_System SHALL still allow payment processing
-7. IF there are flagged issues or incomplete boat or crew member information (at any time), THEN THE Registration_System SHALL still allow payment processing based on the number of assigned seats until the Payment Deadline
+1. WHILE the Payment_Period is active, THE Registration_System SHALL allow team managers to initiate and complete payments for their registrations
+2. WHILE the Early_Bird_Period is active, THE Registration_System SHALL apply Early_Bird_Pricing to calculate reduced fees for seat registrations
+3. WHEN a team manager initiates payment, THE Registration_System SHALL calculate total fees based on Base_Seat_Price for rowing and cox seats, applying Early_Bird_Pricing if the payment occurs during the Early_Bird_Period
+4. THE Registration_System SHALL track partial payments and display payment status to team managers by showing the balance between the number of paid seats and the number of seats registered
+5. THE Registration_System SHALL allow modifications to crew members or boat registrations even after payment
+6. THE Registration_System SHALL NOT allow reimbursement in case balance in favor of RCPM (in such case the situation will be fixed afterwards by email)
+7. WHEN payment is completed, THE Registration_System SHALL send confirmation via email and update registration status
+8. IF payment is not completed before the Payment_Period ends, THEN THE Registration_System SHALL notify the team manager of the grace period deadline
+9.  IF there are flagged issues for some crew members, THEN THE Registration_System SHALL still allow payment processing
 
 ### FR-5: System Configuration Management
 
@@ -89,14 +97,14 @@ These requirements define what the system does from a business and user perspect
 
 #### Acceptance Criteria
 
-1. WHEN an Admin_User accesses the system configuration interface, THE Registration_System SHALL display all configurable parameters (see [Appendix B](#appendix-b-system-configuration-parameters)) in an organized and editable format
-2. WHEN an Admin_User modifies the list of races, THE Registration_System SHALL validate the changes and update the available categories for new boat registrations
-3. WHEN an Admin_User changes registration period start and end dates, THE Registration_System SHALL validate that the start date is before the end date and apply the changes immediately
-4. WHEN an Admin_User updates seat pricing configuration, THE Registration_System SHALL apply the new prices to all future registrations while preserving existing registration pricing
-5. WHEN an Admin_User modifies payment deadline settings, THE Registration_System SHALL update the payment notification timeline for all affected registrations
-6. THE Registration_System SHALL require Admin_User confirmation before applying configuration changes that could affect existing registrations
-7. WHEN configuration changes are applied, THE Registration_System SHALL log all modifications with timestamps, previous values, new values, and Admin_User identification
-8. IF configuration changes fail validation, THEN THE Registration_System SHALL display clear error messages and prevent the invalid changes from being saved
+1. WHEN an Admin_User accesses the system configuration interface, THE Registration_System SHALL display all configurable parameters, and optional Early_Bird_Period dates (see [Appendix B](#appendix-b-system-configuration-parameters)) in an organized and editable format
+2. WHEN an Admin_User modifies Base_Seat_Price, THE Registration_System SHALL update rowing seat and cox seat base prices for all new registrations
+3. WHEN an Admin_User configures Early_Bird_Pricing, THE Registration_System SHALL allow setting reduced prices for rowing seats and cox seats during the Early_Bird_Period, ensuring Early_Bird_Pricing is less than Base_Seat_Price
+4. THE Registration_System SHALL provide Admin_Users with access to the predefined list of races for semi-marathon and marathon races list
+5. WHEN an Admin_User sets grace period duration, THE Registration_System SHALL apply the configured delay for payment notifications
+6. WHEN an Admin_User configures Payment_Period dates, THE Registration_System SHALL validate that the Payment_Period extends beyond or equals the Registration_Period
+7. WHEN an Admin_User configures Early_Bird_Period dates, THE Registration_System SHALL validate that the Early_Bird_Period falls within the Registration_Period and within the Rental_Priority_Period
+8. THE Registration_System SHALL log all Admin_User configuration changes with timestamps and user identification
 
 ### FR-6: Registration Validation and Management
 
@@ -134,7 +142,7 @@ These requirements define what the system does from a business and user perspect
 3. WHILE the Rental_Priority_Period is active, THE Registration_System SHALL reserve requested boats for RCPM_Members and mark external rental requests as pending
 4. WHEN the Rental_Priority_Period expires, THE Registration_System SHALL automatically confirm pending External_Club rental requests for unreserved boats
 5. WHEN a Boat_Rental is confirmed, THE Registration_System SHALL notify the Team_Manager immediately via the defined channels and update the boat availability status
-6. THE Registration_System SHALL calculate rental fees at three times the standard seat price for individual boats (skiffs) and standard seat pricing for crew boats
+6. THE Registration_System SHALL calculate rental fees at three times the Base_Seat_Price for individual boats (skiffs) and Base_Seat_Price for crew boats
 7. WHEN an Admin_User manages boat rentals, THE Registration_System SHALL provide tools to manually assign boats to rental requests and override automatic allocation
 8. THE Registration_System SHALL track all Boat_Rental transactions and include rental fees in the team's total payment calculation
 
@@ -146,13 +154,28 @@ These requirements define what the system does from a business and user perspect
 
 1. WHEN a Team_Manager creates a Multi_Club_Crew registration, THE Registration_System SHALL identify external club members rowing with RCPM_Members
 2. WHEN external club members are assigned to seats in Multi_Club_Crews, THE Registration_System SHALL automatically apply Seat_Rental fees to the registration
-3. THE Registration_System SHALL calculate Seat_Rental fees at the standard seat price for each external club member in a Multi_Club_Crew
+3. THE Registration_System SHALL calculate Seat_Rental fees at the Base_Seat_Price for each external club member in a Multi_Club_Crew
 4. WHEN payment is processed for Multi_Club_Crews, THE Registration_System SHALL include Seat_Rental fees in the total amount due
 5. THE Registration_System SHALL display Seat_Rental charges separately in payment summaries and receipts for transparency
 6. WHEN an Admin_User reviews registrations, THE Registration_System SHALL clearly identify Multi_Club_Crews and associated Seat_Rental fees
 7. THE Registration_System SHALL generate reports showing Seat_Rental revenue to encourage RCPM club crew formation
 
-### FR-10: Home Page Information Display
+### FR-10: Dynamic Configuration Management
+
+**User Story:** As an admin user, I want to be able to change the configuration of the Registration_System, so that I can modify the list of races, registration period dates, and other system parameters dynamically.
+
+#### Acceptance Criteria
+
+1. WHEN an Admin_User accesses the system configuration interface, THE Registration_System SHALL display all configurable parameters in an organized and editable format
+2. WHEN an Admin_User modifies the list of races, THE Registration_System SHALL validate the changes and update the available categories for new boat registrations
+3. WHEN an Admin_User changes registration period or payment period start and end dates, THE Registration_System SHALL validate that the start date is before the end date and that the Payment_Period encompasses or extends beyond the Registration_Period, then apply the changes immediately
+4. WHEN an Admin_User updates Base_Seat_Price configuration, THE Registration_System SHALL apply the new prices to all future registrations while preserving existing registration pricing
+5. WHEN an Admin_User configures Early_Bird_Period dates and pricing, THE Registration_System SHALL validate that the Early_Bird_Period falls within the Registration_Period and that Early_Bird_Pricing is less than Base_Seat_Price
+6. THE Registration_System SHALL require Admin_User confirmation before applying configuration changes that could affect existing registrations
+7. WHEN configuration changes are applied, THE Registration_System SHALL log all modifications with timestamps, previous values, new values, and Admin_User identification
+8. IF configuration changes fail validation, THEN THE Registration_System SHALL display clear error messages and prevent the invalid changes from being saved
+
+### FR-11: Home Page Information Display
 
 **User Story:** As any user, I want to view general information and subscription process details on the home page, so that I can understand the competition and registration procedures before creating an account.
 
@@ -265,7 +288,22 @@ These requirements define the mandatory technical architecture and implementatio
 1. THE Registration_System SHALL send all application logs to Amazon CloudWatch with structured JSON formatting
 2. WHEN system errors occur, THE Registration_System SHALL trigger CloudWatch alarms and send email notifications to DevOps_Users
 3. THE Registration_System SHALL implement health checks for all critical system components including Lambda functions and DynamoDB
-4. WHEN performance thresholds are exceeded, THE Registration_System SHALL automatically alert DevOps_Users through configured notification channels (Slack integration for DevOps would be good to have)
+4. WHEN performance thresholds are exceeded, THE Registration_System SHALL automatically alert DevOps_Users through configured notification channels
+5. THE Registration_System SHALL maintain backup and recovery capabilities with daily DynamoDB backups and 35-day point-in-time recovery
+
+### TC-4: Centralized Configuration Constraint
+
+**Constraint:** All system configuration must be centrally managed and accessible to DevOps users.
+
+#### Acceptance Criteria
+
+1. THE Registration_System SHALL store all configuration parameters in a centralized configuration service accessible to DevOps_Users
+2. WHEN a DevOps_User accesses the configuration store, THE Registration_System SHALL display all system parameters including registration periods, payment periods, Early_Bird_Period dates, pricing (including Early_Bird_Pricing), categories, and notification settings
+3. THE Registration_System SHALL provide DevOps_Users with read-only access to configuration values through AWS Systems Manager Parameter Store or equivalent service
+4. WHEN configuration changes are made through the admin interface, THE Registration_System SHALL automatically update the centralized configuration store
+5. WHEN a DevOps_User needs to manually modify configuration for emergency purposes, THE Registration_System SHALL provide secure CLI or API access with proper authentication
+6. THE Registration_System SHALL validate all configuration changes to ensure system integrity before applying them
+7. THE Registration_System SHALL notify relevant Admin_Users when DevOps_Users make manual configuration changes
 
 ## Appendix A: Reference Data
 
@@ -273,8 +311,8 @@ These requirements define the mandatory technical architecture and implementatio
 
 The registration follows the French Rowing Federation (FFA) rules and competition structure:
 
-#### Distances
-The Course des Impressionnistes competition consists of two distinct distances:
+#### Events
+The Course des Impressionnistes competition consists of two distinct events:
 - **Semi-marathon (21 km)**: Raced in fours and eights of all configurations
 - **Marathon (42 km)**: Individual race in single sculls (skiffs)
 
@@ -319,7 +357,7 @@ Example: H4x+ = Men's four with sculling oars and coxswain
 #### Races
 Races are numbered sequentially for race programming based on the boat configurations allowed for each age group.
 
-##### Marathon distance 42 km
+##### Marathon event 42 km
 The marathon is an individual event in single scull (skiff).
 
 The races taken into account are as follows:
@@ -338,7 +376,7 @@ The races taken into account are as follows:
 13.	1X MASTER F WOMAN
 14.	1X MASTER F MAN
 
-##### Semi-Marathon distance 21 km
+##### Semi-Marathon event 21 km
 
 The races taken into account are as follows:
 1.	WOMEN-JUNIOR J16-COXED FOUR OR QUAD SCULL
@@ -374,13 +412,13 @@ The races taken into account are as follows:
 
 #### Boat Rental Priority System
 1. RCPM boats are available for rental based on availability
-2. RCPM members have priority until 15 days before registration closure
-3. After priority period, unreserved boats are allocated to external club requests
-4. Rental pricing: 3x seat price for individual boats (skiffs), standard seat price for crew boats
+2. RCPM members have exclusive priority from registration opening until 15 days before registration closure
+3. During the final 15 days before registration closure, external clubs have equal access to unreserved boats
+4. Rental pricing: 3x Base_Seat_Price for individual boats (skiffs), Base_Seat_Price for crew boats
 
-#### Seat Rental for Multi-Club Crews
-- External club members rowing in multi-club crews with RCPM members pay seat rental fees
-- Seat rental fee equals standard seat price per external member
+#### Seat Rental for Multi_Club_Crews
+- External club members rowing in Multi_Club_Crews with RCPM members pay seat rental fees
+- Seat rental fee equals Base_Seat_Price per external member
 - Purpose: Encourage RCPM members to form club-only crews
 
 ## Appendix B: System Configuration Parameters
@@ -392,13 +430,17 @@ This appendix lists all configurable parameters that must be managed through the
 - **Registration End Date** (default: April 19th)
 - **Payment Deadline** (default: April 25th)
 - **Rental Priority Period Duration** (default: 15 days before registration closure)
+- **Early_Bird_Period Start Date** (optional: beginning of registration period)
+- **Early_Bird_Period End Date** (optional: configurable date within registration period)
 
 ### B.2 Pricing Parameters
-- **Standard Rowing Seat Price** (base price for regular seats)
-- **Cox Seat Price** (price for coxswain seats)
-- **Boat Rental Multiplier for Individual Boats** (default: 3x standard seat price for skiffs)
-- **Boat Rental Price for Crew Boats** (default: standard seat pricing)
-- **Seat Rental Price for Multi-Club Crews** (default: standard seat price per external member)
+- **Base_Seat_Price for Rowing Seats** (standard price for rowing seats used as basis for all calculations)
+- **Base_Seat_Price for Cox Seats** (standard price for coxswain seats)
+- **Early_Bird_Pricing for Rowing Seats** (reduced price during Early_Bird_Period, must be less than Base_Seat_Price)
+- **Early_Bird_Pricing for Cox Seats** (reduced price during Early_Bird_Period, must be less than Base_Seat_Price)
+- **Boat Rental Multiplier for Individual Boats** (default: 3x Base_Seat_Price for skiffs)
+- **Boat Rental Price for Crew Boats** (default: Base_Seat_Price per seat)
+- **Seat Rental Price for Multi_Club_Crews** (default: Base_Seat_Price per external member)
 
 ### B.3 Notification Parameters
 - **Notification Frequency** (default: weekly for ongoing issues)
@@ -444,19 +486,19 @@ This appendix lists all configurable parameters that must be managed through the
 The Course des Impressionnistes is a rowing regatta featuring two distinct events:
 
 **Semi-Marathon (21 km)**
-- Distance: 21 kilometers
+- Event distance: 21 kilometers
 - Boat types: Fours and eights in all configurations
 - Boat Categories: Competitive outriggers and recreational yolettes
 - Oar configurations: Sweep rowing (one oar per rower) or sculling (two oars per rower)
 - Crew compositions: Men's, women's, and mixed-gender crews
 - Age categories: J16, J18, Senior, and Master
-- [28 different races for the semi-marathon](#semi-marathon-distance-21-km)
+- [28 different races for the semi-marathon](#semi-marathon-event-21-km)
 
 **Marathon (42 km)**  
-- Distance: 42 kilometers
+- Event distance: 42 kilometers
 - Boat type: Individual single sculls (skiffs)
 - Races: Men's and women's in Senior and Master A-H divisions
-- [14 different races for the marathon](#marathon-distance-42-km)
+- [14 different races for the marathon](#marathon-event-42-km)
 
 **Competition Features:**
 - Individual time trial format for the marathon
@@ -493,7 +535,7 @@ Team managers register their club and crews through a simple online process. Eac
    Select races and configure each boat entry by choosing the boat type, oar configuration, and assigning specific crew members to rowing and coxswain positions. The system automatically validates your crew against race rules.
 
 4. **Handle Equipment Needs**
-   If you need boats, submit rental requests through the system. RCPM boats are available on a priority basis, with club members having first access until two weeks before registration closes.
+   If you need boats, submit rental requests through the system. RCPM boats are available on a priority basis, with RCPM club members having exclusive access from registration opening until two weeks before registration closes.
 
 5. **Process Payments**
    Review your total costs and complete payment using the integrated secure payment system. You can pay for individual entries or process multiple registrations together, with flexibility to pay before the final deadline.
@@ -523,5 +565,5 @@ Team managers register their club and crews through a simple online process. Eac
 - March 19: Registration opens
 - April 19: Registration closes  
 - April 25: Payment deadline
-- 15 days before closure: RCPM boat priority ends
+- 15 days before closure: RCPM boat exclusive priority ends, external clubs gain equal access
 
