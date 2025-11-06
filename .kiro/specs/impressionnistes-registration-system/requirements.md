@@ -24,9 +24,7 @@ The Course des Impressionnistes Registration System is a web application that en
 - **External_Club**: Rowing club other than RCPM participating in the competition
 - **Multi_Club_Crew**: Boat crew containing both RCPM members and external club members, where external members pay seat rental fees
 - **Rental_Priority_Period**: The period from registration opening until 15 days before registration closure, during which RCPM members have exclusive access to RCPM boats for rental requests
-- **Early_Bird_Period**: Optional time period at the beginning of registration when reduced pricing is offered to encourage early registrations
-- **Base_Seat_Price**: The standard pricing for rowing seats and cox seats used for regular registrations and as the basis for all rental calculations
-- **Early_Bird_Pricing**: Reduced seat prices (rowing and cox seats only, not boat rentals) available during the Early_Bird_Period to incentivize prompt registration
+- **Base_Seat_Price**: The standard pricing for any seat (rowing or cox) used for all registrations and rental calculations (default: 20 euros)
 - **Competition**: The Course des Impressionnistes rowing regatta that takes place every year on May 1st, consisting of 2 main events (21 km and 42 km) with multiple races (see races list in appendix)
 
 ---
@@ -53,7 +51,7 @@ These requirements define what the system does from a business and user perspect
 
 #### Acceptance Criteria
 
-1. WHEN a team manager adds a crew member, THE Registration_System SHALL require first and last name, date of birth, gender, license number
+1. WHEN a team manager adds a crew member, THE Registration_System SHALL require first and last name, date of birth, gender, license number, rowing club affiliation if different from the rowing club affiliation of the team manager
 2. WHILE the registration period is active, THE Registration_System SHALL allow team managers to edit crew member information or to delete a crew member
 3. WHEN a team manager enters a license number, THE Registration_System SHALL validate the alphanumeric format
 4. WHILE a crew member registration is incomplete, THE Registration_System SHALL allow team managers to save partial configurations and return later
@@ -87,15 +85,14 @@ These requirements define what the system does from a business and user perspect
 #### Acceptance Criteria
 
 1. WHILE the Payment_Period is active, THE Registration_System SHALL allow team managers to initiate and complete payments for their registrations
-2. WHILE the Early_Bird_Period is active, THE Registration_System SHALL apply Early_Bird_Pricing to calculate reduced fees for seat registrations
-3. WHEN a team manager initiates payment, THE Registration_System SHALL calculate total fees based on Base_Seat_Price for rowing and cox seats, applying Early_Bird_Pricing if the payment occurs during the Early_Bird_Period
-4. THE Registration_System SHALL track partial payments and display payment status to team managers by showing the balance between the number of paid seats and the number of seats registered
-5. THE Registration_System SHALL allow modifications to crew members or boat registrations even after payment
-6. THE Registration_System SHALL NOT allow reimbursement in case balance in favor of RCPM (in such case the situation will be fixed afterwards by email)
-7. WHEN payment processing occurs, THE Registration_System SHALL integrate with Stripe Payment_Gateway for secure transaction handling
-8. WHEN payment is completed, THE Registration_System SHALL send confirmation via email and update registration status
-9. IF payment is not completed before the Payment_Period ends, THEN THE Registration_System SHALL notify the team manager that payment is required to secure participation
-10. IF there are flagged issues for some crew members, THEN THE Registration_System SHALL still allow payment processing
+2. WHEN a team manager initiates payment, THE Registration_System SHALL calculate total fees based on Base_Seat_Price for all seats, applying zero cost for RCPM_Member seats and Base_Seat_Price for external club member seats
+3. THE Registration_System SHALL track partial payments and display payment status to team managers by showing the balance between the number of paid seats and the number of seats registered
+4. THE Registration_System SHALL allow modifications to crew members or boat registrations even after payment
+5. THE Registration_System SHALL NOT allow reimbursement in case balance in favor of RCPM (in such case the situation will be fixed afterwards by email)
+6. WHEN payment processing occurs, THE Registration_System SHALL integrate with Stripe Payment_Gateway for secure transaction handling
+7. WHEN payment is completed, THE Registration_System SHALL send confirmation via email and update registration status
+8. IF payment is not completed before the Payment_Period ends, THEN THE Registration_System SHALL notify the team manager that payment is required to secure participation
+9. IF there are flagged issues for some crew members, THEN THE Registration_System SHALL still allow payment processing
 
 ### FR-5: System Configuration Management
 
@@ -103,13 +100,11 @@ These requirements define what the system does from a business and user perspect
 
 #### Acceptance Criteria
 
-1. WHEN an Admin_User accesses the system configuration interface, THE Registration_System SHALL display all configurable parameters, and optional Early_Bird_Period dates (see [Appendix B](#appendix-b-system-configuration-parameters)) in an organized and editable format
-2. WHEN an Admin_User modifies Base_Seat_Price, THE Registration_System SHALL update rowing seat and cox seat base prices for all new registrations
-3. WHEN an Admin_User configures Early_Bird_Pricing, THE Registration_System SHALL allow setting reduced prices for rowing seats and cox seats during the Early_Bird_Period, ensuring Early_Bird_Pricing is less than Base_Seat_Price
-4. THE Registration_System SHALL provide Admin_Users with access to the predefined list of races for semi-marathon and marathon races list
-5. WHEN an Admin_User configures Payment_Period dates, THE Registration_System SHALL validate that the Payment_Period extends beyond or equals the Registration_Period
-6. WHEN an Admin_User configures Early_Bird_Period dates, THE Registration_System SHALL validate that the Early_Bird_Period falls within the Registration_Period and within the Rental_Priority_Period
-7. THE Registration_System SHALL log all Admin_User configuration changes with timestamps and user identification
+1. WHEN an Admin_User accesses the system configuration interface, THE Registration_System SHALL display all configurable parameters (see [Appendix B](#appendix-b-system-configuration-parameters)) in an organized and editable format
+2. WHEN an Admin_User modifies Base_Seat_Price, THE Registration_System SHALL update the seat price for all new registrations
+3. THE Registration_System SHALL provide Admin_Users with access to the predefined list of races for semi-marathon and marathon races list
+4. WHEN an Admin_User configures Payment_Period dates, THE Registration_System SHALL validate that the Payment_Period extends beyond or equals the Registration_Period
+5. THE Registration_System SHALL log all Admin_User configuration changes with timestamps and user identification
 
 ### FR-6: Registration Validation and Management
 
@@ -147,7 +142,7 @@ These requirements define what the system does from a business and user perspect
 3. WHILE the Rental_Priority_Period is active, THE Registration_System SHALL reserve requested boats for RCPM_Members and mark external rental requests as pending
 4. WHEN the Rental_Priority_Period expires, THE Registration_System SHALL automatically confirm pending External_Club rental requests for unreserved boats
 5. WHEN a Boat_Rental is confirmed, THE Registration_System SHALL notify the Team_Manager immediately via the defined channels and update the boat availability status
-6. THE Registration_System SHALL calculate rental fees at three times the Base_Seat_Price for individual boats (skiffs) and Base_Seat_Price for crew boats
+6. THE Registration_System SHALL calculate rental fees at 2.5 times the Base_Seat_Price for individual boats (skiffs) and Base_Seat_Price per seat for crew boats
 7. WHEN an Admin_User manages boat rentals, THE Registration_System SHALL provide tools to manually assign boats to rental requests and override automatic allocation
 8. THE Registration_System SHALL track all Boat_Rental transactions and include rental fees in the team's total payment calculation
 
@@ -252,7 +247,7 @@ These requirements define how the system performs and quality attributes.
 #### Acceptance Criteria
 
 1. WHEN registration events occur, THE Registration_System SHALL send notifications (according to defined notification channels) for confirmations, issues, and deadline reminders
-2. THE Registration_System SHALL repeat email notifications on a regular basis (based on notification frequency parameter) if there are ongoing issues
+2. THE Registration_System SHALL repeat notifications (according to defined notification channels) on a regular basis (based on notification frequency parameter) if there are ongoing issues
 3. WHEN approaching registration deadlines, THE Registration_System SHALL notify team managers (according to defined notification channels) and highlight issues in the registration (missing information, information tagged as wrong, ...)
 4. THE Registration_System SHALL provide a notification center within the web application for users to review message history
 5. THE Registration_System SHALL ensure all notifications are delivered in the user's selected language preference
@@ -308,7 +303,6 @@ These requirements define the mandatory technical architecture and implementatio
 4. WHEN configuration changes are made through the admin interface, THE Registration_System SHALL automatically update the centralized configuration store
 5. WHEN a DevOps_User needs to manually modify configuration for emergency purposes, THE Registration_System SHALL provide secure CLI or API access with proper authentication
 6. THE Registration_System SHALL validate all configuration changes to ensure system integrity before applying them
-7. THE Registration_System SHALL notify relevant Admin_Users when DevOps_Users make manual configuration changes
 
 ---
 
@@ -421,7 +415,7 @@ The races taken into account are as follows:
 1. RCPM boats are available for rental based on availability
 2. RCPM members have exclusive priority from registration opening until 15 days before registration closure
 3. During the final 15 days before registration closure, external clubs have equal access to unreserved boats
-4. Rental pricing: 3x Base_Seat_Price for individual boats (skiffs), Base_Seat_Price for crew boats
+4. Rental pricing: 2.5x Base_Seat_Price for individual boats (skiffs), Base_Seat_Price per seat for crew boats
 
 #### Seat Rental for Multi_Club_Crews
 - External club members rowing in Multi_Club_Crews with RCPM members pay seat rental fees
@@ -440,15 +434,10 @@ This appendix lists all configurable parameters that must be managed through the
 - **Registration End Date** (default: April 19th)
 - **Payment Deadline** (default: April 25th)
 - **Rental Priority Period Duration** (default: 15 days before registration closure)
-- **Early_Bird_Period Start Date** (optional: beginning of registration period)
-- **Early_Bird_Period End Date** (optional: configurable date within registration period)
 
 ### B.2 Pricing Parameters
-- **Base_Seat_Price for Rowing Seats** (standard price for rowing seats used as basis for all calculations)
-- **Base_Seat_Price for Cox Seats** (standard price for coxswain seats)
-- **Early_Bird_Pricing for Rowing Seats** (reduced price during Early_Bird_Period, must be less than Base_Seat_Price)
-- **Early_Bird_Pricing for Cox Seats** (reduced price during Early_Bird_Period, must be less than Base_Seat_Price)
-- **Boat Rental Multiplier for Individual Boats** (default: 3x Base_Seat_Price for skiffs)
+- **Base_Seat_Price** (standard price for any seat - rowing or cox - default: 20 euros)
+- **Boat Rental Multiplier for Individual Boats** (default: 2.5x Base_Seat_Price for skiffs)
 - **Boat Rental Price for Crew Boats** (default: Base_Seat_Price per seat)
 
 ### B.3 Notification Parameters
@@ -561,10 +550,10 @@ Team managers register their club and crews through a simple online process. Eac
 - Complete registration history and status tracking
 
 **Pricing Structure**
-- Base_Seat_Price for rowing and cox seats (includes coxswain for coxed boats)
-- Early_Bird_Pricing available during Early_Bird_Period for reduced fees
-- Boat rental: 3x Base_Seat_Price for singles, Base_Seat_Price for crew boats
+- Base_Seat_Price for any seat (rowing or cox) - default: 20 euros per seat
+- Boat rental: 2.5x Base_Seat_Price (50 euros) for singles, Base_Seat_Price per seat for crew boats
 - Seat rental: Base_Seat_Price for external club members, zero cost for RCPM members
+- Examples: EIGHT WITH COXSWAIN = 180 euros (9 seats × 20 euros), QUAD WITHOUT COXSWAIN = 80 euros (4 seats × 20 euros)
 
 **Support and Assistance**
 - License verification handled automatically or manually
