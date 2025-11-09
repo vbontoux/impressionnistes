@@ -206,8 +206,10 @@ notification_config = {
     "SK": "NOTIFICATION",
     "notification_frequency_days": 7,
     "session_timeout_minutes": 30,
-    "notification_channels": ["email", "in_app"],
-    "email_from": "noreply@impressionnistes.rcpm.fr",
+    "notification_channels": ["email", "in_app", "slack"],
+    "email_from": "impressionnistes@rcpm-aviron.fr",
+    "slack_webhook_admin": "",
+    "slack_webhook_devops": "",
     "updated_at": "2024-03-15T10:30:00Z"
 }
 ```
@@ -245,7 +247,7 @@ DEFAULT_NOTIFICATION_CONFIG = {
     "notification_frequency_days": 7,
     "session_timeout_minutes": 30,
     "notification_channels": ["email", "in_app", "slack"],
-    "email_from": "noreply@impressionnistes.rcpm.fr",
+    "email_from": "impressionnistes@rcpm-aviron.fr",
     "slack_webhook_admin": "",  # To be configured by admin
     "slack_webhook_devops": "",  # To be configured by admin
     "created_at": "2024-01-01T00:00:00Z",
@@ -2135,3 +2137,597 @@ def track_slack_notification(event_type, status, channel_type):
 ```
 
 This comprehensive Slack integration ensures that Admin and DevOps teams stay informed about all critical registration events and system issues in real-time, enabling quick response and better system monitoring.
+
+
+## Contact Us Feature
+
+### Overview
+
+The Contact Us feature provides a user-friendly way for anyone (authenticated or anonymous) to send messages to the RCPM organization. Messages are delivered via email to admins and posted to the admin Slack channel for immediate visibility.
+
+### Frontend Component
+
+#### Contact Form Component
+```vue
+<!-- components/contact/ContactForm.vue -->
+<template>
+  <div class="contact-form-container">
+    <h2>{{ $t('contact.title') }}</h2>
+    <p class="contact-intro">{{ $t('contact.intro') }}</p>
+    
+    <form @submit.prevent="submitContactForm" class="contact-form">
+      <div class="form-group">
+        <label for="name">{{ $t('contact.name') }} *</label>
+        <input
+          id="name"
+          v-model="form.name"
+          type="text"
+          :placeholder="$t('contact.namePlaceholder')"
+          required
+          :disabled="isSubmitting"
+        />
+      </div>
+      
+      <div class="form-group">
+        <label for="email">{{ $t('contact.email') }} *</label>
+        <input
+          id="email"
+          v-model="form.email"
+          type="email"
+          :placeholder="$t('contact.emailPlaceholder')"
+          required
+          :disabled="isSubmitting"
+        />
+      </div>
+      
+      <div class="form-group">
+        <label for="subject">{{ $t('contact.subject') }} *</label>
+        <select
+          id="subject"
+          v-model="form.subject"
+          required
+          :disabled="isSubmitting"
+        >
+          <option value="">{{ $t('contact.selectSubject') }}</option>
+          <option value="registration">{{ $t('contact.subjects.registration') }}</option>
+          <option value="payment">{{ $t('contact.subjects.payment') }}</option>
+          <option value="boat_rental">{{ $t('contact.subjects.boatRental') }}</option>
+          <option value="technical">{{ $t('contact.subjects.technical') }}</option>
+          <option value="general">{{ $t('contact.subjects.general') }}</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="message">{{ $t('contact.message') }} *</label>
+        <textarea
+          id="message"
+          v-model="form.message"
+          rows="6"
+          :placeholder="$t('contact.messagePlaceholder')"
+          required
+          :disabled="isSubmitting"
+        ></textarea>
+      </div>
+      
+      <div v-if="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+      
+      <div v-if="successMessage" class="success-message">
+        {{ successMessage }}
+      </div>
+      
+      <button
+        type="submit"
+        class="submit-button"
+        :disabled="isSubmitting"
+      >
+        {{ isSubmitting ? $t('contact.sending') : $t('contact.send') }}
+      </button>
+    </form>
+    
+    <div class="contact-info">
+      <h3>{{ $t('contact.otherWays') }}</h3>
+      <p>
+        <strong>{{ $t('contact.email') }}:</strong> 
+        <a href="mailto:contact@impressionnistes.rcpm.fr">contact@impressionnistes.rcpm.fr</a>
+      </p>
+      <p>
+        <strong>{{ $t('contact.phone') }}:</strong> +33 1 23 45 67 89
+      </p>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useAuthStore } from '@/stores/auth';
+import { useI18n } from 'vue-i18n';
+import api from '@/services/api';
+
+const { t } = useI18n();
+const authStore = useAuthStore();
+
+const form = ref({
+  name: '',
+  email: '',
+  subject: '',
+  message: ''
+});
+
+const isSubmitting = ref(false);
+const errorMessage = ref('');
+const successMessage = ref('');
+
+// Pre-fill form if user is authenticated
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    form.value.name = `${authStore.user.first_name} ${authStore.user.last_name}`;
+    form.value.email = authStore.user.email;
+  }
+});
+
+const submitContactForm = async () => {
+  isSubmitting.value = true;
+  errorMessage.value = '';
+  successMessage.value = '';
+  
+  try {
+    const response = await api.post('/contact', {
+      ...form.value,
+      user_id: authStore.user?.user_id || null,
+      language: useI18n().locale.value
+    });
+    
+    successMessage.value = t('contact.successMessage');
+    
+    // Reset form
+    form.value = {
+      name: authStore.isAuthenticated ? `${authStore.user.first_name} ${authStore.user.last_name}` : '',
+      email: authStore.isAuthenticated ? authStore.user.email : '',
+      subject: '',
+      message: ''
+    };
+    
+  } catch (error) {
+    errorMessage.value = error.response?.data?.error?.message || t('contact.errorMessage');
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+</script>
+```
+
+### Backend Implementation
+
+#### Contact Form Lambda Function
+```python
+# functions/contact/submit_contact_form.py
+import json
+import boto3
+from datetime import datetime
+from shared.configuration import config_manager
+from shared.notifications import send_email, send_slack_notification
+from shared.validation import validate_email
+
+def lambda_handler(event, context):
+    """Handle contact form submission"""
+    try:
+        body = json.loads(event['body'])
+        
+        # Validate input
+        validation_errors = validate_contact_form(body)
+        if validation_errors:
+            return error_response(400, "VALIDATION_ERROR", "Invalid form data", validation_errors)
+        
+        # Get user context if authenticated
+        user_context = get_user_context(body.get('user_id'))
+        
+        # Send email to admin
+        send_contact_email_to_admin(body, user_context)
+        
+        # Send auto-reply to user
+        send_contact_auto_reply(body)
+        
+        # Send Slack notification to admin channel
+        send_contact_slack_notification(body, user_context)
+        
+        # Log contact form submission
+        log_contact_submission(body, user_context)
+        
+        return success_response({
+            'message': 'Contact form submitted successfully',
+            'timestamp': datetime.utcnow().isoformat()
+        })
+        
+    except Exception as e:
+        logger.error(f"Contact form submission failed: {str(e)}", exc_info=True)
+        return error_response(500, "SUBMISSION_ERROR", "Failed to submit contact form")
+
+def validate_contact_form(data):
+    """Validate contact form data"""
+    errors = {}
+    
+    if not data.get('name') or len(data['name'].strip()) < 2:
+        errors['name'] = 'Name is required and must be at least 2 characters'
+    
+    if not data.get('email') or not validate_email(data['email']):
+        errors['email'] = 'Valid email address is required'
+    
+    if not data.get('subject'):
+        errors['subject'] = 'Subject is required'
+    
+    if not data.get('message') or len(data['message'].strip()) < 10:
+        errors['message'] = 'Message is required and must be at least 10 characters'
+    
+    return errors if errors else None
+
+def get_user_context(user_id):
+    """Get additional context if user is authenticated"""
+    if not user_id:
+        return None
+    
+    try:
+        dynamodb = boto3.resource('dynamodb')
+        table = dynamodb.Table('impressionnistes-registration')
+        
+        # Get user profile
+        response = table.get_item(
+            Key={'PK': f'USER#{user_id}', 'SK': 'PROFILE'}
+        )
+        
+        if 'Item' in response:
+            user = response['Item']
+            
+            # Get user's registrations count
+            registrations_response = table.query(
+                KeyConditionExpression=Key('PK').eq(f'USER#{user_id}') & 
+                                     Key('SK').begins_with('BOAT#')
+            )
+            
+            return {
+                'user_id': user_id,
+                'club_affiliation': user.get('club_affiliation'),
+                'mobile_number': user.get('mobile_number'),
+                'registrations_count': len(registrations_response.get('Items', []))
+            }
+    except Exception as e:
+        logger.warning(f"Failed to get user context: {str(e)}")
+    
+    return None
+
+def send_contact_email_to_admin(form_data, user_context):
+    """Send contact form email to admin"""
+    config = config_manager.get_notification_config()
+    admin_email = config.get('admin_contact_email', 'contact@impressionnistes.rcpm.fr')
+    
+    # Build email content
+    subject = f"[Contact Form] {form_data['subject']} - {form_data['name']}"
+    
+    html_content = f"""
+    <html>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <h2 style="color: #007bff;">New Contact Form Submission</h2>
+        
+        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p><strong>From:</strong> {form_data['name']}</p>
+            <p><strong>Email:</strong> <a href="mailto:{form_data['email']}">{form_data['email']}</a></p>
+            <p><strong>Subject:</strong> {form_data['subject']}</p>
+            <p><strong>Date:</strong> {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC</p>
+        </div>
+        
+        <div style="margin: 20px 0;">
+            <h3>Message:</h3>
+            <p style="white-space: pre-wrap;">{form_data['message']}</p>
+        </div>
+        
+        {build_user_context_html(user_context) if user_context else ''}
+        
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
+        <p style="font-size: 12px; color: #666;">
+            This message was sent via the Course des Impressionnistes registration system contact form.
+        </p>
+    </body>
+    </html>
+    """
+    
+    send_email(
+        to_email=admin_email,
+        subject=subject,
+        html_content=html_content,
+        reply_to=form_data['email']
+    )
+
+def build_user_context_html(user_context):
+    """Build HTML for user context information"""
+    return f"""
+    <div style="background-color: #e7f3ff; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <h3>User Context:</h3>
+        <p><strong>User ID:</strong> {user_context['user_id']}</p>
+        <p><strong>Club:</strong> {user_context.get('club_affiliation', 'N/A')}</p>
+        <p><strong>Mobile:</strong> {user_context.get('mobile_number', 'N/A')}</p>
+        <p><strong>Registrations:</strong> {user_context.get('registrations_count', 0)} boat(s)</p>
+    </div>
+    """
+
+def send_contact_auto_reply(form_data):
+    """Send auto-reply confirmation to user"""
+    language = form_data.get('language', 'fr')
+    
+    if language == 'fr':
+        subject = "Confirmation de réception - Course des Impressionnistes"
+        html_content = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <h2 style="color: #007bff;">Merci de nous avoir contactés</h2>
+            
+            <p>Bonjour {form_data['name']},</p>
+            
+            <p>Nous avons bien reçu votre message concernant : <strong>{form_data['subject']}</strong></p>
+            
+            <p>Notre équipe vous répondra dans les plus brefs délais, généralement sous 24-48 heures.</p>
+            
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h3>Votre message :</h3>
+                <p style="white-space: pre-wrap;">{form_data['message']}</p>
+            </div>
+            
+            <p>Cordialement,<br>
+            L'équipe Course des Impressionnistes<br>
+            RCPM - Rowing Club de Port Marly</p>
+            
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
+            <p style="font-size: 12px; color: #666;">
+                Ceci est un message automatique, merci de ne pas y répondre directement.
+            </p>
+        </body>
+        </html>
+        """
+    else:  # English
+        subject = "Confirmation of receipt - Course des Impressionnistes"
+        html_content = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <h2 style="color: #007bff;">Thank you for contacting us</h2>
+            
+            <p>Hello {form_data['name']},</p>
+            
+            <p>We have received your message regarding: <strong>{form_data['subject']}</strong></p>
+            
+            <p>Our team will respond to you as soon as possible, typically within 24-48 hours.</p>
+            
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                <h3>Your message:</h3>
+                <p style="white-space: pre-wrap;">{form_data['message']}</p>
+            </div>
+            
+            <p>Best regards,<br>
+            Course des Impressionnistes Team<br>
+            RCPM - Rowing Club de Port Marly</p>
+            
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
+            <p style="font-size: 12px; color: #666;">
+                This is an automated message, please do not reply directly.
+            </p>
+        </body>
+        </html>
+        """
+    
+    send_email(
+        to_email=form_data['email'],
+        subject=subject,
+        html_content=html_content
+    )
+
+def send_contact_slack_notification(form_data, user_context):
+    """Send Slack notification to admin channel"""
+    config = config_manager.get_notification_config()
+    webhook_url = config.get('slack_webhook_admin')
+    
+    if not webhook_url:
+        return
+    
+    # Build Slack blocks
+    blocks = [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": "📧 New Contact Form Submission",
+                "emoji": True
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"*From:*\n{form_data['name']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Email:*\n{form_data['email']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Subject:*\n{form_data['subject']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Language:*\n{form_data.get('language', 'fr').upper()}"
+                }
+            ]
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*Message:*\n{form_data['message'][:500]}{'...' if len(form_data['message']) > 500 else ''}"
+            }
+        }
+    ]
+    
+    # Add user context if available
+    if user_context:
+        blocks.append({
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"*User ID:*\n`{user_context['user_id']}`"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Club:*\n{user_context.get('club_affiliation', 'N/A')}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Registrations:*\n{user_context.get('registrations_count', 0)} boat(s)"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Mobile:*\n{user_context.get('mobile_number', 'N/A')}"
+                }
+            ]
+        })
+    
+    blocks.append({
+        "type": "context",
+        "elements": [
+            {
+                "type": "mrkdwn",
+                "text": f"Submitted at {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC"
+            }
+        ]
+    })
+    
+    send_slack_notification(webhook_url, {'blocks': blocks})
+
+def log_contact_submission(form_data, user_context):
+    """Log contact form submission to DynamoDB"""
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('impressionnistes-registration')
+    
+    timestamp = datetime.utcnow().isoformat() + 'Z'
+    
+    table.put_item(
+        Item={
+            'PK': 'CONTACT',
+            'SK': f'{timestamp}#{form_data["email"]}',
+            'name': form_data['name'],
+            'email': form_data['email'],
+            'subject': form_data['subject'],
+            'message': form_data['message'],
+            'language': form_data.get('language', 'fr'),
+            'user_id': form_data.get('user_id'),
+            'user_context': user_context,
+            'timestamp': timestamp,
+            'status': 'submitted'
+        }
+    )
+```
+
+### Translations
+
+#### French (fr.json)
+```json
+{
+  "contact": {
+    "title": "Contactez-nous",
+    "intro": "Vous avez une question ou besoin d'aide ? N'hésitez pas à nous contacter.",
+    "name": "Nom",
+    "namePlaceholder": "Votre nom complet",
+    "email": "Email",
+    "emailPlaceholder": "votre.email@example.com",
+    "subject": "Sujet",
+    "selectSubject": "Sélectionnez un sujet",
+    "subjects": {
+      "registration": "Inscription",
+      "payment": "Paiement",
+      "boatRental": "Location de bateau",
+      "technical": "Problème technique",
+      "general": "Question générale"
+    },
+    "message": "Message",
+    "messagePlaceholder": "Décrivez votre question ou problème...",
+    "send": "Envoyer",
+    "sending": "Envoi en cours...",
+    "successMessage": "Votre message a été envoyé avec succès. Nous vous répondrons dans les plus brefs délais.",
+    "errorMessage": "Une erreur s'est produite lors de l'envoi de votre message. Veuillez réessayer.",
+    "otherWays": "Autres moyens de nous contacter"
+  }
+}
+```
+
+#### English (en.json)
+```json
+{
+  "contact": {
+    "title": "Contact Us",
+    "intro": "Have a question or need help? Feel free to contact us.",
+    "name": "Name",
+    "namePlaceholder": "Your full name",
+    "email": "Email",
+    "emailPlaceholder": "your.email@example.com",
+    "subject": "Subject",
+    "selectSubject": "Select a subject",
+    "subjects": {
+      "registration": "Registration",
+      "payment": "Payment",
+      "boatRental": "Boat Rental",
+      "technical": "Technical Issue",
+      "general": "General Question"
+    },
+    "message": "Message",
+    "messagePlaceholder": "Describe your question or issue...",
+    "send": "Send",
+    "sending": "Sending...",
+    "successMessage": "Your message has been sent successfully. We will respond as soon as possible.",
+    "errorMessage": "An error occurred while sending your message. Please try again.",
+    "otherWays": "Other ways to contact us"
+  }
+}
+```
+
+### Router Configuration
+```javascript
+// router/index.js
+{
+  path: '/contact',
+  name: 'Contact',
+  component: () => import('@/views/ContactView.vue'),
+  meta: {
+    title: 'Contact Us',
+    requiresAuth: false  // Available to everyone
+  }
+}
+```
+
+### API Gateway Endpoint
+```python
+# CDK Stack configuration
+contact_function = lambda_.Function(
+    self, "ContactFunction",
+    runtime=lambda_.Runtime.PYTHON_3_11,
+    handler="submit_contact_form.lambda_handler",
+    code=lambda_.Code.from_asset("functions/contact"),
+    environment={
+        'TABLE_NAME': database_stack.table.table_name
+    }
+)
+
+# Grant permissions
+database_stack.table.grant_write_data(contact_function)
+
+# API Gateway integration
+api.add_routes(
+    path="/contact",
+    methods=[apigw.HttpMethod.POST],
+    integration=apigw_integrations.HttpLambdaIntegration(
+        "ContactIntegration",
+        contact_function
+    )
+)
+```
+
+This comprehensive Contact Us feature provides users with an easy way to reach out to admins, while ensuring admins are immediately notified via both email and Slack, with full context about the user if they're authenticated.

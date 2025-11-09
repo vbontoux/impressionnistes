@@ -189,6 +189,21 @@ These requirements define what the system does from a business and user perspect
 6. THE Registration_System SHALL provide contact information for RCPM organization for users who need assistance
 7. THE Registration_System SHALL provide a clear view of unread notification number with link to the notification center
 
+### FR-12: Contact Us
+
+**User Story:** As any user, I want to contact the RCPM organization with questions or issues, so that I can get assistance with my registration or general inquiries.
+
+#### Acceptance Criteria
+
+1. WHEN any user accesses the Contact Us page, THE Registration_System SHALL display a contact form with fields for name, email, subject, and message
+2. WHEN a user submits a contact form, THE Registration_System SHALL validate that all required fields are completed
+3. WHEN a contact form is submitted, THE Registration_System SHALL send an email to the configured admin contact email address with the user's message
+4. WHEN a contact form is submitted, THE Registration_System SHALL send a Slack notification to the admin channel with the contact request details
+5. WHEN a contact form is successfully submitted, THE Registration_System SHALL display a confirmation message to the user
+6. WHEN a contact form is successfully submitted, THE Registration_System SHALL send an auto-reply email to the user confirming receipt of their message
+7. THE Registration_System SHALL display the contact form in the user's selected language (French or English)
+8. THE Registration_System SHALL include the user's registration information (if authenticated) in the contact form submission for context
+
 ---
 
 ## 2. Non-Functional Requirements
@@ -446,6 +461,7 @@ This appendix lists all configurable parameters that must be managed through the
 - **Notification Frequency** (default: weekly for ongoing issues)
 - **Session Timeout Duration** (default: 30 minutes for automatic logout)
 - **Notification Channels** (default: email and notification center in the web app)
+- **Email From Address** (default: impressionnistes@rcpm-aviron.fr)
 - **Slack Webhook URL for Admin Notifications** (Slack incoming webhook for admin channel)
 - **Slack Webhook URL for DevOps Notifications** (Slack incoming webhook for devops channel)
 
@@ -477,6 +493,7 @@ This appendix lists all configurable parameters that must be managed through the
 
 ### B.9 Contact and Organization Parameters
 - **RCPM Organization Contact Information**
+- **Admin Contact Email** (email address for contact form submissions, default: contact@impressionnistes.rcpm.fr)
 - **DevOps User Notification Channels**
 - **Admin User Notification Settings**
 
