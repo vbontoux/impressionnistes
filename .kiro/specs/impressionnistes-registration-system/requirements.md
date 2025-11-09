@@ -251,6 +251,8 @@ These requirements define how the system performs and quality attributes.
 3. WHEN approaching registration deadlines, THE Registration_System SHALL notify team managers (according to defined notification channels) and highlight issues in the registration (missing information, information tagged as wrong, ...)
 4. THE Registration_System SHALL provide a notification center within the web application for users to review message history
 5. THE Registration_System SHALL ensure all notifications are delivered in the user's selected language preference
+6. WHEN significant registration events occur (new registrations, payments, boat rentals), THE Registration_System SHALL send real-time notifications to Admin_Users and DevOps_Users via Slack
+7. THE Registration_System SHALL send Slack notifications for system events including new boat registrations, payment completions, boat rental requests, and system errors
 
 ## 3. Technical Constraints
 
@@ -444,6 +446,8 @@ This appendix lists all configurable parameters that must be managed through the
 - **Notification Frequency** (default: weekly for ongoing issues)
 - **Session Timeout Duration** (default: 30 minutes for automatic logout)
 - **Notification Channels** (default: email and notification center in the web app)
+- **Slack Webhook URL for Admin Notifications** (Slack incoming webhook for admin channel)
+- **Slack Webhook URL for DevOps Notifications** (Slack incoming webhook for devops channel)
 
 ### B.4 System Configuration Parameters
 - **Temporary Editing Access Duration** (time limit for admin-granted editing exceptions)

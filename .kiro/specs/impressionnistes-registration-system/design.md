@@ -30,6 +30,12 @@ The system follows a serverless architecture pattern on AWS with the following k
                                                 │      SES        │
                                                 │ (Email Service) │
                                                 └─────────────────┘
+                                                         │
+                                                ┌─────────────────┐
+                                                │     Slack       │
+                                                │  (Admin/DevOps  │
+                                                │ Notifications)  │
+                                                └─────────────────┘
 ```
 
 ### Technology Stack
@@ -238,8 +244,10 @@ DEFAULT_NOTIFICATION_CONFIG = {
     "SK": "NOTIFICATION",
     "notification_frequency_days": 7,
     "session_timeout_minutes": 30,
-    "notification_channels": ["email", "in_app"],
+    "notification_channels": ["email", "in_app", "slack"],
     "email_from": "noreply@impressionnistes.rcpm.fr",
+    "slack_webhook_admin": "",  # To be configured by admin
+    "slack_webhook_devops": "",  # To be configured by admin
     "created_at": "2024-01-01T00:00:00Z",
     "updated_at": "2024-01-01T00:00:00Z"
 }
@@ -1515,3 +1523,615 @@ jobs:
 ```
 
 This design document provides a comprehensive technical foundation for implementing the Course des Impressionnistes Registration System based on the approved requirements. The serverless architecture ensures scalability and cost-effectiveness, while the detailed component design enables efficient development and maintenance.
+
+
+## Slack Notifications for Admin and DevOps
+
+### Overview
+
+The system sends real-time Slack notifications to Admin and DevOps channels for important registration events, enabling immediate awareness and response to system activities.
+
+### Slack Integration Architecture
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Lambda        │    │   Slack          │    │   Slack         │
+│   (Event)       │───►│   Webhook        │───►│   Channel       │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+         │
+         │
+┌─────────────────┐
+│   DynamoDB      │
+│   (Config)      │
+└─────────────────┘
+```
+
+### Notification Events
+
+#### Admin Channel Notifications
+- **New Boat Registration**: When a team manager completes a boat registration
+- **Payment Completed**: When a payment is successfully processed
+- **Boat Rental Request**: When an external club requests a boat rental
+- **Registration Issue Flagged**: When an admin flags an issue with a registration
+- **Registration Issue Resolved**: When a team manager marks an issue as resolved
+- **Registration Period Milestones**: Daily summary of registrations and payments
+
+#### DevOps Channel Notifications
+- **System Errors**: Lambda function failures, API errors
+- **Payment Gateway Issues**: Stripe webhook failures or payment processing errors
+- **Database Issues**: DynamoDB throttling or connection errors
+- **High Traffic Alerts**: When concurrent users exceed thresholds
+- **Deployment Events**: Successful/failed deployments
+- **Backup Status**: Daily backup completion status
+
+### Implementation
+
+#### Slack Notification Function
+```python
+# functions/notifications/send_slack_notification.py
+import json
+import urllib3
+from datetime import datetime
+
+http = urllib3.PoolManager()
+
+def send_slack_notification(webhook_url, message_data):
+    """
+    Send notification to Slack via incoming webhook
+    
+    Args:
+        webhook_url: Slack incoming webhook URL
+        message_data: Dictionary containing message details
+    """
+    if not webhook_url:
+        logger.warning("Slack webhook URL not configured")
+        return None
+    
+    # Build Slack message blocks
+    blocks = build_slack_blocks(message_data)
+    
+    payload = {
+        "blocks": blocks,
+        "username": "Impressionnistes Registration",
+        "icon_emoji": ":rowing:"
+    }
+    
+    try:
+        response = http.request(
+            'POST',
+            webhook_url,
+            body=json.dumps(payload).encode('utf-8'),
+            headers={'Content-Type': 'application/json'}
+        )
+        
+        if response.status == 200:
+            logger.info(f"Slack notification sent successfully: {message_data['event_type']}")
+            return response.status
+        else:
+            logger.error(f"Slack notification failed: {response.status} - {response.data}")
+            return None
+            
+    except Exception as e:
+        logger.error(f"Failed to send Slack notification: {str(e)}")
+        return None
+
+def build_slack_blocks(message_data):
+    """Build Slack message blocks based on event type"""
+    event_type = message_data['event_type']
+    
+    if event_type == 'new_registration':
+        return build_registration_blocks(message_data)
+    elif event_type == 'payment_completed':
+        return build_payment_blocks(message_data)
+    elif event_type == 'boat_rental_request':
+        return build_rental_blocks(message_data)
+    elif event_type == 'system_error':
+        return build_error_blocks(message_data)
+    elif event_type == 'daily_summary':
+        return build_summary_blocks(message_data)
+    else:
+        return build_generic_blocks(message_data)
+
+def build_registration_blocks(data):
+    """Build Slack blocks for new registration notification"""
+    return [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": "🚣 New Boat Registration",
+                "emoji": True
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Team Manager:*\n{data['team_manager_name']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Club:*\n{data['club_name']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Boat Type:*\n{data['boat_type']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Race:*\n{data['race_name']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Crew Size:*\n{data['crew_size']} members"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Multi-Club:*\n{'Yes' if data.get('is_multi_club') else 'No'}"
+                }
+            ]
+        },
+        {
+            "type": "context",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"Registration ID: `{data['registration_id']}` | {data['timestamp']}"
+                }
+            ]
+        }
+    ]
+
+def build_payment_blocks(data):
+    """Build Slack blocks for payment notification"""
+    return [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": "💳 Payment Completed",
+                "emoji": True
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Team Manager:*\n{data['team_manager_name']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Club:*\n{data['club_name']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Amount:*\n€{data['amount']:.2f}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Boats:*\n{data['boat_count']} registrations"
+                }
+            ]
+        },
+        {
+            "type": "context",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"Payment ID: `{data['payment_id']}` | Stripe: `{data['stripe_id']}` | {data['timestamp']}"
+                }
+            ]
+        }
+    ]
+
+def build_rental_blocks(data):
+    """Build Slack blocks for boat rental request"""
+    return [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": "⛵ Boat Rental Request",
+                "emoji": True
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Team Manager:*\n{data['team_manager_name']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Club:*\n{data['club_name']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Boat Type:*\n{data['boat_type']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Status:*\n{data['status']}"
+                }
+            ]
+        },
+        {
+            "type": "context",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"Request ID: `{data['request_id']}` | {data['timestamp']}"
+                }
+            ]
+        }
+    ]
+
+def build_error_blocks(data):
+    """Build Slack blocks for system error notification"""
+    return [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": "🚨 System Error",
+                "emoji": True
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Error Type:*\n{data['error_type']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Function:*\n{data['function_name']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Severity:*\n{data['severity']}"
+                }
+            ]
+        },
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*Error Message:*\n```{data['error_message']}```"
+            }
+        },
+        {
+            "type": "context",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"Request ID: `{data['request_id']}` | {data['timestamp']}"
+                }
+            ]
+        }
+    ]
+
+def build_summary_blocks(data):
+    """Build Slack blocks for daily summary"""
+    return [
+        {
+            "type": "header",
+            "text": {
+                "type": "plain_text",
+                "text": "📊 Daily Registration Summary",
+                "emoji": True
+            }
+        },
+        {
+            "type": "section",
+            "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"*New Registrations:*\n{data['new_registrations']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Payments Received:*\n{data['payments_count']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Total Revenue:*\n€{data['total_revenue']:.2f}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Pending Payments:*\n{data['pending_payments']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Total Participants:*\n{data['total_participants']}"
+                },
+                {
+                    "type": "mrkdwn",
+                    "text": f"*Boat Rentals:*\n{data['boat_rentals']}"
+                }
+            ]
+        },
+        {
+            "type": "context",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": f"Report Date: {data['date']} | Days until competition: {data['days_until_competition']}"
+                }
+            ]
+        }
+    ]
+
+def build_generic_blocks(data):
+    """Build generic Slack blocks for any event"""
+    return [
+        {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*{data.get('title', 'Notification')}*\n{data.get('message', '')}"
+            }
+        },
+        {
+            "type": "context",
+            "elements": [
+                {
+                    "type": "mrkdwn",
+                    "text": data.get('timestamp', datetime.utcnow().isoformat())
+                }
+            ]
+        }
+    ]
+```
+
+#### Integration with Event Handlers
+```python
+# Example: Integration in boat registration handler
+def lambda_handler(event, context):
+    """Create boat registration with Slack notification"""
+    try:
+        # Create boat registration
+        registration = create_boat_registration(event)
+        
+        # Send Slack notification to admin channel
+        config = get_notification_config()
+        if config.get('slack_webhook_admin'):
+            send_slack_notification(
+                webhook_url=config['slack_webhook_admin'],
+                message_data={
+                    'event_type': 'new_registration',
+                    'team_manager_name': registration['team_manager_name'],
+                    'club_name': registration['club_name'],
+                    'boat_type': registration['boat_type'],
+                    'race_name': registration['race_name'],
+                    'crew_size': len(registration['seats']),
+                    'is_multi_club': registration.get('is_multi_club_crew', False),
+                    'registration_id': registration['registration_id'],
+                    'timestamp': datetime.utcnow().isoformat()
+                }
+            )
+        
+        return success_response(registration)
+        
+    except Exception as e:
+        # Send error notification to DevOps channel
+        config = get_notification_config()
+        if config.get('slack_webhook_devops'):
+            send_slack_notification(
+                webhook_url=config['slack_webhook_devops'],
+                message_data={
+                    'event_type': 'system_error',
+                    'error_type': type(e).__name__,
+                    'function_name': 'create_boat_registration',
+                    'severity': 'HIGH',
+                    'error_message': str(e),
+                    'request_id': context.aws_request_id,
+                    'timestamp': datetime.utcnow().isoformat()
+                }
+            )
+        
+        raise
+```
+
+#### Daily Summary Scheduler
+```python
+# functions/notifications/daily_summary.py
+def lambda_handler(event, context):
+    """Generate and send daily summary to admin Slack channel"""
+    
+    # Calculate summary statistics
+    today = datetime.now().date()
+    summary = {
+        'new_registrations': count_registrations_today(),
+        'payments_count': count_payments_today(),
+        'total_revenue': calculate_revenue_today(),
+        'pending_payments': count_pending_payments(),
+        'total_participants': count_total_participants(),
+        'boat_rentals': count_boat_rentals(),
+        'date': today.isoformat(),
+        'days_until_competition': (get_competition_date() - today).days
+    }
+    
+    # Send to admin Slack channel
+    config = get_notification_config()
+    if config.get('slack_webhook_admin'):
+        send_slack_notification(
+            webhook_url=config['slack_webhook_admin'],
+            message_data={
+                'event_type': 'daily_summary',
+                **summary
+            }
+        )
+    
+    return {'statusCode': 200, 'body': json.dumps(summary)}
+```
+
+### EventBridge Schedule for Daily Summary
+```python
+# In CDK stack
+daily_summary_rule = events.Rule(
+    self, "DailySummaryRule",
+    schedule=events.Schedule.cron(hour="18", minute="0")  # 6 PM daily
+)
+
+daily_summary_rule.add_target(
+    targets.LambdaFunction(daily_summary_function)
+)
+```
+
+### Configuration Management
+
+#### Admin Interface for Slack Configuration
+```python
+# Admin endpoint to configure Slack webhooks
+@require_admin
+def update_slack_config(event, context):
+    """Update Slack webhook URLs"""
+    body = json.loads(event['body'])
+    
+    config_manager = ConfigurationManager()
+    
+    updates = {}
+    if 'slack_webhook_admin' in body:
+        # Validate webhook URL
+        if validate_slack_webhook(body['slack_webhook_admin']):
+            updates['slack_webhook_admin'] = body['slack_webhook_admin']
+        else:
+            return error_response(400, "INVALID_WEBHOOK", "Invalid Slack webhook URL")
+    
+    if 'slack_webhook_devops' in body:
+        if validate_slack_webhook(body['slack_webhook_devops']):
+            updates['slack_webhook_devops'] = body['slack_webhook_devops']
+        else:
+            return error_response(400, "INVALID_WEBHOOK", "Invalid Slack webhook URL")
+    
+    if updates:
+        config_manager.update_config('NOTIFICATION', updates, get_current_user_id(event))
+        
+        # Test the webhooks
+        test_results = test_slack_webhooks(updates)
+        
+        return success_response({
+            'message': 'Slack configuration updated',
+            'test_results': test_results
+        })
+    
+    return error_response(400, "NO_UPDATES", "No updates provided")
+
+def validate_slack_webhook(url):
+    """Validate Slack webhook URL format"""
+    return url.startswith('https://hooks.slack.com/services/')
+
+def test_slack_webhooks(webhooks):
+    """Send test messages to verify webhooks work"""
+    results = {}
+    
+    for key, webhook_url in webhooks.items():
+        try:
+            status = send_slack_notification(
+                webhook_url=webhook_url,
+                message_data={
+                    'event_type': 'generic',
+                    'title': '✅ Slack Integration Test',
+                    'message': 'This is a test message from Impressionnistes Registration System',
+                    'timestamp': datetime.utcnow().isoformat()
+                }
+            )
+            results[key] = 'success' if status == 200 else 'failed'
+        except Exception as e:
+            results[key] = f'error: {str(e)}'
+    
+    return results
+```
+
+### Security Considerations
+
+#### Webhook URL Storage
+- Slack webhook URLs are stored in DynamoDB configuration (encrypted at rest)
+- URLs are never exposed in logs or error messages
+- Only Admin users can view/update webhook URLs
+- Webhook URLs should be rotated periodically
+
+#### Rate Limiting
+```python
+# Implement rate limiting to prevent Slack API abuse
+from functools import lru_cache
+from datetime import datetime, timedelta
+
+class SlackRateLimiter:
+    def __init__(self):
+        self.message_counts = {}
+        self.window_minutes = 1
+        self.max_messages_per_window = 10
+    
+    def can_send(self, channel_type):
+        """Check if we can send a message without exceeding rate limits"""
+        now = datetime.utcnow()
+        window_start = now - timedelta(minutes=self.window_minutes)
+        
+        # Clean old entries
+        self.message_counts = {
+            k: v for k, v in self.message_counts.items()
+            if v['timestamp'] > window_start
+        }
+        
+        # Count messages in current window
+        count = sum(
+            1 for k, v in self.message_counts.items()
+            if k.startswith(channel_type) and v['timestamp'] > window_start
+        )
+        
+        if count >= self.max_messages_per_window:
+            logger.warning(f"Slack rate limit reached for {channel_type}")
+            return False
+        
+        # Record this message
+        self.message_counts[f"{channel_type}_{now.timestamp()}"] = {
+            'timestamp': now
+        }
+        
+        return True
+
+rate_limiter = SlackRateLimiter()
+
+def send_slack_notification_with_rate_limit(webhook_url, message_data, channel_type='admin'):
+    """Send Slack notification with rate limiting"""
+    if not rate_limiter.can_send(channel_type):
+        logger.warning(f"Skipping Slack notification due to rate limit: {message_data['event_type']}")
+        return None
+    
+    return send_slack_notification(webhook_url, message_data)
+```
+
+### Monitoring and Alerting
+
+#### CloudWatch Metrics for Slack Notifications
+```python
+import boto3
+
+cloudwatch = boto3.client('cloudwatch')
+
+def track_slack_notification(event_type, status, channel_type):
+    """Track Slack notification metrics in CloudWatch"""
+    cloudwatch.put_metric_data(
+        Namespace='Impressionnistes/Notifications',
+        MetricData=[
+            {
+                'MetricName': 'SlackNotificationsSent',
+                'Value': 1 if status == 'success' else 0,
+                'Unit': 'Count',
+                'Dimensions': [
+                    {'Name': 'EventType', 'Value': event_type},
+                    {'Name': 'Channel', 'Value': channel_type},
+                    {'Name': 'Status', 'Value': status}
+                ]
+            }
+        ]
+    )
+```
+
+This comprehensive Slack integration ensures that Admin and DevOps teams stay informed about all critical registration events and system issues in real-time, enabling quick response and better system monitoring.
