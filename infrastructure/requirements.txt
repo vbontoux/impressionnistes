@@ -1,0 +1,6 @@
+# AWS CDK
+aws-cdk-lib==2.120.0
+constructs>=10.0.0,<11.0.0
+
+# CDK specific libraries
+aws-cdk.aws-lambda-python-alpha==2.120.0a0
