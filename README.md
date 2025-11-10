@@ -70,29 +70,46 @@ The Course des Impressionnistes Registration System enables rowing club team man
 - AWS CDK CLI (`npm install -g aws-cdk`)
 - Stripe account (test mode for development)
 
+**📖 For detailed setup instructions, see [SETUP.md](SETUP.md)**
+
 ## Getting Started
 
-### 1. Install Dependencies
+### 1. Set Up Python Virtual Environments
 
-**Frontend:**
+**Automated setup (recommended):**
+```bash
+# macOS/Linux
+./setup-venv.sh
+
+# Windows PowerShell
+.\setup-venv.ps1
+```
+
+**Manual setup:**
+```bash
+# Backend
+cd backend
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+deactivate
+
+# Infrastructure
+cd infrastructure
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+deactivate
+```
+
+### 2. Install Frontend Dependencies
+
 ```bash
 cd frontend
 npm install
 ```
 
-**Backend:**
-```bash
-cd backend
-pip install -r requirements.txt
-```
-
-**Infrastructure:**
-```bash
-cd infrastructure
-pip install -r requirements.txt
-```
-
-### 2. Configure Environment
+### 3. Configure Environment
 
 Create `.env` files for local development:
 
@@ -105,15 +122,21 @@ VITE_STRIPE_PUBLIC_KEY=pk_test_...
 **Backend:**
 Environment variables are managed through CDK deployment.
 
-### 3. Deploy Infrastructure
+### 4. Deploy Infrastructure
 
 ```bash
 cd infrastructure
-cdk bootstrap  # First time only
-cdk deploy --all
+source venv/bin/activate  # Activate virtual environment
+cdk bootstrap --context env=dev  # First time only
+cdk deploy --all --context env=dev
+
+# Or use the deployment script (handles venv automatically)
+./deploy.sh dev
 ```
 
-### 4. Run Frontend Locally
+See [infrastructure/README.md](infrastructure/README.md) for detailed deployment instructions.
+
+### 5. Run Frontend Locally
 
 ```bash
 cd frontend
@@ -133,16 +156,24 @@ npm run lint         # Lint code
 ### Backend Testing
 ```bash
 cd backend
+source venv/bin/activate  # Activate virtual environment
 pytest               # Run tests
 pytest --cov         # Run with coverage
+deactivate           # Deactivate when done
 ```
 
 ### Infrastructure Deployment
 ```bash
 cd infrastructure
-cdk diff             # Preview changes
-cdk deploy           # Deploy to AWS
-cdk destroy          # Remove all resources
+source venv/bin/activate  # Activate virtual environment
+cdk diff --context env=dev             # Preview changes
+cdk deploy --all --context env=dev     # Deploy to AWS
+cdk destroy --all --context env=dev    # Remove all resources
+deactivate           # Deactivate when done
+
+# Or use deployment scripts (handle venv automatically)
+./deploy.sh dev
+./destroy.sh dev
 ```
 
 ## Key Features

@@ -4,13 +4,13 @@ AWS CDK App Entry Point
 Course des Impressionnistes Registration System
 """
 import os
-from aws_cdk import App, Environment
+from aws_cdk import App, Environment, Tags
 
-# Import stacks (will be created in subsequent tasks)
-# from stacks.database_stack import DatabaseStack
-# from stacks.api_stack import ApiStack
-# from stacks.frontend_stack import FrontendStack
-# from stacks.monitoring_stack import MonitoringStack
+# Import stacks
+from stacks.database_stack import DatabaseStack
+from stacks.api_stack import ApiStack
+from stacks.frontend_stack import FrontendStack
+from stacks.monitoring_stack import MonitoringStack
 
 app = App()
 
@@ -23,10 +23,41 @@ aws_env = Environment(
     region=os.environ.get("CDK_DEFAULT_REGION", "eu-west-3")
 )
 
-# TODO: Create and configure stacks in subsequent tasks
-# database_stack = DatabaseStack(app, f"ImpressionnistesDatabase-{env_name}", env=aws_env)
-# api_stack = ApiStack(app, f"ImpressionnistesApi-{env_name}", database=database_stack, env=aws_env)
-# frontend_stack = FrontendStack(app, f"ImpressiornistesFrontend-{env_name}", api=api_stack, env=aws_env)
-# monitoring_stack = MonitoringStack(app, f"ImpressionnistesMonitoring-{env_name}", env=aws_env)
+# Create stacks with dependencies
+database_stack = DatabaseStack(
+    app,
+    f"ImpressionnistesDatabase-{env_name}",
+    env=aws_env,
+    description="DynamoDB table and database infrastructure"
+)
+
+monitoring_stack = MonitoringStack(
+    app,
+    f"ImpressionnistesMonitoring-{env_name}",
+    env=aws_env,
+    description="CloudWatch logs, alarms, and SNS topics"
+)
+
+api_stack = ApiStack(
+    app,
+    f"ImpressionnistesApi-{env_name}",
+    database_stack=database_stack,
+    env=aws_env,
+    description="API Gateway and Lambda functions"
+)
+
+frontend_stack = FrontendStack(
+    app,
+    f"ImpressiornistesFrontend-{env_name}",
+    api_stack=api_stack,
+    env=aws_env,
+    description="S3 and CloudFront for frontend hosting"
+)
+
+# Add common tags to all stacks
+for stack in [database_stack, monitoring_stack, api_stack, frontend_stack]:
+    Tags.of(stack).add("Project", "CourseDesImpressionnistes")
+    Tags.of(stack).add("Environment", env_name)
+    Tags.of(stack).add("ManagedBy", "CDK")
 
 app.synth()

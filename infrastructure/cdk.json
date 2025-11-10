@@ -15,6 +15,18 @@
     ]
   },
   "context": {
+    "dev": {
+      "region": "eu-west-3",
+      "table_name": "impressionnistes-registration-dev",
+      "enable_point_in_time_recovery": false,
+      "removal_policy": "DESTROY"
+    },
+    "prod": {
+      "region": "eu-west-3",
+      "table_name": "impressionnistes-registration-prod",
+      "enable_point_in_time_recovery": true,
+      "removal_policy": "RETAIN"
+    },
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": [
