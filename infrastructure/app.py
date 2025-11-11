@@ -34,6 +34,7 @@ database_stack = DatabaseStack(
 monitoring_stack = MonitoringStack(
     app,
     f"ImpressionnistesMonitoring-{env_name}",
+    database_stack=database_stack,
     env=aws_env,
     description="CloudWatch logs, alarms, and SNS topics"
 )
