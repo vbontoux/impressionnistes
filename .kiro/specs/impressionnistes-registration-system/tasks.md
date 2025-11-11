@@ -39,7 +39,7 @@
   - Set up CDK deployment scripts and configuration
   - _Requirements: TC-2.1_
 
-- [ ] 1.3 Implement DynamoDB table with single-table design
+- [x] 1.3 Implement DynamoDB table with single-table design
   - Create DynamoDB table with PK/SK structure and encryption at rest
   - Add GSI1 for registration status queries (status, created_at)
   - Add GSI2 for race lookup (event_type#boat_type, age_category#gender_category)

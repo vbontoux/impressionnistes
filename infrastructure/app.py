@@ -59,5 +59,6 @@ for stack in [database_stack, monitoring_stack, api_stack, frontend_stack]:
     Tags.of(stack).add("Project", "CourseDesImpressionnistes")
     Tags.of(stack).add("Environment", env_name)
     Tags.of(stack).add("ManagedBy", "CDK")
+    Tags.of(stack).add("CostCenter", "RCPM")  # Optional: for cost allocation
 
 app.synth()

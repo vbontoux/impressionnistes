@@ -2,6 +2,26 @@
 
 This directory contains the AWS CDK infrastructure code for the Course des Impressionnistes Registration System.
 
+## Quick Start
+
+```bash
+cd infrastructure
+
+# 1. Setup (creates venv and installs dependencies)
+make setup
+
+# 2. Bootstrap CDK (first time only)
+make bootstrap
+
+# 3. Preview what will be created
+make diff
+
+# 4. Deploy to AWS
+make deploy-dev
+```
+
+That's it! Your infrastructure is now deployed to AWS.
+
 ## Prerequisites
 
 - Python 3.11+
@@ -64,9 +84,23 @@ Environment-specific configuration is defined in `cdk.json` under the `context` 
 
 ## Installation
 
-### Set Up Virtual Environment
+### Using Makefile (Recommended)
 
-**Automated (recommended):**
+The Makefile handles virtual environment creation and dependency installation automatically:
+
+```bash
+cd infrastructure
+
+# Create venv and install dependencies
+make setup
+
+# Show all available commands
+make help
+```
+
+### Set Up Virtual Environment Manually
+
+**Automated:**
 ```bash
 # From project root
 ./setup-venv.sh  # macOS/Linux
@@ -83,7 +117,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-**Important:** Always activate the virtual environment before running CDK commands:
+**Important:** If not using Makefile, always activate the virtual environment before running CDK commands:
 ```bash
 source venv/bin/activate  # macOS/Linux
 # or
@@ -97,13 +131,24 @@ venv\Scripts\activate  # Windows
 Bootstrap CDK in your AWS account (only needed once per account/region):
 
 ```bash
-source venv/bin/activate  # Activate virtual environment first
+# Using Makefile (handles venv automatically)
+make bootstrap
+
+# Or manually (activate venv first)
+source venv/bin/activate
 cdk bootstrap --context env=dev
 ```
 
 ### Deploy to Development
 
-**Using deployment script (recommended - handles venv automatically):**
+**Using Makefile (recommended - handles venv automatically):**
+```bash
+make deploy-dev
+# or
+make deploy ENV=dev
+```
+
+**Using deployment script:**
 ```bash
 ./deploy.sh dev
 ```
@@ -117,7 +162,12 @@ deactivate
 
 ### Deploy to Production
 
-**Using deployment script (recommended):**
+**Using Makefile (has safety confirmation):**
+```bash
+make deploy-prod
+```
+
+**Using deployment script:**
 ```bash
 ./deploy.sh prod
 ```
@@ -137,13 +187,53 @@ cdk deploy ImpressionnistesDatabase-dev --context env=dev
 deactivate
 ```
 
+## Makefile Commands
+
+The Makefile provides convenient commands that handle virtual environment automatically:
+
+```bash
+# Setup
+make setup          # Create venv and install dependencies
+make bootstrap      # Bootstrap CDK (first time only)
+
+# Deployment
+make synth          # Synthesize CloudFormation templates
+make diff           # Show what will change
+make deploy         # Deploy all stacks (default: dev)
+make deploy-dev     # Deploy to dev environment
+make deploy-prod    # Deploy to prod (with confirmation)
+
+# Management
+make list           # List all stacks
+make destroy        # Destroy all stacks (default: dev)
+make destroy-dev    # Destroy dev environment
+make destroy-prod   # Destroy prod (with confirmation)
+
+# Cleanup
+make clean          # Remove venv and cache files
+
+# Help
+make help           # Show all commands
+```
+
+**Environment variable:**
+```bash
+# Deploy to specific environment
+make deploy ENV=prod
+make diff ENV=dev
+```
+
 ## Useful CDK Commands
 
-**Note:** Always activate the virtual environment first: `source venv/bin/activate`
+**Note:** If not using Makefile, activate the virtual environment first: `source venv/bin/activate`
 
 ### Synthesize CloudFormation Templates
 
 ```bash
+# Using Makefile
+make synth
+
+# Or manually
 source venv/bin/activate
 cdk synth --context env=dev
 ```
@@ -151,6 +241,10 @@ cdk synth --context env=dev
 ### Show Differences
 
 ```bash
+# Using Makefile
+make diff
+
+# Or manually
 source venv/bin/activate
 cdk diff --context env=dev
 ```
@@ -158,13 +252,24 @@ cdk diff --context env=dev
 ### List All Stacks
 
 ```bash
+# Using Makefile
+make list
+
+# Or manually
 source venv/bin/activate
 cdk list --context env=dev
 ```
 
 ### Destroy Environment
 
-**Using script (recommended):**
+**Using Makefile (recommended):**
+```bash
+make destroy-dev
+# or
+make destroy-prod  # Has safety confirmation
+```
+
+**Using script:**
 ```bash
 ./destroy.sh dev
 ```

@@ -69,5 +69,13 @@ htmlcov/
 frontend/dist/
 frontend/.vite/
 
+# Database exports
+exports/
+infrastructure/exports/
+
+# Secrets
+secrets.json
+**/secrets.json
+
 # Other
 raw-requirements/*
