@@ -32,7 +32,7 @@
   - Create README.md with project overview and setup instructions
   - _Requirements: TC-1.1, TC-2.1_
 
-- [ ] 1.2 Set up AWS CDK infrastructure project
+- [x] 1.2 Set up AWS CDK infrastructure project
   - Initialize CDK app in Python with app.py entry point
   - Create stack structure: DatabaseStack, ApiStack, FrontendStack, MonitoringStack
   - Configure CDK context for environment-specific deployments (dev, prod)

@@ -40,11 +40,20 @@ install:
 
 test:
 	@echo "Running tests..."
-	@. $(VENV)/bin/activate && $(PYTEST)
+	@if [ -d "tests" ] && [ -n "$$(find tests -name 'test_*.py' -o -name '*_test.py')" ]; then \
+		$(PYTEST); \
+	else \
+		echo "No tests found. Create tests in the 'tests/' directory."; \
+		echo "Example: tests/test_example.py"; \
+	fi
 
 test-cov:
 	@echo "Running tests with coverage..."
-	@. $(VENV)/bin/activate && $(PYTEST) --cov=functions --cov=shared --cov-report=html --cov-report=term
+	@if [ -d "tests" ] && [ -n "$$(find tests -name 'test_*.py' -o -name '*_test.py')" ]; then \
+		$(PYTEST) --cov=functions --cov=shared --cov-report=html --cov-report=term; \
+	else \
+		echo "No tests found. Create tests in the 'tests/' directory."; \
+	fi
 
 lint:
 	@echo "Linting code..."
