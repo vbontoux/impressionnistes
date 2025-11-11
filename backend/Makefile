@@ -17,6 +17,7 @@ help:
 	@echo "Testing:"
 	@echo "  make test           - Run tests"
 	@echo "  make test-cov       - Run tests with coverage"
+	@echo "  make test-live      - Test against live dev database"
 	@echo ""
 	@echo "Code Quality:"
 	@echo "  make lint           - Run linters (when implemented)"
@@ -67,3 +68,10 @@ clean:
 	@rm -rf .coverage
 	@find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	@echo "✓ Cleanup complete"
+
+
+test-live:
+	@echo "Running live database tests..."
+	@echo "⚠️  This will test against actual DynamoDB dev environment"
+	@echo ""
+	@$(PYTHON) test_live_db.py
