@@ -78,4 +78,5 @@ secrets.json
 **/secrets.json
 
 # Other
+functions/layer/python/*
 raw-requirements/*

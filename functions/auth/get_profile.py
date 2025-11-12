@@ -6,17 +6,14 @@ import json
 import os
 import logging
 
-# Add parent directory to path for shared imports
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from shared.responses import (
+# Import from Lambda layer (shared modules are in /opt/python/)
+from responses import (
     success_response,
     not_found_error,
     handle_exceptions
 )
-from shared.database import get_db_client
-from shared.auth import require_auth, get_user_from_event
+from database import get_db_client
+from auth_utils import require_auth, get_user_from_event
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)

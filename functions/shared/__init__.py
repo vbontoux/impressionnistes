@@ -50,7 +50,7 @@ from .responses import (
     cors_preflight_response
 )
 
-from .auth import (
+from .auth_utils import (
     get_user_from_event,
     is_admin,
     is_team_manager,

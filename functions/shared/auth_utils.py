@@ -4,7 +4,7 @@ Helpers for Cognito JWT validation and role-based access control
 """
 import logging
 from functools import wraps
-from .responses import forbidden_error, unauthorized_error
+from responses import forbidden_error, unauthorized_error
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

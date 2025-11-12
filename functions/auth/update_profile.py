@@ -7,11 +7,8 @@ import os
 import boto3
 import logging
 
-# Add parent directory to path for shared imports
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from shared.responses import (
+# Import from Lambda layer (shared modules are in /opt/python/)
+from responses import (
     success_response,
     validation_error,
     not_found_error,
@@ -19,9 +16,9 @@ from shared.responses import (
     handle_exceptions,
     parse_request_body
 )
-from shared.validation import validate_team_manager, sanitize_dict
-from shared.database import get_db_client, get_timestamp
-from shared.auth import require_auth, get_user_from_event
+from validation import validate_team_manager, sanitize_dict
+from database import get_db_client, get_timestamp
+from auth_utils import require_auth, get_user_from_event
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)

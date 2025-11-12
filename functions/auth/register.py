@@ -8,19 +8,16 @@ import boto3
 import logging
 from datetime import datetime
 
-# Add parent directory to path for shared imports
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from shared.responses import (
+# Import from Lambda layer (shared modules are in /opt/python/)
+from responses import (
     success_response,
     validation_error,
     conflict_error,
     internal_error,
     handle_exceptions
 )
-from shared.validation import validate_team_manager, sanitize_dict
-from shared.database import get_db_client, get_timestamp
+from validation import validate_team_manager, sanitize_dict
+from database import get_db_client, get_timestamp
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)

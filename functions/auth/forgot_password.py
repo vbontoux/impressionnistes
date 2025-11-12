@@ -7,18 +7,15 @@ import os
 import boto3
 import logging
 
-# Add parent directory to path for shared imports
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from shared.responses import (
+# Import from Lambda layer (shared modules are in /opt/python/)
+from responses import (
     success_response,
     validation_error,
     internal_error,
     handle_exceptions,
     parse_request_body
 )
-from shared.validation import validate_email
+from validation import validate_email
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
