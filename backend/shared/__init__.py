@@ -50,6 +50,19 @@ from .responses import (
     cors_preflight_response
 )
 
+from .auth import (
+    get_user_from_event,
+    is_admin,
+    is_team_manager,
+    is_devops,
+    require_auth,
+    require_admin,
+    require_team_manager,
+    require_devops,
+    require_any_role,
+    check_resource_ownership
+)
+
 __all__ = [
     # Configuration
     'ConfigurationManager',
@@ -95,4 +108,16 @@ __all__ = [
     'get_path_parameter',
     'get_query_parameter',
     'cors_preflight_response',
+    
+    # Auth
+    'get_user_from_event',
+    'is_admin',
+    'is_team_manager',
+    'is_devops',
+    'require_auth',
+    'require_admin',
+    'require_team_manager',
+    'require_devops',
+    'require_any_role',
+    'check_resource_ownership',
 ]

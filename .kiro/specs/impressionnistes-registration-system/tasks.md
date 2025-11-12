@@ -67,13 +67,16 @@
 
 ## 2. Authentication and User Management
 
-- [ ] 2.1 Implement Amazon Cognito user pool and authentication
+- [x] 2.1 Implement Amazon Cognito user pool and authentication
   - Create Cognito User Pool with email/password authentication
-  - Configure social login providers (Google, Facebook)
+  - Configure social login providers (Google, Facebook) - ready for credentials
   - Set up user pool domain and hosted UI
   - Configure password policies and MFA options
   - Implement session timeout (30 minutes) and automatic logout
-  - _Requirements: FR-1.1, FR-1.2, FR-1.3, NFR-3.3_
+  - Create Cognito Groups for role-based access (admins, team_managers, devops)
+  - Implement authorization helpers and decorators (@require_admin, @require_team_manager)
+  - Add Makefile commands for admin user creation and group management
+  - _Requirements: FR-1.1, FR-1.2, FR-1.3, NFR-3.3, NFR-3.5_
 
 - [ ] 2.2 Create team manager registration and profile management
   - Implement Lambda function for user registration with profile data

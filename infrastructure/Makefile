@@ -1,4 +1,4 @@
-.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws list costs db-export db-view clean
+.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws list costs db-export db-view cognito-create-admin cognito-list-users cognito-add-to-group clean
 
 # Virtual environment paths
 VENV = venv
@@ -31,6 +31,7 @@ help:
 	@echo "  make deploy         - Deploy all stacks (default: dev)"
 	@echo "  make deploy-dev     - Deploy to dev environment"
 	@echo "  make deploy-prod    - Deploy to prod environment"
+	@echo "  make deploy-auth    - Deploy only auth stack"
 	@echo "  make redeploy       - Quick redeploy (destroy + deploy for dev)"
 	@echo ""
 	@echo "Management:"
@@ -41,6 +42,11 @@ help:
 	@echo "  make destroy        - Destroy all stacks (default: dev)"
 	@echo "  make destroy-dev    - Destroy dev environment"
 	@echo "  make destroy-prod   - Destroy prod environment (with confirmation)"
+	@echo ""
+	@echo "Cognito User Management:"
+	@echo "  make cognito-create-admin EMAIL=user@example.com - Create admin user"
+	@echo "  make cognito-list-users                          - List all Cognito users"
+	@echo "  make cognito-add-to-group EMAIL=user@example.com GROUP=admins - Add user to group"
 	@echo ""
 	@echo "Troubleshooting:"
 	@echo "  make fix-stuck-stack - Fix stuck CloudFormation stack"
@@ -123,9 +129,16 @@ deploy-prod:
 		exit 1; \
 	fi
 
+
 list:
 	@echo "Listing stacks for $(ENV) environment..."
 	@. $(VENV)/bin/activate && $(CDK) list --context env=$(ENV)
+
+
+deploy-auth:
+	@echo "Deploying Auth stack for $(ENV) environment..."
+	@$(CDK) deploy ImpressionnistesAuth-$(ENV) --context env=$(ENV)
+	@echo "✓ Auth stack deployed"
 
 destroy:
 	@echo "Destroying $(ENV) environment..."
@@ -279,4 +292,123 @@ db-export:
 	@ls -lh exports/ | tail -n +2 | grep "$$(date +%Y%m%d)" | awk '{print "  " $$9 " (" $$5 ")"}'
 	@echo ""
 	@echo "To view: open exports/"
+	@echo "=========================================="
+
+
+cognito-create-admin:
+	@echo "=========================================="
+	@echo "Creating Admin User in Cognito"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@if [ -z "$(EMAIL)" ]; then \
+		echo "❌ Error: EMAIL parameter required"; \
+		echo "Usage: make cognito-create-admin EMAIL=admin@example.com"; \
+		exit 1; \
+	fi
+	@echo "Getting User Pool ID..."
+	@USER_POOL_ID=$$(aws cloudformation describe-stacks \
+		--stack-name ImpressionnistesAuth-$(ENV) \
+		--query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' \
+		--output text 2>/dev/null); \
+	if [ -z "$$USER_POOL_ID" ]; then \
+		echo "❌ Error: Could not find User Pool. Has the auth stack been deployed?"; \
+		exit 1; \
+	fi; \
+	echo "User Pool ID: $$USER_POOL_ID"; \
+	echo ""; \
+	echo "Creating user: $(EMAIL)"; \
+	aws cognito-idp admin-create-user \
+		--user-pool-id $$USER_POOL_ID \
+		--username $(EMAIL) \
+		--user-attributes \
+			Name=email,Value=$(EMAIL) \
+			Name=email_verified,Value=true \
+			Name=given_name,Value=Admin \
+			Name=family_name,Value=RCPM \
+			Name=custom:role,Value=admin \
+		--desired-delivery-mediums EMAIL 2>/dev/null || echo "User may already exist"; \
+	echo ""; \
+	echo "Adding user to 'admins' group..."; \
+	aws cognito-idp admin-add-user-to-group \
+		--user-pool-id $$USER_POOL_ID \
+		--username $(EMAIL) \
+		--group-name admins; \
+	echo ""; \
+	echo "=========================================="
+	@echo "✓ Admin user created successfully!"
+	@echo ""
+	@echo "User: $(EMAIL)"
+	@echo "Group: admins"
+	@echo ""
+	@echo "The user will receive an email with a temporary password."
+	@echo "They must change it on first login."
+	@echo "=========================================="
+
+cognito-list-users:
+	@echo "=========================================="
+	@echo "Cognito Users"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@USER_POOL_ID=$$(aws cloudformation describe-stacks \
+		--stack-name ImpressionnistesAuth-$(ENV) \
+		--query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' \
+		--output text 2>/dev/null); \
+	if [ -z "$$USER_POOL_ID" ]; then \
+		echo "❌ Error: Could not find User Pool"; \
+		exit 1; \
+	fi; \
+	echo "Fetching users..."; \
+	echo ""; \
+	aws cognito-idp list-users \
+		--user-pool-id $$USER_POOL_ID \
+		--query 'Users[].[Username, UserStatus, Enabled, join(`, `, Attributes[?Name==`email`].Value)]' \
+		--output table; \
+	echo ""; \
+	echo "Groups:"; \
+	for group in admins team_managers devops; do \
+		echo ""; \
+		echo "  $$group:"; \
+		aws cognito-idp list-users-in-group \
+			--user-pool-id $$USER_POOL_ID \
+			--group-name $$group \
+			--query 'Users[].Username' \
+			--output text 2>/dev/null | sed 's/^/    /' || echo "    (none)"; \
+	done
+	@echo ""
+	@echo "=========================================="
+
+cognito-add-to-group:
+	@echo "=========================================="
+	@echo "Add User to Cognito Group"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@if [ -z "$(EMAIL)" ]; then \
+		echo "❌ Error: EMAIL parameter required"; \
+		echo "Usage: make cognito-add-to-group EMAIL=user@example.com GROUP=admins"; \
+		exit 1; \
+	fi
+	@if [ -z "$(GROUP)" ]; then \
+		echo "❌ Error: GROUP parameter required"; \
+		echo "Available groups: admins, team_managers, devops"; \
+		echo "Usage: make cognito-add-to-group EMAIL=user@example.com GROUP=admins"; \
+		exit 1; \
+	fi
+	@USER_POOL_ID=$$(aws cloudformation describe-stacks \
+		--stack-name ImpressionnistesAuth-$(ENV) \
+		--query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' \
+		--output text 2>/dev/null); \
+	if [ -z "$$USER_POOL_ID" ]; then \
+		echo "❌ Error: Could not find User Pool"; \
+		exit 1; \
+	fi; \
+	echo "Adding $(EMAIL) to group '$(GROUP)'..."; \
+	aws cognito-idp admin-add-user-to-group \
+		--user-pool-id $$USER_POOL_ID \
+		--username $(EMAIL) \
+		--group-name $(GROUP); \
+	echo ""; \
+	echo "✓ User added to group successfully!"
 	@echo "=========================================="

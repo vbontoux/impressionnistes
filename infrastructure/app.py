@@ -11,6 +11,7 @@ from stacks.database_stack import DatabaseStack
 from stacks.api_stack import ApiStack
 from stacks.frontend_stack import FrontendStack
 from stacks.monitoring_stack import MonitoringStack
+from stacks.auth_stack import AuthStack
 
 app = App()
 
@@ -39,6 +40,13 @@ monitoring_stack = MonitoringStack(
     description="CloudWatch logs, alarms, and SNS topics"
 )
 
+auth_stack = AuthStack(
+    app,
+    f"ImpressionnistesAuth-{env_name}",
+    env=aws_env,
+    description="Cognito user pool and authentication"
+)
+
 api_stack = ApiStack(
     app,
     f"ImpressionnistesApi-{env_name}",
@@ -56,7 +64,7 @@ frontend_stack = FrontendStack(
 )
 
 # Add common tags to all stacks
-for stack in [database_stack, monitoring_stack, api_stack, frontend_stack]:
+for stack in [database_stack, monitoring_stack, auth_stack, api_stack, frontend_stack]:
     Tags.of(stack).add("Project", "CourseDesImpressionnistes")
     Tags.of(stack).add("Environment", env_name)
     Tags.of(stack).add("ManagedBy", "CDK")
