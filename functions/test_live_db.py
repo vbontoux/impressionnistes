@@ -9,19 +9,12 @@ import json
 from datetime import datetime
 from decimal import Decimal
 
-# Add parent directory to path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add shared directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'shared'))
 
-from shared import (
-    get_config_manager,
-    get_db_client,
-    generate_id,
-    get_timestamp,
-    validate_crew_member,
-    sanitize_dict,
-    is_registration_active,
-    get_base_seat_price
-)
+from shared.configuration import get_config_manager, is_registration_active, get_base_seat_price
+from shared.database import get_db_client, generate_id, get_timestamp
+from shared.validation import validate_crew_member, sanitize_dict
 
 
 def print_section(title):

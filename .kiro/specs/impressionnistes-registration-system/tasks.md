@@ -78,7 +78,7 @@
   - Add Makefile commands for admin user creation and group management
   - _Requirements: FR-1.1, FR-1.2, FR-1.3, NFR-3.3, NFR-3.5_
 
-- [ ] 2.2 Create team manager registration and profile management
+- [x] 2.2 Create team manager registration and profile management
   - Implement Lambda function for user registration with profile data
   - Store team manager profile in DynamoDB (first_name, last_name, email, club_affiliation, mobile_number)
   - Create Lambda function for profile updates

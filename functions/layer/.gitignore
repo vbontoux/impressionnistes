@@ -1,0 +1,2 @@
+# Lambda layer is built from source, don't commit
+python/

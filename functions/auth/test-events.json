@@ -1,0 +1,75 @@
+{
+  "register_valid": {
+    "body": "{\"email\":\"test@example.com\",\"password\":\"TestPass123!\",\"first_name\":\"Jean\",\"last_name\":\"Dupont\",\"club_affiliation\":\"Rowing Club Paris\",\"mobile_number\":\"+33612345678\"}"
+  },
+  
+  "register_invalid_email": {
+    "body": "{\"email\":\"invalid-email\",\"password\":\"TestPass123!\",\"first_name\":\"Jean\",\"last_name\":\"Dupont\",\"club_affiliation\":\"Rowing Club Paris\",\"mobile_number\":\"+33612345678\"}"
+  },
+  
+  "get_profile_authenticated": {
+    "requestContext": {
+      "authorizer": {
+        "claims": {
+          "sub": "test-user-id-123",
+          "email": "test@example.com",
+          "given_name": "Jean",
+          "family_name": "Dupont",
+          "custom:club_affiliation": "Rowing Club Paris",
+          "custom:role": "team_manager",
+          "cognito:groups": "team_managers"
+        }
+      }
+    }
+  },
+  
+  "update_profile_first_name": {
+    "body": "{\"first_name\":\"Pierre\"}",
+    "requestContext": {
+      "authorizer": {
+        "claims": {
+          "sub": "test-user-id-123",
+          "email": "test@example.com",
+          "given_name": "Jean",
+          "family_name": "Dupont",
+          "custom:club_affiliation": "Rowing Club Paris",
+          "custom:role": "team_manager",
+          "cognito:groups": "team_managers"
+        }
+      }
+    }
+  },
+  
+  "update_profile_multiple": {
+    "body": "{\"first_name\":\"Pierre\",\"last_name\":\"Martin\",\"club_affiliation\":\"New Rowing Club\",\"mobile_number\":\"+33698765432\"}",
+    "requestContext": {
+      "authorizer": {
+        "claims": {
+          "sub": "test-user-id-123",
+          "email": "test@example.com",
+          "given_name": "Jean",
+          "family_name": "Dupont",
+          "custom:club_affiliation": "Rowing Club Paris",
+          "custom:role": "team_manager",
+          "cognito:groups": "team_managers"
+        }
+      }
+    }
+  },
+  
+  "forgot_password_valid": {
+    "body": "{\"email\":\"test@example.com\"}"
+  },
+  
+  "forgot_password_invalid": {
+    "body": "{\"email\":\"not-an-email\"}"
+  },
+  
+  "confirm_password_reset_valid": {
+    "body": "{\"email\":\"test@example.com\",\"code\":\"123456\",\"new_password\":\"NewSecurePass123!\"}"
+  },
+  
+  "confirm_password_reset_weak_password": {
+    "body": "{\"email\":\"test@example.com\",\"code\":\"123456\",\"new_password\":\"weak\"}"
+  }
+}

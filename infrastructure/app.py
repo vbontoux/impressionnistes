@@ -51,6 +51,7 @@ api_stack = ApiStack(
     app,
     f"ImpressionnistesApi-{env_name}",
     database_stack=database_stack,
+    auth_stack=auth_stack,
     env=aws_env,
     description="API Gateway and Lambda functions"
 )

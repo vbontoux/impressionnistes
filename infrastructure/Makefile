@@ -111,7 +111,7 @@ diff:
 	@echo "Showing changes for $(ENV) environment..."
 	@. $(VENV)/bin/activate && $(CDK) diff --all --context env=$(ENV)
 
-deploy:
+deploy: build-layer
 	@echo "Deploying to $(ENV) environment..."
 	@. $(VENV)/bin/activate && $(CDK) deploy --all --context env=$(ENV) --require-approval never
 	@echo "✓ Deployment complete"
@@ -139,6 +139,16 @@ deploy-auth:
 	@echo "Deploying Auth stack for $(ENV) environment..."
 	@$(CDK) deploy ImpressionnistesAuth-$(ENV) --context env=$(ENV)
 	@echo "✓ Auth stack deployed"
+
+build-layer:
+	@echo "Building Lambda layer..."
+	@cd ../functions && ./build-layer.sh
+	@echo "✓ Lambda layer built"
+
+deploy-api: build-layer
+	@echo "Deploying API stack for $(ENV) environment..."
+	@$(CDK) deploy ImpressionnistesApi-$(ENV) --context env=$(ENV)
+	@echo "✓ API stack deployed"
 
 destroy:
 	@echo "Destroying $(ENV) environment..."
