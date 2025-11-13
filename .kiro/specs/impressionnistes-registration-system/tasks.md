@@ -469,7 +469,7 @@
 
 ## 18. API Gateway and Lambda Integration
 
-- [ ] 18.1 Set up API Gateway REST API
+- [x] 18.1 Set up API Gateway REST API
   - Create API Gateway REST API with CORS configuration
   - Configure API Gateway stages (dev, prod)
   - Set up API Gateway authorizers with Cognito
@@ -485,13 +485,13 @@
   - Configure Lambda reserved concurrency
   - _Requirements: TC-1.1, NFR-2.1_
 
-- [ ] 18.3 Implement API Gateway routes and integrations
-  - Create authentication endpoints (/auth/*)
-  - Add crew member endpoints (/crew/*)
-  - Create boat registration endpoints (/boat/*)
-  - Implement payment endpoints (/payment/*)
-  - Add admin endpoints (/admin/*)
-  - Create contact form endpoint (/contact)
+- [x] 18.3 Implement API Gateway routes and integrations
+  - Create authentication endpoints (/auth/*) - DONE
+  - Add crew member endpoints (/crew/*) - TODO (future tasks)
+  - Create boat registration endpoints (/boat/*) - TODO (future tasks)
+  - Implement payment endpoints (/payment/*) - TODO (future tasks)
+  - Add admin endpoints (/admin/*) - TODO (future tasks)
+  - Create contact form endpoint (/contact) - TODO (future tasks)
   - _Requirements: TC-1.5_
 
 ## 19. Frontend Deployment and CDN

@@ -5,6 +5,7 @@ Course des Impressionnistes Registration System
 from aws_cdk import (
     Stack,
     Duration,
+    RemovalPolicy,
     aws_apigateway as apigateway,
     aws_lambda as lambda_,
     aws_iam as iam,
@@ -68,16 +69,8 @@ class ApiStack(Stack):
         # Create auth Lambda functions
         self._create_auth_functions()
         
-        # API Gateway REST API
-        # Will be fully implemented in task 18.1
-        self.api = None
-        
-        # TODO: Task 18.1 - Create API Gateway REST API with:
-        # - CORS configuration
-        # - API Gateway stages (dev, prod)
-        # - Cognito authorizers
-        # - Request/response transformations
-        # - Logging and monitoring
+        # Create API Gateway REST API
+        self._create_api_gateway()
         
         # TODO: Task 18.3 - Implement API Gateway routes:
         # - /auth/* endpoints
@@ -173,4 +166,133 @@ class ApiStack(Stack):
             'ConfirmPasswordResetFunction',
             'auth/confirm_password_reset',
             'Confirm password reset with code'
+        )
+
+    def _create_api_gateway(self):
+        """Create API Gateway REST API with Cognito authorizer"""
+        
+        # Create CloudWatch role for API Gateway logging
+        cloudwatch_role = iam.Role(
+            self,
+            "ApiGatewayCloudWatchRole",
+            assumed_by=iam.ServicePrincipal("apigateway.amazonaws.com"),
+            managed_policies=[
+                iam.ManagedPolicy.from_aws_managed_policy_name(
+                    "service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+                )
+            ]
+        )
+        
+        # Get environment name
+        env_name = self.node.try_get_context('env') or 'dev'
+        
+        # Create REST API
+        self.api = apigateway.RestApi(
+            self,
+            "ImpressionnistesApi",
+            rest_api_name=f"impressionnistes-api-{env_name}",
+            description="Course des Impressionnistes Registration System API",
+            cloud_watch_role=True,
+            cloud_watch_role_removal_policy=RemovalPolicy.DESTROY if env_name == 'dev' else RemovalPolicy.RETAIN,
+            
+            # CORS configuration
+            default_cors_preflight_options=apigateway.CorsOptions(
+                allow_origins=apigateway.Cors.ALL_ORIGINS,  # TODO: Restrict in production
+                allow_methods=apigateway.Cors.ALL_METHODS,
+                allow_headers=[
+                    'Content-Type',
+                    'Authorization',
+                    'X-Amz-Date',
+                    'X-Api-Key',
+                    'X-Amz-Security-Token'
+                ],
+                allow_credentials=True
+            ),
+            
+            # Deploy options
+            deploy_options=apigateway.StageOptions(
+                stage_name=self.node.try_get_context('env') or 'dev',
+                throttling_rate_limit=1000,
+                throttling_burst_limit=2000,
+                logging_level=apigateway.MethodLoggingLevel.INFO,
+                data_trace_enabled=True,
+                metrics_enabled=True
+            )
+        )
+        
+        # Create Cognito authorizer
+        self.authorizer = apigateway.CognitoUserPoolsAuthorizer(
+            self,
+            "CognitoAuthorizer",
+            cognito_user_pools=[self.auth_stack.user_pool],
+            authorizer_name="CognitoAuthorizer",
+            identity_source="method.request.header.Authorization"
+        )
+        
+        # Create /auth resource
+        auth_resource = self.api.root.add_resource('auth')
+        
+        # POST /auth/register (no auth required)
+        register_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['register'],
+            proxy=True
+        )
+        auth_resource.add_resource('register').add_method(
+            'POST',
+            register_integration
+        )
+        
+        # GET /auth/profile (auth required)
+        profile_resource = auth_resource.add_resource('profile')
+        profile_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['get_profile'],
+            proxy=True
+        )
+        profile_resource.add_method(
+            'GET',
+            profile_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # PUT /auth/profile (auth required)
+        update_profile_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['update_profile'],
+            proxy=True
+        )
+        profile_resource.add_method(
+            'PUT',
+            update_profile_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # POST /auth/forgot-password (no auth required)
+        forgot_password_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['forgot_password'],
+            proxy=True
+        )
+        auth_resource.add_resource('forgot-password').add_method(
+            'POST',
+            forgot_password_integration
+        )
+        
+        # POST /auth/reset-password (no auth required)
+        reset_password_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['confirm_password_reset'],
+            proxy=True
+        )
+        auth_resource.add_resource('reset-password').add_method(
+            'POST',
+            reset_password_integration
+        )
+
+        # Output API URL
+        from aws_cdk import CfnOutput
+        CfnOutput(
+            self,
+            "ApiUrl",
+            value=self.api.url,
+            description="API Gateway URL",
+            export_name=f"ImpressionnistesApiUrl-{self.node.try_get_context('env') or 'dev'}"
         )
