@@ -1,4 +1,4 @@
-.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws list costs db-export db-view cognito-create-admin cognito-list-users cognito-add-to-group clean
+.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws list describe-infra costs db-export db-view cognito-create-admin cognito-list-users cognito-add-to-group clean
 
 # Virtual environment paths
 VENV = venv
@@ -36,6 +36,7 @@ help:
 	@echo ""
 	@echo "Management:"
 	@echo "  make list           - List all stacks"
+	@echo "  make describe-infra - Show API URL and Cognito details for frontend config"
 	@echo "  make costs          - Show AWS costs for last month (default: last 30 days)"
 	@echo "  make db-export      - Export DynamoDB table to CSV (default: dev)"
 	@echo "  make db-view        - View DynamoDB table contents (default: dev)"
@@ -134,6 +135,70 @@ list:
 	@echo "Listing stacks for $(ENV) environment..."
 	@. $(VENV)/bin/activate && $(CDK) list --context env=$(ENV)
 
+describe-infra:
+	@echo "=========================================="
+	@echo "Infrastructure Details"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@echo "API Gateway:"
+	@API_URL=$$(aws cloudformation describe-stacks \
+		--stack-name ImpressionnistesApi-$(ENV) \
+		--query 'Stacks[0].Outputs[?OutputKey==`ApiUrl`].OutputValue' \
+		--output text 2>/dev/null); \
+	if [ -n "$$API_URL" ]; then \
+		echo "  URL: $$API_URL"; \
+	else \
+		echo "  ⚠️  API stack not deployed yet"; \
+	fi
+	@echo ""
+	@echo "Cognito Configuration:"
+	@USER_POOL_ID=$$(aws cloudformation describe-stacks \
+		--stack-name ImpressionnistesAuth-$(ENV) \
+		--query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' \
+		--output text 2>/dev/null); \
+	CLIENT_ID=$$(aws cloudformation describe-stacks \
+		--stack-name ImpressionnistesAuth-$(ENV) \
+		--query 'Stacks[0].Outputs[?OutputKey==`UserPoolClientId`].OutputValue' \
+		--output text 2>/dev/null); \
+	DOMAIN=$$(aws cloudformation describe-stacks \
+		--stack-name ImpressionnistesAuth-$(ENV) \
+		--query 'Stacks[0].Outputs[?OutputKey==`UserPoolDomain`].OutputValue' \
+		--output text 2>/dev/null); \
+	if [ -n "$$USER_POOL_ID" ]; then \
+		echo "  User Pool ID: $$USER_POOL_ID"; \
+		echo "  Client ID: $$CLIENT_ID"; \
+		echo "  Domain: $$DOMAIN"; \
+	else \
+		echo "  ⚠️  Auth stack not deployed yet"; \
+	fi
+	@echo ""
+	@echo "Frontend .env configuration:"
+	@echo "=========================================="
+	@API_URL=$$(aws cloudformation describe-stacks \
+		--stack-name ImpressionnistesApi-$(ENV) \
+		--query 'Stacks[0].Outputs[?OutputKey==`ApiUrl`].OutputValue' \
+		--output text 2>/dev/null); \
+	CLIENT_ID=$$(aws cloudformation describe-stacks \
+		--stack-name ImpressionnistesAuth-$(ENV) \
+		--query 'Stacks[0].Outputs[?OutputKey==`UserPoolClientId`].OutputValue' \
+		--output text 2>/dev/null); \
+	DOMAIN=$$(aws cloudformation describe-stacks \
+		--stack-name ImpressionnistesAuth-$(ENV) \
+		--query 'Stacks[0].Outputs[?OutputKey==`UserPoolDomain`].OutputValue' \
+		--output text 2>/dev/null); \
+	if [ -n "$$API_URL" ] && [ -n "$$CLIENT_ID" ]; then \
+		echo "VITE_API_URL=$$API_URL"; \
+		echo "VITE_COGNITO_DOMAIN=$$DOMAIN"; \
+		echo "VITE_COGNITO_CLIENT_ID=$$CLIENT_ID"; \
+		echo "VITE_COGNITO_REDIRECT_URI=http://localhost:3000/callback"; \
+	else \
+		echo "⚠️  Stacks not fully deployed yet"; \
+	fi
+	@echo "=========================================="
+	@echo ""
+	@echo "Copy the configuration above to frontend/.env"
+	@echo ""
 
 deploy-auth:
 	@echo "Deploying Auth stack for $(ENV) environment..."

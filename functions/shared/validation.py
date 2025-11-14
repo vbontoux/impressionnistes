@@ -181,7 +181,7 @@ team_manager_schema = {
     'mobile_number': {
         'type': 'string',
         'required': True,
-        'regex': r'^\+?[0-9\s\-\(\)]{10,20}$'
+        'regex': r'^\+[1-9]\d{1,14}$'  # E.164 format: +country_code followed by digits
     }
 }
 
@@ -367,7 +367,7 @@ def validate_email(email):
 
 def validate_phone(phone):
     """
-    Validate phone number format
+    Validate phone number format (E.164 format required)
     
     Args:
         phone: Phone number to validate
@@ -375,7 +375,7 @@ def validate_phone(phone):
     Returns:
         bool: True if valid
     """
-    pattern = r'^\+?[0-9\s\-\(\)]{10,20}$'
+    pattern = r'^\+[1-9]\d{1,14}$'  # E.164 format: +country_code followed by digits
     return bool(re.match(pattern, phone))
 
 

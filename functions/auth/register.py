@@ -68,6 +68,9 @@ def lambda_handler(event, context):
     
     is_valid, errors = validate_team_manager(profile_data)
     if not is_valid:
+        # Provide user-friendly error messages
+        if 'mobile_number' in errors:
+            errors['mobile_number'] = 'Phone number must be in international format (e.g., +33612345678)'
         return validation_error(errors)
     
     # Validate password
@@ -151,6 +154,14 @@ def lambda_handler(event, context):
     except cognito.exceptions.InvalidPasswordException as e:
         logger.warning(f"Invalid password: {e}")
         return validation_error({'password': str(e)})
+    
+    except cognito.exceptions.InvalidParameterException as e:
+        logger.warning(f"Invalid parameter: {e}")
+        error_message = str(e)
+        # Check if it's a phone number error
+        if 'phone' in error_message.lower():
+            return validation_error({'mobile_number': 'Phone number must be in international format (e.g., +33612345678)'})
+        return validation_error({'error': error_message})
     
     except Exception as e:
         logger.error(f"Registration failed: {str(e)}", exc_info=True)

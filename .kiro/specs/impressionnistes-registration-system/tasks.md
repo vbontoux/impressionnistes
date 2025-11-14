@@ -86,7 +86,7 @@
   - Add role-based access control (team_manager, admin, devops)
   - _Requirements: FR-1.4, FR-1.5, NFR-3.5_
 
-- [ ] 2.3 Build frontend authentication components
+- [x] 2.3 Build frontend authentication components
   - Create LoginForm.vue with email/password and social login options
   - Create RegisterForm.vue with team manager profile fields
   - Create PasswordReset.vue for password recovery flow
@@ -439,7 +439,7 @@
 
 ## 17. Frontend Application Structure
 
-- [ ] 17.1 Set up Vue.js 3 application with Vite
+- [x] 17.1 Set up Vue.js 3 application with Vite
   - Initialize Vite project with Vue 3 and TypeScript
   - Configure Vue Router with authentication guards
   - Set up Pinia stores for state management

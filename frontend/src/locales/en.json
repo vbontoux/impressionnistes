@@ -1,0 +1,62 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "or": "OR"
+  },
+  "nav": {
+    "login": "Login",
+    "register": "Register"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "cognitoNote": "Login with AWS Cognito",
+      "cognitoInstructions": "Click the button below to login via Cognito Hosted UI",
+      "cognitoButton": "Login with Cognito",
+      "google": "Continue with Google",
+      "facebook": "Continue with Facebook",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Register here",
+      "forgotPassword": "Forgot password?"
+    },
+    "register": {
+      "title": "Register",
+      "subtitle": "Create your team manager account",
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "At least 8 characters with uppercase, lowercase, and numbers",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "clubAffiliation": "Club Affiliation",
+      "mobileNumber": "Mobile Number",
+      "mobileHint": "Format: +33612345678",
+      "submit": "Register",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Login here",
+      "success": "Registration successful! Please check your email to verify your account.",
+      "error": "Registration failed. Please try again."
+    },
+    "validation": {
+      "invalidEmail": "Invalid email format",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordNeedsUppercase": "Password must contain at least one uppercase letter",
+      "passwordNeedsLowercase": "Password must contain at least one lowercase letter",
+      "passwordNeedsNumber": "Password must contain at least one number"
+    },
+    "verify": {
+      "title": "Verify Your Email",
+      "subtitle": "Enter the verification code sent to your email",
+      "email": "Email",
+      "code": "Verification Code",
+      "codeHint": "6-digit code from your email",
+      "submit": "Verify",
+      "resend": "Resend Code",
+      "success": "Email verified successfully! Redirecting to login...",
+      "error": "Verification failed. Please try again.",
+      "invalidCode": "Invalid verification code",
+      "expiredCode": "Verification code has expired. Please request a new one.",
+      "resendSuccess": "Verification code sent! Check your email.",
+      "resendError": "Failed to resend code. Please try again."
+    }
+  }
+}

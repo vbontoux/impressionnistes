@@ -1,0 +1,62 @@
+{
+  "common": {
+    "loading": "Chargement...",
+    "or": "OU"
+  },
+  "nav": {
+    "login": "Connexion",
+    "register": "Inscription"
+  },
+  "auth": {
+    "login": {
+      "title": "Connexion",
+      "cognitoNote": "Connexion avec AWS Cognito",
+      "cognitoInstructions": "Cliquez sur le bouton ci-dessous pour vous connecter via Cognito",
+      "cognitoButton": "Se connecter avec Cognito",
+      "google": "Continuer avec Google",
+      "facebook": "Continuer avec Facebook",
+      "noAccount": "Pas encore de compte ?",
+      "registerLink": "S'inscrire ici",
+      "forgotPassword": "Mot de passe oublié ?"
+    },
+    "register": {
+      "title": "Inscription",
+      "subtitle": "Créez votre compte de gestionnaire d'équipe",
+      "email": "Email",
+      "password": "Mot de passe",
+      "passwordHint": "Au moins 8 caractères avec majuscules, minuscules et chiffres",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "clubAffiliation": "Club d'affiliation",
+      "mobileNumber": "Numéro de mobile",
+      "mobileHint": "Format : +33612345678",
+      "submit": "S'inscrire",
+      "haveAccount": "Vous avez déjà un compte ?",
+      "loginLink": "Se connecter ici",
+      "success": "Inscription réussie ! Veuillez vérifier votre email pour activer votre compte.",
+      "error": "L'inscription a échoué. Veuillez réessayer."
+    },
+    "validation": {
+      "invalidEmail": "Format d'email invalide",
+      "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
+      "passwordNeedsUppercase": "Le mot de passe doit contenir au moins une majuscule",
+      "passwordNeedsLowercase": "Le mot de passe doit contenir au moins une minuscule",
+      "passwordNeedsNumber": "Le mot de passe doit contenir au moins un chiffre"
+    },
+    "verify": {
+      "title": "Vérifiez votre email",
+      "subtitle": "Entrez le code de vérification envoyé à votre email",
+      "email": "Email",
+      "code": "Code de vérification",
+      "codeHint": "Code à 6 chiffres de votre email",
+      "submit": "Vérifier",
+      "resend": "Renvoyer le code",
+      "success": "Email vérifié avec succès ! Redirection vers la connexion...",
+      "error": "La vérification a échoué. Veuillez réessayer.",
+      "invalidCode": "Code de vérification invalide",
+      "expiredCode": "Le code de vérification a expiré. Veuillez en demander un nouveau.",
+      "resendSuccess": "Code de vérification envoyé ! Vérifiez votre email.",
+      "resendError": "Échec de l'envoi du code. Veuillez réessayer."
+    }
+  }
+}
