@@ -89,12 +89,18 @@ crew_member_schema = {
     'club_affiliation': {
         'type': 'string',
         'required': False,
-        'maxlength': 100
+        'maxlength': 100,
+        'nullable': True
     },
     'is_rcpm_member': {
         'type': 'boolean',
         'required': False,
         'default': False
+    },
+    'assigned_boat_id': {
+        'type': 'string',
+        'required': False,
+        'nullable': True
     }
 }
 

@@ -69,6 +69,9 @@ class ApiStack(Stack):
         # Create auth Lambda functions
         self._create_auth_functions()
         
+        # Create crew member Lambda functions
+        self._create_crew_functions()
+        
         # Create API Gateway REST API
         self._create_api_gateway()
         
@@ -166,6 +169,44 @@ class ApiStack(Stack):
             'ConfirmPasswordResetFunction',
             'auth/confirm_password_reset',
             'Confirm password reset with code'
+        )
+    
+    def _create_crew_functions(self):
+        """Create crew member management Lambda functions"""
+        
+        # Create crew member function
+        self.lambda_functions['create_crew_member'] = self._create_lambda_function(
+            'CreateCrewMemberFunction',
+            'crew/create_crew_member',
+            'Create a new crew member'
+        )
+        
+        # List crew members function
+        self.lambda_functions['list_crew_members'] = self._create_lambda_function(
+            'ListCrewMembersFunction',
+            'crew/list_crew_members',
+            'List all crew members for team manager'
+        )
+        
+        # Get crew member function
+        self.lambda_functions['get_crew_member'] = self._create_lambda_function(
+            'GetCrewMemberFunction',
+            'crew/get_crew_member',
+            'Get a specific crew member'
+        )
+        
+        # Update crew member function
+        self.lambda_functions['update_crew_member'] = self._create_lambda_function(
+            'UpdateCrewMemberFunction',
+            'crew/update_crew_member',
+            'Update crew member information'
+        )
+        
+        # Delete crew member function
+        self.lambda_functions['delete_crew_member'] = self._create_lambda_function(
+            'DeleteCrewMemberFunction',
+            'crew/delete_crew_member',
+            'Delete a crew member'
         )
 
     def _create_api_gateway(self):
@@ -285,6 +326,72 @@ class ApiStack(Stack):
         auth_resource.add_resource('reset-password').add_method(
             'POST',
             reset_password_integration
+        )
+        
+        # Create /crew resource
+        crew_resource = self.api.root.add_resource('crew')
+        
+        # POST /crew - Create crew member (auth required)
+        create_crew_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['create_crew_member'],
+            proxy=True
+        )
+        crew_resource.add_method(
+            'POST',
+            create_crew_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # GET /crew - List crew members (auth required)
+        list_crew_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['list_crew_members'],
+            proxy=True
+        )
+        crew_resource.add_method(
+            'GET',
+            list_crew_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # /crew/{crew_member_id} resource
+        crew_member_resource = crew_resource.add_resource('{crew_member_id}')
+        
+        # GET /crew/{crew_member_id} - Get crew member (auth required)
+        get_crew_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['get_crew_member'],
+            proxy=True
+        )
+        crew_member_resource.add_method(
+            'GET',
+            get_crew_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # PUT /crew/{crew_member_id} - Update crew member (auth required)
+        update_crew_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['update_crew_member'],
+            proxy=True
+        )
+        crew_member_resource.add_method(
+            'PUT',
+            update_crew_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # DELETE /crew/{crew_member_id} - Delete crew member (auth required)
+        delete_crew_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['delete_crew_member'],
+            proxy=True
+        )
+        crew_member_resource.add_method(
+            'DELETE',
+            delete_crew_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
         )
 
         # Output API URL

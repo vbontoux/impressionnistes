@@ -98,7 +98,7 @@
 
 ## 3. Crew Member Management
 
-- [ ] 3.1 Implement crew member data model and validation
+- [x] 3.1 Implement crew member data model and validation
   - Create crew member schema with Cerberus validation rules
   - Implement license number format validation (alphanumeric, 6-12 characters)
   - Add club_affiliation logic (defaults to team manager's club)
@@ -106,7 +106,7 @@
   - Create crew member assignment tracking (assigned_boat_id)
   - _Requirements: FR-2.1, FR-2.3_
 
-- [ ] 3.2 Create crew member CRUD Lambda functions
+- [x] 3.2 Create crew member CRUD Lambda functions
   - Implement create_crew_member Lambda with validation
   - Implement update_crew_member Lambda with registration period checks
   - Implement delete_crew_member Lambda with assignment validation

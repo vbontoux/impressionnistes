@@ -189,10 +189,348 @@ Now that API Gateway is ready, you can:
 3. Handle JWT tokens from Cognito
 4. Implement auth guards in Vue Router
 
+## Crew Member Management Endpoints
+
+### POST /crew - Create Crew Member
+
+Create a new crew member for the authenticated team manager.
+
+**Authentication**: Required (Team Manager)
+
+**Request Body**:
+```json
+{
+  "first_name": "Marie",
+  "last_name": "Dubois",
+  "date_of_birth": "1995-06-15",
+  "gender": "F",
+  "license_number": "ABC123456",
+  "club_affiliation": "RCPM"
+}
+```
+
+**Response** (201 Created):
+```json
+{
+  "crew_member_id": "550e8400-e29b-41d4-a716-446655440000",
+  "team_manager_id": "user-sub-id",
+  "first_name": "Marie",
+  "last_name": "Dubois",
+  "date_of_birth": "1995-06-15",
+  "gender": "F",
+  "license_number": "ABC123456",
+  "club_affiliation": "RCPM",
+  "is_rcpm_member": true,
+  "assigned_boat_id": null,
+  "flagged_issues": [],
+  "created_at": "2024-11-14T20:30:00Z",
+  "updated_at": "2024-11-14T20:30:00Z"
+}
+```
+
+**cURL Example**:
+```bash
+curl -X POST $API_URL/crew \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "first_name": "Marie",
+    "last_name": "Dubois",
+    "date_of_birth": "1995-06-15",
+    "gender": "F",
+    "license_number": "ABC123456",
+    "club_affiliation": "RCPM"
+  }'
+```
+
+**Validation Rules**:
+- `first_name`: Required, 1-50 characters
+- `last_name`: Required, 1-50 characters
+- `date_of_birth`: Required, YYYY-MM-DD format
+- `gender`: Required, "M" or "F"
+- `license_number`: Required, alphanumeric 6-12 characters
+- `club_affiliation`: Optional, defaults to team manager's club, max 100 characters
+
+**Notes**:
+- `is_rcpm_member` is automatically calculated based on club_affiliation
+- If club_affiliation is not provided, it defaults to the team manager's club
+- License number is automatically converted to uppercase
+
+---
+
+### GET /crew - List Crew Members
+
+Get all crew members for the authenticated team manager.
+
+**Authentication**: Required (Team Manager)
+
+**Response** (200 OK):
+```json
+{
+  "crew_members": [
+    {
+      "crew_member_id": "550e8400-e29b-41d4-a716-446655440000",
+      "team_manager_id": "user-sub-id",
+      "first_name": "Marie",
+      "last_name": "Dubois",
+      "date_of_birth": "1995-06-15",
+      "gender": "F",
+      "license_number": "ABC123456",
+      "club_affiliation": "RCPM",
+      "is_rcpm_member": true,
+      "assigned_boat_id": null,
+      "flagged_issues": [],
+      "created_at": "2024-11-14T20:30:00Z",
+      "updated_at": "2024-11-14T20:30:00Z"
+    },
+    {
+      "crew_member_id": "660e8400-e29b-41d4-a716-446655440001",
+      "team_manager_id": "user-sub-id",
+      "first_name": "Pierre",
+      "last_name": "Martin",
+      "date_of_birth": "1992-03-22",
+      "gender": "M",
+      "license_number": "XYZ789012",
+      "club_affiliation": "External Club",
+      "is_rcpm_member": false,
+      "assigned_boat_id": "boat-123",
+      "flagged_issues": [],
+      "created_at": "2024-11-14T20:35:00Z",
+      "updated_at": "2024-11-14T20:35:00Z"
+    }
+  ]
+}
+```
+
+**cURL Example**:
+```bash
+curl -X GET $API_URL/crew \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+---
+
+### GET /crew/{crew_member_id} - Get Crew Member
+
+Get details of a specific crew member.
+
+**Authentication**: Required (Team Manager)
+
+**Path Parameters**:
+- `crew_member_id`: UUID of the crew member
+
+**Response** (200 OK):
+```json
+{
+  "crew_member_id": "550e8400-e29b-41d4-a716-446655440000",
+  "team_manager_id": "user-sub-id",
+  "first_name": "Marie",
+  "last_name": "Dubois",
+  "date_of_birth": "1995-06-15",
+  "gender": "F",
+  "license_number": "ABC123456",
+  "club_affiliation": "RCPM",
+  "is_rcpm_member": true,
+  "assigned_boat_id": null,
+  "flagged_issues": [],
+  "created_at": "2024-11-14T20:30:00Z",
+  "updated_at": "2024-11-14T20:30:00Z"
+}
+```
+
+**cURL Example**:
+```bash
+curl -X GET $API_URL/crew/550e8400-e29b-41d4-a716-446655440000 \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**Error Responses**:
+- `404 Not Found`: Crew member doesn't exist or doesn't belong to the team manager
+
+---
+
+### PUT /crew/{crew_member_id} - Update Crew Member
+
+Update an existing crew member's information.
+
+**Authentication**: Required (Team Manager)
+
+**Path Parameters**:
+- `crew_member_id`: UUID of the crew member
+
+**Request Body** (all fields optional):
+```json
+{
+  "first_name": "Marie-Claire",
+  "last_name": "Dubois-Martin",
+  "date_of_birth": "1995-06-15",
+  "gender": "F",
+  "license_number": "ABC123789",
+  "club_affiliation": "RCPM Paris"
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "crew_member_id": "550e8400-e29b-41d4-a716-446655440000",
+  "team_manager_id": "user-sub-id",
+  "first_name": "Marie-Claire",
+  "last_name": "Dubois-Martin",
+  "date_of_birth": "1995-06-15",
+  "gender": "F",
+  "license_number": "ABC123789",
+  "club_affiliation": "RCPM Paris",
+  "is_rcpm_member": true,
+  "assigned_boat_id": null,
+  "flagged_issues": [],
+  "created_at": "2024-11-14T20:30:00Z",
+  "updated_at": "2024-11-14T21:15:00Z"
+}
+```
+
+**cURL Example**:
+```bash
+curl -X PUT $API_URL/crew/550e8400-e29b-41d4-a716-446655440000 \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "first_name": "Marie-Claire",
+    "license_number": "ABC123789"
+  }'
+```
+
+**Notes**:
+- Only provided fields will be updated
+- `is_rcpm_member` is recalculated if `club_affiliation` changes
+- Updates are allowed during the registration period
+- After registration period ends, admin must grant temporary editing access
+
+**Error Responses**:
+- `404 Not Found`: Crew member doesn't exist
+- `403 Forbidden`: Registration period ended and no editing access granted
+
+---
+
+### DELETE /crew/{crew_member_id} - Delete Crew Member
+
+Delete a crew member (only if not assigned to a boat).
+
+**Authentication**: Required (Team Manager)
+
+**Path Parameters**:
+- `crew_member_id`: UUID of the crew member
+
+**Response** (200 OK):
+```json
+{
+  "message": "Crew member deleted successfully"
+}
+```
+
+**cURL Example**:
+```bash
+curl -X DELETE $API_URL/crew/550e8400-e29b-41d4-a716-446655440000 \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**Error Responses**:
+- `404 Not Found`: Crew member doesn't exist
+- `409 Conflict`: Crew member is assigned to a boat (must be removed from boat first)
+
+---
+
+## Testing Crew Member Endpoints
+
+### Complete Workflow Example
+
+```bash
+# Set your API URL and token
+API_URL="https://your-api-id.execute-api.eu-west-3.amazonaws.com/dev"
+TOKEN="your-jwt-token"
+
+# 1. Create a crew member
+CREW_RESPONSE=$(curl -s -X POST $API_URL/crew \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "first_name": "Sophie",
+    "last_name": "Laurent",
+    "date_of_birth": "1998-09-10",
+    "gender": "F",
+    "license_number": "SL987654",
+    "club_affiliation": "RCPM"
+  }')
+
+echo "Created crew member:"
+echo $CREW_RESPONSE | jq .
+
+# Extract crew member ID
+CREW_ID=$(echo $CREW_RESPONSE | jq -r '.crew_member_id')
+
+# 2. Get the crew member
+curl -s -X GET $API_URL/crew/$CREW_ID \
+  -H "Authorization: Bearer $TOKEN" | jq .
+
+# 3. List all crew members
+curl -s -X GET $API_URL/crew \
+  -H "Authorization: Bearer $TOKEN" | jq .
+
+# 4. Update the crew member
+curl -s -X PUT $API_URL/crew/$CREW_ID \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "first_name": "Sophie-Marie"
+  }' | jq .
+
+# 5. Delete the crew member (only if not assigned)
+curl -s -X DELETE $API_URL/crew/$CREW_ID \
+  -H "Authorization: Bearer $TOKEN" | jq .
+```
+
+### Test Data Examples
+
+**RCPM Member**:
+```json
+{
+  "first_name": "Jean",
+  "last_name": "Dupont",
+  "date_of_birth": "1990-05-15",
+  "gender": "M",
+  "license_number": "JD123456",
+  "club_affiliation": "RCPM"
+}
+```
+
+**External Club Member**:
+```json
+{
+  "first_name": "Alice",
+  "last_name": "Bernard",
+  "date_of_birth": "1993-08-22",
+  "gender": "F",
+  "license_number": "AB789012",
+  "club_affiliation": "Aviron Club Paris"
+}
+```
+
+**Member with Default Club** (uses team manager's club):
+```json
+{
+  "first_name": "Thomas",
+  "last_name": "Petit",
+  "date_of_birth": "1995-12-03",
+  "gender": "M",
+  "license_number": "TP456789"
+}
+```
+
+---
+
 ### Future API Endpoints
 
 Add more endpoints as you implement features:
-- `/crew/*` - Crew member management
 - `/boat/*` - Boat registration
 - `/payment/*` - Payment processing
 - `/admin/*` - Admin operations
