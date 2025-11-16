@@ -114,7 +114,7 @@
   - Add audit logging for all crew member operations
   - _Requirements: FR-2.1, FR-2.2, FR-2.5, FR-2.6, FR-3.13_
 
-- [ ] 3.3 Build crew member management frontend components
+- [x] 3.3 Build crew member management frontend components
   - Create CrewMemberForm.vue with all required fields and validation
   - Create CrewMemberList.vue with filtering and sorting
   - Create CrewMemberCard.vue for display with flagged issues

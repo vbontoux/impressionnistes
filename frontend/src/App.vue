@@ -8,8 +8,15 @@
         </router-link>
         <div class="nav-links">
           <LanguageSwitcher />
-          <router-link to="/login">{{ $t('nav.login') }}</router-link>
-          <router-link to="/register">{{ $t('nav.register') }}</router-link>
+          <template v-if="authStore.isAuthenticated">
+            <router-link to="/dashboard">{{ $t('nav.dashboard') }}</router-link>
+            <router-link to="/crew">{{ $t('nav.crew') }}</router-link>
+            <button @click="handleLogout" class="btn-logout">{{ $t('nav.logout') }}</button>
+          </template>
+          <template v-else>
+            <router-link to="/login">{{ $t('nav.login') }}</router-link>
+            <router-link to="/register">{{ $t('nav.register') }}</router-link>
+          </template>
         </div>
       </div>
     </nav>
@@ -27,7 +34,17 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
+import { useAuthStore } from './stores/authStore';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
+
+const router = useRouter();
+const authStore = useAuthStore();
+
+const handleLogout = () => {
+  authStore.logout();
+  router.push('/login');
+};
 </script>
 
 <style>
@@ -101,6 +118,20 @@ body {
 .nav-links a:hover,
 .nav-links a.router-link-active {
   color: #4CAF50;
+}
+
+.btn-logout {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: color 0.3s;
+  padding: 0;
+}
+
+.btn-logout:hover {
+  color: #f44336;
 }
 
 main {

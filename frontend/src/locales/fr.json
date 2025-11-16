@@ -1,11 +1,17 @@
 {
   "common": {
     "loading": "Chargement...",
-    "or": "OU"
+    "or": "OU",
+    "cancel": "Annuler",
+    "edit": "Modifier",
+    "delete": "Supprimer"
   },
   "nav": {
     "login": "Connexion",
-    "register": "Inscription"
+    "register": "Inscription",
+    "dashboard": "Tableau de bord",
+    "crew": "Équipage",
+    "logout": "Déconnexion"
   },
   "auth": {
     "login": {
@@ -57,6 +63,67 @@
       "expiredCode": "Le code de vérification a expiré. Veuillez en demander un nouveau.",
       "resendSuccess": "Code de vérification envoyé ! Vérifiez votre email.",
       "resendError": "Échec de l'envoi du code. Veuillez réessayer."
+    },
+    "callback": {
+      "processing": "Connexion en cours..."
+    }
+  },
+  "crew": {
+    "form": {
+      "createTitle": "Ajouter un membre d'équipage",
+      "editTitle": "Modifier un membre d'équipage",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "dateOfBirth": "Date de naissance",
+      "gender": "Genre",
+      "selectGender": "Sélectionner le genre",
+      "male": "Homme",
+      "female": "Femme",
+      "licenseNumber": "Numéro de licence",
+      "licenseHint": "Alphanumérique, 6-12 caractères",
+      "clubAffiliation": "Club d'affiliation",
+      "clubPlaceholder": "Laissez vide pour utiliser votre club",
+      "clubHint": "Laissez vide pour utiliser le club du gestionnaire d'équipe",
+      "create": "Créer",
+      "update": "Mettre à jour",
+      "createSuccess": "Membre d'équipage créé avec succès !",
+      "updateSuccess": "Membre d'équipage mis à jour avec succès !",
+      "error": "Une erreur s'est produite. Veuillez réessayer."
+    },
+    "validation": {
+      "firstNameRequired": "Le prénom est requis",
+      "lastNameRequired": "Le nom est requis",
+      "dateOfBirthRequired": "La date de naissance est requise",
+      "licenseInvalid": "Le numéro de licence doit être alphanumérique et contenir 6-12 caractères"
+    },
+    "card": {
+      "external": "Externe",
+      "assigned": "Assigné",
+      "dateOfBirth": "Date de naissance",
+      "gender": "Genre",
+      "club": "Club",
+      "boatId": "Bateau",
+      "flaggedIssues": "Problèmes signalés",
+      "cannotDeleteAssigned": "Impossible de supprimer un membre assigné à un bateau"
+    },
+    "list": {
+      "title": "Membres d'équipage",
+      "addNew": "Ajouter un membre",
+      "addFirst": "Ajouter votre premier membre",
+      "search": "Rechercher par nom ou numéro de licence...",
+      "all": "Tous",
+      "external": "Externes",
+      "assigned": "Assignés",
+      "flagged": "Signalés",
+      "sortBy": "Trier par",
+      "lastName": "Nom",
+      "firstName": "Prénom",
+      "age": "Âge",
+      "dateAdded": "Date d'ajout",
+      "noMembers": "Aucun membre d'équipage trouvé",
+      "confirmDelete": "Confirmer la suppression",
+      "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {name} ?",
+      "deleteError": "Impossible de supprimer le membre d'équipage"
     }
   }
 }

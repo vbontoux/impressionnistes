@@ -18,7 +18,8 @@ const apiClient = axios.create({
 // Add request interceptor to include auth token
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('auth_token');
+    // Use ID token for Cognito User Pool authorizer (not access token)
+    const token = localStorage.getItem('id_token') || localStorage.getItem('access_token') || localStorage.getItem('auth_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -35,6 +36,9 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Token expired or invalid - clear auth and redirect to login
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('id_token');
+      localStorage.removeItem('refresh_token');
       localStorage.removeItem('auth_token');
       localStorage.removeItem('user');
       window.location.href = '/login';
@@ -115,6 +119,9 @@ export async function resetPassword(email, code, newPassword) {
  * Logout user
  */
 export function logout() {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('id_token');
+  localStorage.removeItem('refresh_token');
   localStorage.removeItem('auth_token');
   localStorage.removeItem('user');
   // TODO: Call Cognito signOut
@@ -125,7 +132,7 @@ export function logout() {
  * @returns {boolean}
  */
 export function isAuthenticated() {
-  return !!localStorage.getItem('auth_token');
+  return !!(localStorage.getItem('id_token') || localStorage.getItem('access_token') || localStorage.getItem('auth_token'));
 }
 
 /**
@@ -133,7 +140,7 @@ export function isAuthenticated() {
  * @returns {string|null}
  */
 export function getToken() {
-  return localStorage.getItem('auth_token');
+  return localStorage.getItem('id_token') || localStorage.getItem('access_token') || localStorage.getItem('auth_token');
 }
 
 /**
@@ -141,7 +148,7 @@ export function getToken() {
  * @param {string} token
  */
 export function setToken(token) {
-  localStorage.setItem('auth_token', token);
+  localStorage.setItem('access_token', token);
 }
 
 /**

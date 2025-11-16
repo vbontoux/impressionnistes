@@ -6,7 +6,9 @@ const Home = () => import('../views/Home.vue');
 const Login = () => import('../views/Login.vue');
 const Register = () => import('../views/Register.vue');
 const VerifyEmail = () => import('../views/VerifyEmail.vue');
+const Callback = () => import('../views/Callback.vue');
 const Dashboard = () => import('../views/Dashboard.vue');
+const CrewMembers = () => import('../views/CrewMembers.vue');
 
 const routes = [
   {
@@ -33,9 +35,20 @@ const routes = [
     meta: { guest: true },
   },
   {
+    path: '/callback',
+    name: 'Callback',
+    component: Callback,
+  },
+  {
     path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/crew',
+    name: 'CrewMembers',
+    component: CrewMembers,
     meta: { requiresAuth: true },
   },
 ];

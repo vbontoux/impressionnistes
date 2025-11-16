@@ -1,11 +1,17 @@
 {
   "common": {
     "loading": "Loading...",
-    "or": "OR"
+    "or": "OR",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete"
   },
   "nav": {
     "login": "Login",
-    "register": "Register"
+    "register": "Register",
+    "dashboard": "Dashboard",
+    "crew": "Crew",
+    "logout": "Logout"
   },
   "auth": {
     "login": {
@@ -57,6 +63,67 @@
       "expiredCode": "Verification code has expired. Please request a new one.",
       "resendSuccess": "Verification code sent! Check your email.",
       "resendError": "Failed to resend code. Please try again."
+    },
+    "callback": {
+      "processing": "Signing in..."
+    }
+  },
+  "crew": {
+    "form": {
+      "createTitle": "Add Crew Member",
+      "editTitle": "Edit Crew Member",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "dateOfBirth": "Date of Birth",
+      "gender": "Gender",
+      "selectGender": "Select gender",
+      "male": "Male",
+      "female": "Female",
+      "licenseNumber": "License Number",
+      "licenseHint": "Alphanumeric, 6-12 characters",
+      "clubAffiliation": "Club Affiliation",
+      "clubPlaceholder": "Leave empty to use your club",
+      "clubHint": "Leave empty to use team manager's club",
+      "create": "Create",
+      "update": "Update",
+      "createSuccess": "Crew member created successfully!",
+      "updateSuccess": "Crew member updated successfully!",
+      "error": "An error occurred. Please try again."
+    },
+    "validation": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "dateOfBirthRequired": "Date of birth is required",
+      "licenseInvalid": "License number must be alphanumeric and 6-12 characters"
+    },
+    "card": {
+      "external": "External",
+      "assigned": "Assigned",
+      "dateOfBirth": "Date of Birth",
+      "gender": "Gender",
+      "club": "Club",
+      "boatId": "Boat",
+      "flaggedIssues": "Flagged Issues",
+      "cannotDeleteAssigned": "Cannot delete a member assigned to a boat"
+    },
+    "list": {
+      "title": "Crew Members",
+      "addNew": "Add Member",
+      "addFirst": "Add your first member",
+      "search": "Search by name or license number...",
+      "all": "All",
+      "external": "External",
+      "assigned": "Assigned",
+      "flagged": "Flagged",
+      "sortBy": "Sort by",
+      "lastName": "Last Name",
+      "firstName": "First Name",
+      "age": "Age",
+      "dateAdded": "Date Added",
+      "noMembers": "No crew members found",
+      "confirmDelete": "Confirm Delete",
+      "confirmDeleteMessage": "Are you sure you want to delete {name}?",
+      "deleteError": "Failed to delete crew member"
     }
   }
 }

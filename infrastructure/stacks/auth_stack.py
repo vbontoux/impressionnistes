@@ -47,8 +47,8 @@ class AuthStack(Stack):
             # User verification
             user_verification=cognito.UserVerificationConfig(
                 email_subject="Verify your email for Course des Impressionnistes",
-                email_body="Hello,\n\nThank you for registering for Course des Impressionnistes.\n\nPlease click the link below to verify your email address:\n{##Verify Email##}\n\nIf you did not create an account, please ignore this email.",
-                email_style=cognito.VerificationEmailStyle.LINK,
+                email_body="Hello,\n\nThank you for registering for Course des Impressionnistes.\n\nYour verification code is: {####}\n\nPlease enter this code on the verification page to complete your registration.\n\nIf you did not create an account, please ignore this email.",
+                email_style=cognito.VerificationEmailStyle.CODE,
             ),
             
             # Password policy

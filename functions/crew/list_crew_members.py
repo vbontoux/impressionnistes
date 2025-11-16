@@ -36,12 +36,9 @@ def lambda_handler(event, context):
     # Query DynamoDB for crew members
     db = get_db_client()
     
-    crew_members = db.query_items(
-        key_condition='PK = :pk AND begins_with(SK, :sk_prefix)',
-        expression_values={
-            ':pk': f'TEAM#{team_manager_id}',
-            ':sk_prefix': 'CREW#'
-        }
+    crew_members = db.query_by_pk(
+        pk=f'TEAM#{team_manager_id}',
+        sk_prefix='CREW#'
     )
     
     logger.info(f"Found {len(crew_members)} crew members for team manager {team_manager_id}")
