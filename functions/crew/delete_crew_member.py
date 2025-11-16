@@ -46,10 +46,8 @@ def lambda_handler(event, context):
     db = get_db_client()
     
     existing_crew = db.get_item(
-        key={
-            'PK': f'TEAM#{team_manager_id}',
-            'SK': f'CREW#{crew_member_id}'
-        }
+        pk=f'TEAM#{team_manager_id}',
+        sk=f'CREW#{crew_member_id}'
     )
     
     if not existing_crew:
@@ -64,10 +62,8 @@ def lambda_handler(event, context):
     
     # Delete crew member from DynamoDB
     db.delete_item(
-        key={
-            'PK': f'TEAM#{team_manager_id}',
-            'SK': f'CREW#{crew_member_id}'
-        }
+        pk=f'TEAM#{team_manager_id}',
+        sk=f'CREW#{crew_member_id}'
     )
     
     logger.info(f"Crew member deleted: {crew_member_id}")

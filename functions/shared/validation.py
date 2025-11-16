@@ -296,7 +296,7 @@ def validate_crew_member(data):
     Returns:
         tuple: (is_valid, errors)
     """
-    v = CustomValidator(crew_member_schema)
+    v = CustomValidator(crew_member_schema, allow_unknown=True)
     is_valid = v.validate(data)
     return is_valid, v.errors
 

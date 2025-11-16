@@ -64,10 +64,8 @@ def lambda_handler(event, context):
     db = get_db_client()
     
     existing_crew = db.get_item(
-        key={
-            'PK': f'TEAM#{team_manager_id}',
-            'SK': f'CREW#{crew_member_id}'
-        }
+        pk=f'TEAM#{team_manager_id}',
+        sk=f'CREW#{crew_member_id}'
     )
     
     if not existing_crew:
@@ -96,22 +94,27 @@ def lambda_handler(event, context):
     if 'club_affiliation' in body:
         update_data['club_affiliation'] = body['club_affiliation'].strip()
     
+    # Sanitize update data
+    update_data = sanitize_dict(update_data, crew_member_schema)
+    
     # Merge with existing data for validation
     crew_data = {**existing_crew, **update_data}
-    crew_data = sanitize_dict(crew_data, crew_member_schema)
     
-    # Validate updated crew member data
+    # Validate updated crew member data (validator allows unknown fields like PK, SK)
     is_valid, errors = validate_crew_member(crew_data)
     if not is_valid:
+        logger.error(f"Validation failed for crew data: {errors}")
+        logger.error(f"Crew data being validated: {crew_data}")
         return validation_error(errors)
     
     # Recalculate is_rcpm_member if club_affiliation changed
     if 'club_affiliation' in update_data:
         crew_data['is_rcpm_member'] = crew_data['club_affiliation'].upper() == 'RCPM'
     
-    # Update crew member in DynamoDB
+    # Update timestamp
     crew_data['updated_at'] = get_timestamp()
     
+    # Update crew member in DynamoDB
     db.put_item(crew_data)
     logger.info(f"Crew member updated: {crew_member_id}")
     

@@ -45,10 +45,8 @@ def lambda_handler(event, context):
     db = get_db_client()
     
     crew_member = db.get_item(
-        key={
-            'PK': f'TEAM#{team_manager_id}',
-            'SK': f'CREW#{crew_member_id}'
-        }
+        pk=f'TEAM#{team_manager_id}',
+        sk=f'CREW#{crew_member_id}'
     )
     
     if not crew_member:
