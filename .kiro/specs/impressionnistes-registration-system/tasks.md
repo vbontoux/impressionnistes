@@ -125,7 +125,7 @@
 
 ## 4. Race Configuration and Management
 
-- [ ] 4.1 Initialize race definitions in DynamoDB
+- [x] 4.1 Initialize race definitions in DynamoDB
   - Create race data seeding script for 14 marathon races
   - Create race data seeding script for 28 semi-marathon races
   - Store race definitions with event_type, boat_type, age_category, gender_category
@@ -133,7 +133,7 @@
   - Add race filtering logic based on crew composition
   - _Requirements: FR-3.1, FR-3.2, FR-3.4, FR-5.3_
 
-- [ ] 4.2 Implement race eligibility calculation engine
+- [x] 4.2 Implement race eligibility calculation engine
   - Create function to calculate crew average age and age category
   - Implement gender composition validation (men's, women's, mixed)
   - Create race filtering based on crew member ages and genders
