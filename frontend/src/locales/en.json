@@ -16,11 +16,8 @@
   "auth": {
     "login": {
       "title": "Login",
-      "cognitoNote": "Login with AWS Cognito",
-      "cognitoInstructions": "Click the button below to login via Cognito Hosted UI",
-      "cognitoButton": "Login with Cognito",
-      "google": "Continue with Google",
-      "facebook": "Continue with Facebook",
+      "welcomeMessage": "Sign in to manage your registrations for Course des Impressionnistes",
+      "loginButton": "Sign In",
       "noAccount": "Don't have an account?",
       "registerLink": "Register here",
       "forgotPassword": "Forgot password?"

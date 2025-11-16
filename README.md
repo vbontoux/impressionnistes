@@ -234,4 +234,4 @@ For questions or issues, contact the RCPM organization:
 
 ## License
 
-Copyright © 2024 RCPM - Rowing Club de Port Marly
+Copyright © 2025 RCPM - Rowing Club de Port Marly

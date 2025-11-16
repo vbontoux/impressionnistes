@@ -16,11 +16,8 @@
   "auth": {
     "login": {
       "title": "Connexion",
-      "cognitoNote": "Connexion avec AWS Cognito",
-      "cognitoInstructions": "Cliquez sur le bouton ci-dessous pour vous connecter via Cognito",
-      "cognitoButton": "Se connecter avec Cognito",
-      "google": "Continuer avec Google",
-      "facebook": "Continuer avec Facebook",
+      "welcomeMessage": "Connectez-vous pour gérer vos inscriptions à la Course des Impressionnistes",
+      "loginButton": "Se connecter",
       "noAccount": "Pas encore de compte ?",
       "registerLink": "S'inscrire ici",
       "forgotPassword": "Mot de passe oublié ?"

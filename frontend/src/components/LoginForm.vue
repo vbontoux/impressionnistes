@@ -5,32 +5,12 @@
       <h2>{{ $t('auth.login.title') }}</h2>
     </div>
     
-    <div class="alert alert-info">
-      <p>{{ $t('auth.login.cognitoNote') }}</p>
-      <p><small>{{ $t('auth.login.cognitoInstructions') }}</small></p>
-    </div>
+    <p class="welcome-text">{{ $t('auth.login.welcomeMessage') }}</p>
 
-    <!-- Cognito Hosted UI Login -->
+    <!-- Login Button -->
     <button @click="loginWithCognito" class="btn btn-primary" :disabled="loading">
-      {{ $t('auth.login.cognitoButton') }}
+      {{ $t('auth.login.loginButton') }}
     </button>
-
-    <div class="divider">
-      <span>{{ $t('common.or') }}</span>
-    </div>
-
-    <!-- Social Login Options -->
-    <div class="social-login">
-      <button @click="loginWithGoogle" class="btn btn-google" :disabled="loading">
-        <span class="icon">G</span>
-        {{ $t('auth.login.google') }}
-      </button>
-      
-      <button @click="loginWithFacebook" class="btn btn-facebook" :disabled="loading">
-        <span class="icon">f</span>
-        {{ $t('auth.login.facebook') }}
-      </button>
-    </div>
 
     <!-- Error Message -->
     <div v-if="errorMessage" class="alert alert-error">
@@ -73,18 +53,6 @@ const loginWithCognito = () => {
   const cognitoUrl = `${COGNITO_DOMAIN}/login?client_id=${COGNITO_CLIENT_ID}&response_type=code&scope=email+openid+profile&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
   window.location.href = cognitoUrl;
 };
-
-const loginWithGoogle = () => {
-  // Redirect to Cognito with Google identity provider
-  const cognitoUrl = `${COGNITO_DOMAIN}/oauth2/authorize?identity_provider=Google&client_id=${COGNITO_CLIENT_ID}&response_type=code&scope=email+openid+profile&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
-  window.location.href = cognitoUrl;
-};
-
-const loginWithFacebook = () => {
-  // Redirect to Cognito with Facebook identity provider
-  const cognitoUrl = `${COGNITO_DOMAIN}/oauth2/authorize?identity_provider=Facebook&client_id=${COGNITO_CLIENT_ID}&response_type=code&scope=email+openid+profile&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`;
-  window.location.href = cognitoUrl;
-};
 </script>
 
 <style scoped>
@@ -111,16 +79,18 @@ h2 {
   text-align: center;
 }
 
+.welcome-text {
+  text-align: center;
+  color: #666;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
 .alert {
   padding: 1rem;
   border-radius: 4px;
   margin-bottom: 1rem;
-}
-
-.alert-info {
-  background-color: #e3f2fd;
-  color: #1976d2;
-  border: 1px solid #90caf9;
 }
 
 .alert-error {
@@ -154,61 +124,9 @@ h2 {
   background-color: #45a049;
 }
 
-.btn-google {
-  background-color: #fff;
-  color: #757575;
-  border: 1px solid #ddd;
-  margin-bottom: 0.75rem;
-}
-
-.btn-google:hover:not(:disabled) {
-  background-color: #f5f5f5;
-}
-
-.btn-facebook {
-  background-color: #1877f2;
-  color: white;
-}
-
-.btn-facebook:hover:not(:disabled) {
-  background-color: #166fe5;
-}
-
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-.icon {
-  font-weight: bold;
-  font-size: 1.2rem;
-}
-
-.divider {
-  text-align: center;
-  margin: 1.5rem 0;
-  position: relative;
-}
-
-.divider::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background-color: #ddd;
-}
-
-.divider span {
-  background-color: white;
-  padding: 0 1rem;
-  position: relative;
-  color: #666;
-}
-
-.social-login {
-  margin-bottom: 1rem;
 }
 
 .text-center {
