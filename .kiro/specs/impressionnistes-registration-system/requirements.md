@@ -367,6 +367,7 @@ Here is how the French Rowing Federation (FFA) defines categories based on age.
 Boat notation format: [Gender][Boat Type][Number of Rowers][Oar Type][Coxswain]
 - Gender: H (Homme/Men), F (Femme/Women), M (Mixte/Mixed-gender)
 - Boat Type: o (outrigger), y (yolette)
+- Number of rowers: 1, 4 or 8
 - Oar Type: x (sculling/couple), / (sweep/pointe)
 - Coxswain: + (with cox), - (without cox)
 

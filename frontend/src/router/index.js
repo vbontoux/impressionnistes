@@ -9,6 +9,8 @@ const VerifyEmail = () => import('../views/VerifyEmail.vue');
 const Callback = () => import('../views/Callback.vue');
 const Dashboard = () => import('../views/Dashboard.vue');
 const CrewMembers = () => import('../views/CrewMembers.vue');
+const Boats = () => import('../views/Boats.vue');
+const BoatDetail = () => import('../views/BoatDetail.vue');
 
 const routes = [
   {
@@ -49,6 +51,18 @@ const routes = [
     path: '/crew',
     name: 'CrewMembers',
     component: CrewMembers,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/boats',
+    name: 'Boats',
+    component: Boats,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/boats/:id',
+    name: 'BoatDetail',
+    component: BoatDetail,
     meta: { requiresAuth: true },
   },
 ];

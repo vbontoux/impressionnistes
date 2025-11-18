@@ -2,9 +2,29 @@
   <div class="crew-member-list">
     <div class="list-header">
       <h2>{{ $t('crew.list.title') }}</h2>
-      <button class="btn btn-primary" @click="showCreateForm = true">
-        {{ $t('crew.list.addNew') }}
-      </button>
+      <div class="header-actions">
+        <div class="view-toggle">
+          <button 
+            @click="viewMode = 'cards'" 
+            :class="{ active: viewMode === 'cards' }"
+            class="btn-view"
+            :title="$t('common.cardView')"
+          >
+            ⊞
+          </button>
+          <button 
+            @click="viewMode = 'table'" 
+            :class="{ active: viewMode === 'table' }"
+            class="btn-view"
+            :title="$t('common.tableView')"
+          >
+            ☰
+          </button>
+        </div>
+        <button class="btn btn-primary" @click="showCreateForm = true">
+          {{ $t('crew.list.addNew') }}
+        </button>
+      </div>
     </div>
 
     <!-- Filters and Search -->
@@ -80,8 +100,8 @@
       </button>
     </div>
 
-    <!-- Crew Member Cards -->
-    <div v-else class="crew-grid">
+    <!-- Card View -->
+    <div v-else-if="viewMode === 'cards'" class="crew-grid">
       <CrewMemberCard
         v-for="member in filteredCrewMembers"
         :key="member.crew_member_id"
@@ -89,6 +109,53 @@
         @edit="handleEdit"
         @delete="handleDelete"
       />
+    </div>
+
+    <!-- Table View -->
+    <div v-else class="crew-table-container">
+      <table class="crew-table">
+        <thead>
+          <tr>
+            <th>{{ $t('crew.form.firstName') }}</th>
+            <th>{{ $t('crew.form.lastName') }}</th>
+            <th>{{ $t('crew.card.dateOfBirth') }}</th>
+            <th>{{ $t('crew.form.gender') }}</th>
+            <th>{{ $t('crew.form.licenseNumber') }}</th>
+            <th>{{ $t('crew.card.club') }}</th>
+            <th>{{ $t('crew.card.assigned') }}</th>
+            <th>{{ $t('common.actions') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr 
+            v-for="member in filteredCrewMembers" 
+            :key="member.crew_member_id"
+            :class="{ 'row-assigned': member.assigned_boat_id, 'row-flagged': member.flagged_issues?.length }"
+          >
+            <td>{{ member.first_name }}</td>
+            <td>{{ member.last_name }}</td>
+            <td>{{ formatDate(member.date_of_birth) }}</td>
+            <td>{{ member.gender === 'M' ? $t('crew.form.male') : $t('crew.form.female') }}</td>
+            <td>{{ member.license_number }}</td>
+            <td>
+              {{ member.club_affiliation }}
+              <span v-if="!member.is_rcpm_member" class="external-badge">{{ $t('crew.card.external') }}</span>
+            </td>
+            <td>
+              <span v-if="member.assigned_boat_id" class="assigned-badge">✓</span>
+              <span v-else>-</span>
+            </td>
+            <td class="actions-cell">
+              <button @click="handleEdit(member)" class="btn-table btn-edit-table">
+                {{ $t('common.edit') }}
+              </button>
+              <button @click="handleDelete(member)" class="btn-table btn-delete-table">
+                {{ $t('common.delete') }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- Create/Edit Modal -->
@@ -121,7 +188,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useCrewStore } from '../stores/crewStore';
 import CrewMemberCard from './CrewMemberCard.vue';
@@ -133,10 +200,22 @@ const crewStore = useCrewStore();
 const searchQuery = ref('');
 const filter = ref('all');
 const sortBy = ref('last_name');
+// Load view mode from localStorage or default to 'cards'
+const viewMode = ref(localStorage.getItem('crewViewMode') || 'cards');
 const showCreateForm = ref(false);
 const editingMember = ref(null);
 const deletingMember = ref(null);
 const deleting = ref(false);
+
+// Watch for view mode changes and save to localStorage
+watch(viewMode, (newMode) => {
+  localStorage.setItem('crewViewMode', newMode);
+});
+
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  return new Date(dateString).toLocaleDateString();
+};
 
 // Load crew members on mount
 onMounted(async () => {
@@ -255,11 +334,46 @@ const closeForm = () => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .list-header h2 {
   margin: 0;
   color: #333;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 0.25rem;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  padding: 0.25rem;
+}
+
+.btn-view {
+  padding: 0.5rem 0.75rem;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.btn-view:hover {
+  background-color: #dee2e6;
+}
+
+.btn-view.active {
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .filters {
@@ -432,5 +546,113 @@ const closeForm = () => {
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Table View Styles */
+.crew-table-container {
+  background-color: white;
+  border-radius: 8px;
+  overflow-x: auto;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.crew-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px;
+}
+
+.crew-table thead {
+  background-color: #f8f9fa;
+}
+
+.crew-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.crew-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.crew-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+.crew-table tbody tr.row-assigned {
+  border-left: 4px solid #4CAF50;
+}
+
+.crew-table tbody tr.row-flagged {
+  border-left: 4px solid #ffc107;
+}
+
+.external-badge {
+  display: inline-block;
+  background-color: #17a2b8;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  margin-left: 0.5rem;
+}
+
+.assigned-badge {
+  color: #4CAF50;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-table {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.btn-edit-table {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-edit-table:hover {
+  background-color: #545b62;
+}
+
+.btn-delete-table {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-delete-table:hover {
+  background-color: #c82333;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .list-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    justify-content: space-between;
+  }
+
+  .crew-table-container {
+    margin: 0 -2rem;
+    border-radius: 0;
+  }
 }
 </style>

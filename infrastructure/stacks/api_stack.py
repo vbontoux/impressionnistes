@@ -249,6 +249,20 @@ class ApiStack(Stack):
             'boat/delete_boat_registration',
             'Delete a boat registration'
         )
+        
+        # Assign seat function
+        self.lambda_functions['assign_seat'] = self._create_lambda_function(
+            'AssignSeatFunction',
+            'boat/assign_seat',
+            'Assign crew member to boat seat'
+        )
+        
+        # Get coxswain substitutes function
+        self.lambda_functions['get_cox_substitutes'] = self._create_lambda_function(
+            'GetCoxSubstitutesFunction',
+            'boat/get_cox_substitutes',
+            'Get eligible coxswain substitutes'
+        )
 
     def _create_api_gateway(self):
         """Create API Gateway REST API with Cognito authorizer"""
@@ -497,6 +511,32 @@ class ApiStack(Stack):
         boat_registration_resource.add_method(
             'DELETE',
             delete_boat_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # POST /boat/{boat_registration_id}/assign-seat - Assign seat (auth required)
+        assign_seat_resource = boat_registration_resource.add_resource('assign-seat')
+        assign_seat_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['assign_seat'],
+            proxy=True
+        )
+        assign_seat_resource.add_method(
+            'POST',
+            assign_seat_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # GET /boat/{boat_registration_id}/cox-substitutes - Get cox substitutes (auth required)
+        cox_substitutes_resource = boat_registration_resource.add_resource('cox-substitutes')
+        cox_substitutes_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['get_cox_substitutes'],
+            proxy=True
+        )
+        cox_substitutes_resource.add_method(
+            'GET',
+            cox_substitutes_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )

@@ -161,7 +161,7 @@
   - Implement partial save for incomplete registrations
   - _Requirements: FR-3.5, FR-3.6, FR-3.7, FR-3.8, FR-3.9_
 
-- [ ] 5.3 Build boat registration frontend components
+- [x] 5.3 Build boat registration frontend components
   - Create BoatRegistrationForm.vue with event and boat type selection
   - Create SeatAssignment.vue for drag-and-drop crew member assignment
   - Create RaceSelector.vue with filtered race options
@@ -170,7 +170,7 @@
   - Display flagged issues and resolution options
   - _Requirements: FR-3.1, FR-3.2, FR-3.3, FR-3.4, FR-3.10, FR-3.12_
 
-- [ ] 5.4 Implement seat assignment and validation logic
+- [x] 5.4 Implement seat assignment and validation logic
   - Create function to assign crew member to boat seat
   - Implement validation to prevent double assignments
   - Add crew member assignment status tracking

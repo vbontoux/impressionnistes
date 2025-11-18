@@ -1,0 +1,252 @@
+<template>
+  <div class="seat-assignment">
+    <h3>{{ $t('boat.seatAssignment') }}</h3>
+
+    <div class="boat-visual">
+      <div
+        v-for="seat in seats"
+        :key="seat.position"
+        class="seat"
+        :class="{ 'seat-filled': seat.crew_member_id, 'seat-cox': seat.type === 'cox' }"
+      >
+        <div class="seat-header">
+          <span class="seat-position">{{ $t('boat.position') }} {{ seat.position }}</span>
+          <span class="seat-type">{{ seat.type === 'cox' ? $t('boat.coxswain') : $t('boat.rower') }}</span>
+        </div>
+
+        <div class="seat-content">
+          <select
+            v-model="seat.crew_member_id"
+            @change="onSeatChange(seat)"
+            class="crew-select"
+          >
+            <option :value="null">{{ $t('boat.selectCrewMember') }}</option>
+            <option
+              v-for="member in availableCrewMembers(seat)"
+              :key="member.crew_member_id"
+              :value="member.crew_member_id"
+            >
+              {{ member.first_name }} {{ member.last_name }}
+              <span v-if="member.is_rcpm_member">(RCPM)</span>
+            </option>
+          </select>
+
+          <button
+            v-if="seat.crew_member_id"
+            @click="clearSeat(seat)"
+            class="btn-clear"
+            type="button"
+          >
+            {{ $t('common.clear') }}
+          </button>
+        </div>
+
+        <div v-if="getCrewMemberInfo(seat.crew_member_id)" class="crew-info">
+          <span>{{ getCrewMemberInfo(seat.crew_member_id).club_affiliation }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="error" class="error-message">
+      {{ error }}
+    </div>
+
+    <div class="assignment-summary">
+      <p>{{ $t('boat.filledSeats') }}: {{ filledSeatsCount }} / {{ seats.length }}</p>
+      <p v-if="isMultiClubCrew" class="multi-club-warning">
+        {{ $t('boat.multiClubWarning') }}
+      </p>
+    </div>
+  </div>
+</template>
+
+<script>
+import { ref, computed, watch } from 'vue'
+import { useCrewStore } from '../stores/crewStore'
+
+export default {
+  name: 'SeatAssignment',
+  props: {
+    seats: {
+      type: Array,
+      required: true
+    },
+    boatRegistrationId: {
+      type: String,
+      default: null
+    }
+  },
+  emits: ['update:seats'],
+  setup(props, { emit }) {
+    const crewStore = useCrewStore()
+    const error = ref(null)
+
+    // Fetch crew members if not already loaded
+    if (crewStore.crewMembers.length === 0) {
+      crewStore.fetchCrewMembers()
+    }
+
+    const filledSeatsCount = computed(() => {
+      return props.seats.filter(seat => seat.crew_member_id).length
+    })
+
+    const assignedCrewMemberIds = computed(() => {
+      return props.seats
+        .filter(seat => seat.crew_member_id)
+        .map(seat => seat.crew_member_id)
+    })
+
+    const isMultiClubCrew = computed(() => {
+      const assignedMembers = props.seats
+        .filter(seat => seat.crew_member_id)
+        .map(seat => getCrewMemberInfo(seat.crew_member_id))
+        .filter(member => member)
+
+      const clubs = new Set(assignedMembers.map(m => m.club_affiliation))
+      return clubs.size > 1
+    })
+
+    const availableCrewMembers = (currentSeat) => {
+      // Show all crew members except those already assigned to other seats
+      return crewStore.crewMembers.filter(member => {
+        // If this seat already has this member, include them
+        if (currentSeat.crew_member_id === member.crew_member_id) {
+          return true
+        }
+        // Otherwise, only show if not assigned to another seat
+        return !assignedCrewMemberIds.value.includes(member.crew_member_id)
+      })
+    }
+
+    const getCrewMemberInfo = (crewMemberId) => {
+      if (!crewMemberId) return null
+      return crewStore.crewMembers.find(m => m.crew_member_id === crewMemberId)
+    }
+
+    const onSeatChange = (seat) => {
+      error.value = null
+      emit('update:seats', props.seats)
+    }
+
+    const clearSeat = (seat) => {
+      seat.crew_member_id = null
+      emit('update:seats', props.seats)
+    }
+
+    return {
+      error,
+      filledSeatsCount,
+      isMultiClubCrew,
+      availableCrewMembers,
+      getCrewMemberInfo,
+      onSeatChange,
+      clearSeat
+    }
+  }
+}
+</script>
+
+<style scoped>
+.seat-assignment {
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.boat-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.seat {
+  background-color: white;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  padding: 1rem;
+  transition: border-color 0.2s;
+}
+
+.seat-filled {
+  border-color: #28a745;
+}
+
+.seat-cox {
+  background-color: #fff3cd;
+}
+
+.seat-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.seat-position {
+  color: #495057;
+}
+
+.seat-type {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.seat-content {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.crew-select {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.btn-clear {
+  padding: 0.5rem 1rem;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.btn-clear:hover {
+  background-color: #c82333;
+}
+
+.crew-info {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.error-message {
+  padding: 1rem;
+  background-color: #fee;
+  border: 1px solid #fcc;
+  border-radius: 4px;
+  color: #c33;
+  margin-top: 1rem;
+}
+
+.assignment-summary {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 4px;
+}
+
+.multi-club-warning {
+  color: #856404;
+  background-color: #fff3cd;
+  padding: 0.5rem;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+}
+</style>
