@@ -214,3 +214,401 @@ See `functions/auth/TEST_EVENTS.md` for:
 - Expected responses
 - Troubleshooting guide
 - CLI testing commands
+
+
+## Crew Member Management Testing
+
+### Lambda Functions
+- `ImpressionnistesApi-dev-CreateCrewMemberFunction`
+- `ImpressionnistesApi-dev-ListCrewMembersFunction`
+- `ImpressionnistesApi-dev-GetCrewMemberFunction`
+- `ImpressionnistesApi-dev-UpdateCrewMemberFunction`
+- `ImpressionnistesApi-dev-DeleteCrewMemberFunction`
+
+### Test Create Crew Member
+
+```json
+{
+  "body": "{\"first_name\":\"Marie\",\"last_name\":\"Martin\",\"date_of_birth\":\"1995-06-15\",\"gender\":\"F\",\"license_number\":\"ABC123\",\"club_affiliation\":\"RCPM\"}",
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "PASTE-YOUR-USER-ID-HERE",
+        "email": "your-email@example.com",
+        "custom:club_affiliation": "RCPM"
+      }
+    }
+  }
+}
+```
+
+### Test List Crew Members
+
+```json
+{
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "PASTE-YOUR-USER-ID-HERE",
+        "email": "your-email@example.com"
+      }
+    }
+  }
+}
+```
+
+### Test Update Crew Member
+
+```json
+{
+  "pathParameters": {
+    "crew_member_id": "PASTE-CREW-MEMBER-ID-HERE"
+  },
+  "body": "{\"first_name\":\"Marie-Claire\",\"license_number\":\"ABC456\"}",
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "PASTE-YOUR-USER-ID-HERE",
+        "email": "your-email@example.com"
+      }
+    }
+  }
+}
+```
+
+## Boat Registration Testing
+
+### Lambda Functions
+- `ImpressionnistesApi-dev-CreateBoatRegistrationFunction`
+- `ImpressionnistesApi-dev-ListBoatRegistrationsFunction`
+- `ImpressionnistesApi-dev-GetBoatRegistrationFunction`
+- `ImpressionnistesApi-dev-UpdateBoatRegistrationFunction`
+- `ImpressionnistesApi-dev-DeleteBoatRegistrationFunction`
+
+### Test Create Boat Registration (Skiff - 42km)
+
+```json
+{
+  "body": "{\"event_type\":\"42km\",\"boat_type\":\"skiff\"}",
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "PASTE-YOUR-USER-ID-HERE",
+        "email": "your-email@example.com"
+      }
+    }
+  }
+}
+```
+
+**Expected Response:**
+```json
+{
+  "statusCode": 201,
+  "body": {
+    "boat_registration_id": "uuid-here",
+    "event_type": "42km",
+    "boat_type": "skiff",
+    "seats": [
+      {"position": 1, "type": "rower", "crew_member_id": null}
+    ],
+    "registration_status": "incomplete",
+    "is_boat_rental": false,
+    "is_multi_club_crew": false
+  }
+}
+```
+
+### Test Create Boat Registration (Four with Cox - 21km)
+
+```json
+{
+  "body": "{\"event_type\":\"21km\",\"boat_type\":\"4+\"}",
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "PASTE-YOUR-USER-ID-HERE",
+        "email": "your-email@example.com"
+      }
+    }
+  }
+}
+```
+
+**Expected Response:**
+```json
+{
+  "statusCode": 201,
+  "body": {
+    "boat_registration_id": "uuid-here",
+    "event_type": "21km",
+    "boat_type": "4+",
+    "seats": [
+      {"position": 1, "type": "rower", "crew_member_id": null},
+      {"position": 2, "type": "rower", "crew_member_id": null},
+      {"position": 3, "type": "rower", "crew_member_id": null},
+      {"position": 4, "type": "rower", "crew_member_id": null},
+      {"position": 5, "type": "cox", "crew_member_id": null}
+    ],
+    "registration_status": "incomplete"
+  }
+}
+```
+
+### Test Create Boat Registration (Eight - 21km)
+
+```json
+{
+  "body": "{\"event_type\":\"21km\",\"boat_type\":\"8+\"}",
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "PASTE-YOUR-USER-ID-HERE",
+        "email": "your-email@example.com"
+      }
+    }
+  }
+}
+```
+
+### Test List Boat Registrations
+
+```json
+{
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "PASTE-YOUR-USER-ID-HERE",
+        "email": "your-email@example.com"
+      }
+    }
+  }
+}
+```
+
+**Expected Response:**
+```json
+{
+  "statusCode": 200,
+  "body": {
+    "boat_registrations": [
+      {
+        "boat_registration_id": "uuid-1",
+        "event_type": "42km",
+        "boat_type": "skiff",
+        "registration_status": "incomplete"
+      },
+      {
+        "boat_registration_id": "uuid-2",
+        "event_type": "21km",
+        "boat_type": "4+",
+        "registration_status": "complete"
+      }
+    ]
+  }
+}
+```
+
+### Test Get Boat Registration
+
+```json
+{
+  "pathParameters": {
+    "boat_registration_id": "PASTE-BOAT-REGISTRATION-ID-HERE"
+  },
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "PASTE-YOUR-USER-ID-HERE",
+        "email": "your-email@example.com"
+      }
+    }
+  }
+}
+```
+
+### Test Update Boat Registration (Assign Crew Members)
+
+```json
+{
+  "pathParameters": {
+    "boat_registration_id": "PASTE-BOAT-REGISTRATION-ID-HERE"
+  },
+  "body": "{\"seats\":[{\"position\":1,\"type\":\"rower\",\"crew_member_id\":\"crew-member-id-1\"},{\"position\":2,\"type\":\"rower\",\"crew_member_id\":\"crew-member-id-2\"},{\"position\":3,\"type\":\"rower\",\"crew_member_id\":\"crew-member-id-3\"},{\"position\":4,\"type\":\"rower\",\"crew_member_id\":\"crew-member-id-4\"},{\"position\":5,\"type\":\"cox\",\"crew_member_id\":\"crew-member-id-5\"}]}",
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "PASTE-YOUR-USER-ID-HERE",
+        "email": "your-email@example.com"
+      }
+    }
+  }
+}
+```
+
+### Test Update Boat Registration (Select Race)
+
+```json
+{
+  "pathParameters": {
+    "boat_registration_id": "PASTE-BOAT-REGISTRATION-ID-HERE"
+  },
+  "body": "{\"race_id\":\"SM01\"}",
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "PASTE-YOUR-USER-ID-HERE",
+        "email": "your-email@example.com"
+      }
+    }
+  }
+}
+```
+
+### Test Update Boat Registration (Mark as Boat Rental)
+
+```json
+{
+  "pathParameters": {
+    "boat_registration_id": "PASTE-BOAT-REGISTRATION-ID-HERE"
+  },
+  "body": "{\"is_boat_rental\":true}",
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "PASTE-YOUR-USER-ID-HERE",
+        "email": "your-email@example.com"
+      }
+    }
+  }
+}
+```
+
+### Test Delete Boat Registration
+
+```json
+{
+  "pathParameters": {
+    "boat_registration_id": "PASTE-BOAT-REGISTRATION-ID-HERE"
+  },
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "PASTE-YOUR-USER-ID-HERE",
+        "email": "your-email@example.com"
+      }
+    }
+  }
+}
+```
+
+**Expected Response:**
+```json
+{
+  "statusCode": 200,
+  "body": {
+    "message": "Boat registration deleted successfully"
+  }
+}
+```
+
+## Boat Registration Testing Workflow
+
+### Complete Registration Flow
+
+1. **Create crew members** (at least 1 for skiff, 4-5 for 4+, 8-9 for 8+)
+2. **Create boat registration** with event and boat type
+3. **Update boat registration** to assign crew members to seats
+4. **Update boat registration** to select a race (based on crew eligibility)
+5. **Verify registration status** changes to "complete"
+6. **Test payment** (future task)
+
+### Test Validation Rules
+
+**Invalid Boat Type for Event:**
+```json
+{
+  "body": "{\"event_type\":\"42km\",\"boat_type\":\"4+\"}",
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "PASTE-YOUR-USER-ID-HERE"
+      }
+    }
+  }
+}
+```
+**Expected:** 400 error - "Boat type '4+' is not valid for event '42km'"
+
+**Valid Combinations:**
+- 42km: skiff only
+- 21km: 4-, 4+, 8+
+
+### Registration Status States
+
+- **incomplete**: Missing crew assignments or race selection
+- **complete**: All seats filled and race selected
+- **paid**: Payment processed (future)
+
+### Multi-Club Crew Detection
+
+When crew members from different clubs are assigned:
+```json
+{
+  "body": "{\"seats\":[{\"position\":1,\"type\":\"rower\",\"crew_member_id\":\"rcpm-member\"},{\"position\":2,\"type\":\"rower\",\"crew_member_id\":\"external-member\"},...]}",
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "PASTE-YOUR-USER-ID-HERE"
+      }
+    }
+  }
+}
+```
+**Expected:** `is_multi_club_crew` automatically set to `true`
+
+## Verify in DynamoDB
+
+### Check Boat Registration
+```bash
+aws dynamodb query \
+  --table-name impressionnistes-registration-dev \
+  --key-condition-expression "PK = :pk AND begins_with(SK, :sk)" \
+  --expression-attribute-values '{":pk":{"S":"TEAM#your-user-id"},":sk":{"S":"BOAT#"}}'
+```
+
+### Check Crew Member Assignment
+```bash
+aws dynamodb get-item \
+  --table-name impressionnistes-registration-dev \
+  --key '{"PK":{"S":"TEAM#your-user-id"},"SK":{"S":"CREW#crew-member-id"}}'
+```
+
+Look for `assigned_boat_id` field.
+
+## Common Boat Registration Issues
+
+### "Boat type not valid for event"
+- Check valid combinations: 42km=skiff, 21km=4-/4+/8+
+
+### "Crew member already assigned"
+- A crew member can only be in one boat
+- Delete or update the other boat registration first
+
+### Registration stays "incomplete"
+- Ensure all seats have crew_member_id assigned
+- Ensure race_id is selected
+
+### "Boat registration not found"
+- Check the boat_registration_id is correct
+- Verify it belongs to the authenticated user
+
+## Success Indicators
+
+✅ **Create Boat**: Returns 201 with boat_registration_id and seat structure
+✅ **List Boats**: Returns 200 with array of registrations
+✅ **Get Boat**: Returns 200 with complete boat details
+✅ **Update Boat**: Returns 200 with updated fields and recalculated status
+✅ **Delete Boat**: Returns 200 and unassigns crew members
+✅ **Multi-Club Detection**: Automatically sets is_multi_club_crew flag
+✅ **Status Calculation**: Automatically updates registration_status

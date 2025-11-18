@@ -386,10 +386,247 @@ curl -X GET $API_URL/auth/profile \
 
 ---
 
+## Boat Registration Endpoints
+
+### POST /boat
+
+Create a new boat registration.
+
+**Authentication**: Required (Cognito JWT token)
+
+**Headers**:
+```
+Authorization: Bearer <cognito-jwt-token>
+```
+
+**Request Body**:
+```json
+{
+  "event_type": "21km",
+  "boat_type": "4+",
+  "race_id": null,
+  "seats": [],
+  "is_boat_rental": false
+}
+```
+
+**Response (201 Created)**:
+```json
+{
+  "success": true,
+  "data": {
+    "boat_registration_id": "uuid-here",
+    "team_manager_id": "uuid-here",
+    "event_type": "21km",
+    "boat_type": "4+",
+    "race_id": null,
+    "seats": [
+      {"position": 1, "type": "rower", "crew_member_id": null},
+      {"position": 2, "type": "rower", "crew_member_id": null},
+      {"position": 3, "type": "rower", "crew_member_id": null},
+      {"position": 4, "type": "rower", "crew_member_id": null},
+      {"position": 5, "type": "cox", "crew_member_id": null}
+    ],
+    "is_boat_rental": false,
+    "is_multi_club_crew": false,
+    "registration_status": "incomplete",
+    "flagged_issues": [],
+    "created_at": "2024-03-19T14:00:00Z",
+    "updated_at": "2024-03-19T14:00:00Z"
+  },
+  "timestamp": "2024-03-19T14:00:00Z"
+}
+```
+
+**cURL Example**:
+```bash
+curl -X POST https://your-api-url/dev/boat \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "event_type": "21km",
+    "boat_type": "4+",
+    "is_boat_rental": false
+  }'
+```
+
+---
+
+### GET /boat
+
+List all boat registrations for the authenticated team manager.
+
+**Authentication**: Required (Cognito JWT token)
+
+**Headers**:
+```
+Authorization: Bearer <cognito-jwt-token>
+```
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "boat_registrations": [
+      {
+        "boat_registration_id": "uuid-1",
+        "event_type": "21km",
+        "boat_type": "4+",
+        "registration_status": "incomplete",
+        "created_at": "2024-03-19T14:00:00Z"
+      },
+      {
+        "boat_registration_id": "uuid-2",
+        "event_type": "42km",
+        "boat_type": "skiff",
+        "registration_status": "complete",
+        "created_at": "2024-03-19T15:00:00Z"
+      }
+    ]
+  },
+  "timestamp": "2024-03-19T16:00:00Z"
+}
+```
+
+**cURL Example**:
+```bash
+curl -X GET https://your-api-url/dev/boat \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+---
+
+### GET /boat/{boat_registration_id}
+
+Get a specific boat registration.
+
+**Authentication**: Required (Cognito JWT token)
+
+**Headers**:
+```
+Authorization: Bearer <cognito-jwt-token>
+```
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "boat_registration_id": "uuid-here",
+    "team_manager_id": "uuid-here",
+    "event_type": "21km",
+    "boat_type": "4+",
+    "race_id": "race-uuid",
+    "seats": [
+      {"position": 1, "type": "rower", "crew_member_id": "crew-1"},
+      {"position": 2, "type": "rower", "crew_member_id": "crew-2"},
+      {"position": 3, "type": "rower", "crew_member_id": "crew-3"},
+      {"position": 4, "type": "rower", "crew_member_id": "crew-4"},
+      {"position": 5, "type": "cox", "crew_member_id": "crew-5"}
+    ],
+    "is_boat_rental": false,
+    "is_multi_club_crew": false,
+    "registration_status": "complete",
+    "flagged_issues": [],
+    "created_at": "2024-03-19T14:00:00Z",
+    "updated_at": "2024-03-19T15:30:00Z"
+  },
+  "timestamp": "2024-03-19T16:00:00Z"
+}
+```
+
+**cURL Example**:
+```bash
+curl -X GET https://your-api-url/dev/boat/BOAT_ID \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+---
+
+### PUT /boat/{boat_registration_id}
+
+Update a boat registration.
+
+**Authentication**: Required (Cognito JWT token)
+
+**Headers**:
+```
+Authorization: Bearer <cognito-jwt-token>
+```
+
+**Request Body** (all fields optional):
+```json
+{
+  "race_id": "race-uuid",
+  "seats": [
+    {"position": 1, "type": "rower", "crew_member_id": "crew-1"},
+    {"position": 2, "type": "rower", "crew_member_id": "crew-2"},
+    {"position": 3, "type": "rower", "crew_member_id": "crew-3"},
+    {"position": 4, "type": "rower", "crew_member_id": "crew-4"},
+    {"position": 5, "type": "cox", "crew_member_id": "crew-5"}
+  ]
+}
+```
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "boat_registration_id": "uuid-here",
+    "registration_status": "complete",
+    "updated_at": "2024-03-19T16:30:00Z"
+  },
+  "message": "Boat registration updated successfully",
+  "timestamp": "2024-03-19T16:30:00Z"
+}
+```
+
+**cURL Example**:
+```bash
+curl -X PUT https://your-api-url/dev/boat/BOAT_ID \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "race_id": "race-uuid"
+  }'
+```
+
+---
+
+### DELETE /boat/{boat_registration_id}
+
+Delete a boat registration.
+
+**Authentication**: Required (Cognito JWT token)
+
+**Headers**:
+```
+Authorization: Bearer <cognito-jwt-token>
+```
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "message": "Boat registration deleted successfully"
+  },
+  "timestamp": "2024-03-19T17:00:00Z"
+}
+```
+
+**cURL Example**:
+```bash
+curl -X DELETE https://your-api-url/dev/boat/BOAT_ID \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+---
+
 ## Next Steps
 
-- Add crew member endpoints (/crew/*)
-- Add boat registration endpoints (/boat/*)
 - Add payment endpoints (/payment/*)
 - Add admin endpoints (/admin/*)
 - Add contact form endpoint (/contact)

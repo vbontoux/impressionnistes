@@ -119,7 +119,8 @@ boat_registration_schema = {
     },
     'race_id': {
         'type': 'string',
-        'required': False  # Optional until race is selected
+        'required': False,  # Optional until race is selected
+        'nullable': True
     },
     'seats': {
         'type': 'list',
@@ -155,6 +156,48 @@ boat_registration_schema = {
         'type': 'boolean',
         'required': False,
         'default': False
+    },
+    'registration_status': {
+        'type': 'string',
+        'required': False,
+        'allowed': ['incomplete', 'complete', 'paid'],
+        'default': 'incomplete'
+    },
+    'flagged_issues': {
+        'type': 'list',
+        'required': False,
+        'default': [],
+        'schema': {
+            'type': 'dict',
+            'schema': {
+                'issue_type': {
+                    'type': 'string',
+                    'required': True
+                },
+                'description': {
+                    'type': 'string',
+                    'required': True
+                },
+                'flagged_at': {
+                    'type': 'string',
+                    'required': True
+                },
+                'flagged_by': {
+                    'type': 'string',
+                    'required': True
+                },
+                'resolved': {
+                    'type': 'boolean',
+                    'required': False,
+                    'default': False
+                },
+                'resolved_at': {
+                    'type': 'string',
+                    'required': False,
+                    'nullable': True
+                }
+            }
+        }
     }
 }
 
@@ -311,7 +354,7 @@ def validate_boat_registration(data):
     Returns:
         tuple: (is_valid, errors)
     """
-    v = CustomValidator(boat_registration_schema)
+    v = CustomValidator(boat_registration_schema, allow_unknown=True)
     is_valid = v.validate(data)
     return is_valid, v.errors
 

@@ -72,6 +72,9 @@ class ApiStack(Stack):
         # Create crew member Lambda functions
         self._create_crew_functions()
         
+        # Create boat registration Lambda functions
+        self._create_boat_functions()
+        
         # Create API Gateway REST API
         self._create_api_gateway()
         
@@ -207,6 +210,44 @@ class ApiStack(Stack):
             'DeleteCrewMemberFunction',
             'crew/delete_crew_member',
             'Delete a crew member'
+        )
+    
+    def _create_boat_functions(self):
+        """Create boat registration Lambda functions"""
+        
+        # Create boat registration function
+        self.lambda_functions['create_boat_registration'] = self._create_lambda_function(
+            'CreateBoatRegistrationFunction',
+            'boat/create_boat_registration',
+            'Create a new boat registration'
+        )
+        
+        # List boat registrations function
+        self.lambda_functions['list_boat_registrations'] = self._create_lambda_function(
+            'ListBoatRegistrationsFunction',
+            'boat/list_boat_registrations',
+            'List all boat registrations for team manager'
+        )
+        
+        # Get boat registration function
+        self.lambda_functions['get_boat_registration'] = self._create_lambda_function(
+            'GetBoatRegistrationFunction',
+            'boat/get_boat_registration',
+            'Get a specific boat registration'
+        )
+        
+        # Update boat registration function
+        self.lambda_functions['update_boat_registration'] = self._create_lambda_function(
+            'UpdateBoatRegistrationFunction',
+            'boat/update_boat_registration',
+            'Update boat registration information'
+        )
+        
+        # Delete boat registration function
+        self.lambda_functions['delete_boat_registration'] = self._create_lambda_function(
+            'DeleteBoatRegistrationFunction',
+            'boat/delete_boat_registration',
+            'Delete a boat registration'
         )
 
     def _create_api_gateway(self):
@@ -390,6 +431,72 @@ class ApiStack(Stack):
         crew_member_resource.add_method(
             'DELETE',
             delete_crew_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Create /boat resource
+        boat_resource = self.api.root.add_resource('boat')
+        
+        # POST /boat - Create boat registration (auth required)
+        create_boat_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['create_boat_registration'],
+            proxy=True
+        )
+        boat_resource.add_method(
+            'POST',
+            create_boat_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # GET /boat - List boat registrations (auth required)
+        list_boat_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['list_boat_registrations'],
+            proxy=True
+        )
+        boat_resource.add_method(
+            'GET',
+            list_boat_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # /boat/{boat_registration_id} resource
+        boat_registration_resource = boat_resource.add_resource('{boat_registration_id}')
+        
+        # GET /boat/{boat_registration_id} - Get boat registration (auth required)
+        get_boat_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['get_boat_registration'],
+            proxy=True
+        )
+        boat_registration_resource.add_method(
+            'GET',
+            get_boat_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # PUT /boat/{boat_registration_id} - Update boat registration (auth required)
+        update_boat_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['update_boat_registration'],
+            proxy=True
+        )
+        boat_registration_resource.add_method(
+            'PUT',
+            update_boat_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # DELETE /boat/{boat_registration_id} - Delete boat registration (auth required)
+        delete_boat_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['delete_boat_registration'],
+            proxy=True
+        )
+        boat_registration_resource.add_method(
+            'DELETE',
+            delete_boat_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )

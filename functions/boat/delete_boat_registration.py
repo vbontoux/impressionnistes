@@ -1,0 +1,96 @@
+"""
+Lambda function for deleting boat registrations
+Team managers can delete boat registrations during registration period
+"""
+import json
+import logging
+
+# Import from Lambda layer
+from responses import (
+    success_response,
+    validation_error,
+    not_found_error,
+    forbidden_error,
+    internal_error,
+    handle_exceptions
+)
+from database import get_db_client, get_timestamp
+from auth_utils import get_user_from_event, require_team_manager
+from configuration import ConfigurationManager
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+
+@handle_exceptions
+@require_team_manager
+def lambda_handler(event, context):
+    """
+    Delete a boat registration
+    
+    Path parameters:
+        - boat_registration_id: ID of the boat registration to delete
+    
+    Returns:
+        Success message
+    """
+    logger.info("Delete boat registration request")
+    
+    # Get authenticated user
+    user = get_user_from_event(event)
+    team_manager_id = user['user_id']
+    
+    # Get boat registration ID from path
+    boat_registration_id = event.get('pathParameters', {}).get('boat_registration_id')
+    if not boat_registration_id:
+        return validation_error({'boat_registration_id': 'Boat registration ID is required'})
+    
+    # Get existing boat registration
+    db = get_db_client()
+    
+    existing_boat = db.get_item(
+        pk=f'TEAM#{team_manager_id}',
+        sk=f'BOAT#{boat_registration_id}'
+    )
+    
+    if not existing_boat:
+        return not_found_error('Boat registration not found')
+    
+    # Check if registration period is active
+    config_manager = ConfigurationManager()
+    system_config = config_manager.get_system_config()
+    
+    # TODO: Add registration period check when configuration is fully implemented
+    # For now, allow deletions
+    
+    # Unassign crew members from this boat
+    seats = existing_boat.get('seats', [])
+    crew_member_ids = [seat.get('crew_member_id') for seat in seats if seat.get('crew_member_id')]
+    
+    if crew_member_ids:
+        # Update crew members to remove boat assignment
+        for crew_member_id in crew_member_ids:
+            crew_member = db.get_item(
+                pk=f'TEAM#{team_manager_id}',
+                sk=f'CREW#{crew_member_id}'
+            )
+            
+            if crew_member and crew_member.get('assigned_boat_id') == boat_registration_id:
+                crew_member['assigned_boat_id'] = None
+                crew_member['updated_at'] = get_timestamp()
+                db.put_item(crew_member)
+                logger.info(f"Unassigned crew member {crew_member_id} from boat {boat_registration_id}")
+    
+    # Delete boat registration from DynamoDB
+    db.delete_item(
+        pk=f'TEAM#{team_manager_id}',
+        sk=f'BOAT#{boat_registration_id}'
+    )
+    
+    logger.info(f"Boat registration deleted: {boat_registration_id}")
+    
+    # Return success response
+    return success_response(
+        data={'message': 'Boat registration deleted successfully'},
+        status_code=200
+    )

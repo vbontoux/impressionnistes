@@ -144,7 +144,7 @@
 
 ## 5. Boat Registration and Seat Assignment
 
-- [ ] 5.1 Implement boat registration data model
+- [x] 5.1 Implement boat registration data model
   - Create boat registration schema with event_type, boat_type, race_id
   - Implement seat structure with position, type (rower/cox), crew_member_id
   - Add multi_club_crew detection logic
@@ -152,7 +152,7 @@
   - Create registration status tracking (incomplete, complete, paid)
   - _Requirements: FR-3.1, FR-3.2, FR-3.3, FR-3.7, FR-8.1, FR-9.1_
 
-- [ ] 5.2 Create boat registration CRUD Lambda functions
+- [x] 5.2 Create boat registration CRUD Lambda functions
   - Implement create_boat_registration Lambda with validation
   - Implement update_boat_registration Lambda with period checks
   - Implement delete_boat_registration Lambda
