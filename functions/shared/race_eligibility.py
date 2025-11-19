@@ -39,14 +39,44 @@ def get_age_category(age: int) -> str:
         age: Age in years
     
     Returns:
-        Age category string
+        Age category string (j16, j18, senior, master)
     """
-    if age < 18:
-        return "youth"
+    if age <= 16:
+        return "j16"
+    elif age <= 18:
+        return "j18"
     elif age < 27:
         return "senior"
     else:
         return "master"
+
+
+def get_master_category(avg_age: float) -> str:
+    """
+    Determine master category letter based on average age of crew
+    
+    Args:
+        avg_age: Average age of crew members
+    
+    Returns:
+        Master category letter (A, B, C, D, E, F, G, H)
+    """
+    if avg_age < 36:
+        return "A"  # 27-35
+    elif avg_age < 43:
+        return "B"  # 36-42
+    elif avg_age < 50:
+        return "C"  # 43-49
+    elif avg_age < 55:
+        return "D"  # 50-54
+    elif avg_age < 60:
+        return "E"  # 55-59
+    elif avg_age < 65:
+        return "F"  # 60-64
+    elif avg_age < 70:
+        return "G"  # 65-69
+    else:
+        return "H"  # 70+
 
 
 def analyze_crew_composition(crew_members: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -88,13 +118,16 @@ def analyze_crew_composition(crew_members: List[Dict[str, Any]]) -> Dict[str, An
     else:
         gender_category = "mixed"
     
-    # Determine age category (most restrictive - if any master, then master)
+    # Determine age category (most restrictive)
+    # Priority: master > senior > j18 > j16
     if "master" in age_categories:
         crew_age_category = "master"
     elif "senior" in age_categories:
         crew_age_category = "senior"
+    elif "j18" in age_categories:
+        crew_age_category = "j18"
     else:
-        crew_age_category = "youth"
+        crew_age_category = "j16"
     
     # Determine eligible boat types based on crew size
     crew_size = len(crew_members)
@@ -109,6 +142,9 @@ def analyze_crew_composition(crew_members: List[Dict[str, Any]]) -> Dict[str, An
     elif crew_size == 8 or crew_size == 9:
         eligible_boat_types = ["8+"]
     
+    avg_age = sum(ages) / len(ages) if ages else 0
+    master_category = get_master_category(avg_age) if crew_age_category == "master" else None
+    
     return {
         'crew_size': crew_size,
         'genders': genders,
@@ -116,10 +152,11 @@ def analyze_crew_composition(crew_members: List[Dict[str, Any]]) -> Dict[str, An
         'age_categories': age_categories,
         'gender_category': gender_category,
         'age_category': crew_age_category,
+        'master_category': master_category,
         'eligible_boat_types': eligible_boat_types,
         'min_age': min(ages) if ages else 0,
         'max_age': max(ages) if ages else 0,
-        'avg_age': sum(ages) / len(ages) if ages else 0
+        'avg_age': avg_age
     }
 
 
@@ -160,15 +197,25 @@ def get_eligible_races(crew_members: List[Dict[str, Any]], available_races: List
         crew_age = crew_analysis['age_category']
         
         # Age category rules:
-        # - Youth can only compete in youth races
-        # - Senior can compete in senior or master races
-        # - Master can compete in master races
-        if race_age == "youth" and crew_age != "youth":
+        # - J16 can only compete in j16 races
+        # - J18 can only compete in j18 races
+        # - Senior can compete in senior races
+        # - Master can compete in master races with matching category
+        if race_age == "j16" and crew_age != "j16":
             continue
-        if race_age == "senior" and crew_age not in ["senior", "master"]:
+        if race_age == "j18" and crew_age != "j18":
+            continue
+        if race_age == "senior" and crew_age != "senior":
             continue
         if race_age == "master" and crew_age != "master":
             continue
+        
+        # For master races, check if the race has a specific master category
+        if crew_age == "master" and 'master_category' in race:
+            crew_master_cat = crew_analysis.get('master_category')
+            race_master_cat = race['master_category']
+            if crew_master_cat != race_master_cat:
+                continue
         
         eligible_races.append(race)
     
@@ -219,22 +266,28 @@ def validate_race_selection(crew_members: List[Dict[str, Any]], selected_race: D
     race_age = selected_race['age_category']
     crew_age = crew_analysis['age_category']
     
-    if race_age == "youth" and crew_age != "youth":
+    if race_age == "j16" and crew_age != "j16":
         return {
             'valid': False,
-            'reason': f"Age category mismatch: Youth race requires all youth crew members",
+            'reason': f"Age category mismatch: J16 race requires crew members aged 15-16",
             'crew_analysis': crew_analysis
         }
-    if race_age == "senior" and crew_age not in ["senior", "master"]:
+    if race_age == "j18" and crew_age != "j18":
         return {
             'valid': False,
-            'reason': f"Age category mismatch: Senior race not available for {crew_age} crew",
+            'reason': f"Age category mismatch: J18 race requires crew members aged 17-18",
+            'crew_analysis': crew_analysis
+        }
+    if race_age == "senior" and crew_age != "senior":
+        return {
+            'valid': False,
+            'reason': f"Age category mismatch: Senior race requires crew members aged 19-26",
             'crew_analysis': crew_analysis
         }
     if race_age == "master" and crew_age != "master":
         return {
             'valid': False,
-            'reason': f"Age category mismatch: Master race requires at least one master crew member",
+            'reason': f"Age category mismatch: Master race requires crew members aged 27+",
             'crew_analysis': crew_analysis
         }
     

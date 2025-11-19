@@ -25,15 +25,42 @@ export function calculateAge(dateOfBirth, referenceDate = new Date()) {
 /**
  * Determine age category based on age
  * @param {number} age - Age in years
- * @returns {string} Age category
+ * @returns {string} Age category (j16, j18, senior, master)
  */
 export function getAgeCategory(age) {
-  if (age < 18) {
-    return "youth";
+  if (age <= 16) {
+    return "j16";
+  } else if (age <= 18) {
+    return "j18";
   } else if (age < 27) {
     return "senior";
   } else {
     return "master";
+  }
+}
+
+/**
+ * Determine master category letter based on average age of crew
+ * @param {number} avgAge - Average age of crew members
+ * @returns {string} Master category letter (A, B, C, D, E, F, G, H)
+ */
+export function getMasterCategory(avgAge) {
+  if (avgAge < 36) {
+    return "A";  // 27-35
+  } else if (avgAge < 43) {
+    return "B";  // 36-42
+  } else if (avgAge < 50) {
+    return "C";  // 43-49
+  } else if (avgAge < 55) {
+    return "D";  // 50-54
+  } else if (avgAge < 60) {
+    return "E";  // 55-59
+  } else if (avgAge < 65) {
+    return "F";  // 60-64
+  } else if (avgAge < 70) {
+    return "G";  // 65-69
+  } else {
+    return "H";  // 70+
   }
 }
 
@@ -76,14 +103,17 @@ export function analyzeCrewComposition(crewMembers) {
     genderCategory = "mixed";
   }
   
-  // Determine age category (most restrictive - if any master, then master)
+  // Determine age category (most restrictive)
+  // Priority: master > senior > j18 > j16
   let crewAgeCategory;
   if (ageCategories.includes("master")) {
     crewAgeCategory = "master";
   } else if (ageCategories.includes("senior")) {
     crewAgeCategory = "senior";
+  } else if (ageCategories.includes("j18")) {
+    crewAgeCategory = "j18";
   } else {
-    crewAgeCategory = "youth";
+    crewAgeCategory = "j16";
   }
   
   // Determine eligible boat types based on crew size
@@ -100,6 +130,9 @@ export function analyzeCrewComposition(crewMembers) {
     eligibleBoatTypes.push("8+");
   }
   
+  const avgAge = ages.length > 0 ? ages.reduce((sum, age) => sum + age, 0) / ages.length : 0;
+  const masterCategory = crewAgeCategory === "master" ? getMasterCategory(avgAge) : null;
+  
   return {
     crewSize,
     genders,
@@ -107,10 +140,11 @@ export function analyzeCrewComposition(crewMembers) {
     ageCategories,
     genderCategory,
     ageCategory: crewAgeCategory,
+    masterCategory,
     eligibleBoatTypes,
     minAge: ages.length > 0 ? Math.min(...ages) : 0,
     maxAge: ages.length > 0 ? Math.max(...ages) : 0,
-    avgAge: ages.length > 0 ? ages.reduce((sum, age) => sum + age, 0) / ages.length : 0
+    avgAge
   };
 }
 
@@ -150,17 +184,30 @@ export function getEligibleRaces(crewMembers, availableRaces) {
     const crewAge = crewAnalysis.ageCategory;
     
     // Age category rules:
-    // - Youth can only compete in youth races
-    // - Senior can compete in senior or master races
-    // - Master can compete in master races
-    if (raceAge === "youth" && crewAge !== "youth") {
+    // - J16 can only compete in j16 races
+    // - J18 can only compete in j18 races
+    // - Senior can compete in senior races
+    // - Master can compete in master races with matching category
+    if (raceAge === "j16" && crewAge !== "j16") {
       return;
     }
-    if (raceAge === "senior" && !["senior", "master"].includes(crewAge)) {
+    if (raceAge === "j18" && crewAge !== "j18") {
+      return;
+    }
+    if (raceAge === "senior" && crewAge !== "senior") {
       return;
     }
     if (raceAge === "master" && crewAge !== "master") {
       return;
+    }
+    
+    // For master races, check if the race has a specific master category
+    if (crewAge === "master" && race.master_category) {
+      const crewMasterCat = crewAnalysis.masterCategory;
+      const raceMasterCat = race.master_category;
+      if (crewMasterCat !== raceMasterCat) {
+        return;
+      }
     }
     
     eligibleRaces.push(race);
@@ -212,24 +259,31 @@ export function validateRaceSelection(crewMembers, selectedRace) {
   const raceAge = selectedRace.age_category;
   const crewAge = crewAnalysis.ageCategory;
   
-  if (raceAge === "youth" && crewAge !== "youth") {
+  if (raceAge === "j16" && crewAge !== "j16") {
     return {
       valid: false,
-      reason: `Age category mismatch: Youth race requires all youth crew members`,
+      reason: `Age category mismatch: J16 race requires crew members aged 15-16`,
       crewAnalysis
     };
   }
-  if (raceAge === "senior" && !["senior", "master"].includes(crewAge)) {
+  if (raceAge === "j18" && crewAge !== "j18") {
     return {
       valid: false,
-      reason: `Age category mismatch: Senior race not available for ${crewAge} crew`,
+      reason: `Age category mismatch: J18 race requires crew members aged 17-18`,
+      crewAnalysis
+    };
+  }
+  if (raceAge === "senior" && crewAge !== "senior") {
+    return {
+      valid: false,
+      reason: `Age category mismatch: Senior race requires crew members aged 19-26`,
       crewAnalysis
     };
   }
   if (raceAge === "master" && crewAge !== "master") {
     return {
       valid: false,
-      reason: `Age category mismatch: Master race requires at least one master crew member`,
+      reason: `Age category mismatch: Master race requires crew members aged 27+`,
       crewAnalysis
     };
   }
@@ -273,8 +327,9 @@ export function getCrewDescription(crewAnalysis) {
     return "No crew members";
   }
   
-  const { crewSize, genderCategory, ageCategory, avgAge } = crewAnalysis;
-  return `${crewSize} ${genderCategory} ${ageCategory} (avg age: ${Math.round(avgAge)})`;
+  const { crewSize, genderCategory, ageCategory, masterCategory, avgAge } = crewAnalysis;
+  const masterCat = masterCategory ? ` ${masterCategory}` : '';
+  return `${crewSize} ${genderCategory} ${ageCategory}${masterCat} (avg age: ${Math.round(avgAge)})`;
 }
 
 /**
@@ -287,6 +342,7 @@ export function getRaceDisplay(race) {
   const boat = race.boat_type;
   const gender = race.gender_category;
   const age = race.age_category;
+  const masterCat = race.master_category ? ` ${race.master_category}` : '';
   
-  return `${distance} ${gender} ${age} ${boat}`;
+  return `${distance} ${gender} ${age}${masterCat} ${boat}`;
 }

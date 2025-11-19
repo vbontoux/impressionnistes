@@ -35,7 +35,10 @@
             <span class="race-detail">{{ $t('boat.distance') }}: {{ race.event_type }}</span>
             <span class="race-detail">{{ $t('boat.boatType') }}: {{ race.boat_type }}</span>
             <span class="race-detail">{{ $t('boat.gender') }}: {{ $t(`boat.${race.gender_category}`) }}</span>
-            <span class="race-detail">{{ $t('boat.ageCategory') }}: {{ $t(`boat.${race.age_category}`) }}</span>
+            <span class="race-detail">
+              {{ $t('boat.ageCategory') }}: {{ $t(`boat.${race.age_category}`) }}
+              <span v-if="race.master_category" class="master-category-badge">{{ race.master_category }}</span>
+            </span>
           </div>
         </div>
       </div>
@@ -210,5 +213,16 @@ export default {
 .race-detail {
   font-size: 0.875rem;
   color: #6c757d;
+}
+
+.master-category-badge {
+  display: inline-block;
+  background-color: #6c757d;
+  color: white;
+  padding: 0.125rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 600;
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
 }
 </style>
