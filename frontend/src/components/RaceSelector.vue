@@ -84,13 +84,24 @@ export default {
         return []
       }
 
+      console.log('RaceSelector - Crew members:', props.crewMembers)
+      console.log('RaceSelector - Available races:', props.availableRaces.length)
+      console.log('RaceSelector - Event type:', props.eventType, 'Boat type:', props.boatType)
+
       // Filter races by event type and boat type first
       const filteredRaces = props.availableRaces.filter(race => {
         return race.event_type === props.eventType && race.boat_type === props.boatType
       })
 
+      console.log('RaceSelector - Filtered races by event/boat:', filteredRaces.length)
+      console.log('RaceSelector - Filtered races:', filteredRaces.map(r => ({ id: r.race_id, name: r.name, age: r.age_category, master: r.master_category })))
+
       // Then filter by crew eligibility
-      return getEligibleRaces(props.crewMembers, filteredRaces)
+      const eligible = getEligibleRaces(props.crewMembers, filteredRaces)
+      console.log('RaceSelector - Eligible races after crew analysis:', eligible.length)
+      console.log('RaceSelector - Eligible races:', eligible.map(r => ({ id: r.race_id, name: r.name })))
+      
+      return eligible
     })
 
     const crewDescription = computed(() => {

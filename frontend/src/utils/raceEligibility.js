@@ -157,7 +157,10 @@ export function analyzeCrewComposition(crewMembers) {
 export function getEligibleRaces(crewMembers, availableRaces) {
   const crewAnalysis = analyzeCrewComposition(crewMembers);
   
+  console.log('getEligibleRaces - Crew analysis:', crewAnalysis);
+  
   if (crewAnalysis.eligibleBoatTypes.length === 0) {
+    console.log('getEligibleRaces - No eligible boat types for crew size:', crewAnalysis.crewSize);
     return [];
   }
   
@@ -205,6 +208,7 @@ export function getEligibleRaces(crewMembers, availableRaces) {
     if (crewAge === "master" && race.master_category) {
       const crewMasterCat = crewAnalysis.masterCategory;
       const raceMasterCat = race.master_category;
+      console.log(`getEligibleRaces - Master category check: crew=${crewMasterCat}, race=${raceMasterCat} (${race.race_id})`);
       if (crewMasterCat !== raceMasterCat) {
         return;
       }
@@ -213,6 +217,7 @@ export function getEligibleRaces(crewMembers, availableRaces) {
     eligibleRaces.push(race);
   });
   
+  console.log('getEligibleRaces - Final eligible races:', eligibleRaces.length);
   return eligibleRaces;
 }
 

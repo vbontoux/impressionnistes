@@ -4,11 +4,12 @@
       {{ $t('common.loading') }}
     </div>
 
-    <div v-else-if="error" class="error-message">
-      {{ error }}
-    </div>
-
     <div v-else-if="boat" class="boat-content">
+      <!-- Error Message -->
+      <div v-if="error" class="error-message">
+        <span>{{ error }}</span>
+        <button @click="error = null" class="btn-close-error">×</button>
+      </div>
       <!-- Header -->
       <div class="header">
         <div>
@@ -93,10 +94,11 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBoatStore } from '../stores/boatStore'
 import { useCrewStore } from '../stores/crewStore'
+import { useRaceStore } from '../stores/raceStore'
 import { useI18n } from 'vue-i18n'
 import SeatAssignment from '../components/SeatAssignment.vue'
 import RaceSelector from '../components/RaceSelector.vue'
@@ -112,6 +114,7 @@ export default {
     const router = useRouter()
     const boatStore = useBoatStore()
     const crewStore = useCrewStore()
+    const raceStore = useRaceStore()
     const { t } = useI18n()
 
     const loading = ref(true)
@@ -119,78 +122,9 @@ export default {
     const error = ref(null)
     const boat = ref(null)
     
-    // Mock race data until race endpoints are implemented (task 4.1)
-    // Based on requirements: 14 marathon races (42km) and 28 semi-marathon races (21km)
-    const availableRaces = ref([
-      // Marathon 42km - Skiff races (1X = single scull)
-      { race_id: 'M01', event_type: '42km', boat_type: 'skiff', age_category: 'senior', gender_category: 'women', name: '1X SENIOR WOMAN' },
-      { race_id: 'M02', event_type: '42km', boat_type: 'skiff', age_category: 'senior', gender_category: 'men', name: '1X SENIOR MAN' },
-      { race_id: 'M03', event_type: '42km', boat_type: 'skiff', age_category: 'master', master_category: 'A', gender_category: 'women', name: '1X MASTER A WOMAN' },
-      { race_id: 'M04', event_type: '42km', boat_type: 'skiff', age_category: 'master', master_category: 'A', gender_category: 'men', name: '1X MASTER A MAN' },
-      { race_id: 'M05', event_type: '42km', boat_type: 'skiff', age_category: 'master', master_category: 'B', gender_category: 'women', name: '1X MASTER B WOMAN' },
-      { race_id: 'M06', event_type: '42km', boat_type: 'skiff', age_category: 'master', master_category: 'B', gender_category: 'men', name: '1X MASTER B MAN' },
-      { race_id: 'M07', event_type: '42km', boat_type: 'skiff', age_category: 'master', master_category: 'C', gender_category: 'women', name: '1X MASTER C WOMAN' },
-      { race_id: 'M08', event_type: '42km', boat_type: 'skiff', age_category: 'master', master_category: 'C', gender_category: 'men', name: '1X MASTER C MAN' },
-      { race_id: 'M09', event_type: '42km', boat_type: 'skiff', age_category: 'master', master_category: 'D', gender_category: 'women', name: '1X MASTER D WOMAN' },
-      { race_id: 'M10', event_type: '42km', boat_type: 'skiff', age_category: 'master', master_category: 'D', gender_category: 'men', name: '1X MASTER D MAN' },
-      { race_id: 'M11', event_type: '42km', boat_type: 'skiff', age_category: 'master', master_category: 'E', gender_category: 'women', name: '1X MASTER E WOMAN' },
-      { race_id: 'M12', event_type: '42km', boat_type: 'skiff', age_category: 'master', master_category: 'E', gender_category: 'men', name: '1X MASTER E MAN' },
-      { race_id: 'M13', event_type: '42km', boat_type: 'skiff', age_category: 'master', master_category: 'F', gender_category: 'women', name: '1X MASTER F WOMAN' },
-      { race_id: 'M14', event_type: '42km', boat_type: 'skiff', age_category: 'master', master_category: 'F', gender_category: 'men', name: '1X MASTER F MAN' },
-      
-      // Semi-Marathon 21km races
-      // J16 races (ages 15-16) - 4+ (coxed four or quad scull)
-      { race_id: 'SM01', event_type: '21km', boat_type: '4+', age_category: 'j16', gender_category: 'women', name: 'WOMEN-JUNIOR J16-COXED SWEEP FOUR OR QUAD SCULL' },
-      { race_id: 'SM02', event_type: '21km', boat_type: '4+', age_category: 'j16', gender_category: 'men', name: 'MEN-JUNIOR J16-COXED SWEEP FOUR OR QUAD SCULL' },
-      { race_id: 'SM03', event_type: '21km', boat_type: '4+', age_category: 'j16', gender_category: 'mixed', name: 'MIXED-GENDER-JUNIOR J16-COXED SWEEP FOUR OR QUAD SCULL' },
-      
-      // J16 races - 8+ (eight with coxswain)
-      { race_id: 'SM04', event_type: '21km', boat_type: '8+', age_category: 'j16', gender_category: 'women', name: 'WOMEN-JUNIOR J16-SWEEP EIGHT WITH COXSWAIN' },
-      { race_id: 'SM05', event_type: '21km', boat_type: '8+', age_category: 'j16', gender_category: 'men', name: 'MEN-JUNIOR J16-SWEEP EIGHT WITH COXSWAIN' },
-      
-      // J18 races (ages 17-18) - 4- (four without cox)
-      { race_id: 'SM06', event_type: '21km', boat_type: '4-', age_category: 'j18', gender_category: 'women', name: 'WOMEN-JUNIOR J18-SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN' },
-      { race_id: 'SM07', event_type: '21km', boat_type: '4-', age_category: 'j18', gender_category: 'men', name: 'MEN-JUNIOR J18-SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN' },
-      { race_id: 'SM08', event_type: '21km', boat_type: '4-', age_category: 'j18', gender_category: 'mixed', name: 'MIXED-GENDER-JUNIOR J18-SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN' },
-      
-      // J18 races - 4+ (coxed four)
-      { race_id: 'SM09', event_type: '21km', boat_type: '4+', age_category: 'j18', gender_category: 'men', name: 'MEN-JUNIOR J18-COXED SWEEP FOUR' },
-      
-      // J18 races - 8+ (eight with coxswain)
-      { race_id: 'SM10', event_type: '21km', boat_type: '8+', age_category: 'j18', gender_category: 'women', name: 'WOMEN-JUNIOR J18-SWEEP EIGHT WITH COXSWAIN' },
-      { race_id: 'SM11', event_type: '21km', boat_type: '8+', age_category: 'j18', gender_category: 'men', name: 'MEN-JUNIOR J18-SWEEP EIGHT WITH COXSWAIN' },
-      
-      // Senior races (ages 19-26) - 4- (four without cox)
-      { race_id: 'SM12', event_type: '21km', boat_type: '4-', age_category: 'senior', gender_category: 'women', name: 'WOMEN-SENIOR-SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN' },
-      { race_id: 'SM13', event_type: '21km', boat_type: '4-', age_category: 'senior', gender_category: 'men', name: 'MEN-SENIOR-SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN' },
-      
-      // Senior races - 4+ (coxed four)
-      { race_id: 'SM14', event_type: '21km', boat_type: '4+', age_category: 'senior', gender_category: 'men', name: 'MEN-SENIOR-COXED SWEEP FOUR' },
-      
-      // Senior races - 8+ (eight with coxswain)
-      { race_id: 'SM15', event_type: '21km', boat_type: '8+', age_category: 'senior', gender_category: 'women', name: 'WOMEN-SENIOR-SWEEP EIGHT WITH COXSWAIN' },
-      { race_id: 'SM16', event_type: '21km', boat_type: '8+', age_category: 'senior', gender_category: 'men', name: 'MEN-SENIOR-SWEEP EIGHT WITH COXSWAIN' },
-      
-      // Master races (ages 27+) - 4+ (coxed four or quad scull - yolette)
-      { race_id: 'SM17', event_type: '21km', boat_type: '4+', age_category: 'master', gender_category: 'women', name: 'WOMEN-MASTER-COXED SWEEP FOUR OR QUAD SCULL YOLETTE' },
-      { race_id: 'SM18', event_type: '21km', boat_type: '4+', age_category: 'master', gender_category: 'men', name: 'MEN-MASTER-COXED SWEEP FOUR OR QUAD SCULL YOLETTE' },
-      { race_id: 'SM19', event_type: '21km', boat_type: '4+', age_category: 'master', gender_category: 'mixed', name: 'MIXED-GENDER-MASTER-COXED SWEEP FOUR OR QUAD SCULL YOLETTE' },
-      
-      // Master races - 4+ (coxed four or quad scull)
-      { race_id: 'SM20', event_type: '21km', boat_type: '4+', age_category: 'master', gender_category: 'women', name: 'WOMEN-MASTER-COXED SWEEP FOUR OR QUAD SCULL' },
-      { race_id: 'SM21', event_type: '21km', boat_type: '4+', age_category: 'master', gender_category: 'men', name: 'MEN-MASTER-COXED SWEEP FOUR OR QUAD SCULL' },
-      { race_id: 'SM22', event_type: '21km', boat_type: '4+', age_category: 'master', gender_category: 'mixed', name: 'MIXED-GENDER-MASTER-COXED SWEEP FOUR OR QUAD SCULL' },
-      
-      // Master races - 4- (four without cox)
-      { race_id: 'SM23', event_type: '21km', boat_type: '4-', age_category: 'master', gender_category: 'women', name: 'WOMEN-MASTER-SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN' },
-      { race_id: 'SM24', event_type: '21km', boat_type: '4-', age_category: 'master', gender_category: 'men', name: 'MEN-MASTER-SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN' },
-      { race_id: 'SM25', event_type: '21km', boat_type: '4-', age_category: 'master', gender_category: 'mixed', name: 'MIXED-GENDER-MASTER-SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN' },
-      
-      // Master races - 8+ (eight with coxswain)
-      { race_id: 'SM26', event_type: '21km', boat_type: '8+', age_category: 'master', gender_category: 'women', name: 'WOMEN-MASTER-SWEEP EIGHT OR QUAD SCULL WITH COXSWAIN' },
-      { race_id: 'SM27', event_type: '21km', boat_type: '8+', age_category: 'master', gender_category: 'men', name: 'MEN-MASTER-SWEEP EIGHT OR QUAD SCULL WITH COXSWAIN' },
-      { race_id: 'SM28', event_type: '21km', boat_type: '8+', age_category: 'master', gender_category: 'mixed', name: 'MIXED-GENDER-MASTER-SWEEP EIGHT OR QUAD SCULL WITH COXSWAIN' }
-    ])
+    // Get races from store
+    const availableRaces = computed(() => raceStore.races)
+
 
     const assignedCrewMembers = computed(() => {
       if (!boat.value || !boat.value.seats) return []
@@ -221,6 +155,8 @@ export default {
     const handleSeatsUpdate = (updatedSeats) => {
       if (boat.value) {
         boat.value.seats = updatedSeats
+        // Clear any previous errors when seats are updated
+        error.value = null
       }
     }
 
@@ -238,10 +174,21 @@ export default {
           seats: boat.value.seats,
           race_id: boat.value.race_id
         })
-        // Reload to get updated status
+        // Reload to get updated status and refresh crew member assignments
+        await crewStore.fetchCrewMembers()
         await loadBoat()
       } catch (err) {
-        error.value = err.response?.data?.error?.message || t('boat.saveError')
+        // Extract detailed error message
+        const errorData = err.response?.data?.error
+        if (errorData?.details) {
+          // Format validation errors from details object
+          const detailMessages = Object.entries(errorData.details)
+            .map(([field, message]) => `${field}: ${message}`)
+            .join(', ')
+          error.value = detailMessages
+        } else {
+          error.value = errorData?.message || t('boat.saveError')
+        }
       } finally {
         saving.value = false
       }
@@ -256,11 +203,25 @@ export default {
       return new Date(dateString).toLocaleString()
     }
 
+    // Watch for races being loaded
+    watch(availableRaces, (newRaces) => {
+      console.log('BoatDetail - Available races changed:', newRaces.length)
+      if (newRaces.length > 0) {
+        console.log('BoatDetail - First race:', newRaces[0])
+        console.log('BoatDetail - 42km skiff races:', newRaces.filter(r => r.event_type === '42km' && r.boat_type === 'skiff').length)
+      }
+    }, { immediate: true })
+
     onMounted(async () => {
       // Load crew members if not already loaded
       if (crewStore.crewMembers.length === 0) {
         await crewStore.fetchCrewMembers()
       }
+      // Load races if not already loaded
+      if (raceStore.races.length === 0) {
+        await raceStore.fetchRaces()
+      }
+      console.log('BoatDetail - After fetchRaces, race count:', raceStore.races.length)
       await loadBoat()
     })
 
@@ -295,12 +256,35 @@ export default {
 }
 
 .error-message {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 1rem;
   background-color: #fee;
   border: 1px solid #fcc;
   border-radius: 4px;
   color: #c33;
   margin-bottom: 1rem;
+}
+
+.btn-close-error {
+  background: none;
+  border: none;
+  color: #c33;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 1rem;
+  line-height: 1;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-close-error:hover {
+  color: #a00;
 }
 
 .header {

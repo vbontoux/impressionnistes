@@ -136,6 +136,73 @@ def lambda_handler(event, context):
             sk_prefix='CREW#'
         )
         
+        # Get all boat registrations for validation
+        all_boats = db.query_by_pk(
+            pk=f'TEAM#{team_manager_id}',
+            sk_prefix='BOAT#'
+        )
+        
+        # Create a map of crew members for easy lookup
+        crew_member_map = {member['crew_member_id']: member for member in all_crew_members}
+        
+        # Validate seat assignments
+        # Add boat_registration_id to the validation dict so it can skip itself
+        validation_dict = {**boat_fields_to_validate, 'boat_registration_id': boat_registration_id}
+        
+        for seat in boat_fields_to_validate['seats']:
+            crew_member_id = seat.get('crew_member_id')
+            if crew_member_id:
+                validation = validate_seat_assignment(
+                    validation_dict,
+                    crew_member_id,
+                    seat['position'],
+                    all_boats
+                )
+                if not validation['valid']:
+                    # Add crew member name to error message
+                    crew_member = crew_member_map.get(crew_member_id)
+                    if crew_member:
+                        member_name = f"{crew_member.get('first_name', '')} {crew_member.get('last_name', '')}".strip()
+                        error_msg = f"{member_name}: {validation['reason']}"
+                    else:
+                        error_msg = validation['reason']
+                    return validation_error({'assignment': error_msg})
+        
+        # Update crew member assigned_boat_id fields
+        # First, get the old seat assignments to know who to unassign
+        old_assigned_ids = set()
+        for seat in existing_boat.get('seats', []):
+            if seat.get('crew_member_id'):
+                old_assigned_ids.add(seat.get('crew_member_id'))
+        
+        # Get new assigned IDs
+        new_assigned_ids = set()
+        for seat in boat_fields_to_validate['seats']:
+            if seat.get('crew_member_id'):
+                new_assigned_ids.add(seat.get('crew_member_id'))
+        
+        # Unassign crew members who were removed
+        for crew_member_id in old_assigned_ids - new_assigned_ids:
+            crew_member = db.get_item(
+                pk=f'TEAM#{team_manager_id}',
+                sk=f'CREW#{crew_member_id}'
+            )
+            if crew_member:
+                crew_member['assigned_boat_id'] = None
+                crew_member['updated_at'] = get_timestamp()
+                db.put_item(crew_member)
+        
+        # Assign new crew members
+        for crew_member_id in new_assigned_ids:
+            crew_member = db.get_item(
+                pk=f'TEAM#{team_manager_id}',
+                sk=f'CREW#{crew_member_id}'
+            )
+            if crew_member:
+                crew_member['assigned_boat_id'] = boat_registration_id
+                crew_member['updated_at'] = get_timestamp()
+                db.put_item(crew_member)
+        
         # Get assigned crew members
         assigned_members = get_assigned_crew_members(
             boat_fields_to_validate['seats'],

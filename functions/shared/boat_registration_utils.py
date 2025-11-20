@@ -172,9 +172,11 @@ def validate_seat_assignment(
         # Check if crew member is assigned to any seat in this boat
         for seat in other_boat.get('seats', []):
             if seat.get('crew_member_id') == crew_member_id:
+                boat_type = other_boat.get('boat_type', 'unknown')
+                event_type = other_boat.get('event_type', 'unknown')
                 return {
                     'valid': False,
-                    'reason': f"Crew member is already assigned to boat {other_boat.get('boat_registration_id')}"
+                    'reason': f"This crew member is already assigned to another boat ({event_type} {boat_type})"
                 }
     
     # Check if position is valid for boat type

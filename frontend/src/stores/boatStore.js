@@ -95,6 +95,13 @@ export const useBoatStore = defineStore('boat', {
           this.currentBoat = response.data
         }
         
+        // If seats were updated, refresh crew members to update their assignment status
+        if (updates.seats) {
+          const { useCrewStore } = await import('./crewStore')
+          const crewStore = useCrewStore()
+          await crewStore.fetchCrewMembers()
+        }
+        
         return response.data
       } catch (error) {
         this.error = error.response?.data?.error?.message || 'Failed to update boat registration'
@@ -117,6 +124,11 @@ export const useBoatStore = defineStore('boat', {
         if (this.currentBoat?.boat_registration_id === id) {
           this.currentBoat = null
         }
+        
+        // Refresh crew members to update their assignment status
+        const { useCrewStore } = await import('./crewStore')
+        const crewStore = useCrewStore()
+        await crewStore.fetchCrewMembers()
       } catch (error) {
         this.error = error.response?.data?.error?.message || 'Failed to delete boat registration'
         throw error

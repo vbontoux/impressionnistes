@@ -107,14 +107,21 @@ export default {
     })
 
     const availableCrewMembers = (currentSeat) => {
-      // Show all crew members except those already assigned to other seats
+      // Show all crew members except those already assigned to other seats or other boats
       return crewStore.crewMembers.filter(member => {
         // If this seat already has this member, include them
         if (currentSeat.crew_member_id === member.crew_member_id) {
           return true
         }
-        // Otherwise, only show if not assigned to another seat
-        return !assignedCrewMemberIds.value.includes(member.crew_member_id)
+        // Exclude if assigned to another seat in this boat
+        if (assignedCrewMemberIds.value.includes(member.crew_member_id)) {
+          return false
+        }
+        // Exclude if assigned to another boat (unless it's this boat)
+        if (member.assigned_boat_id && member.assigned_boat_id !== props.boatRegistrationId) {
+          return false
+        }
+        return true
       })
     }
 
@@ -125,6 +132,15 @@ export default {
 
     const onSeatChange = (seat) => {
       error.value = null
+      
+      // Check if the selected crew member is already assigned to another boat
+      if (seat.crew_member_id) {
+        const selectedMember = crewStore.crewMembers.find(m => m.crew_member_id === seat.crew_member_id)
+        if (selectedMember?.assigned_boat_id && selectedMember.assigned_boat_id !== props.boatRegistrationId) {
+          error.value = `${selectedMember.first_name} ${selectedMember.last_name} is already assigned to another boat`
+        }
+      }
+      
       emit('update:seats', props.seats)
     }
 

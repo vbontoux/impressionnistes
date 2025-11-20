@@ -75,6 +75,9 @@ class ApiStack(Stack):
         # Create boat registration Lambda functions
         self._create_boat_functions()
         
+        # Create race Lambda functions
+        self._create_race_functions()
+        
         # Create API Gateway REST API
         self._create_api_gateway()
         
@@ -262,6 +265,16 @@ class ApiStack(Stack):
             'GetCoxSubstitutesFunction',
             'boat/get_cox_substitutes',
             'Get eligible coxswain substitutes'
+        )
+    
+    def _create_race_functions(self):
+        """Create race management Lambda functions"""
+        
+        # List races function (no auth required - public data)
+        self.lambda_functions['list_races'] = self._create_lambda_function(
+            'ListRacesFunction',
+            'race/list_races',
+            'List all available races'
         )
 
     def _create_api_gateway(self):
@@ -539,6 +552,19 @@ class ApiStack(Stack):
             cox_substitutes_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Create /races resource (public - no auth required)
+        races_resource = self.api.root.add_resource('races')
+        
+        # GET /races - List all races (no auth required)
+        list_races_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['list_races'],
+            proxy=True
+        )
+        races_resource.add_method(
+            'GET',
+            list_races_integration
         )
 
         # Output API URL
