@@ -84,9 +84,6 @@
               <span class="label">{{ $t('boat.filledSeats') }}:</span>
               <span>{{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}</span>
             </div>
-            <div v-if="boat.is_boat_rental" class="detail-row">
-              <span class="rental-badge">{{ $t('boat.rental') }}</span>
-            </div>
             <div v-if="boat.is_multi_club_crew" class="detail-row">
               <span class="multi-club-badge">{{ $t('boat.multiClub') }}</span>
             </div>
@@ -131,7 +128,6 @@
               </td>
               <td>{{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}</td>
               <td>
-                <span v-if="boat.is_boat_rental" class="rental-badge">{{ $t('boat.rental') }}</span>
                 <span v-if="boat.is_multi_club_crew" class="multi-club-badge">{{ $t('boat.multiClub') }}</span>
               </td>
               <td class="actions-cell">

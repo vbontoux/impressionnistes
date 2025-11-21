@@ -37,18 +37,6 @@
         </select>
       </div>
 
-      <!-- Boat Rental Option -->
-      <div class="form-group" v-if="formData.boat_type">
-        <label>
-          <input
-            type="checkbox"
-            v-model="formData.is_boat_rental"
-          />
-          {{ $t('boat.rentBoat') }}
-        </label>
-        <p class="help-text">{{ $t('boat.rentalInfo') }}</p>
-      </div>
-
       <!-- Error Message -->
       <div v-if="error" class="error-message">
         {{ error }}
@@ -81,8 +69,7 @@ export default {
 
     const formData = ref({
       event_type: '',
-      boat_type: '',
-      is_boat_rental: false
+      boat_type: ''
     })
 
     const loading = ref(false)

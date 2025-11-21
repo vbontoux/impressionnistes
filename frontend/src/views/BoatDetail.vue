@@ -39,10 +39,6 @@
             <span>{{ boat.boat_type }}</span>
           </div>
           <div class="info-item">
-            <span class="label">{{ $t('boat.rental') }}:</span>
-            <span>{{ boat.is_boat_rental ? $t('common.yes') : $t('common.no') }}</span>
-          </div>
-          <div class="info-item">
             <span class="label">{{ $t('boat.multiClub') }}:</span>
             <span>{{ boat.is_multi_club_crew ? $t('common.yes') : $t('common.no') }}</span>
           </div>
