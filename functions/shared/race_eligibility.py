@@ -111,12 +111,29 @@ def analyze_crew_composition(crew_members: List[Dict[str, Any]]) -> Dict[str, An
         genders.append(member['gender'])
         age_categories.append(get_age_category(age))
     
-    # Determine gender category
-    unique_genders = set(genders)
-    if len(unique_genders) == 1:
-        gender_category = "men" if genders[0] == "M" else "women"
-    else:
+    # Determine gender category based on competition rules:
+    # - Women's crews: 100% women
+    # - Men's crews: More than 50% men
+    # - Mixed-gender crews: At least 1 man AND at least 50% women
+    male_count = sum(1 for g in genders if g == 'M')
+    female_count = sum(1 for g in genders if g == 'F')
+    total_count = len(genders)
+    male_percentage = (male_count / total_count) * 100 if total_count > 0 else 0
+    female_percentage = (female_count / total_count) * 100 if total_count > 0 else 0
+    
+    if female_count == total_count:
+        # 100% women
+        gender_category = "women"
+    elif male_count > 0 and female_percentage >= 50:
+        # At least 1 man AND at least 50% women
         gender_category = "mixed"
+    elif male_percentage > 50:
+        # More than 50% men
+        gender_category = "men"
+    else:
+        # Edge case: shouldn't happen with valid data
+        # Default to men if more men than women but not meeting mixed criteria
+        gender_category = "men" if male_count >= female_count else "women"
     
     # Determine age category (most restrictive)
     # Priority: master > senior > j18 > j16
@@ -156,7 +173,12 @@ def analyze_crew_composition(crew_members: List[Dict[str, Any]]) -> Dict[str, An
         'eligible_boat_types': eligible_boat_types,
         'min_age': min(ages) if ages else 0,
         'max_age': max(ages) if ages else 0,
-        'avg_age': avg_age
+        'avg_age': avg_age,
+        # Gender composition details
+        'male_count': male_count,
+        'female_count': female_count,
+        'male_percentage': round(male_percentage),
+        'female_percentage': round(female_percentage)
     }
 
 

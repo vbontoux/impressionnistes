@@ -94,13 +94,30 @@ export function analyzeCrewComposition(crewMembers) {
     ageCategories.push(getAgeCategory(age));
   });
   
-  // Determine gender category
-  const uniqueGenders = new Set(genders);
+  // Determine gender category based on competition rules:
+  // - Women's crews: 100% women
+  // - Men's crews: More than 50% men
+  // - Mixed-gender crews: At least 1 man AND at least 50% women
+  const maleCount = genders.filter(g => g === 'M').length;
+  const femaleCount = genders.filter(g => g === 'F').length;
+  const totalCount = genders.length;
+  const malePercentage = (maleCount / totalCount) * 100;
+  const femalePercentage = (femaleCount / totalCount) * 100;
+  
   let genderCategory;
-  if (uniqueGenders.size === 1) {
-    genderCategory = genders[0] === "M" ? "men" : "women";
-  } else {
+  if (femaleCount === totalCount) {
+    // 100% women
+    genderCategory = "women";
+  } else if (maleCount > 0 && femalePercentage >= 50) {
+    // At least 1 man AND at least 50% women
     genderCategory = "mixed";
+  } else if (malePercentage > 50) {
+    // More than 50% men
+    genderCategory = "men";
+  } else {
+    // Edge case: shouldn't happen with valid data
+    // Default to men if more men than women but not meeting mixed criteria
+    genderCategory = maleCount >= femaleCount ? "men" : "women";
   }
   
   // Determine age category (most restrictive)
@@ -144,7 +161,12 @@ export function analyzeCrewComposition(crewMembers) {
     eligibleBoatTypes,
     minAge: ages.length > 0 ? Math.min(...ages) : 0,
     maxAge: ages.length > 0 ? Math.max(...ages) : 0,
-    avgAge
+    avgAge,
+    // Gender composition details
+    maleCount,
+    femaleCount,
+    malePercentage: Math.round(malePercentage),
+    femalePercentage: Math.round(femalePercentage)
   };
 }
 
@@ -176,9 +198,12 @@ export function getEligibleRaces(crewMembers, availableRaces) {
     const raceGender = race.gender_category;
     const crewGender = crewAnalysis.genderCategory;
     
-    // Mixed races accept any gender composition
-    // Gender-specific races only accept that gender or mixed crews
-    if (raceGender !== "mixed" && raceGender !== crewGender && crewGender !== "mixed") {
+    // Gender matching rules:
+    // - "men" race: only all-men crews
+    // - "women" race: only all-women crews
+    // - "mixed" race: only crews with both genders (truly mixed)
+    if (raceGender !== crewGender) {
+      console.log(`getEligibleRaces - Gender mismatch: race=${raceGender}, crew=${crewGender} (${race.race_id})`);
       return;
     }
     
@@ -252,10 +277,16 @@ export function validateRaceSelection(crewMembers, selectedRace) {
   const raceGender = selectedRace.gender_category;
   const crewGender = crewAnalysis.genderCategory;
   
-  if (raceGender !== "mixed" && raceGender !== crewGender && crewGender !== "mixed") {
+  // Strict gender matching: race gender must exactly match crew gender
+  if (raceGender !== crewGender) {
+    const genderLabels = {
+      'men': 'all men',
+      'women': 'all women',
+      'mixed': 'mixed gender (both men and women)'
+    };
     return {
       valid: false,
-      reason: `Gender mismatch: Race requires '${raceGender}' but crew is '${crewGender}'`,
+      reason: `Gender mismatch: Race requires ${genderLabels[raceGender] || raceGender} but crew is ${genderLabels[crewGender] || crewGender}`,
       crewAnalysis
     };
   }
