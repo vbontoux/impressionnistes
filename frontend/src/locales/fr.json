@@ -34,7 +34,8 @@
       "loginButton": "Se connecter",
       "noAccount": "Pas encore de compte ?",
       "registerLink": "S'inscrire ici",
-      "forgotPassword": "Mot de passe oublié ?"
+      "forgotPassword": "Mot de passe oublié ?",
+      "verifyEmail": "Besoin de vérifier votre email ?"
     },
     "register": {
       "title": "Inscription",

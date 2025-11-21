@@ -27,6 +27,11 @@
     <p class="text-center">
       <router-link to="/forgot-password">{{ $t('auth.login.forgotPassword') }}</router-link>
     </p>
+
+    <!-- Verify Email Link -->
+    <p class="text-center">
+      <router-link to="/verify-email">{{ $t('auth.login.verifyEmail') }}</router-link>
+    </p>
   </div>
 </template>
 

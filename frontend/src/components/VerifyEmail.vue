@@ -65,16 +65,24 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, reactive, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
+const route = useRoute();
 const { t } = useI18n();
 
 const form = reactive({
   email: '',
   code: '',
+});
+
+// Pre-populate email from URL parameter
+onMounted(() => {
+  if (route.query.email) {
+    form.email = route.query.email;
+  }
 });
 
 const loading = ref(false);
