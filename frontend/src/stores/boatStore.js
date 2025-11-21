@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import boatService from '../services/boatService'
+import { getErrorMessage } from '../services/apiClient'
 
 export const useBoatStore = defineStore('boat', {
   state: () => ({
@@ -35,7 +36,7 @@ export const useBoatStore = defineStore('boat', {
         const response = await boatService.getBoatRegistrations()
         this.boatRegistrations = response.data.boat_registrations || []
       } catch (error) {
-        this.error = error.response?.data?.error?.message || 'Failed to fetch boat registrations'
+        this.error = getErrorMessage(error)
         throw error
       } finally {
         this.loading = false
@@ -55,7 +56,7 @@ export const useBoatStore = defineStore('boat', {
           this.boatRegistrations[index] = response.data
         }
       } catch (error) {
-        this.error = error.response?.data?.error?.message || 'Failed to fetch boat registration'
+        this.error = getErrorMessage(error)
         throw error
       } finally {
         this.loading = false
@@ -71,7 +72,7 @@ export const useBoatStore = defineStore('boat', {
         this.currentBoat = response.data
         return response.data
       } catch (error) {
-        this.error = error.response?.data?.error?.message || 'Failed to create boat registration'
+        this.error = getErrorMessage(error)
         throw error
       } finally {
         this.loading = false
@@ -104,7 +105,7 @@ export const useBoatStore = defineStore('boat', {
         
         return response.data
       } catch (error) {
-        this.error = error.response?.data?.error?.message || 'Failed to update boat registration'
+        this.error = getErrorMessage(error)
         throw error
       } finally {
         this.loading = false
@@ -130,7 +131,7 @@ export const useBoatStore = defineStore('boat', {
         const crewStore = useCrewStore()
         await crewStore.fetchCrewMembers()
       } catch (error) {
-        this.error = error.response?.data?.error?.message || 'Failed to delete boat registration'
+        this.error = getErrorMessage(error)
         throw error
       } finally {
         this.loading = false

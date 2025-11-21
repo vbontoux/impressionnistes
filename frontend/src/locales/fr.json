@@ -35,7 +35,8 @@
       "noAccount": "Pas encore de compte ?",
       "registerLink": "S'inscrire ici",
       "forgotPassword": "Mot de passe oublié ?",
-      "verifyEmail": "Besoin de vérifier votre email ?"
+      "verifyEmail": "Besoin de vérifier votre email ?",
+      "sessionExpired": "Votre session a expiré. Veuillez vous reconnecter."
     },
     "register": {
       "title": "Inscription",

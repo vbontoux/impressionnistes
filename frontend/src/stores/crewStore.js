@@ -4,6 +4,7 @@
  */
 import { defineStore } from 'pinia';
 import * as crewService from '../services/crewService';
+import { getErrorMessage } from '../services/apiClient';
 
 export const useCrewStore = defineStore('crew', {
   state: () => ({
@@ -79,7 +80,7 @@ export const useCrewStore = defineStore('crew', {
       try {
         this.crewMembers = await crewService.listCrewMembers();
       } catch (error) {
-        this.error = error.response?.data?.error?.message || error.message;
+        this.error = getErrorMessage(error);
         throw error;
       } finally {
         this.loading = false;
@@ -98,7 +99,7 @@ export const useCrewStore = defineStore('crew', {
         this.crewMembers.push(newMember);
         return newMember;
       } catch (error) {
-        this.error = error.response?.data?.error?.message || error.message;
+        this.error = getErrorMessage(error);
         throw error;
       } finally {
         this.loading = false;
@@ -125,7 +126,7 @@ export const useCrewStore = defineStore('crew', {
         
         return updatedMember;
       } catch (error) {
-        this.error = error.response?.data?.error?.message || error.message;
+        this.error = getErrorMessage(error);
         throw error;
       } finally {
         this.loading = false;
@@ -147,7 +148,7 @@ export const useCrewStore = defineStore('crew', {
           member => member.crew_member_id !== crewMemberId
         );
       } catch (error) {
-        this.error = error.response?.data?.error?.message || error.message;
+        this.error = getErrorMessage(error);
         throw error;
       } finally {
         this.loading = false;

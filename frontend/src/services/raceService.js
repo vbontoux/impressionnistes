@@ -2,9 +2,7 @@
  * Race Service
  * API calls for race-related operations
  */
-import axios from 'axios'
-
-const API_URL = import.meta.env.VITE_API_URL
+import apiClient, { getErrorMessage } from './apiClient'
 
 /**
  * Get all available races
@@ -20,11 +18,9 @@ export async function listRaces(filters = {}) {
   if (filters.gender_category) params.append('gender_category', filters.gender_category)
   
   const queryString = params.toString()
-  const url = queryString ? `${API_URL}/races?${queryString}` : `${API_URL}/races`
+  const url = queryString ? `/races?${queryString}` : '/races'
   
-  console.log('Fetching races from:', url)
-  
-  const response = await axios.get(url)
+  const response = await apiClient.get(url)
   return response
 }
 

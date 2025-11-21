@@ -35,7 +35,8 @@
       "noAccount": "Don't have an account?",
       "registerLink": "Register here",
       "forgotPassword": "Forgot password?",
-      "verifyEmail": "Need to verify your email?"
+      "verifyEmail": "Need to verify your email?",
+      "sessionExpired": "Your session has expired. Please log in again."
     },
     "register": {
       "title": "Register",

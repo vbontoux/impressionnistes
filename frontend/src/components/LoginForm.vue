@@ -5,6 +5,11 @@
       <h2>{{ $t('auth.login.title') }}</h2>
     </div>
     
+    <!-- Session Expired Warning -->
+    <div v-if="sessionExpired" class="alert alert-warning">
+      {{ $t('auth.login.sessionExpired') }}
+    </div>
+
     <p class="welcome-text">{{ $t('auth.login.welcomeMessage') }}</p>
 
     <!-- Login Button -->
@@ -36,17 +41,26 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
 import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
+const route = useRoute();
 const authStore = useAuthStore();
 const { t } = useI18n();
 
 const loading = ref(false);
 const errorMessage = ref('');
+const sessionExpired = ref(false);
+
+// Check if redirected due to session expiration
+onMounted(() => {
+  if (route.query.reason === 'session_expired') {
+    sessionExpired.value = true;
+  }
+});
 
 // Get Cognito configuration from environment
 const COGNITO_DOMAIN = import.meta.env.VITE_COGNITO_DOMAIN;
@@ -102,6 +116,12 @@ h2 {
   background-color: #ffebee;
   color: #c62828;
   border: 1px solid #ef5350;
+}
+
+.alert-warning {
+  background-color: #fff3e0;
+  color: #e65100;
+  border: 1px solid #ff9800;
 }
 
 .btn {

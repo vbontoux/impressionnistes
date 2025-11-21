@@ -1,24 +1,11 @@
-import axios from 'axios'
-
-const API_URL = import.meta.env.VITE_API_URL
-
-/**
- * Get authorization header with JWT token
- */
-const getAuthHeader = () => {
-  // Use ID token for Cognito User Pool authorizer (not access token)
-  const token = localStorage.getItem('id_token') || localStorage.getItem('access_token') || localStorage.getItem('auth_token')
-  return token ? { Authorization: `Bearer ${token}` } : {}
-}
+import apiClient, { getErrorMessage } from './apiClient'
 
 const boatService = {
   /**
    * Create a new boat registration
    */
   async createBoatRegistration(boatData) {
-    const response = await axios.post(`${API_URL}/boat`, boatData, {
-      headers: getAuthHeader()
-    })
+    const response = await apiClient.post('/boat', boatData)
     return response.data
   },
 
@@ -26,9 +13,7 @@ const boatService = {
    * Get all boat registrations for the current team manager
    */
   async getBoatRegistrations() {
-    const response = await axios.get(`${API_URL}/boat`, {
-      headers: getAuthHeader()
-    })
+    const response = await apiClient.get('/boat')
     return response.data
   },
 
@@ -36,9 +21,7 @@ const boatService = {
    * Get a specific boat registration
    */
   async getBoatRegistration(boatRegistrationId) {
-    const response = await axios.get(`${API_URL}/boat/${boatRegistrationId}`, {
-      headers: getAuthHeader()
-    })
+    const response = await apiClient.get(`/boat/${boatRegistrationId}`)
     return response.data
   },
 
@@ -46,9 +29,7 @@ const boatService = {
    * Update a boat registration
    */
   async updateBoatRegistration(boatRegistrationId, updates) {
-    const response = await axios.put(`${API_URL}/boat/${boatRegistrationId}`, updates, {
-      headers: getAuthHeader()
-    })
+    const response = await apiClient.put(`/boat/${boatRegistrationId}`, updates)
     return response.data
   },
 
@@ -56,9 +37,7 @@ const boatService = {
    * Delete a boat registration
    */
   async deleteBoatRegistration(boatRegistrationId) {
-    const response = await axios.delete(`${API_URL}/boat/${boatRegistrationId}`, {
-      headers: getAuthHeader()
-    })
+    const response = await apiClient.delete(`/boat/${boatRegistrationId}`)
     return response.data
   }
 }
