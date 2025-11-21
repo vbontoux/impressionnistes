@@ -109,7 +109,6 @@
       "licenseInvalid": "Le numéro de licence doit être alphanumérique et contenir 6-12 caractères"
     },
     "card": {
-      "external": "Externe",
       "assigned": "Assigné",
       "dateOfBirth": "Date de naissance",
       "gender": "Genre",
@@ -124,7 +123,6 @@
       "addFirst": "Ajouter votre premier membre",
       "search": "Rechercher par nom ou numéro de licence...",
       "all": "Tous",
-      "external": "Externes",
       "assigned": "Assignés",
       "flagged": "Signalés",
       "sortBy": "Trier par",

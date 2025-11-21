@@ -6,8 +6,6 @@
         <span class="license">{{ crewMember.license_number }}</span>
       </div>
       <div class="badges">
-        <span v-if="crewMember.is_rcpm_member" class="badge badge-rcpm">RCPM</span>
-        <span v-else class="badge badge-external">{{ $t('crew.card.external') }}</span>
         <span v-if="isAssigned" class="badge badge-assigned">{{ $t('crew.card.assigned') }}</span>
       </div>
     </div>
@@ -147,16 +145,6 @@ const formatDate = (dateString) => {
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
-}
-
-.badge-rcpm {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.badge-external {
-  background-color: #2196F3;
-  color: white;
 }
 
 .badge-assigned {

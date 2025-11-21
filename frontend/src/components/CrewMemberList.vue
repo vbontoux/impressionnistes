@@ -46,18 +46,6 @@
           {{ $t('crew.list.all') }} ({{ crewStore.crewMembers.length }})
         </button>
         <button 
-          :class="['filter-btn', { active: filter === 'rcpm' }]"
-          @click="filter = 'rcpm'"
-        >
-          RCPM ({{ crewStore.rcpmMembers.length }})
-        </button>
-        <button 
-          :class="['filter-btn', { active: filter === 'external' }]"
-          @click="filter = 'external'"
-        >
-          {{ $t('crew.list.external') }} ({{ crewStore.externalMembers.length }})
-        </button>
-        <button 
           :class="['filter-btn', { active: filter === 'assigned' }]"
           @click="filter = 'assigned'"
         >
@@ -137,10 +125,7 @@
             <td>{{ formatDate(member.date_of_birth) }}</td>
             <td>{{ member.gender === 'M' ? $t('crew.form.male') : $t('crew.form.female') }}</td>
             <td>{{ member.license_number }}</td>
-            <td>
-              {{ member.club_affiliation }}
-              <span v-if="!member.is_rcpm_member" class="external-badge">{{ $t('crew.card.external') }}</span>
-            </td>
+            <td>{{ member.club_affiliation }}</td>
             <td>
               <span v-if="member.assigned_boat_id" class="assigned-badge">✓</span>
               <span v-else>-</span>
@@ -255,12 +240,6 @@ const filteredCrewMembers = computed(() => {
 
   // Apply filter
   switch (filter.value) {
-    case 'rcpm':
-      members = crewStore.rcpmMembers;
-      break;
-    case 'external':
-      members = crewStore.externalMembers;
-      break;
     case 'assigned':
       members = crewStore.assignedCrewMembers;
       break;
@@ -589,16 +568,6 @@ const closeForm = () => {
 
 .crew-table tbody tr.row-flagged {
   border-left: 4px solid #ffc107;
-}
-
-.external-badge {
-  display: inline-block;
-  background-color: #17a2b8;
-  color: white;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  margin-left: 0.5rem;
 }
 
 .assigned-badge {

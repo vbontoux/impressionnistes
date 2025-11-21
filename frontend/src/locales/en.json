@@ -109,7 +109,6 @@
       "licenseInvalid": "License number must be alphanumeric and 6-12 characters"
     },
     "card": {
-      "external": "External",
       "assigned": "Assigned",
       "dateOfBirth": "Date of Birth",
       "gender": "Gender",
@@ -124,7 +123,6 @@
       "addFirst": "Add your first member",
       "search": "Search by name or license number...",
       "all": "All",
-      "external": "External",
       "assigned": "Assigned",
       "flagged": "Flagged",
       "sortBy": "Sort by",
