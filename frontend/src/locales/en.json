@@ -228,6 +228,35 @@
     "summary": "Payment Summary",
     "totalAmount": "Total Amount",
     "proceedToPayment": "Proceed to Payment",
-    "securePayment": "Secure payment powered by Stripe"
+    "securePayment": "Secure payment powered by Stripe",
+    "checkout": {
+      "title": "Secure Checkout",
+      "subtitle": "Complete your payment securely with Stripe",
+      "pageTitle": "Payment Checkout",
+      "orderSummary": "Order Summary",
+      "total": "Total",
+      "paymentDetails": "Payment Details",
+      "payNow": "Pay {amount}",
+      "processing": "Processing...",
+      "securePayment": "Secure payment with Stripe",
+      "backToPayment": "Back to Payment",
+      "noSelection": "No boats selected",
+      "noSelectionDescription": "Please select boats to pay for before proceeding to checkout",
+      "errors": {
+        "stripeInit": "Failed to initialize payment system. Please refresh the page.",
+        "generic": "Payment failed. Please try again.",
+        "unexpectedStatus": "Unexpected payment status. Please contact support.",
+        "loadFailed": "Failed to load payment data. Please try again."
+      }
+    },
+    "success": {
+      "title": "Payment Successful!",
+      "message": "Your payment has been processed successfully. Your boats are now registered and paid.",
+      "details": "Payment Details",
+      "paymentId": "Payment ID",
+      "viewBoats": "View My Boats",
+      "goToDashboard": "Go to Dashboard",
+      "receiptInfo": "A receipt has been sent to your email address."
+    }
   }
 }

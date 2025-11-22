@@ -36,8 +36,8 @@ def create_payment_record(
     timestamp = datetime.utcnow().isoformat()
     
     payment_record = {
-        'pk': f'TEAM#{team_manager_id}',
-        'sk': f'PAYMENT#{payment_id}',
+        'PK': f'TEAM#{team_manager_id}',
+        'SK': f'PAYMENT#{payment_id}',
         'payment_id': payment_id,
         'stripe_payment_intent_id': payment_intent_id,
         'team_manager_id': team_manager_id,
@@ -70,12 +70,16 @@ def update_boat_status_to_paid(
     
     for boat_id in boat_registration_ids:
         # Get current boat registration
-        boat = db.get_item(
-            pk=f'TEAM#{team_manager_id}',
-            sk=f'BOAT#{boat_id}'
-        )
+        pk = f'TEAM#{team_manager_id}'
+        sk = f'BOAT#{boat_id}'
+        
+        boat = db.get_item(pk=pk, sk=sk)
         
         if boat:
+            # Ensure PK and SK are present (uppercase as required by DynamoDB)
+            boat['PK'] = pk
+            boat['SK'] = sk
+            
             # Update status to paid
             boat['registration_status'] = 'paid'
             boat['payment_id'] = payment_id

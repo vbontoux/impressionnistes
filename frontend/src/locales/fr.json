@@ -228,6 +228,35 @@
     "summary": "Récapitulatif du paiement",
     "totalAmount": "Montant total",
     "proceedToPayment": "Procéder au paiement",
-    "securePayment": "Paiement sécurisé par Stripe"
+    "securePayment": "Paiement sécurisé par Stripe",
+    "checkout": {
+      "title": "Paiement sécurisé",
+      "subtitle": "Complétez votre paiement en toute sécurité avec Stripe",
+      "pageTitle": "Paiement",
+      "orderSummary": "Récapitulatif de la commande",
+      "total": "Total",
+      "paymentDetails": "Détails du paiement",
+      "payNow": "Payer {amount}",
+      "processing": "Traitement...",
+      "securePayment": "Paiement sécurisé avec Stripe",
+      "backToPayment": "Retour au paiement",
+      "noSelection": "Aucun bateau sélectionné",
+      "noSelectionDescription": "Veuillez sélectionner des bateaux à payer avant de procéder au paiement",
+      "errors": {
+        "stripeInit": "Échec de l'initialisation du système de paiement. Veuillez actualiser la page.",
+        "generic": "Le paiement a échoué. Veuillez réessayer.",
+        "unexpectedStatus": "Statut de paiement inattendu. Veuillez contacter le support.",
+        "loadFailed": "Échec du chargement des données de paiement. Veuillez réessayer."
+      }
+    },
+    "success": {
+      "title": "Paiement réussi !",
+      "message": "Votre paiement a été traité avec succès. Vos bateaux sont maintenant enregistrés et payés.",
+      "details": "Détails du paiement",
+      "paymentId": "ID de paiement",
+      "viewBoats": "Voir mes bateaux",
+      "goToDashboard": "Aller au tableau de bord",
+      "receiptInfo": "Un reçu a été envoyé à votre adresse e-mail."
+    }
   }
 }

@@ -12,6 +12,8 @@ const CrewMembers = () => import('../views/CrewMembers.vue');
 const Boats = () => import('../views/Boats.vue');
 const BoatDetail = () => import('../views/BoatDetail.vue');
 const Payment = () => import('../views/Payment.vue');
+const PaymentCheckout = () => import('../views/PaymentCheckout.vue');
+const PaymentSuccess = () => import('../views/PaymentSuccess.vue');
 
 const routes = [
   {
@@ -70,6 +72,18 @@ const routes = [
     path: '/payment',
     name: 'Payment',
     component: Payment,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/payment/checkout',
+    name: 'PaymentCheckout',
+    component: PaymentCheckout,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/payment/success',
+    name: 'PaymentSuccess',
+    component: PaymentSuccess,
     meta: { requiresAuth: true },
   },
 ];
