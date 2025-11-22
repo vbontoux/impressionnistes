@@ -31,6 +31,7 @@ help:
 	@echo "  make deploy         - Deploy all stacks (default: dev)"
 	@echo "  make deploy-dev     - Deploy to dev environment"
 	@echo "  make deploy-prod    - Deploy to prod environment"
+	@echo "  make deploy-secrets - Deploy only secrets stack (Stripe, Slack, etc.)"
 	@echo "  make deploy-auth    - Deploy only auth stack"
 	@echo "  make redeploy       - Quick redeploy (destroy + deploy for dev)"
 	@echo ""
@@ -49,6 +50,12 @@ help:
 	@echo "  make cognito-create-admin EMAIL=user@example.com - Create admin user"
 	@echo "  make cognito-list-users                          - List all Cognito users"
 	@echo "  make cognito-add-to-group EMAIL=user@example.com GROUP=admins - Add user to group"
+	@echo ""
+	@echo "Secrets Management:"
+	@echo "  make secrets-list                                    - List all secrets"
+	@echo "  make secrets-show                                    - Show all secret values (⚠️  sensitive!)"
+	@echo "  make secrets-show-stripe                             - Show Stripe secrets (partial)"
+	@echo "  make secrets-update-stripe STRIPE_API_KEY=sk_xxx     - Update Stripe API key"
 	@echo ""
 	@echo "Troubleshooting:"
 	@echo "  make fix-stuck-stack - Fix stuck CloudFormation stack"
@@ -200,6 +207,40 @@ describe-infra:
 	@echo ""
 	@echo "Copy the configuration above to frontend/.env"
 	@echo ""
+
+deploy-secrets:
+	@echo "=========================================="
+	@echo "Deploying Secrets Stack"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@if [ ! -f "secrets.json" ]; then \
+		echo "❌ Error: secrets.json not found"; \
+		echo ""; \
+		echo "Please create secrets.json from secrets.json.example:"; \
+		echo "  cp secrets.json.example secrets.json"; \
+		echo "  # Edit secrets.json with your actual secrets"; \
+		echo ""; \
+		exit 1; \
+	fi
+	@echo "✓ Found secrets.json"
+	@echo ""
+	@echo "This will create/update the following secrets in AWS Secrets Manager:"
+	@echo "  - impressionnistes/stripe/api_key"
+	@echo "  - impressionnistes/stripe/webhook_secret"
+	@echo "  - impressionnistes/slack/admin_webhook"
+	@echo "  - impressionnistes/slack/devops_webhook"
+	@echo ""
+	@echo "Deploying secrets..."
+	@echo ""
+	@. $(VENV)/bin/activate && $(CDK) deploy ImpressionnistesSecrets-$(ENV) --context env=$(ENV) --require-approval never
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ Secrets deployed successfully!"
+	@echo ""
+	@echo "Secrets are now available in AWS Secrets Manager."
+	@echo "Lambda functions will automatically retrieve them at runtime."
+	@echo "=========================================="
 
 deploy-auth:
 	@echo "Deploying Auth stack for $(ENV) environment..."
@@ -541,4 +582,113 @@ db-migrate:
 	@echo ""
 	@echo "=========================================="
 	@echo "✓ Migration complete!"
+	@echo "=========================================="
+
+# ==========================================
+# Secrets Management Commands
+# ==========================================
+
+secrets-list:
+	@echo "=========================================="
+	@echo "Listing Secrets"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@echo "Stripe Secrets:"
+	@aws secretsmanager list-secrets \
+		--filters Key=name,Values=impressionnistes/stripe \
+		--query 'SecretList[].{Name:Name,LastChanged:LastChangedDate}' \
+		--output table
+	@echo ""
+	@echo "Slack Secrets:"
+	@aws secretsmanager list-secrets \
+		--filters Key=name,Values=impressionnistes/slack \
+		--query 'SecretList[].{Name:Name,LastChanged:LastChangedDate}' \
+		--output table
+
+secrets-show:
+	@echo "=========================================="
+	@echo "Showing All Secret Values"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@echo "⚠️  WARNING: This will display sensitive secret values!"
+	@echo ""
+	@echo "Stripe API Key:"
+	@aws secretsmanager get-secret-value \
+		--secret-id impressionnistes/stripe/api_key \
+		--query 'SecretString' \
+		--output text | python3 -m json.tool
+	@echo ""
+	@echo "Stripe Webhook Secret:"
+	@aws secretsmanager get-secret-value \
+		--secret-id impressionnistes/stripe/webhook_secret \
+		--query 'SecretString' \
+		--output text | python3 -m json.tool
+	@echo ""
+	@echo "Slack Admin Webhook:"
+	@aws secretsmanager get-secret-value \
+		--secret-id impressionnistes/slack/admin_webhook \
+		--query 'SecretString' \
+		--output text | python3 -m json.tool
+	@echo ""
+	@echo "Slack DevOps Webhook:"
+	@aws secretsmanager get-secret-value \
+		--secret-id impressionnistes/slack/devops_webhook \
+		--query 'SecretString' \
+		--output text | python3 -m json.tool
+
+secrets-show-stripe:
+	@echo "=========================================="
+	@echo "Showing Stripe Secrets"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@echo "Stripe API Key:"
+	@aws secretsmanager get-secret-value \
+		--secret-id impressionnistes/stripe/api_key \
+		--query 'SecretString' \
+		--output text | python3 -c "import json, sys; data=json.load(sys.stdin); print(f\"  API Key: {data['api_key'][:20]}...{data['api_key'][-4:]}\")"
+	@echo ""
+	@echo "Stripe Webhook Secret:"
+	@aws secretsmanager get-secret-value \
+		--secret-id impressionnistes/stripe/webhook_secret \
+		--query 'SecretString' \
+		--output text | python3 -c "import json, sys; data=json.load(sys.stdin); print(f\"  Webhook Secret: {data['webhook_secret'][:20]}...{data['webhook_secret'][-4:]}\")"
+	@echo ""
+	@echo "Note: Showing partial values for security. Use 'make secrets-show' to see full values."
+
+secrets-update-stripe:
+	@echo "=========================================="
+	@echo "Update Stripe Secrets"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@if [ -z "$(STRIPE_API_KEY)" ]; then \
+		echo "❌ Error: STRIPE_API_KEY not provided"; \
+		echo ""; \
+		echo "Usage:"; \
+		echo "  make secrets-update-stripe STRIPE_API_KEY=sk_test_xxx"; \
+		echo "  make secrets-update-stripe STRIPE_API_KEY=sk_test_xxx STRIPE_WEBHOOK_SECRET=whsec_xxx"; \
+		echo ""; \
+		exit 1; \
+	fi
+	@echo "Updating Stripe API Key..."
+	@aws secretsmanager update-secret \
+		--secret-id impressionnistes/stripe/api_key \
+		--secret-string '{"api_key":"$(STRIPE_API_KEY)"}' \
+		--output text > /dev/null
+	@echo "✓ Stripe API Key updated"
+	@if [ -n "$(STRIPE_WEBHOOK_SECRET)" ]; then \
+		echo ""; \
+		echo "Updating Stripe Webhook Secret..."; \
+		aws secretsmanager update-secret \
+			--secret-id impressionnistes/stripe/webhook_secret \
+			--secret-string '{"webhook_secret":"$(STRIPE_WEBHOOK_SECRET)"}' \
+			--output text > /dev/null; \
+		echo "✓ Stripe Webhook Secret updated"; \
+	fi
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ Secrets updated successfully!"
 	@echo "=========================================="

@@ -12,6 +12,7 @@ from stacks.api_stack import ApiStack
 from stacks.frontend_stack import FrontendStack
 from stacks.monitoring_stack import MonitoringStack
 from stacks.auth_stack import AuthStack
+from stacks.secrets_stack import SecretsStack
 
 app = App()
 
@@ -25,6 +26,15 @@ aws_env = Environment(
 )
 
 # Create stacks with dependencies
+
+# Secrets stack - independent, can be deployed separately
+secrets_stack = SecretsStack(
+    app,
+    f"ImpressionnistesSecrets-{env_name}",
+    env=aws_env,
+    description="AWS Secrets Manager secrets (Stripe, Slack, etc.)"
+)
+
 database_stack = DatabaseStack(
     app,
     f"ImpressionnistesDatabase-{env_name}",
@@ -65,7 +75,7 @@ frontend_stack = FrontendStack(
 )
 
 # Add common tags to all stacks
-for stack in [database_stack, monitoring_stack, auth_stack, api_stack, frontend_stack]:
+for stack in [secrets_stack, database_stack, monitoring_stack, auth_stack, api_stack, frontend_stack]:
     Tags.of(stack).add("Project", "CourseDesImpressionnistes")
     Tags.of(stack).add("Environment", env_name)
     Tags.of(stack).add("ManagedBy", "CDK")

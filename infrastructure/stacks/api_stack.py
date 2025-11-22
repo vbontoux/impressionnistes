@@ -78,6 +78,9 @@ class ApiStack(Stack):
         # Create race Lambda functions
         self._create_race_functions()
         
+        # Create payment Lambda functions
+        self._create_payment_functions()
+        
         # Create API Gateway REST API
         self._create_api_gateway()
         
@@ -275,6 +278,56 @@ class ApiStack(Stack):
             'ListRacesFunction',
             'race/list_races',
             'List all available races'
+        )
+    
+    def _create_payment_functions(self):
+        """Create payment Lambda functions"""
+        
+        # Create payment intent function
+        payment_intent_function = self._create_lambda_function(
+            'CreatePaymentIntentFunction',
+            'payment/create_payment_intent',
+            'Create Stripe payment intent for boat registrations',
+            timeout=30
+        )
+        
+        # Grant Secrets Manager permissions for Stripe API key
+        payment_intent_function.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=['secretsmanager:GetSecretValue'],
+                resources=[
+                    f'arn:aws:secretsmanager:{self.region}:{self.account}:secret:impressionnistes/stripe/*'
+                ]
+            )
+        )
+        
+        self.lambda_functions['create_payment_intent'] = payment_intent_function
+        
+        # Confirm payment webhook function
+        webhook_function = self._create_lambda_function(
+            'ConfirmPaymentWebhookFunction',
+            'payment/confirm_payment_webhook',
+            'Handle Stripe webhook events for payment confirmation',
+            timeout=30
+        )
+        
+        # Grant Secrets Manager permissions for webhook secret
+        webhook_function.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=['secretsmanager:GetSecretValue'],
+                resources=[
+                    f'arn:aws:secretsmanager:{self.region}:{self.account}:secret:impressionnistes/stripe/*'
+                ]
+            )
+        )
+        
+        self.lambda_functions['confirm_payment_webhook'] = webhook_function
+        
+        # Get payment receipt function
+        self.lambda_functions['get_payment_receipt'] = self._create_lambda_function(
+            'GetPaymentReceiptFunction',
+            'payment/get_payment_receipt',
+            'Get payment receipt details'
         )
 
     def _create_api_gateway(self):
@@ -565,6 +618,48 @@ class ApiStack(Stack):
         races_resource.add_method(
             'GET',
             list_races_integration
+        )
+        
+        # Create /payment resource
+        payment_resource = self.api.root.add_resource('payment')
+        
+        # POST /payment/create-intent - Create payment intent (auth required)
+        create_intent_resource = payment_resource.add_resource('create-intent')
+        create_intent_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['create_payment_intent'],
+            proxy=True
+        )
+        create_intent_resource.add_method(
+            'POST',
+            create_intent_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # POST /payment/webhook - Stripe webhook (no auth - verified by signature)
+        webhook_resource = payment_resource.add_resource('webhook')
+        webhook_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['confirm_payment_webhook'],
+            proxy=True
+        )
+        webhook_resource.add_method(
+            'POST',
+            webhook_integration
+            # No authorizer - Stripe webhooks use signature verification
+        )
+        
+        # GET /payment/receipt/{payment_id} - Get payment receipt (auth required)
+        receipt_resource = payment_resource.add_resource('receipt')
+        payment_id_resource = receipt_resource.add_resource('{payment_id}')
+        receipt_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['get_payment_receipt'],
+            proxy=True
+        )
+        payment_id_resource.add_method(
+            'GET',
+            receipt_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
         )
 
         # Output API URL
