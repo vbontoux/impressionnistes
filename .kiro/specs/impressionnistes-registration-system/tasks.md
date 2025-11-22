@@ -40,50 +40,125 @@
 - [x] 5.3 Build boat registration frontend components
 - [x] 5.4 Implement seat assignment and validation logic
 
-### 6. Pricing and Payment Calculation
+### 6. Pricing Calculation Engine
 
-- [ ] 6.1 Implement pricing calculation engine
-  - Create function to detect multi_club_crew based on club affiliations
-  - Implement seat pricing: 0 for RCPM members, Base_Seat_Price for external
-  - Add boat rental pricing: 2.5x for skiffs, Base_Seat_Price per seat for crew boats
-  - Create detailed price breakdown with itemization
-  - Implement pricing configuration retrieval from DynamoDB
+- [ ] 6.1 Implement backend pricing calculation
+  - Create pricing calculation utility in shared/pricing.py
+  - Implement base seat pricing logic (Base_Seat_Price per seat)
+  - Add multi-club crew detection and surcharge calculation
+  - Implement boat rental pricing (2.5x for skiffs, Base_Seat_Price per seat for crew boats)
+  - Create detailed price breakdown structure (base, rental, multi-club, total)
+  - Add pricing configuration retrieval from DynamoDB
+  - Convert all prices to Decimal for DynamoDB compatibility
   - _Requirements: FR-4.2, FR-8.6, FR-9.2, FR-9.3, FR-9.5_
 
-- [ ] 6.2 Create payment tracking and balance management
-  - Implement payment balance calculation (paid seats vs registered seats)
-  - Create function to track partial payments
-  - Add payment status display logic
-  - Implement no-reimbursement policy enforcement
-  - Create payment history tracking
-  - _Requirements: FR-4.3, FR-4.4, FR-4.5_
+- [ ] 6.2 Add pricing to boat registration endpoints
+  - Update get_boat_registration to include calculated pricing
+  - Update list_boat_registrations to include pricing for each boat
+  - Add price locking when boat status becomes "complete"
+  - Ensure server-side price calculation (never trust frontend)
+  - _Requirements: FR-4.2, FR-9.2_
 
-### 7. Stripe Payment Integration
+### 7. Payment Page and Cart System
 
-- [ ] 7.1 Set up Stripe integration infrastructure
-  - Configure Stripe API keys in environment variables
-  - Create Stripe webhook endpoint for payment events
+- [ ] 7.1 Create payment page frontend
+  - Create PaymentPage.vue as main payment interface
+  - Display list of "complete" boats (ready for payment)
+  - Add checkbox selection for boats to pay
+  - Implement "Select All" / "Deselect All" functionality
+  - Show price breakdown per boat (base, rental, multi-club)
+  - Display running total that updates with selection
+  - Add empty state when no boats ready for payment
+  - _Requirements: FR-4.1, FR-4.2_
+
+- [ ] 7.2 Build payment components
+  - Create BoatPaymentCard.vue for each boat in payment list
+  - Display boat details (event, boat type, race, crew count)
+  - Show itemized price breakdown
+  - Add visual indicators for rental and multi-club fees
+  - Create PaymentSummary.vue for total calculation
+  - Show grand total with currency formatting
+  - _Requirements: FR-4.2, FR-4.3_
+
+- [ ] 7.3 Implement payment store (Pinia)
+  - Create paymentStore.js for payment state management
+  - Add actions to fetch boats ready for payment
+  - Implement selection state management
+  - Add total calculation logic
+  - Create payment submission action
+  - Handle payment success/failure states
+  - _Requirements: FR-4.1, FR-4.3_
+
+### 8. Stripe Payment Integration
+
+- [ ] 8.1 Set up Stripe backend infrastructure
+  - Add Stripe SDK to Lambda layer dependencies
+  - Configure Stripe API keys in AWS Secrets Manager
+  - Create Stripe client initialization utility
+  - Set up Stripe webhook endpoint in API Gateway
   - Implement webhook signature verification
-  - Set up Stripe payment intent creation
-  - Configure payment confirmation handling
   - _Requirements: FR-4.6, NFR-3.1, NFR-3.2_
 
-- [ ] 7.2 Implement payment processing Lambda functions
-  - Create create_payment_intent Lambda with amount calculation
-  - Implement confirm_payment Lambda for successful payments
-  - Create webhook_handler Lambda for Stripe events
-  - Add payment confirmation email trigger
-  - Implement payment status updates in DynamoDB
+- [ ] 8.2 Implement payment Lambda functions
+  - Create create_payment_intent Lambda
+    - Validate boat ownership and "complete" status
+    - Calculate total amount server-side
+    - Create Stripe Payment Intent with metadata
+    - Return client_secret to frontend
+  - Create confirm_payment Lambda (webhook handler)
+    - Verify webhook signature
+    - Handle payment_intent.succeeded event
+    - Update boat status to "paid" in DynamoDB
+    - Store payment record with Stripe payment_intent_id
+    - Handle payment_intent.payment_failed event
+  - Add get_payment_receipt Lambda
+    - Retrieve payment details from DynamoDB
+    - Return receipt data with Stripe receipt URL
   - _Requirements: FR-4.6, FR-4.7_
 
-- [ ] 7.3 Build payment frontend components
-  - Create PaymentSummary.vue with price breakdown
-  - Create StripeCheckout.vue with Stripe Elements integration
-  - Create PaymentHistory.vue for payment tracking
-  - Implement payment store (Pinia) for state management
-  - Add payment period validation before checkout
-  - Display payment balance and status
-  - _Requirements: FR-4.1, FR-4.2, FR-4.3, FR-4.7_
+- [ ] 8.3 Create payment data model
+  - Design payment record structure in DynamoDB
+  - Store: payment_id, stripe_payment_intent_id, amount, currency
+  - Store: boat_registration_ids (array), team_manager_id
+  - Store: paid_at timestamp, stripe_receipt_url
+  - Add payment status tracking (pending, succeeded, failed)
+  - _Requirements: FR-4.3, FR-4.4_
+
+- [ ] 8.4 Build Stripe checkout frontend
+  - Create StripeCheckout.vue component
+  - Integrate Stripe.js and Stripe Elements
+  - Implement payment form with card element
+  - Add payment submission with loading states
+  - Handle 3D Secure authentication flow
+  - Display payment errors clearly
+  - Show success confirmation with receipt link
+  - _Requirements: FR-4.6, FR-4.7_
+
+- [ ] 8.5 Configure Stripe email receipts
+  - Enable automatic receipt emails in Stripe dashboard
+  - Configure receipt email branding (logo, colors)
+  - Set receipt email language based on user preference
+  - Test receipt email delivery
+  - _Requirements: FR-4.7_
+
+### 9. Post-Payment Boat Management
+
+- [ ] 9.1 Implement paid boat editing rules
+  - Add validation to prevent race changes on paid boats
+  - Add validation to prevent boat type changes on paid boats
+  - Allow crew member changes on paid boats
+  - Allow seat reassignments on paid boats
+  - Flag multi-club status changes for admin review
+  - Display warning when editing paid boats
+  - _Requirements: FR-4.5_
+
+- [ ] 9.2 Update boat list to show payment status
+  - Add "Paid" status badge to boat cards
+  - Filter paid boats from payment page
+  - Show payment date on boat details
+  - Add visual distinction for paid boats (green border/badge)
+  - Update boat status filter to include "paid"
+  - _Requirements: FR-4.3_
 
 ### 8. Boat Rental Management
 
@@ -337,9 +412,27 @@
 
 ## VERSION 2 - Enhanced Features
 
-### 20. Admin Configuration Management
+### 20. Payment History and Advanced Features
 
-- [ ] 20.1 Implement admin configuration Lambda functions
+- [ ] 20.1 Implement payment history page
+  - Create PaymentHistory.vue to display all payments
+  - Show payment date, amount, boats included
+  - Add download receipt functionality
+  - Display payment method and status
+  - Implement filtering by date range
+  - _Requirements: FR-4.3, FR-4.7_
+
+- [ ] 20.2 Add payment receipt generation
+  - Create receipt PDF generation Lambda
+  - Include itemized breakdown in receipt
+  - Add RCPM branding to receipts
+  - Store receipts in S3 for download
+  - Implement receipt email sending (beyond Stripe)
+  - _Requirements: FR-4.7_
+
+### 21. Admin Configuration Management
+
+- [ ] 21.1 Implement admin configuration Lambda functions
   - Create get_configuration Lambda for retrieving all config types
   - Implement update_configuration Lambda with validation
   - Add configuration change audit logging
@@ -347,7 +440,7 @@
   - Implement admin confirmation for impactful changes
   - _Requirements: FR-5.1, FR-5.2, FR-5.4, FR-5.5, FR-10.1-FR-10.8_
 
-- [ ] 20.2 Build admin configuration frontend interface
+- [ ] 21.2 Build admin configuration frontend interface
   - Create ConfigurationPanel.vue with tabbed sections
   - Add system configuration editor (dates, periods)
   - Create pricing configuration editor
@@ -356,9 +449,9 @@
   - Display configuration change history
   - _Requirements: FR-5.1, FR-5.2, FR-10.1, FR-10.2, FR-10.3_
 
-### 21. Registration Validation and Admin Management
+### 22. Registration Validation and Admin Management
 
-- [ ] 21.1 Implement registration validation Lambda functions
+- [ ] 22.1 Implement registration validation Lambda functions
   - Create get_all_registrations Lambda for admin review
   - Implement flag_registration_issue Lambda with notification trigger
   - Create resolve_flagged_issue Lambda for team manager actions
@@ -366,7 +459,7 @@
   - Add manual registration editing for admins
   - _Requirements: FR-6.1, FR-6.2, FR-6.3, FR-6.4, FR-6.5, FR-6.6_
 
-- [ ] 21.2 Build admin validation frontend interface
+- [ ] 22.2 Build admin validation frontend interface
   - Create RegistrationValidation.vue with filterable list
   - Add issue flagging interface with notification preview
   - Create editing access grant interface with time limits
@@ -375,7 +468,7 @@
   - Add bulk operations for common admin tasks
   - _Requirements: FR-6.1, FR-6.2, FR-6.5, FR-6.6_
 
-- [ ] 21.3 Create admin dashboard with real-time statistics
+- [ ] 22.3 Create admin dashboard with real-time statistics
   - Implement get_dashboard_stats Lambda with aggregations
   - Create Dashboard.vue with key metrics display
   - Add participant counts by category
@@ -384,16 +477,16 @@
   - Add boat rental status overview
   - _Requirements: FR-7.1, FR-7.3, FR-7.4_
 
-### 22. Advanced Reporting and Analytics
+### 23. Advanced Reporting and Analytics
 
-- [ ] 22.1 Implement advanced reporting Lambda functions
+- [ ] 23.1 Implement advanced reporting Lambda functions
   - Create export_payments Lambda for financial reports
   - Implement multi_club_crew revenue reporting
   - Add financial reports with revenue breakdown
   - Create audit log export functionality
   - _Requirements: FR-7.2, FR-9.7_
 
-- [ ] 22.2 Build advanced reporting frontend interface
+- [ ] 23.2 Build advanced reporting frontend interface
   - Create AdvancedReports.vue with multiple report types
   - Add date range filtering for reports
   - Display multi_club_crew statistics
@@ -401,16 +494,16 @@
   - Create financial dashboards
   - _Requirements: FR-7.2, FR-7.5, FR-9.6, FR-9.7_
 
-### 23. Enhanced Notification System
+### 24. Enhanced Notification System
 
-- [ ] 23.1 Implement advanced notification features
+- [ ] 24.1 Implement advanced notification features
   - Create schedule_notifications Lambda for recurring alerts
   - Implement process_notification_queue Lambda for batch processing
   - Add notification frequency management
   - Create notification preferences interface
   - _Requirements: NFR-6.2, NFR-6.3, NFR-6.4_
 
-- [ ] 23.2 Set up EventBridge schedulers for automated notifications
+- [ ] 24.2 Set up EventBridge schedulers for automated notifications
   - Create daily notification check scheduler
   - Implement payment reminder scheduler
   - Add deadline warning scheduler
@@ -418,23 +511,23 @@
   - Implement daily summary scheduler
   - _Requirements: NFR-6.2, NFR-6.3_
 
-- [ ] 23.3 Build notification center frontend component
+- [ ] 24.3 Build notification center frontend component
   - Create NotificationCenter.vue with message history
   - Add unread notification counter in navigation
   - Implement notification filtering and search
   - Add real-time notification updates
   - _Requirements: NFR-6.4, FR-11.7_
 
-### 24. Slack Integration for Admin and DevOps
+### 25. Slack Integration for Admin and DevOps
 
-- [ ] 24.1 Implement Slack webhook configuration
+- [ ] 25.1 Implement Slack webhook configuration
   - Add Slack webhook URL fields to notification config
   - Create webhook validation and testing functionality
   - Implement secure storage of webhook URLs
   - Add test notification sending capability
   - _Requirements: NFR-6.6, NFR-6.7_
 
-- [ ] 24.2 Implement Slack notification Lambda function
+- [ ] 25.2 Implement Slack notification Lambda function
   - Create send_slack_notification function with webhook integration
   - Implement Slack message block builders for different event types
   - Add rate limiting to prevent API abuse
@@ -442,7 +535,7 @@
   - Implement error handling and fallback mechanisms
   - _Requirements: NFR-6.6, NFR-6.7_
 
-- [ ] 24.3 Integrate Slack notifications into event handlers
+- [ ] 25.3 Integrate Slack notifications into event handlers
   - Add Slack notifications to boat registration events
   - Implement payment completion Slack alerts
   - Create boat rental request notifications
@@ -450,9 +543,9 @@
   - Implement daily summary Slack messages
   - _Requirements: NFR-6.6, NFR-6.7_
 
-### 25. Contact Us Feature
+### 26. Contact Us Feature
 
-- [ ] 25.1 Implement contact form Lambda function
+- [ ] 26.1 Implement contact form Lambda function
   - Create submit_contact_form Lambda with validation
   - Implement email sending to admin contact address
   - Add auto-reply email to user
@@ -460,7 +553,7 @@
   - Implement contact form logging in DynamoDB
   - _Requirements: FR-12.1, FR-12.2, FR-12.3, FR-12.4, FR-12.5, FR-12.6_
 
-- [ ] 25.2 Build contact form frontend component
+- [ ] 26.2 Build contact form frontend component
   - Create ContactForm.vue with all required fields
   - Add subject selection dropdown
   - Implement form validation and error handling
@@ -469,9 +562,9 @@
   - Display contact information and alternative contact methods
   - _Requirements: FR-12.1, FR-12.7, FR-12.8_
 
-### 26. GDPR Compliance Features
+### 27. GDPR Compliance Features
 
-- [ ] 26.1 Implement GDPR compliance features
+- [ ] 27.1 Implement GDPR compliance features
   - Create data deletion request handler
   - Implement user data anonymization
   - Add data export functionality for user requests
@@ -479,16 +572,16 @@
   - Implement audit logging for data access
   - _Requirements: NFR-3.4_
 
-- [ ] 26.2 Create privacy and legal pages
+- [ ] 27.2 Create privacy and legal pages
   - Create privacy policy and terms of service
   - Set up cookie consent management
   - Implement data retention policies
   - Document compliance procedures
   - _Requirements: NFR-3.4_
 
-### 27. Performance Optimization
+### 28. Performance Optimization
 
-- [ ] 27.1 Implement frontend performance optimizations
+- [ ] 28.1 Implement frontend performance optimizations
   - Add code splitting for route-based lazy loading
   - Implement component lazy loading
   - Create service worker for offline support
@@ -497,7 +590,7 @@
   - Optimize images and assets
   - _Requirements: NFR-1.1, NFR-1.2_
 
-- [ ] 27.2 Optimize backend Lambda functions
+- [ ] 28.2 Optimize backend Lambda functions
   - Implement connection pooling for DynamoDB
   - Add Lambda function warming to reduce cold starts
   - Optimize Lambda memory allocation
@@ -505,7 +598,7 @@
   - Add batch operations for bulk updates
   - _Requirements: NFR-1.2, NFR-1.3, NFR-2.1_
 
-- [ ] 27.3 Implement DynamoDB query optimization
+- [ ] 28.3 Implement DynamoDB query optimization
   - Use GSI indexes for efficient queries
   - Implement pagination for large result sets
   - Add DynamoDB query result caching
@@ -513,9 +606,9 @@
   - Implement batch get operations
   - _Requirements: NFR-1.2, NFR-2.3_
 
-### 28. Advanced Testing
+### 29. Advanced Testing
 
-- [ ] 28.1 Implement end-to-end testing
+- [ ] 29.1 Implement end-to-end testing
   - Set up Cypress for E2E testing
   - Create E2E tests for user registration and login
   - Write E2E tests for crew member and boat registration
@@ -523,16 +616,16 @@
   - Create E2E tests for admin workflows
   - _Requirements: General quality assurance_
 
-- [ ] 28.2 Advanced load testing
+- [ ] 29.2 Advanced load testing
   - Test concurrent user scenarios (1000+ users)
   - Validate system under peak load
   - Measure and optimize page load times
   - Test DynamoDB auto-scaling
   - _Requirements: NFR-1.1, NFR-1.3, NFR-2.1_
 
-### 29. DevOps Utilities and Tools
+### 30. DevOps Utilities and Tools
 
-- [ ] 29.1 Create DevOps configuration access tools
+- [ ] 30.1 Create DevOps configuration access tools
   - Build CLI tool for emergency configuration updates
   - Implement configuration backup and restore scripts
   - Create database query utilities for DevOps
@@ -540,16 +633,16 @@
   - Implement log analysis tools
   - _Requirements: TC-4.5, TC-4.6_
 
-- [ ] 29.2 Set up advanced deployment automation
+- [ ] 30.2 Set up advanced deployment automation
   - Implement blue-green deployment strategy
   - Add rollback procedures and scripts
   - Create deployment validation tests
   - Implement automated smoke tests post-deployment
   - _Requirements: TC-2.1, TC-2.4_
 
-### 30. Documentation
+### 31. Documentation
 
-- [ ] 30.1 Create comprehensive API documentation
+- [ ] 31.1 Create comprehensive API documentation
   - Document all API endpoints with request/response examples
   - Create authentication flow documentation
   - Add error code reference guide
@@ -557,7 +650,7 @@
   - Create integration examples
   - _Requirements: General best practice_
 
-- [ ] 30.2 Write deployment and operations guides
+- [ ] 31.2 Write deployment and operations guides
   - Create infrastructure deployment guide
   - Write configuration management guide
   - Document backup and restore procedures
