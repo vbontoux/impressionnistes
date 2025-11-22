@@ -13,6 +13,8 @@ from responses import (
 )
 from database import get_db_client
 from auth_utils import get_user_from_event, require_team_manager
+from pricing import calculate_boat_pricing
+from configuration import ConfigurationManager
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -43,8 +45,23 @@ def lambda_handler(event, context):
     
     logger.info(f"Found {len(boat_registrations)} boat registrations for team manager {team_manager_id}")
     
-    # Note: Boat registrations should already have crew_composition and enriched seat data
-    # from when they were created/updated. If not present, it means the boat has no crew assigned yet.
+    # Get crew members once for all pricing calculations
+    crew_members = db.query_by_pk(
+        pk=f'TEAM#{team_manager_id}',
+        sk_prefix='CREW#'
+    )
+    
+    # Get pricing configuration once
+    config_manager = ConfigurationManager()
+    pricing_config = config_manager.get_pricing_config()
+    
+    # Calculate pricing for each boat
+    for boat in boat_registrations:
+        if boat.get('seats') and any(seat.get('crew_member_id') for seat in boat['seats']):
+            pricing = calculate_boat_pricing(boat, crew_members, pricing_config)
+            boat['pricing'] = pricing
+        else:
+            boat['pricing'] = None
     
     # Return success response
     return success_response(
