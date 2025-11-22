@@ -197,7 +197,8 @@
     "loadError": "Failed to load boat registration",
     "saveError": "Failed to save boat registration",
     "seats": "Seats",
-    "flags": "Flags"
+    "flags": "Flags",
+    "cannotDeletePaid": "Cannot delete a paid boat. Please contact support if you need to make changes."
   },
   "payment": {
     "title": "Payment",

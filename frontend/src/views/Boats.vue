@@ -97,7 +97,12 @@
             <button @click="viewBoat(boat)" class="btn-secondary">
               {{ $t('common.view') }}
             </button>
-            <button @click="deleteBoat(boat)" class="btn-danger">
+            <button 
+              @click="deleteBoat(boat)" 
+              class="btn-danger"
+              :disabled="boat.registration_status === 'paid'"
+              :title="boat.registration_status === 'paid' ? $t('boat.cannotDeletePaid') : ''"
+            >
               {{ $t('common.delete') }}
             </button>
           </div>
@@ -143,7 +148,12 @@
                 <button @click="viewBoat(boat)" class="btn-table btn-view-table">
                   {{ $t('common.view') }}
                 </button>
-                <button @click="deleteBoat(boat)" class="btn-table btn-delete-table">
+                <button 
+                  @click="deleteBoat(boat)" 
+                  class="btn-table btn-delete-table"
+                  :disabled="boat.registration_status === 'paid'"
+                  :title="boat.registration_status === 'paid' ? $t('boat.cannotDeletePaid') : ''"
+                >
                   {{ $t('common.delete') }}
                 </button>
               </td>
@@ -499,8 +509,14 @@ export default {
   color: white;
 }
 
-.btn-danger:hover {
+.btn-danger:hover:not(:disabled) {
   background-color: #c82333;
+}
+
+.btn-danger:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* Table View Styles */

@@ -197,7 +197,8 @@
     "loadError": "Échec du chargement de l'inscription du bateau",
     "saveError": "Échec de l'enregistrement de l'inscription du bateau",
     "seats": "Places",
-    "flags": "Indicateurs"
+    "flags": "Indicateurs",
+    "cannotDeletePaid": "Impossible de supprimer un bateau payé. Veuillez contacter le support si vous devez apporter des modifications."
   },
   "payment": {
     "title": "Paiement",

@@ -56,6 +56,10 @@ def lambda_handler(event, context):
     if not existing_boat:
         return not_found_error('Boat registration not found')
     
+    # Prevent deletion of paid boats
+    if existing_boat.get('registration_status') == 'paid':
+        return forbidden_error('Cannot delete a paid boat registration. Please contact support if you need to make changes.')
+    
     # Check if registration period is active
     config_manager = ConfigurationManager()
     system_config = config_manager.get_system_config()
