@@ -24,6 +24,7 @@
     "dashboard": "Tableau de bord",
     "crew": "Équipiers",
     "boats": "Bateaux",
+    "payment": "Paiement",
     "logout": "Déconnexion",
     "toggleMenu": "Basculer le menu"
   },
@@ -197,5 +198,36 @@
     "saveError": "Échec de l'enregistrement de l'inscription du bateau",
     "seats": "Places",
     "flags": "Indicateurs"
+  },
+  "payment": {
+    "title": "Paiement",
+    "subtitle": "Sélectionnez les bateaux à payer",
+    "description": "Sélectionnez les bateaux que vous souhaitez payer et procédez au paiement",
+    "loading": "Chargement des bateaux...",
+    "noBoats": {
+      "title": "Aucun bateau prêt pour le paiement",
+      "description": "Vous n'avez aucun bateau prêt pour le paiement. Complétez d'abord vos inscriptions de bateaux.",
+      "goToBoats": "Aller aux bateaux"
+    },
+    "noBoatsReady": "Aucun bateau prêt pour le paiement",
+    "noBoatsReadyDescription": "Complétez vos inscriptions de bateaux pour procéder au paiement",
+    "goToBoats": "Aller aux bateaux",
+    "selectAll": "Tout sélectionner",
+    "deselectAll": "Tout désélectionner",
+    "boatsAvailable": "{count} bateau disponible | {count} bateaux disponibles",
+    "boatsSelected": "{count} bateau sélectionné | {count} bateaux sélectionnés",
+    "selectedCount": "{count} sur {total} sélectionné(s)",
+    "seats": "place(s)",
+    "rental": "Location",
+    "multiClub": "Multi-Club",
+    "noRace": "Aucune course sélectionnée",
+    "basePrice": "Prix de base",
+    "rentalFee": "Frais de location",
+    "multiClubFee": "Frais multi-club",
+    "total": "Total",
+    "summary": "Récapitulatif du paiement",
+    "totalAmount": "Montant total",
+    "proceedToPayment": "Procéder au paiement",
+    "securePayment": "Paiement sécurisé par Stripe"
   }
 }

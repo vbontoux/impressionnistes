@@ -40,9 +40,9 @@
 - [x] 5.3 Build boat registration frontend components
 - [x] 5.4 Implement seat assignment and validation logic
 
-### 6. Pricing Calculation Engine
+### 6. Pricing Calculation Engine ✅ COMPLETED
 
-- [ ] 6.1 Implement backend pricing calculation
+- [x] 6.1 Implement backend pricing calculation
   - Create pricing calculation utility in shared/pricing.py
   - Implement base seat pricing logic (Base_Seat_Price per seat)
   - Add multi-club crew detection and surcharge calculation
@@ -52,16 +52,16 @@
   - Convert all prices to Decimal for DynamoDB compatibility
   - _Requirements: FR-4.2, FR-8.6, FR-9.2, FR-9.3, FR-9.5_
 
-- [ ] 6.2 Add pricing to boat registration endpoints
+- [x] 6.2 Add pricing to boat registration endpoints
   - Update get_boat_registration to include calculated pricing
   - Update list_boat_registrations to include pricing for each boat
   - Add price locking when boat status becomes "complete"
   - Ensure server-side price calculation (never trust frontend)
   - _Requirements: FR-4.2, FR-9.2_
 
-### 7. Payment Page and Cart System
+### 7. Payment Page and Cart System ✅ COMPLETED
 
-- [ ] 7.1 Create payment page frontend
+- [x] 7.1 Create payment page frontend
   - Create PaymentPage.vue as main payment interface
   - Display list of "complete" boats (ready for payment)
   - Add checkbox selection for boats to pay
@@ -71,7 +71,7 @@
   - Add empty state when no boats ready for payment
   - _Requirements: FR-4.1, FR-4.2_
 
-- [ ] 7.2 Build payment components
+- [x] 7.2 Build payment components
   - Create BoatPaymentCard.vue for each boat in payment list
   - Display boat details (event, boat type, race, crew count)
   - Show itemized price breakdown
@@ -80,7 +80,7 @@
   - Show grand total with currency formatting
   - _Requirements: FR-4.2, FR-4.3_
 
-- [ ] 7.3 Implement payment store (Pinia)
+- [x] 7.3 Implement payment store (Pinia)
   - Create paymentStore.js for payment state management
   - Add actions to fetch boats ready for payment
   - Implement selection state management

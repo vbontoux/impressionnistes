@@ -41,6 +41,11 @@
           <span class="nav-icon">🚣</span>
           <span class="nav-text">{{ $t('nav.boats') }}</span>
         </router-link>
+        
+        <router-link to="/payment" class="nav-item" @click="closeSidebarOnMobile">
+          <span class="nav-icon">💳</span>
+          <span class="nav-text">{{ $t('nav.payment') }}</span>
+        </router-link>
 
         <div class="nav-spacer"></div>
 

@@ -24,6 +24,7 @@
     "dashboard": "Dashboard",
     "crew": "Crew Members",
     "boats": "Boats",
+    "payment": "Payment",
     "logout": "Logout",
     "toggleMenu": "Toggle menu"
   },
@@ -197,5 +198,36 @@
     "saveError": "Failed to save boat registration",
     "seats": "Seats",
     "flags": "Flags"
+  },
+  "payment": {
+    "title": "Payment",
+    "subtitle": "Select boats to pay for",
+    "description": "Select the boats you want to pay for and proceed to checkout",
+    "loading": "Loading boats...",
+    "noBoats": {
+      "title": "No Boats Ready for Payment",
+      "description": "You don't have any boats ready for payment. Complete your boat registrations first.",
+      "goToBoats": "Go to Boats"
+    },
+    "noBoatsReady": "No boats ready for payment",
+    "noBoatsReadyDescription": "Complete your boat registrations to proceed with payment",
+    "goToBoats": "Go to Boats",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All",
+    "boatsAvailable": "{count} boat(s) available | {count} boats available",
+    "boatsSelected": "{count} boat(s) selected | {count} boats selected",
+    "selectedCount": "{count} of {total} selected",
+    "seats": "seat(s)",
+    "rental": "Rental",
+    "multiClub": "Multi-Club",
+    "noRace": "No race selected",
+    "basePrice": "Base Price",
+    "rentalFee": "Rental Fee",
+    "multiClubFee": "Multi-Club Fee",
+    "total": "Total",
+    "summary": "Payment Summary",
+    "totalAmount": "Total Amount",
+    "proceedToPayment": "Proceed to Payment",
+    "securePayment": "Secure payment powered by Stripe"
   }
 }
