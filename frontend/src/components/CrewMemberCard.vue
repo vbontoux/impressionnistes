@@ -23,10 +23,6 @@
         <span class="label">{{ $t('crew.card.club') }}:</span>
         <span class="value">{{ crewMember.club_affiliation }}</span>
       </div>
-      <div v-if="isAssigned" class="detail-row">
-        <span class="label">{{ $t('crew.card.boatId') }}:</span>
-        <span class="value">{{ crewMember.assigned_boat_id }}</span>
-      </div>
     </div>
 
     <!-- Flagged Issues -->
