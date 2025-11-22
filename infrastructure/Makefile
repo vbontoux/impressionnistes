@@ -40,6 +40,7 @@ help:
 	@echo "  make costs          - Show AWS costs for last month (default: last 30 days)"
 	@echo "  make db-export      - Export DynamoDB table to CSV (default: dev)"
 	@echo "  make db-view        - View DynamoDB table contents (default: dev)"
+	@echo "  make db-migrate     - Run database migration (optional, see functions/migrations/)"
 	@echo "  make destroy        - Destroy all stacks (default: dev)"
 	@echo "  make destroy-dev    - Destroy dev environment"
 	@echo "  make destroy-prod   - Destroy prod environment (with confirmation)"
@@ -486,4 +487,58 @@ cognito-add-to-group:
 		--group-name $(GROUP); \
 	echo ""; \
 	echo "✓ User added to group successfully!"
+	@echo "=========================================="
+
+
+db-migrate:
+	@echo "=========================================="
+	@echo "Running Database Migration"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@if [ -z "$(MIGRATION)" ]; then \
+		echo "❌ Error: MIGRATION parameter required"; \
+		echo "Usage: make db-migrate MIGRATION=your_migration TEAM_MANAGER_ID=your-id"; \
+		echo ""; \
+		echo "Available migrations:"; \
+		if ls ../functions/migrations/*.py 2>/dev/null | grep -v __pycache__ >/dev/null; then \
+			ls -1 ../functions/migrations/*.py 2>/dev/null | grep -v __pycache__ | xargs -n1 basename | sed 's/.py//' | sed 's/^/  - /'; \
+		else \
+			echo "  (none - see functions/migrations/README.md for template)"; \
+		fi; \
+		exit 1; \
+	fi
+	@if [ -z "$(TEAM_MANAGER_ID)" ]; then \
+		echo "❌ Error: TEAM_MANAGER_ID parameter required"; \
+		echo "Usage: make db-migrate MIGRATION=your_migration TEAM_MANAGER_ID=your-id"; \
+		exit 1; \
+	fi
+	@if [ ! -f "../functions/migrations/$(MIGRATION).py" ]; then \
+		echo "❌ Error: Migration '$(MIGRATION)' not found"; \
+		echo ""; \
+		echo "Available migrations:"; \
+		if ls ../functions/migrations/*.py 2>/dev/null | grep -v __pycache__ >/dev/null; then \
+			ls -1 ../functions/migrations/*.py 2>/dev/null | grep -v __pycache__ | xargs -n1 basename | sed 's/.py//' | sed 's/^/  - /'; \
+		else \
+			echo "  (none - see functions/migrations/README.md for template)"; \
+		fi; \
+		exit 1; \
+	fi
+	@echo "Migration: $(MIGRATION)"
+	@echo "Team Manager ID: $(TEAM_MANAGER_ID)"
+	@echo "Table: impressionnistes-registration-$(ENV)"
+	@echo ""
+	@read -p "Continue? (yes/no): " confirm; \
+	if [ "$$confirm" != "yes" ]; then \
+		echo "Migration cancelled"; \
+		exit 1; \
+	fi
+	@echo ""
+	@echo "Running migration..."
+	@cd ../functions/migrations && \
+		export DYNAMODB_TABLE_NAME=impressionnistes-registration-$(ENV) && \
+		../../infrastructure/$(VENV)/bin/python $(MIGRATION).py --team-manager-id $(TEAM_MANAGER_ID)
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ Migration complete!"
 	@echo "=========================================="

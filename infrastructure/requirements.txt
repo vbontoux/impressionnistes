@@ -4,3 +4,7 @@ constructs>=10.0.0,<11.0.0
 
 # CDK specific libraries
 aws-cdk.aws-lambda-python-alpha==2.120.0a0
+
+# For migrations and scripts
+boto3>=1.26.0
+cerberus>=1.3.4

@@ -144,6 +144,8 @@
     "confirmDelete": "Are you sure you want to delete {name}?",
     "rental": "Rental",
     "multiClub": "Multi-Club",
+    "firstRower": "First Rower",
+    "averageAge": "Average Age",
     "status": {
       "label": "Status",
       "incomplete": "Incomplete",

@@ -25,7 +25,7 @@ def lambda_handler(event, context):
     List all boat registrations for the authenticated team manager
     
     Returns:
-        List of boat registration objects
+        List of boat registration objects with enriched crew data
     """
     logger.info("List boat registrations request")
     
@@ -42,6 +42,9 @@ def lambda_handler(event, context):
     )
     
     logger.info(f"Found {len(boat_registrations)} boat registrations for team manager {team_manager_id}")
+    
+    # Note: Boat registrations should already have crew_composition and enriched seat data
+    # from when they were created/updated. If not present, it means the boat has no crew assigned yet.
     
     # Return success response
     return success_response(

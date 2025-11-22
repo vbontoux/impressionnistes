@@ -4,6 +4,7 @@ Team managers can edit boat registration information during registration period
 """
 import json
 import logging
+from decimal import Decimal
 
 # Import from Lambda layer
 from responses import (
@@ -25,8 +26,23 @@ from boat_registration_utils import (
     get_assigned_crew_members,
     validate_seat_assignment
 )
+from race_eligibility import analyze_crew_composition
 
 logger = logging.getLogger()
+
+
+def convert_floats_to_decimal(obj):
+    """
+    Recursively convert all float values to Decimal for DynamoDB compatibility
+    """
+    if isinstance(obj, list):
+        return [convert_floats_to_decimal(item) for item in obj]
+    elif isinstance(obj, dict):
+        return {key: convert_floats_to_decimal(value) for key, value in obj.items()}
+    elif isinstance(obj, float):
+        return Decimal(str(obj))
+    else:
+        return obj
 logger.setLevel(logging.INFO)
 
 
@@ -211,6 +227,26 @@ def lambda_handler(event, context):
         
         # Detect multi-club crew
         boat_fields_to_validate['is_multi_club_crew'] = detect_multi_club_crew(assigned_members)
+        
+        # Calculate crew composition for race eligibility
+        if assigned_members:
+            crew_composition = analyze_crew_composition(assigned_members)
+            # Convert floats to Decimal for DynamoDB compatibility
+            crew_composition = convert_floats_to_decimal(crew_composition)
+            boat_fields_to_validate['crew_composition'] = crew_composition
+        else:
+            boat_fields_to_validate['crew_composition'] = None
+        
+        # Enrich seats with crew member names for display
+        for seat in boat_fields_to_validate['seats']:
+            crew_member_id = seat.get('crew_member_id')
+            if crew_member_id and crew_member_id in crew_member_map:
+                member = crew_member_map[crew_member_id]
+                seat['crew_member_first_name'] = member.get('first_name')
+                seat['crew_member_last_name'] = member.get('last_name')
+            else:
+                seat['crew_member_first_name'] = None
+                seat['crew_member_last_name'] = None
     
     # Calculate registration status
     registration_status = calculate_registration_status(boat_fields_to_validate)

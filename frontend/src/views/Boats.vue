@@ -73,12 +73,16 @@
 
           <div class="boat-details">
             <div class="detail-row">
-              <span class="label">{{ $t('boat.eventType') }}:</span>
-              <span>{{ boat.event_type }}</span>
+              <span class="label">{{ $t('boat.firstRower') }}:</span>
+              <span>{{ getFirstRowerLastName(boat) }}</span>
             </div>
             <div class="detail-row">
-              <span class="label">{{ $t('boat.boatType') }}:</span>
-              <span>{{ boat.boat_type }}</span>
+              <span class="label">{{ $t('boat.gender') }}:</span>
+              <span>{{ getCrewGenderCategory(boat) }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">{{ $t('boat.averageAge') }}:</span>
+              <span>{{ getCrewAverageAge(boat) }}</span>
             </div>
             <div class="detail-row">
               <span class="label">{{ $t('boat.filledSeats') }}:</span>
@@ -107,9 +111,11 @@
             <tr>
               <th>{{ $t('boat.eventType') }}</th>
               <th>{{ $t('boat.boatType') }}</th>
+              <th>{{ $t('boat.firstRower') }}</th>
+              <th>{{ $t('boat.gender') }}</th>
+              <th>{{ $t('boat.averageAge') }}</th>
               <th>{{ $t('boat.status.label') }}</th>
               <th>{{ $t('boat.seats') }}</th>
-              <th>{{ $t('boat.flags') }}</th>
               <th>{{ $t('common.actions') }}</th>
             </tr>
           </thead>
@@ -121,14 +127,17 @@
             >
               <td>{{ boat.event_type }}</td>
               <td>{{ boat.boat_type }}</td>
+              <td>{{ getFirstRowerLastName(boat) }}</td>
+              <td>{{ getCrewGenderCategory(boat) }}</td>
+              <td>{{ getCrewAverageAge(boat) }}</td>
               <td>
                 <span class="status-badge" :class="`status-${boat.registration_status}`">
                   {{ $t(`boat.status.${boat.registration_status}`) }}
                 </span>
               </td>
-              <td>{{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}</td>
               <td>
-                <span v-if="boat.is_multi_club_crew" class="multi-club-badge">{{ $t('boat.multiClub') }}</span>
+                {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
+                <span v-if="boat.is_multi_club_crew" class="multi-club-badge-small">{{ $t('boat.multiClub') }}</span>
               </td>
               <td class="actions-cell">
                 <button @click="viewBoat(boat)" class="btn-table btn-view-table">
@@ -179,6 +188,27 @@ export default {
       return boat.seats.filter(seat => seat.crew_member_id).length
     }
 
+    const getFirstRowerLastName = (boat) => {
+      if (!boat.seats || boat.seats.length === 0) return '-'
+      // Find first rower (position 1, type 'rower')
+      const firstRower = boat.seats.find(seat => seat.position === 1 && seat.type === 'rower')
+      return firstRower?.crew_member_last_name || '-'
+    }
+
+    const getCrewGenderCategory = (boat) => {
+      if (!boat.crew_composition) return '-'
+      const gender = boat.crew_composition.gender_category
+      if (gender === 'men') return t('boat.men')
+      if (gender === 'women') return t('boat.women')
+      if (gender === 'mixed') return t('boat.mixed')
+      return '-'
+    }
+
+    const getCrewAverageAge = (boat) => {
+      if (!boat.crew_composition || !boat.crew_composition.avg_age) return '-'
+      return Math.round(boat.crew_composition.avg_age)
+    }
+
     const handleBoatCreated = (newBoat) => {
       showCreateForm.value = false
       // Navigate to boat detail page
@@ -209,6 +239,9 @@ export default {
       viewMode,
       boatRegistrations,
       getFilledSeatsCount,
+      getFirstRowerLastName,
+      getCrewGenderCategory,
+      getCrewAverageAge,
       handleBoatCreated,
       viewBoat,
       deleteBoat
@@ -401,12 +434,26 @@ export default {
   font-weight: 500;
 }
 
+.multi-club-badge-small {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
 .rental-badge {
   background-color: #17a2b8;
   color: white;
 }
 
 .multi-club-badge {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.multi-club-badge-small {
   background-color: #ffc107;
   color: #000;
 }
@@ -467,7 +514,7 @@ export default {
 .boat-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 600px;
+  min-width: 900px;
 }
 
 .boat-table thead {
