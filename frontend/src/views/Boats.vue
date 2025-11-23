@@ -594,8 +594,14 @@ export default {
   color: white;
 }
 
-.btn-delete-table:hover {
+.btn-delete-table:hover:not(:disabled) {
   background-color: #c82333;
+}
+
+.btn-delete-table:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* Mobile Responsive */
