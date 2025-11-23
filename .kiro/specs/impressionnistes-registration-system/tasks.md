@@ -186,16 +186,16 @@
   - Add rental fee display in payment summary
   - _Requirements: FR-8.1, FR-8.5, FR-8.7_
 
-### 11. Home Page and Public Information
+### 11. Home Page and Public Information ✅ COMPLETED
 
-- [x] 11.1 Create home page with competition information ✅ PARTIALLY COMPLETED
+- [x] 11.1 Create home page with competition information ✅ COMPLETED
   - Build HomePage.vue with competition overview ✅
-  - Add event descriptions (21km and 42km) - TODO: Add content
-  - Display race categories and boat types - TODO: Add content
-  - Create registration process explanation - TODO: Add content
-  - Add pricing information display - TODO: Add content
-  - Show important dates and deadlines - TODO: Add content
-  - Add contact email link (no contact form in V1) - TODO: Add link
+  - Add event descriptions (21km and 42km) ✅
+  - Display race categories and boat types ✅
+  - Create registration process explanation ✅
+  - Add pricing information display ✅
+  - Show important dates and deadlines ✅
+  - Add contact email link (no contact form in V1) ✅
   - _Requirements: FR-11.1, FR-11.2, FR-11.4_
 
 - [x] 11.2 Implement navigation and language switching ✅ COMPLETED

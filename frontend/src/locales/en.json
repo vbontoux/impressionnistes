@@ -19,6 +19,7 @@
     "tableView": "Table view"
   },
   "nav": {
+    "home": "Home",
     "login": "Login",
     "register": "Register",
     "dashboard": "Dashboard",
@@ -258,6 +259,143 @@
       "viewBoats": "View My Boats",
       "goToDashboard": "Go to Dashboard",
       "receiptInfo": "A receipt has been sent to your email address."
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome",
+    "subtitle": "Manage your crew registrations for Course des Impressionnistes",
+    "quickStats": "Quick Stats",
+    "stats": {
+      "crewMembers": "Crew Members",
+      "boats": "Total Boats",
+      "completeBoats": "Ready for Payment",
+      "paidBoats": "Paid Boats"
+    },
+    "quickActions": "Quick Actions",
+    "actions": {
+      "manageCrew": {
+        "title": "Manage Crew",
+        "description": "Add and manage your crew members"
+      },
+      "manageBoats": {
+        "title": "Manage Boats",
+        "description": "Register and configure your boat entries"
+      },
+      "makePayment": {
+        "title": "Make Payment",
+        "description": "Process payments for your registrations"
+      }
+    },
+    "registrationStatus": "Registration Status",
+    "status": {
+      "incomplete": "Incomplete",
+      "complete": "Complete",
+      "paid": "Paid"
+    },
+    "emptyState": {
+      "title": "Get Started with Your Registration",
+      "description": "Start by adding crew members to your roster, then create boat registrations.",
+      "getStarted": "Add Your First Crew Member"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Course des Impressionnistes",
+      "subtitle": "Rowing Competition Registration System",
+      "register": "Create Account",
+      "login": "Sign In"
+    },
+    "dates": {
+      "title": "Important Dates",
+      "registrationOpen": "Registration Opens",
+      "registrationOpenDate": "March 19, 2024",
+      "registrationClose": "Registration Closes",
+      "registrationCloseDate": "April 19, 2024",
+      "paymentDeadline": "Payment Deadline",
+      "paymentDeadlineDate": "April 25, 2024",
+      "competitionDate": "Competition Day",
+      "competitionDateValue": "May 1, 2024"
+    },
+    "events": {
+      "title": "Competition Events",
+      "semiMarathon": {
+        "title": "Semi-Marathon",
+        "description": "A 21-kilometer rowing event featuring fours and eights in all configurations.",
+        "boats": "Fours and eights (competitive outriggers and recreational yolettes)",
+        "categories": "Age categories: J16, J18, Senior, and Master",
+        "oars": "Sweep rowing or sculling configurations",
+        "crews": "Men's, women's, and mixed-gender crews",
+        "racesCount": "28 different races"
+      },
+      "marathon": {
+        "title": "Marathon",
+        "description": "A challenging 42-kilometer individual race in single sculls.",
+        "boats": "Individual single sculls (skiffs) only",
+        "categories": "Men's and women's in Senior and Master A-F divisions",
+        "format": "Individual time trial format",
+        "racesCount": "14 different races"
+      }
+    },
+    "process": {
+      "title": "Registration Process",
+      "intro": "Team managers register their club and crews through a simple online process. The system guides you through every step.",
+      "step1": {
+        "title": "Set Up Your Access",
+        "description": "Create your manager account using your club's federation details and contact information. You'll receive secure login credentials to access the registration system."
+      },
+      "step2": {
+        "title": "Build Your Team Roster",
+        "description": "Add all potential participants to your club's roster with their essential information: name, birth date, gender, and FFA license number."
+      },
+      "step3": {
+        "title": "Create Boat Entries",
+        "description": "Select races and configure each boat entry by choosing the boat type, oar configuration, and assigning specific crew members to rowing and coxswain positions."
+      },
+      "step4": {
+        "title": "Handle Equipment Needs",
+        "description": "If you need boats, submit rental requests through the system. RCPM boats are available on a priority basis, with RCPM members having exclusive access until two weeks before registration closes."
+      },
+      "step5": {
+        "title": "Process Payments",
+        "description": "Review your total costs and complete payment using the integrated secure payment system. You can pay for individual entries or process multiple registrations together."
+      },
+      "step6": {
+        "title": "Ongoing Management",
+        "description": "Monitor your registrations, make permitted changes during the open period, and handle any crew substitutions or withdrawals that may be needed."
+      }
+    },
+    "pricing": {
+      "title": "Pricing Structure",
+      "baseSeat": {
+        "title": "Base Seat Price",
+        "description": "Standard price for any seat (rowing or coxswain) in any boat configuration."
+      },
+      "boatRental": {
+        "title": "Boat Rental",
+        "skiff": "Singles (skiffs)",
+        "crew": "Crew boats",
+        "description": "Rental fees for RCPM boats. RCPM members have priority access from registration opening until 15 days before closure."
+      },
+      "seatRental": {
+        "title": "Seat Rental",
+        "description": "Fee for external club members rowing in multi-club crews with RCPM members. RCPM members pay zero for their seats."
+      },
+      "seat": "seat",
+      "examples": {
+        "title": "Pricing Examples",
+        "eight": "Eight with coxswain: €180 (9 seats × €20)",
+        "four": "Quad without coxswain: €80 (4 seats × €20)",
+        "skiff": "Single scull (skiff): €20 base + €50 rental = €70 total"
+      }
+    },
+    "contact": {
+      "title": "Need Help?",
+      "description": "If you have any questions or need assistance with your registration, please contact us:"
+    },
+    "cta": {
+      "title": "Ready to Register?",
+      "description": "Create your account today and start registering your crews for the Course des Impressionnistes.",
+      "button": "Get Started Now"
     }
   }
 }

@@ -19,6 +19,7 @@
     "tableView": "Vue en tableau"
   },
   "nav": {
+    "home": "Accueil",
     "login": "Connexion",
     "register": "Inscription",
     "dashboard": "Tableau de bord",
@@ -258,6 +259,143 @@
       "viewBoats": "Voir mes bateaux",
       "goToDashboard": "Aller au tableau de bord",
       "receiptInfo": "Un reçu a été envoyé à votre adresse e-mail."
+    }
+  },
+  "dashboard": {
+    "welcome": "Bienvenue",
+    "subtitle": "Gérez vos inscriptions d'équipage pour la Course des Impressionnistes",
+    "quickStats": "Statistiques rapides",
+    "stats": {
+      "crewMembers": "Membres d'équipage",
+      "boats": "Total de bateaux",
+      "completeBoats": "Prêts pour paiement",
+      "paidBoats": "Bateaux payés"
+    },
+    "quickActions": "Actions rapides",
+    "actions": {
+      "manageCrew": {
+        "title": "Gérer l'équipage",
+        "description": "Ajouter et gérer vos membres d'équipage"
+      },
+      "manageBoats": {
+        "title": "Gérer les bateaux",
+        "description": "Inscrire et configurer vos inscriptions de bateaux"
+      },
+      "makePayment": {
+        "title": "Effectuer un paiement",
+        "description": "Traiter les paiements pour vos inscriptions"
+      }
+    },
+    "registrationStatus": "Statut des inscriptions",
+    "status": {
+      "incomplete": "Incomplet",
+      "complete": "Complet",
+      "paid": "Payé"
+    },
+    "emptyState": {
+      "title": "Commencez votre inscription",
+      "description": "Commencez par ajouter des membres d'équipage à votre liste, puis créez des inscriptions de bateaux.",
+      "getStarted": "Ajouter votre premier membre d'équipage"
+    }
+  },
+  "home": {
+    "hero": {
+      "title": "Course des Impressionnistes",
+      "subtitle": "Système d'inscription à la compétition d'aviron",
+      "register": "Créer un compte",
+      "login": "Se connecter"
+    },
+    "dates": {
+      "title": "Dates importantes",
+      "registrationOpen": "Ouverture des inscriptions",
+      "registrationOpenDate": "19 mars 2024",
+      "registrationClose": "Clôture des inscriptions",
+      "registrationCloseDate": "19 avril 2024",
+      "paymentDeadline": "Date limite de paiement",
+      "paymentDeadlineDate": "25 avril 2024",
+      "competitionDate": "Jour de la compétition",
+      "competitionDateValue": "1er mai 2024"
+    },
+    "events": {
+      "title": "Épreuves de la compétition",
+      "semiMarathon": {
+        "title": "Semi-Marathon",
+        "description": "Une épreuve d'aviron de 21 kilomètres avec des quatre et des huit dans toutes les configurations.",
+        "boats": "Quatre et huit (outriggers compétitifs et yolettes récréatives)",
+        "categories": "Catégories d'âge : J16, J18, Senior et Master",
+        "oars": "Configurations en pointe ou en couple",
+        "crews": "Équipages masculins, féminins et mixtes",
+        "racesCount": "28 courses différentes"
+      },
+      "marathon": {
+        "title": "Marathon",
+        "description": "Une course individuelle exigeante de 42 kilomètres en skiff.",
+        "boats": "Skiffs individuels uniquement",
+        "categories": "Hommes et femmes en catégories Senior et Master A-F",
+        "format": "Format contre-la-montre individuel",
+        "racesCount": "14 courses différentes"
+      }
+    },
+    "process": {
+      "title": "Processus d'inscription",
+      "intro": "Les gestionnaires d'équipe inscrivent leur club et leurs équipages via un processus en ligne simple. Le système vous guide à chaque étape.",
+      "step1": {
+        "title": "Configurez votre accès",
+        "description": "Créez votre compte de gestionnaire avec les détails de la fédération de votre club et vos coordonnées. Vous recevrez des identifiants sécurisés pour accéder au système d'inscription."
+      },
+      "step2": {
+        "title": "Constituez votre liste d'équipe",
+        "description": "Ajoutez tous les participants potentiels à la liste de votre club avec leurs informations essentielles : nom, date de naissance, genre et numéro de licence FFA."
+      },
+      "step3": {
+        "title": "Créez vos inscriptions de bateaux",
+        "description": "Sélectionnez les courses et configurez chaque inscription de bateau en choisissant le type de bateau, la configuration des avirons et en assignant des membres d'équipage spécifiques aux positions de rameur et de barreur."
+      },
+      "step4": {
+        "title": "Gérez vos besoins en équipement",
+        "description": "Si vous avez besoin de bateaux, soumettez des demandes de location via le système. Les bateaux du RCPM sont disponibles en priorité, les membres du RCPM ayant un accès exclusif jusqu'à deux semaines avant la clôture des inscriptions."
+      },
+      "step5": {
+        "title": "Effectuez les paiements",
+        "description": "Examinez vos coûts totaux et effectuez le paiement via le système de paiement sécurisé intégré. Vous pouvez payer pour des inscriptions individuelles ou traiter plusieurs inscriptions ensemble."
+      },
+      "step6": {
+        "title": "Gestion continue",
+        "description": "Surveillez vos inscriptions, effectuez les modifications autorisées pendant la période d'ouverture et gérez les substitutions d'équipage ou les retraits qui pourraient être nécessaires."
+      }
+    },
+    "pricing": {
+      "title": "Structure tarifaire",
+      "baseSeat": {
+        "title": "Prix de base par place",
+        "description": "Prix standard pour toute place (rameur ou barreur) dans n'importe quelle configuration de bateau."
+      },
+      "boatRental": {
+        "title": "Location de bateau",
+        "skiff": "Skiffs",
+        "crew": "Bateaux d'équipage",
+        "description": "Frais de location pour les bateaux du RCPM. Les membres du RCPM ont un accès prioritaire de l'ouverture des inscriptions jusqu'à 15 jours avant la clôture."
+      },
+      "seatRental": {
+        "title": "Location de place",
+        "description": "Frais pour les membres de clubs externes ramant dans des équipages multi-clubs avec des membres du RCPM. Les membres du RCPM paient zéro pour leurs places."
+      },
+      "seat": "place",
+      "examples": {
+        "title": "Exemples de tarifs",
+        "eight": "Huit avec barreur : 180 € (9 places × 20 €)",
+        "four": "Quatre en couple sans barreur : 80 € (4 places × 20 €)",
+        "skiff": "Skiff : 20 € de base + 50 € de location = 70 € au total"
+      }
+    },
+    "contact": {
+      "title": "Besoin d'aide ?",
+      "description": "Si vous avez des questions ou besoin d'assistance pour votre inscription, veuillez nous contacter :"
+    },
+    "cta": {
+      "title": "Prêt à vous inscrire ?",
+      "description": "Créez votre compte aujourd'hui et commencez à inscrire vos équipages pour la Course des Impressionnistes.",
+      "button": "Commencer maintenant"
     }
   }
 }

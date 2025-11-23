@@ -27,6 +27,11 @@
     <!-- Sidebar Navigation (for authenticated users) -->
     <aside v-if="authStore.isAuthenticated" class="sidebar" @click="closeSidebarOnMobile">
       <nav class="sidebar-nav">
+        <router-link to="/" class="nav-item" @click="closeSidebarOnMobile">
+          <span class="nav-icon">🏠</span>
+          <span class="nav-text">{{ $t('nav.home') }}</span>
+        </router-link>
+
         <router-link to="/dashboard" class="nav-item" @click="closeSidebarOnMobile">
           <span class="nav-icon">📊</span>
           <span class="nav-text">{{ $t('nav.dashboard') }}</span>
