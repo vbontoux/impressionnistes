@@ -57,6 +57,11 @@ help:
 	@echo "  make secrets-show-stripe                             - Show Stripe secrets (partial)"
 	@echo "  make secrets-update-stripe STRIPE_API_KEY=sk_xxx     - Update Stripe API key"
 	@echo ""
+	@echo "Boat Payment Management (Debug/Demo):"
+	@echo "  make boat-unpay TEAM_MANAGER_ID=xxx BOAT_ID=xxx      - Reset single boat to unpaid"
+	@echo "  make boat-unpay-all TEAM_MANAGER_ID=xxx              - Reset all boats to unpaid"
+	@echo "  make boat-list-paid TEAM_MANAGER_ID=xxx              - List all paid boats"
+	@echo ""
 	@echo "Troubleshooting:"
 	@echo "  make fix-stuck-stack - Fix stuck CloudFormation stack"
 	@echo "  make clean-aws      - Complete AWS cleanup (stacks + orphaned resources)"
@@ -692,3 +697,134 @@ secrets-update-stripe:
 	@echo "=========================================="
 	@echo "✓ Secrets updated successfully!"
 	@echo "=========================================="
+
+# ==========================================
+# Boat Payment Management (Debug/Demo)
+# ==========================================
+
+boat-list-paid:
+	@echo "=========================================="
+	@echo "Listing Paid Boats"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@if [ -z "$(TEAM_MANAGER_ID)" ]; then \
+		echo "❌ Error: TEAM_MANAGER_ID not provided"; \
+		echo ""; \
+		echo "Usage:"; \
+		echo "  make boat-list-paid TEAM_MANAGER_ID=your-user-id"; \
+		echo ""; \
+		exit 1; \
+	fi
+	@echo "Team Manager: $(TEAM_MANAGER_ID)"
+	@echo "Table: impressionnistes-registration-$(ENV)"
+	@echo ""
+	@aws dynamodb query \
+		--table-name impressionnistes-registration-$(ENV) \
+		--key-condition-expression "PK = :pk AND begins_with(SK, :sk)" \
+		--filter-expression "registration_status = :status" \
+		--expression-attribute-values '{":pk":{"S":"TEAM#$(TEAM_MANAGER_ID)"},":sk":{"S":"BOAT#"},":status":{"S":"paid"}}' \
+		--query 'Items[].{BoatID:boat_registration_id.S,EventType:event_type.S,BoatType:boat_type.S,Status:registration_status.S,PaidAt:paid_at.S}' \
+		--output table
+
+boat-unpay:
+	@echo "=========================================="
+	@echo "Reset Boat to Unpaid Status"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@if [ -z "$(TEAM_MANAGER_ID)" ] || [ -z "$(BOAT_ID)" ]; then \
+		echo "❌ Error: Missing required parameters"; \
+		echo ""; \
+		echo "Usage:"; \
+		echo "  make boat-unpay TEAM_MANAGER_ID=your-user-id BOAT_ID=boat-id"; \
+		echo ""; \
+		echo "Example:"; \
+		echo "  make boat-unpay TEAM_MANAGER_ID=717940ae-6051-70cb-9437-fac29614d317 BOAT_ID=1c33fcfa-b13c-4f34-a1fe-c9abaddba6e3"; \
+		echo ""; \
+		exit 1; \
+	fi
+	@echo "Team Manager: $(TEAM_MANAGER_ID)"
+	@echo "Boat ID: $(BOAT_ID)"
+	@echo "Table: impressionnistes-registration-$(ENV)"
+	@echo ""
+	@echo "⚠️  This will reset the boat to 'complete' status (unpaid)"
+	@echo ""
+	@read -p "Continue? (yes/no): " confirm; \
+	if [ "$$confirm" != "yes" ]; then \
+		echo "Operation cancelled"; \
+		exit 1; \
+	fi
+	@echo ""
+	@echo "Resetting boat status..."
+	@aws dynamodb update-item \
+		--table-name impressionnistes-registration-$(ENV) \
+		--key '{"PK":{"S":"TEAM#$(TEAM_MANAGER_ID)"},"SK":{"S":"BOAT#$(BOAT_ID)"}}' \
+		--update-expression "SET registration_status = :status, updated_at = :timestamp REMOVE paid_at, payment_id, stripe_payment_intent_id, locked_pricing" \
+		--expression-attribute-values '{":status":{"S":"complete"},":timestamp":{"S":"'$$(date -u +"%Y-%m-%dT%H:%M:%SZ")'"}}' \
+		--return-values ALL_NEW \
+		--output json | python3 -c "import json, sys; data=json.load(sys.stdin); print(f\"✓ Boat {data['Attributes']['boat_registration_id']['S']} reset to 'complete' status\")"
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ Boat reset successfully!"
+	@echo "=========================================="
+
+boat-unpay-all:
+	@echo "=========================================="
+	@echo "Reset ALL Boats to Unpaid Status"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@if [ -z "$(TEAM_MANAGER_ID)" ]; then \
+		echo "❌ Error: TEAM_MANAGER_ID not provided"; \
+		echo ""; \
+		echo "Usage:"; \
+		echo "  make boat-unpay-all TEAM_MANAGER_ID=your-user-id"; \
+		echo ""; \
+		echo "Example:"; \
+		echo "  make boat-unpay-all TEAM_MANAGER_ID=717940ae-6051-70cb-9437-fac29614d317"; \
+		echo ""; \
+		exit 1; \
+	fi
+	@echo "Team Manager: $(TEAM_MANAGER_ID)"
+	@echo "Table: impressionnistes-registration-$(ENV)"
+	@echo ""
+	@echo "⚠️  WARNING: This will reset ALL paid boats to 'complete' status"
+	@echo ""
+	@echo "Finding paid boats..."
+	@PAID_BOATS=$$(aws dynamodb query \
+		--table-name impressionnistes-registration-$(ENV) \
+		--key-condition-expression "PK = :pk AND begins_with(SK, :sk)" \
+		--filter-expression "registration_status = :status" \
+		--expression-attribute-values '{":pk":{"S":"TEAM#$(TEAM_MANAGER_ID)"},":sk":{"S":"BOAT#"},":status":{"S":"paid"}}' \
+		--query 'Items[].boat_registration_id.S' \
+		--output text); \
+	if [ -z "$$PAID_BOATS" ]; then \
+		echo "No paid boats found."; \
+		exit 0; \
+	fi; \
+	BOAT_COUNT=$$(echo $$PAID_BOATS | wc -w | tr -d ' '); \
+	echo "Found $$BOAT_COUNT paid boat(s):"; \
+	echo "$$PAID_BOATS" | tr '\t' '\n' | sed 's/^/  - /'; \
+	echo ""; \
+	read -p "Reset all $$BOAT_COUNT boat(s) to unpaid? (yes/no): " confirm; \
+	if [ "$$confirm" != "yes" ]; then \
+		echo "Operation cancelled"; \
+		exit 1; \
+	fi; \
+	echo ""; \
+	echo "Resetting boats..."; \
+	for BOAT_ID in $$PAID_BOATS; do \
+		echo "  Resetting $$BOAT_ID..."; \
+		aws dynamodb update-item \
+			--table-name impressionnistes-registration-$(ENV) \
+			--key "{\"PK\":{\"S\":\"TEAM#$(TEAM_MANAGER_ID)\"},\"SK\":{\"S\":\"BOAT#$$BOAT_ID\"}}" \
+			--update-expression "SET registration_status = :status, updated_at = :timestamp REMOVE paid_at, payment_id, stripe_payment_intent_id, locked_pricing" \
+			--expression-attribute-values "{\":status\":{\"S\":\"complete\"},\":timestamp\":{\"S\":\"$$(date -u +"%Y-%m-%dT%H:%M:%SZ")\"}}" \
+			--output text > /dev/null; \
+		echo "    ✓ Done"; \
+	done; \
+	echo ""; \
+	echo "=========================================="; \
+	echo "✓ All boats reset successfully!"; \
+	echo "=========================================="
