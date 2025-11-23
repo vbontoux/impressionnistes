@@ -122,6 +122,10 @@ def lambda_handler(event, context):
     # Get database client
     db = get_db_client()
     
+    # Get team manager email for receipt
+    team_manager_email = user.get('email')  # Email from Cognito token
+    logger.info(f"Team manager email for receipt: {team_manager_email}")
+    
     # Validate boat registrations
     boats, error = validate_boat_registrations(boat_registration_ids, team_manager_id, db)
     
@@ -160,7 +164,8 @@ def lambda_handler(event, context):
             amount=total_amount,
             currency='EUR',
             metadata=metadata,
-            description=description
+            description=description,
+            receipt_email=team_manager_email  # Send receipt to team manager
         )
         
         logger.info(f"Created Payment Intent: {payment_intent['id']}")

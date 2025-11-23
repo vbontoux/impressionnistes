@@ -58,7 +58,8 @@ def create_payment_intent(
     amount: Decimal,
     currency: str,
     metadata: Dict[str, Any],
-    description: Optional[str] = None
+    description: Optional[str] = None,
+    receipt_email: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Create a Stripe Payment Intent
@@ -68,6 +69,7 @@ def create_payment_intent(
         currency: Three-letter ISO currency code (e.g., 'eur')
         metadata: Dictionary of metadata to attach to the payment intent
         description: Optional description of the payment
+        receipt_email: Optional email address to send receipt to
     
     Returns:
         Payment Intent object
@@ -78,13 +80,21 @@ def create_payment_intent(
         # Convert Decimal to int (cents)
         amount_cents = int(amount * 100)
         
-        payment_intent = stripe.PaymentIntent.create(
-            amount=amount_cents,
-            currency=currency.lower(),
-            metadata=metadata,
-            description=description,
-            automatic_payment_methods={'enabled': True},
-        )
+        # Build payment intent parameters
+        payment_intent_params = {
+            'amount': amount_cents,
+            'currency': currency.lower(),
+            'metadata': metadata,
+            'description': description,
+            'automatic_payment_methods': {'enabled': True},
+        }
+        
+        # Add receipt_email if provided
+        if receipt_email:
+            payment_intent_params['receipt_email'] = receipt_email
+            logger.info(f"Receipt will be sent to: {receipt_email}")
+        
+        payment_intent = stripe.PaymentIntent.create(**payment_intent_params)
         
         logger.info(f"Created Payment Intent: {payment_intent.id} for {amount} {currency}")
         
