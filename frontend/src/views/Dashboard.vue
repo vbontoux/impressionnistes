@@ -131,7 +131,7 @@
     </section>
 
     <!-- Empty State -->
-    <section v-if="!loading && stats.boats === 0" class="empty-state">
+    <section v-if="!loading && stats.crewMembers === 0 && stats.boats === 0" class="empty-state">
       <div class="empty-icon">🚀</div>
       <h3>{{ $t('dashboard.emptyState.title') }}</h3>
       <p>{{ $t('dashboard.emptyState.description') }}</p>
@@ -168,17 +168,17 @@ const loadDashboardData = async () => {
     // Load crew members and boats
     await Promise.all([
       crewStore.fetchCrewMembers(),
-      boatStore.fetchBoats()
+      boatStore.fetchBoatRegistrations()
     ]);
 
     // Calculate stats
     stats.value.crewMembers = crewStore.crewMembers.length;
-    stats.value.boats = boatStore.boats.length;
+    stats.value.boats = boatStore.boatRegistrations.length;
     
     // Count boats by status
-    stats.value.incompleteBoats = boatStore.boats.filter(b => b.status === 'incomplete').length;
-    stats.value.completeBoats = boatStore.boats.filter(b => b.status === 'complete').length;
-    stats.value.paidBoats = boatStore.boats.filter(b => b.status === 'paid').length;
+    stats.value.incompleteBoats = boatStore.boatRegistrations.filter(b => b.registration_status === 'incomplete').length;
+    stats.value.completeBoats = boatStore.boatRegistrations.filter(b => b.registration_status === 'complete').length;
+    stats.value.paidBoats = boatStore.boatRegistrations.filter(b => b.registration_status === 'paid').length;
     
   } catch (error) {
     console.error('Failed to load dashboard data:', error);

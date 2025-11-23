@@ -366,26 +366,60 @@
     },
     "pricing": {
       "title": "Structure tarifaire",
-      "baseSeat": {
-        "title": "Prix de base par place",
-        "description": "Prix standard pour toute place (rameur ou barreur) dans n'importe quelle configuration de bateau."
+      "seat": "place",
+      "seatFees": {
+        "title": "Frais d'inscription par place",
+        "description": "Frais pour s'inscrire et participer à une course",
+        "crew": {
+          "title": "Bateaux d'équipage (4+, 4-, 8+)",
+          "description": "Frais d'inscription par place pour les bateaux d'équipage"
+        },
+        "skiff": {
+          "title": "Skiff (Scull individuel)",
+          "description": "Frais d'inscription pour les bateaux individuels (2,5× prix de base)"
+        }
       },
       "boatRental": {
-        "title": "Location de bateau",
-        "skiff": "Skiffs",
-        "crew": "Bateaux d'équipage",
-        "description": "Frais de location pour les bateaux du RCPM. Les membres du RCPM ont un accès prioritaire de l'ouverture des inscriptions jusqu'à 15 jours avant la clôture."
+        "title": "Frais de location de bateau",
+        "description": "Frais supplémentaires si vous devez louer un bateau du RCPM",
+        "skiff": {
+          "title": "Skiff (Scull individuel)",
+          "description": "Frais de location pour les bateaux individuels"
+        },
+        "crew": {
+          "title": "Bateaux d'équipage (4+, 4-, 8+)",
+          "description": "Frais de location par place pour les bateaux d'équipage"
+        }
       },
-      "seatRental": {
-        "title": "Location de place",
-        "description": "Frais pour les membres de clubs externes ramant dans des équipages multi-clubs avec des membres du RCPM. Les membres du RCPM paient zéro pour leurs places."
-      },
-      "seat": "place",
       "examples": {
         "title": "Exemples de tarifs",
-        "eight": "Huit avec barreur : 180 € (9 places × 20 €)",
-        "four": "Quatre en couple sans barreur : 80 € (4 places × 20 €)",
-        "skiff": "Skiff : 20 € de base + 50 € de location = 70 € au total"
+        "registrationOnly": "Inscription uniquement (Avec votre propre bateau)",
+        "withRental": "Inscription + Location de bateau du RCPM",
+        "eight": {
+          "title": "Huit avec barreur",
+          "calc": "9 places × 20 €",
+          "total": "Total : 180 €"
+        },
+        "four": {
+          "title": "Quatre sans barreur",
+          "calc": "4 places × 20 €",
+          "total": "Total : 80 €"
+        },
+        "skiff": {
+          "title": "Skiff",
+          "calc": "1 place × 50 €",
+          "total": "Total : 50 €"
+        },
+        "fourWithRental": {
+          "title": "Quatre + Location de bateau",
+          "calc": "80 € (4 places) + 80 € (location bateau)",
+          "total": "Total : 160 €"
+        },
+        "skiffWithRental": {
+          "title": "Skiff + Location de bateau",
+          "calc": "50 € (place) + 50 € (location bateau)",
+          "total": "Total : 100 €"
+        }
       }
     },
     "contact": {

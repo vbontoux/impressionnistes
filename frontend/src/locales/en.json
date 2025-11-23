@@ -366,26 +366,60 @@
     },
     "pricing": {
       "title": "Pricing Structure",
-      "baseSeat": {
-        "title": "Base Seat Price",
-        "description": "Standard price for any seat (rowing or coxswain) in any boat configuration."
+      "seat": "seat",
+      "seatFees": {
+        "title": "Seat Registration Fees",
+        "description": "Fees to register and participate in a race",
+        "crew": {
+          "title": "Crew Boats (4+, 4-, 8+)",
+          "description": "Registration fee per seat for crew boats"
+        },
+        "skiff": {
+          "title": "Skiff (Single Scull)",
+          "description": "Registration fee for individual boats (2.5× base price)"
+        }
       },
       "boatRental": {
-        "title": "Boat Rental",
-        "skiff": "Singles (skiffs)",
-        "crew": "Crew boats",
-        "description": "Rental fees for RCPM boats. RCPM members have priority access from registration opening until 15 days before closure."
+        "title": "Boat Rental Fees",
+        "description": "Additional fees if you need to rent a boat from RCPM",
+        "skiff": {
+          "title": "Skiff (Single Scull)",
+          "description": "Rental fee for individual boats"
+        },
+        "crew": {
+          "title": "Crew Boats (4+, 4-, 8+)",
+          "description": "Rental fee per seat for crew boats"
+        }
       },
-      "seatRental": {
-        "title": "Seat Rental",
-        "description": "Fee for external club members rowing in multi-club crews with RCPM members. RCPM members pay zero for their seats."
-      },
-      "seat": "seat",
       "examples": {
         "title": "Pricing Examples",
-        "eight": "Eight with coxswain: €180 (9 seats × €20)",
-        "four": "Quad without coxswain: €80 (4 seats × €20)",
-        "skiff": "Single scull (skiff): €20 base + €50 rental = €70 total"
+        "registrationOnly": "Registration Only (Using Your Own Boat)",
+        "withRental": "Registration + Boat Rental from RCPM",
+        "eight": {
+          "title": "Eight with Coxswain",
+          "calc": "9 seats × €20",
+          "total": "Total: €180"
+        },
+        "four": {
+          "title": "Four without Coxswain",
+          "calc": "4 seats × €20",
+          "total": "Total: €80"
+        },
+        "skiff": {
+          "title": "Skiff",
+          "calc": "1 seat × €50",
+          "total": "Total: €50"
+        },
+        "fourWithRental": {
+          "title": "Four + Boat Rental",
+          "calc": "€80 (4 seats) + €80 (boat rental)",
+          "total": "Total: €160"
+        },
+        "skiffWithRental": {
+          "title": "Skiff + Boat Rental",
+          "calc": "€50 (seat) + €50 (boat rental)",
+          "total": "Total: €100"
+        }
       }
     },
     "contact": {

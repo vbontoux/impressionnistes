@@ -132,33 +132,94 @@
     <section class="pricing-section">
       <div class="container">
         <h2>{{ $t('home.pricing.title') }}</h2>
-        <div class="pricing-grid">
-          <div class="pricing-card">
-            <h3>{{ $t('home.pricing.baseSeat.title') }}</h3>
-            <div class="price">€20</div>
-            <p>{{ $t('home.pricing.baseSeat.description') }}</p>
-          </div>
-          <div class="pricing-card">
-            <h3>{{ $t('home.pricing.boatRental.title') }}</h3>
-            <div class="price-details">
-              <div>{{ $t('home.pricing.boatRental.skiff') }}: <strong>€50</strong></div>
-              <div>{{ $t('home.pricing.boatRental.crew') }}: <strong>€20/{{ $t('home.pricing.seat') }}</strong></div>
+        
+        <!-- Seat Registration Fees -->
+        <div class="pricing-category">
+          <h3 class="category-title">{{ $t('home.pricing.seatFees.title') }}</h3>
+          <p class="category-description">{{ $t('home.pricing.seatFees.description') }}</p>
+          <div class="pricing-grid">
+            <div class="pricing-card">
+              <div class="pricing-icon">🚣</div>
+              <h4>{{ $t('home.pricing.seatFees.crew.title') }}</h4>
+              <div class="price">€20<span class="price-unit">/{{ $t('home.pricing.seat') }}</span></div>
+              <p>{{ $t('home.pricing.seatFees.crew.description') }}</p>
             </div>
-            <p>{{ $t('home.pricing.boatRental.description') }}</p>
-          </div>
-          <div class="pricing-card">
-            <h3>{{ $t('home.pricing.seatRental.title') }}</h3>
-            <div class="price">€20</div>
-            <p>{{ $t('home.pricing.seatRental.description') }}</p>
+            <div class="pricing-card">
+              <div class="pricing-icon">🛶</div>
+              <h4>{{ $t('home.pricing.seatFees.skiff.title') }}</h4>
+              <div class="price">€50</div>
+              <p>{{ $t('home.pricing.seatFees.skiff.description') }}</p>
+            </div>
           </div>
         </div>
+
+        <!-- Boat Rental Fees -->
+        <div class="pricing-category">
+          <h3 class="category-title">{{ $t('home.pricing.boatRental.title') }}</h3>
+          <p class="category-description">{{ $t('home.pricing.boatRental.description') }}</p>
+          <div class="pricing-grid">
+            <div class="pricing-card">
+              <div class="pricing-icon">🛶</div>
+              <h4>{{ $t('home.pricing.boatRental.skiff.title') }}</h4>
+              <div class="price">€50</div>
+              <p>{{ $t('home.pricing.boatRental.skiff.description') }}</p>
+            </div>
+            <div class="pricing-card">
+              <div class="pricing-icon">🚣‍♂️</div>
+              <h4>{{ $t('home.pricing.boatRental.crew.title') }}</h4>
+              <div class="price">€20<span class="price-unit">/{{ $t('home.pricing.seat') }}</span></div>
+              <p>{{ $t('home.pricing.boatRental.crew.description') }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Examples -->
         <div class="pricing-examples">
           <h3>{{ $t('home.pricing.examples.title') }}</h3>
-          <ul>
-            <li>{{ $t('home.pricing.examples.eight') }}</li>
-            <li>{{ $t('home.pricing.examples.four') }}</li>
-            <li>{{ $t('home.pricing.examples.skiff') }}</li>
-          </ul>
+          
+          <!-- Registration Only Examples -->
+          <div class="example-section">
+            <h4 class="example-section-title">{{ $t('home.pricing.examples.registrationOnly') }}</h4>
+            <div class="examples-grid">
+              <div class="example-card">
+                <div class="example-icon">🚣‍♀️</div>
+                <h5>{{ $t('home.pricing.examples.eight.title') }}</h5>
+                <p class="example-calc">{{ $t('home.pricing.examples.eight.calc') }}</p>
+                <div class="example-total">{{ $t('home.pricing.examples.eight.total') }}</div>
+              </div>
+              <div class="example-card">
+                <div class="example-icon">🚣</div>
+                <h5>{{ $t('home.pricing.examples.four.title') }}</h5>
+                <p class="example-calc">{{ $t('home.pricing.examples.four.calc') }}</p>
+                <div class="example-total">{{ $t('home.pricing.examples.four.total') }}</div>
+              </div>
+              <div class="example-card">
+                <div class="example-icon">🛶</div>
+                <h5>{{ $t('home.pricing.examples.skiff.title') }}</h5>
+                <p class="example-calc">{{ $t('home.pricing.examples.skiff.calc') }}</p>
+                <div class="example-total">{{ $t('home.pricing.examples.skiff.total') }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Registration + Rental Examples -->
+          <div class="example-section">
+            <h4 class="example-section-title">{{ $t('home.pricing.examples.withRental') }}</h4>
+            <div class="examples-grid">
+              <div class="example-card rental">
+                <div class="example-icon">🚣‍♂️</div>
+                <h5>{{ $t('home.pricing.examples.fourWithRental.title') }}</h5>
+                <p class="example-calc">{{ $t('home.pricing.examples.fourWithRental.calc') }}</p>
+                <div class="example-total">{{ $t('home.pricing.examples.fourWithRental.total') }}</div>
+              </div>
+              <div class="example-card rental">
+                <div class="example-icon">🛶</div>
+                <h5>{{ $t('home.pricing.examples.skiffWithRental.title') }}</h5>
+                <p class="example-calc">{{ $t('home.pricing.examples.skiffWithRental.calc') }}</p>
+                <div class="example-total">{{ $t('home.pricing.examples.skiffWithRental.total') }}</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -449,15 +510,39 @@ section h2 {
 }
 
 /* Pricing Section */
+.pricing-category {
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.category-title {
+  font-size: 1.75rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.category-description {
+  text-align: center;
+  color: #666;
+  font-size: 1.125rem;
+  margin-bottom: 2rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .pricing-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 2rem;
-  margin-top: 3rem;
+  margin-bottom: 2rem;
 }
 
 .pricing-card {
-  background: white;
+  background: #f8f9fa;
   border: 2px solid #e0e0e0;
   border-radius: 12px;
   padding: 2rem;
@@ -468,9 +553,16 @@ section h2 {
 .pricing-card:hover {
   border-color: #4CAF50;
   box-shadow: 0 4px 16px rgba(76, 175, 80, 0.2);
+  transform: translateY(-4px);
+  background: white;
 }
 
-.pricing-card h3 {
+.pricing-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.pricing-card h4 {
   font-size: 1.25rem;
   margin-bottom: 1rem;
   color: #333;
@@ -481,23 +573,22 @@ section h2 {
   font-weight: 700;
   color: #4CAF50;
   margin-bottom: 1rem;
+  line-height: 1;
 }
 
-.price-details {
-  margin-bottom: 1rem;
-  font-size: 1.125rem;
-}
-
-.price-details div {
-  margin: 0.5rem 0;
+.price-unit {
+  font-size: 1.25rem;
   color: #666;
+  font-weight: 400;
 }
 
 .pricing-card p {
   color: #666;
   line-height: 1.6;
+  font-size: 0.95rem;
 }
 
+/* Examples */
 .pricing-examples {
   margin-top: 3rem;
   padding: 2rem;
@@ -508,32 +599,70 @@ section h2 {
 
 .pricing-examples h3 {
   font-size: 1.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
   color: #333;
   text-align: center;
 }
 
-.pricing-examples ul {
-  list-style: none;
-  padding: 0;
-  max-width: 600px;
-  margin: 0 auto;
+.example-section {
+  margin-bottom: 2.5rem;
 }
 
-.pricing-examples li {
-  padding: 0.75rem 0;
-  padding-left: 2rem;
-  position: relative;
-  color: #666;
+.example-section:last-child {
+  margin-bottom: 0;
+}
+
+.example-section-title {
+  font-size: 1.25rem;
+  color: #667eea;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.examples-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.example-card {
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  text-align: center;
+  border: 2px solid transparent;
+  transition: all 0.3s;
+}
+
+.example-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.example-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.example-card h5 {
   font-size: 1.125rem;
+  color: #333;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
 }
 
-.pricing-examples li::before {
-  content: "→";
-  position: absolute;
-  left: 0;
-  color: #4CAF50;
+.example-calc {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.example-total {
+  font-size: 1.5rem;
   font-weight: 700;
+  color: #4CAF50;
 }
 
 /* Contact Section */
