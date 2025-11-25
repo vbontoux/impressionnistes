@@ -29,6 +29,14 @@ class AuthStack(Stack):
         # Get environment from context
         env_name = self.node.try_get_context("env") or "dev"
         
+        # Get environment configuration
+        env_config = self.node.try_get_context(env_name) or {}
+        
+        # Determine removal policy for Cognito
+        # Use the general removal_policy from config, defaulting to DESTROY for dev
+        removal_policy_str = env_config.get("removal_policy", "DESTROY" if env_name == "dev" else "RETAIN")
+        cognito_removal_policy = RemovalPolicy.DESTROY if removal_policy_str == "DESTROY" else RemovalPolicy.RETAIN
+        
         # Create Cognito User Pool
         self.user_pool = cognito.UserPool(
             self,
@@ -109,7 +117,7 @@ class AuthStack(Stack):
             advanced_security_mode=cognito.AdvancedSecurityMode.ENFORCED if env_name == 'prod' else cognito.AdvancedSecurityMode.AUDIT,
             
             # Removal policy
-            removal_policy=RemovalPolicy.RETAIN if env_name == 'prod' else RemovalPolicy.DESTROY
+            removal_policy=cognito_removal_policy
         )
         
         # Create user pool domain for hosted UI

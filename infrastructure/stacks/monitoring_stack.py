@@ -37,6 +37,19 @@ class MonitoringStack(Stack):
         # Get environment from context
         env_name = self.node.try_get_context("env") or "dev"
         env_config = self.node.try_get_context(env_name) or {}
+    
+    def _get_logs_removal_policy(self, env_name: str) -> RemovalPolicy:
+        """Get removal policy for CloudWatch logs based on environment configuration"""
+        env_config = self.node.try_get_context(env_name) or {}
+        
+        # Use specific logs policy if available, otherwise default based on environment
+        logs_policy_str = env_config.get("removal_policy_logs")
+        
+        if logs_policy_str:
+            return RemovalPolicy.DESTROY if logs_policy_str == "DESTROY" else RemovalPolicy.RETAIN
+        
+        # Default: RETAIN for prod, DESTROY for dev
+        return RemovalPolicy.RETAIN if env_name == 'prod' else RemovalPolicy.DESTROY
         
         # Create SNS topic for DevOps notifications
         self.devops_topic = sns.Topic(
@@ -71,7 +84,7 @@ class MonitoringStack(Stack):
             "InitFunctionLogGroup",
             log_group_name=f"/aws/lambda/ImpressionnistesDatabase-{env_name}-InitConfigFunction",
             retention=logs.RetentionDays.ONE_WEEK if env_name == 'dev' else logs.RetentionDays.ONE_MONTH,
-            removal_policy=RemovalPolicy.DESTROY if env_name == 'dev' else RemovalPolicy.RETAIN
+            removal_policy=self._get_logs_removal_policy(env_name)
         )
         
         # Create CloudWatch alarms for Lambda errors
@@ -175,7 +188,7 @@ class MonitoringStack(Stack):
                 "HealthCheckLogGroup",
                 log_group_name=f"/aws/lambda/{self.health_check_function.function_name}",
                 retention=logs.RetentionDays.ONE_WEEK if env_name == 'dev' else logs.RetentionDays.ONE_MONTH,
-                removal_policy=RemovalPolicy.DESTROY if env_name == 'dev' else RemovalPolicy.RETAIN
+                removal_policy=self._get_logs_removal_policy(env_name)
             )
             
             # Create CloudWatch alarm for health check failures

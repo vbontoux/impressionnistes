@@ -18,14 +18,20 @@
     "dev": {
       "region": "eu-west-3",
       "table_name": "impressionnistes-registration-dev",
-      "enable_point_in_time_recovery": false,
-      "removal_policy": "DESTROY"
+      "enable_point_in_time_recovery": true,
+      "removal_policy_database": "RETAIN",
+      "removal_policy_cognito": "RETAIN",
+      "removal_policy_logs": "DESTROY",
+      "removal_policy_api": "DESTROY"
     },
     "prod": {
       "region": "eu-west-3",
       "table_name": "impressionnistes-registration-prod",
       "enable_point_in_time_recovery": true,
-      "removal_policy": "RETAIN"
+      "removal_policy_database": "RETAIN",
+      "removal_policy_cognito": "RETAIN",
+      "removal_policy_logs": "RETAIN",
+      "removal_policy_api": "RETAIN"
     },
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,

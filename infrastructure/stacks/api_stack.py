@@ -37,6 +37,12 @@ class ApiStack(Stack):
         
         # Get environment from context
         env_name = self.node.try_get_context("env") or "dev"
+        self.env_name = env_name
+        
+        # Get environment configuration for removal policy
+        env_config = self.node.try_get_context(env_name) or {}
+        removal_policy_str = env_config.get("removal_policy", "DESTROY" if env_name == "dev" else "RETAIN")
+        self.api_removal_policy = RemovalPolicy.DESTROY if removal_policy_str == "DESTROY" else RemovalPolicy.RETAIN
         
         # Get the project root directory (parent of infrastructure/)
         project_root = Path(__file__).parent.parent.parent
@@ -60,7 +66,7 @@ class ApiStack(Stack):
             'TABLE_NAME': database_stack.table.table_name,
             'USER_POOL_ID': auth_stack.user_pool.user_pool_id,
             'USER_POOL_CLIENT_ID': auth_stack.user_pool_client.user_pool_client_id,
-            'ENVIRONMENT': env_name
+            'ENVIRONMENT': self.env_name
         }
         
         # Lambda functions dictionary
@@ -345,17 +351,14 @@ class ApiStack(Stack):
             ]
         )
         
-        # Get environment name
-        env_name = self.node.try_get_context('env') or 'dev'
-        
         # Create REST API
         self.api = apigateway.RestApi(
             self,
             "ImpressionnistesApi",
-            rest_api_name=f"impressionnistes-api-{env_name}",
+            rest_api_name=f"impressionnistes-api-{self.env_name}",
             description="Course des Impressionnistes Registration System API",
             cloud_watch_role=True,
-            cloud_watch_role_removal_policy=RemovalPolicy.DESTROY if env_name == 'dev' else RemovalPolicy.RETAIN,
+            cloud_watch_role_removal_policy=self.api_removal_policy,
             
             # CORS configuration
             default_cors_preflight_options=apigateway.CorsOptions(

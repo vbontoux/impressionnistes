@@ -1,4 +1,4 @@
-.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws list describe-infra costs db-export db-view cognito-create-admin cognito-list-users cognito-add-to-group clean
+.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws list describe-infra costs db-export db-view db-reset db-migrate cognito-create-admin cognito-list-users cognito-add-to-group clean
 
 # Virtual environment paths
 VENV = venv
@@ -42,6 +42,7 @@ help:
 	@echo "  make db-export      - Export DynamoDB table to CSV (default: dev)"
 	@echo "  make db-view        - View DynamoDB table contents (default: dev)"
 	@echo "  make db-migrate     - Run database migration (optional, see functions/migrations/)"
+	@echo "  make db-reset       - Reset database to initial state (⚠️  DELETES ALL DATA)"
 	@echo "  make destroy        - Destroy all stacks (default: dev)"
 	@echo "  make destroy-dev    - Destroy dev environment"
 	@echo "  make destroy-prod   - Destroy prod environment (with confirmation)"
@@ -588,6 +589,83 @@ db-migrate:
 	@echo "=========================================="
 	@echo "✓ Migration complete!"
 	@echo "=========================================="
+
+
+db-reset:
+	@echo "=========================================="
+	@echo "Reset Database to Initial State"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@echo "⚠️  WARNING: This will DELETE ALL DATA and reset to initial configuration!"
+	@echo ""
+	@echo "This will:"
+	@echo "  - Delete all team manager profiles"
+	@echo "  - Delete all crew members"
+	@echo "  - Delete all boat registrations"
+	@echo "  - Delete all payment records"
+	@echo "  - Reset configuration to defaults"
+	@echo "  - Keep race definitions (42 races)"
+	@echo ""
+	@echo "Table: impressionnistes-registration-$(ENV)"
+	@echo ""
+	@read -p "Type 'RESET' to confirm: " confirm; \
+	if [ "$$confirm" != "RESET" ]; then \
+		echo "Reset cancelled"; \
+		exit 1; \
+	fi
+	@echo ""
+	@echo "Step 1: Scanning for user data..."
+	@aws dynamodb scan \
+		--table-name impressionnistes-registration-$(ENV) \
+		--filter-expression "begins_with(PK, :team) OR begins_with(PK, :user)" \
+		--expression-attribute-values '{":team":{"S":"TEAM"},":user":{"S":"USER"}}' \
+		--projection-expression "PK,SK" \
+		--region eu-west-3 \
+		--output json > /tmp/db-reset-items.json
+	@echo "✓ Found items to delete"
+	@echo ""
+	@echo "Step 2: Deleting user data..."
+	@jq -r '.Items[] | "{\"PK\": {\"S\": \"\(.PK.S)\"}, \"SK\": {\"S\": \"\(.SK.S)\"}}"' /tmp/db-reset-items.json | \
+		while read -r key; do \
+			aws dynamodb delete-item \
+				--table-name impressionnistes-registration-$(ENV) \
+				--key "$$key" \
+				--region eu-west-3 2>/dev/null; \
+		done
+	@echo "✓ User data deleted"
+	@echo ""
+	@echo "Step 3: Resetting configuration..."
+	@aws dynamodb delete-item \
+		--table-name impressionnistes-registration-$(ENV) \
+		--key '{"PK":{"S":"CONFIG"},"SK":{"S":"SYSTEM"}}' \
+		--region eu-west-3 2>/dev/null || true
+	@aws dynamodb delete-item \
+		--table-name impressionnistes-registration-$(ENV) \
+		--key '{"PK":{"S":"CONFIG"},"SK":{"S":"PRICING"}}' \
+		--region eu-west-3 2>/dev/null || true
+	@aws dynamodb delete-item \
+		--table-name impressionnistes-registration-$(ENV) \
+		--key '{"PK":{"S":"CONFIG"},"SK":{"S":"NOTIFICATION"}}' \
+		--region eu-west-3 2>/dev/null || true
+	@echo "✓ Configuration deleted"
+	@echo ""
+	@echo "Step 4: Reinitializing configuration..."
+	@$(PYTHON) scripts/reinit_config.py eu-west-3
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ Database reset complete!"
+	@echo "=========================================="
+	@echo ""
+	@echo "Summary:"
+	@echo "  - All user data deleted"
+	@echo "  - Configuration reset to defaults"
+	@echo "  - Race definitions preserved (42 races)"
+	@echo ""
+	@echo "Next steps:"
+	@echo "  1. Users need to re-register"
+	@echo "  2. Check configuration: make db-view"
+	@echo "  3. Verify races: aws dynamodb query --table-name impressionnistes-registration-$(ENV) --key-condition-expression 'PK = :pk' --expression-attribute-values '{\":pk\":{\"S\":\"RACE\"}}' --query 'Count'"
 
 # ==========================================
 # Secrets Management Commands

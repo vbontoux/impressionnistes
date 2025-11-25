@@ -29,9 +29,11 @@ class DatabaseStack(Stack):
         env_name = self.node.try_get_context("env") or "dev"
         env_config = self.node.try_get_context(env_name) or {}
         
-        # Determine removal policy based on environment
+        # Determine removal policy for database
+        # Use specific database policy if available, otherwise fall back to general policy
+        db_removal_policy_str = env_config.get("removal_policy_database") or env_config.get("removal_policy", "RETAIN")
         removal_policy = (
-            RemovalPolicy.DESTROY if env_config.get("removal_policy") == "DESTROY"
+            RemovalPolicy.DESTROY if db_removal_policy_str == "DESTROY"
             else RemovalPolicy.RETAIN
         )
         
