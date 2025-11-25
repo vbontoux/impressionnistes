@@ -223,6 +223,8 @@
     "rental": "Location",
     "multiClub": "Multi-Club",
     "noRace": "Aucune course sélectionnée",
+    "viewDetails": "Voir les détails",
+    "andOthers": "+ {count} autre(s)",
     "basePrice": "Prix de base",
     "rentalFee": "Frais de location",
     "multiClubFee": "Frais multi-club",

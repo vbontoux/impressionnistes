@@ -75,12 +75,14 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePaymentStore } from '../stores/paymentStore'
+import { useRaceStore } from '../stores/raceStore'
 import { useI18n } from 'vue-i18n'
 import BoatPaymentCard from '../components/BoatPaymentCard.vue'
 import PaymentSummary from '../components/PaymentSummary.vue'
 
 const router = useRouter()
 const paymentStore = usePaymentStore()
+const raceStore = useRaceStore()
 
 const selectedBoatIds = ref(new Set())
 
@@ -143,8 +145,12 @@ const proceedToCheckout = () => {
   router.push('/payment/checkout')
 }
 
-// Load boats on mount
+// Load boats and races on mount
 onMounted(async () => {
+  // Load races first so they're available for display
+  if (raceStore.races.length === 0) {
+    await raceStore.fetchRaces()
+  }
   await paymentStore.fetchBoatsReadyForPayment()
 })
 </script>

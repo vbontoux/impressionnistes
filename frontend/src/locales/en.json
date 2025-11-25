@@ -223,6 +223,8 @@
     "rental": "Rental",
     "multiClub": "Multi-Club",
     "noRace": "No race selected",
+    "viewDetails": "View Details",
+    "andOthers": "+ {count} other(s)",
     "basePrice": "Base Price",
     "rentalFee": "Rental Fee",
     "multiClubFee": "Multi-Club Fee",
