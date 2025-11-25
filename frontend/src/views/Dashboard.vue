@@ -30,7 +30,14 @@
       <div class="stats-grid">
         <!-- Crew Members -->
         <div class="stat-card">
-          <div class="stat-icon">👥</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
           <div class="stat-content">
             <div class="stat-value">{{ stats.crewMembers }}</div>
             <div class="stat-label">{{ $t('dashboard.stats.crewMembers') }}</div>
@@ -39,7 +46,27 @@
 
         <!-- Boats -->
         <div class="stat-card">
-          <div class="stat-icon">🚣</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Rower 1 -->
+              <circle cx="7" cy="3" r="1.5" fill="currentColor"/>
+              <path d="M7 4.5 L3 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 4.5 L8 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="3" y1="7" x2="10" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              
+              <!-- Rower 2 -->
+              <circle cx="17" cy="3" r="1.5" fill="currentColor"/>
+              <path d="M17 4.5 L13 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M17 4.5 L18 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="13" y1="7" x2="20" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              
+              <!-- Boat -->
+              <line x1="1" y1="11" x2="23" y2="11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+              
+              <!-- Wave -->
+              <path d="M1 20C1 20 3 18.5 6 18.5C9 18.5 11 20 14 20C17 20 19 18.5 22 18.5C23 18.5 24 20 24 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
           <div class="stat-content">
             <div class="stat-value">{{ stats.boats }}</div>
             <div class="stat-label">{{ $t('dashboard.stats.boats') }}</div>
@@ -48,7 +75,12 @@
 
         <!-- Complete Boats -->
         <div class="stat-card highlight">
-          <div class="stat-icon">✅</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 11.08V12C21.9988 14.1564 21.3005 16.2547 20.0093 17.9818C18.7182 19.709 16.9033 20.9725 14.8354 21.5839C12.7674 22.1953 10.5573 22.1219 8.53447 21.3746C6.51168 20.6273 4.78465 19.2461 3.61096 17.4371C2.43727 15.628 1.87979 13.4881 2.02168 11.3363C2.16356 9.18455 2.99721 7.13631 4.39828 5.49706C5.79935 3.85781 7.69279 2.71537 9.79619 2.24013C11.8996 1.7649 14.1003 1.98232 16.07 2.85999" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M22 4L12 14.01L9 11.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
           <div class="stat-content">
             <div class="stat-value">{{ stats.completeBoats }}</div>
             <div class="stat-label">{{ $t('dashboard.stats.completeBoats') }}</div>
@@ -57,7 +89,12 @@
 
         <!-- Paid Boats -->
         <div class="stat-card success">
-          <div class="stat-icon">💳</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="4" width="22" height="16" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="1" y1="10" x2="23" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
           <div class="stat-content">
             <div class="stat-value">{{ stats.paidBoats }}</div>
             <div class="stat-label">{{ $t('dashboard.stats.paidBoats') }}</div>
@@ -71,21 +108,53 @@
       <h2>{{ $t('dashboard.quickActions') }}</h2>
       <div class="actions-grid">
         <router-link to="/crew" class="action-card">
-          <div class="action-icon">👥</div>
+          <div class="action-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
           <h3>{{ $t('dashboard.actions.manageCrew.title') }}</h3>
           <p>{{ $t('dashboard.actions.manageCrew.description') }}</p>
           <span class="action-arrow">→</span>
         </router-link>
 
         <router-link to="/boats" class="action-card">
-          <div class="action-icon">🚣</div>
+          <div class="action-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Rower 1 -->
+              <circle cx="7" cy="3" r="1.5" fill="currentColor"/>
+              <path d="M7 4.5 L3 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 4.5 L8 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="3" y1="7" x2="10" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              
+              <!-- Rower 2 -->
+              <circle cx="17" cy="3" r="1.5" fill="currentColor"/>
+              <path d="M17 4.5 L13 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M17 4.5 L18 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="13" y1="7" x2="20" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              
+              <!-- Boat -->
+              <line x1="1" y1="11" x2="23" y2="11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+              
+              <!-- Wave -->
+              <path d="M1 20C1 20 3 18.5 6 18.5C9 18.5 11 20 14 20C17 20 19 18.5 22 18.5C23 18.5 24 20 24 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
           <h3>{{ $t('dashboard.actions.manageBoats.title') }}</h3>
           <p>{{ $t('dashboard.actions.manageBoats.description') }}</p>
           <span class="action-arrow">→</span>
         </router-link>
 
         <router-link to="/payment" class="action-card">
-          <div class="action-icon">💳</div>
+          <div class="action-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="4" width="22" height="16" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="1" y1="10" x2="23" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
           <h3>{{ $t('dashboard.actions.makePayment.title') }}</h3>
           <p>{{ $t('dashboard.actions.makePayment.description') }}</p>
           <span class="action-arrow">→</span>
@@ -307,7 +376,25 @@ section h2 {
 }
 
 .stat-icon {
-  font-size: 2.5rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-icon svg {
+  width: 100%;
+  height: 100%;
+  color: #667eea;
+}
+
+.stat-card.highlight .stat-icon svg {
+  color: white;
+}
+
+.stat-card.success .stat-icon svg {
+  color: white;
 }
 
 .stat-content {
@@ -352,8 +439,23 @@ section h2 {
 }
 
 .action-icon {
-  font-size: 3rem;
+  width: 64px;
+  height: 64px;
   margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-icon svg {
+  width: 100%;
+  height: 100%;
+  color: #667eea;
+  transition: color 0.3s;
+}
+
+.action-card:hover .action-icon svg {
+  color: #4CAF50;
 }
 
 .action-card h3 {
