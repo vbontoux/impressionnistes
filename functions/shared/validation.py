@@ -484,3 +484,28 @@ def sanitize_dict(data, schema=None):
             sanitized[key] = value
     
     return sanitized
+
+
+def is_rcpm_member(club_affiliation):
+    """
+    Determine if a crew member is an RCPM member based on club affiliation
+    
+    According to requirements FR-4.3, a crew member is identified as an RCPM_Member
+    when their club_affiliation contains "RCPM" or "Port-Marly" or "Port Marly"
+    (case-insensitive matching)
+    
+    Args:
+        club_affiliation: Club affiliation string
+        
+    Returns:
+        bool: True if RCPM member, False otherwise
+    """
+    if not club_affiliation or not isinstance(club_affiliation, str):
+        return False
+    
+    club_lower = club_affiliation.lower()
+    
+    # Check for RCPM or Port-Marly variations
+    return ('rcpm' in club_lower or 
+            'port-marly' in club_lower or 
+            'port marly' in club_lower)

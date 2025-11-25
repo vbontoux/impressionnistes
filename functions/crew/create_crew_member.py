@@ -16,7 +16,7 @@ from responses import (
     internal_error,
     handle_exceptions
 )
-from validation import validate_crew_member, sanitize_dict, crew_member_schema
+from validation import validate_crew_member, sanitize_dict, crew_member_schema, is_rcpm_member
 from database import get_db_client, get_timestamp
 from auth_utils import get_user_from_event, require_team_manager
 
@@ -70,7 +70,8 @@ def lambda_handler(event, context):
         return validation_error(errors)
     
     # Calculate is_rcpm_member based on club_affiliation
-    is_rcpm_member = crew_data['club_affiliation'].upper() == 'RCPM'
+    # Uses case-insensitive matching for "RCPM", "Port-Marly", "Port Marly"
+    rcpm_member = is_rcpm_member(crew_data['club_affiliation'])
     
     # Generate crew member ID
     crew_member_id = str(uuid.uuid4())
@@ -89,7 +90,7 @@ def lambda_handler(event, context):
         'gender': crew_data['gender'],
         'license_number': crew_data['license_number'],
         'club_affiliation': crew_data['club_affiliation'],
-        'is_rcpm_member': is_rcpm_member,
+        'is_rcpm_member': rcpm_member,
         'assigned_boat_id': None,
         'flagged_issues': [],
         'created_at': get_timestamp(),

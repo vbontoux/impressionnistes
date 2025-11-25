@@ -14,7 +14,7 @@ from responses import (
     internal_error,
     handle_exceptions
 )
-from validation import validate_crew_member, sanitize_dict, crew_member_schema
+from validation import validate_crew_member, sanitize_dict, crew_member_schema, is_rcpm_member
 from database import get_db_client, get_timestamp
 from auth_utils import get_user_from_event, require_team_manager
 from configuration import ConfigurationManager
@@ -108,8 +108,9 @@ def lambda_handler(event, context):
         return validation_error(errors)
     
     # Recalculate is_rcpm_member if club_affiliation changed
+    # Uses case-insensitive matching for "RCPM", "Port-Marly", "Port Marly"
     if 'club_affiliation' in update_data:
-        crew_data['is_rcpm_member'] = crew_data['club_affiliation'].upper() == 'RCPM'
+        crew_data['is_rcpm_member'] = is_rcpm_member(crew_data['club_affiliation'])
     
     # Update timestamp
     crew_data['updated_at'] = get_timestamp()

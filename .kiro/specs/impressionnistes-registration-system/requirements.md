@@ -20,7 +20,7 @@ The Course des Impressionnistes Registration System is a web application that en
 - **Validation_Process**: Admin review and approval of crew member licenses and registration details
 - **Boat_Rental**: Service allowing external clubs to rent RCPM boats for the competition
 - **Seat_Rental**: Fee charged to external club members rowing in Multi_Club_Crews with RCPM members
-- **RCPM_Member**: Rower affiliated with the RCPM who has priority access to club boats
+- **RCPM_Member**: Rower affiliated with the RCPM who has priority access to club boats. A crew member is identified as an RCPM_Member when their club_affiliation field contains "RCPM" or "Port-Marly" or "Port Marly" (case-insensitive matching)
 - **External_Club**: Rowing club other than RCPM participating in the competition
 - **Multi_Club_Crew**: Boat crew containing both RCPM members and external club members, where external members pay seat rental fees
 - **Rental_Priority_Period**: The period from registration opening until 15 days before registration closure, during which RCPM members have exclusive access to RCPM boats for rental requests
@@ -86,13 +86,14 @@ These requirements define what the system does from a business and user perspect
 
 1. WHILE the Payment_Period is active, THE Registration_System SHALL allow team managers to initiate and complete payments for their registrations
 2. WHEN a team manager initiates payment, THE Registration_System SHALL calculate total fees based on Base_Seat_Price for all seats, applying zero cost for RCPM_Member seats and Base_Seat_Price for external club member seats
-3. THE Registration_System SHALL track partial payments and display payment status to team managers by showing the balance between the number of paid seats and the number of seats registered
-4. THE Registration_System SHALL allow modifications to crew members or boat registrations even after payment
-5. THE Registration_System SHALL NOT allow reimbursement in case balance in favor of RCPM (in such case the situation will be fixed afterwards by email)
-6. WHEN payment processing occurs, THE Registration_System SHALL integrate with Stripe Payment_Gateway for secure transaction handling
-7. WHEN payment is completed, THE Registration_System SHALL send confirmation via email and update registration status
-8. IF payment is not completed before the Payment_Period ends, THEN THE Registration_System SHALL notify the team manager that payment is required to secure participation
-9. IF there are flagged issues for some crew members, THEN THE Registration_System SHALL still allow payment processing
+3. WHEN determining RCPM_Member status for pricing, THE Registration_System SHALL identify crew members as RCPM_Members if their club_affiliation contains "RCPM" or "Port-Marly" or "Port Marly" in any combination of uppercase and lowercase letters
+4. THE Registration_System SHALL track partial payments and display payment status to team managers by showing the balance between the number of paid seats and the number of seats registered
+5. THE Registration_System SHALL allow modifications to crew members or boat registrations even after payment
+6. THE Registration_System SHALL NOT allow reimbursement in case balance in favor of RCPM (in such case the situation will be fixed afterwards by email)
+7. WHEN payment processing occurs, THE Registration_System SHALL integrate with Stripe Payment_Gateway for secure transaction handling
+8. WHEN payment is completed, THE Registration_System SHALL send confirmation via email and update registration status
+9. IF payment is not completed before the Payment_Period ends, THEN THE Registration_System SHALL notify the team manager that payment is required to secure participation
+10. IF there are flagged issues for some crew members, THEN THE Registration_System SHALL still allow payment processing
 
 ### FR-5: System Configuration Management
 
@@ -152,9 +153,9 @@ These requirements define what the system does from a business and user perspect
 
 #### Acceptance Criteria
 
-1. WHEN a Team_Manager creates a Multi_Club_Crew registration, THE Registration_System SHALL identify external club members rowing with RCPM_Members
+1. WHEN a Team_Manager creates a Multi_Club_Crew registration, THE Registration_System SHALL identify external club members rowing with RCPM_Members using the club_affiliation detection logic
 2. WHEN external club members are assigned to seats in Multi_Club_Crews, THE Registration_System SHALL automatically apply Seat_Rental fees to the registration
-3. THE Registration_System SHALL calculate Seat_Rental fees at the Base_Seat_Price for each external club member in a Multi_Club_Crew and a price of zero for RCPM members.
+3. THE Registration_System SHALL calculate Seat_Rental fees at the Base_Seat_Price for each external club member in a Multi_Club_Crew and a price of zero for RCPM_Members
 4. WHEN payment is processed for Multi_Club_Crews, THE Registration_System SHALL include Seat_Rental fees in the total amount due
 5. THE Registration_System SHALL display Seat_Rental charges separately in payment summaries and receipts for transparency
 6. WHEN an Admin_User reviews registrations, THE Registration_System SHALL clearly identify Multi_Club_Crews and associated Seat_Rental fees

@@ -5,6 +5,7 @@ Calculates registration fees based on crew composition, boat rental, and multi-c
 from decimal import Decimal
 from typing import Dict, List, Any, Optional
 import logging
+from validation import is_rcpm_member
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -41,7 +42,6 @@ def calculate_boat_pricing(
     pricing = {
         'base_price': Decimal('0'),
         'rental_fee': Decimal('0'),
-        'multi_club_fee': Decimal('0'),
         'total': Decimal('0'),
         'currency': 'EUR',
         'breakdown': []
@@ -53,28 +53,57 @@ def calculate_boat_pricing(
     is_multi_club_crew = boat_registration.get('is_multi_club_crew', False)
     seats = boat_registration.get('seats', [])
     
-    # Count filled seats
+    # Count filled seats and check RCPM membership
     filled_seats = [seat for seat in seats if seat.get('crew_member_id')]
     seat_count = len(filled_seats)
     
     if seat_count == 0:
         return pricing
     
-    # Calculate base price (per seat)
-    base_price = base_seat_price * seat_count
+    # Create crew member lookup
+    crew_lookup = {crew['crew_member_id']: crew for crew in crew_members}
+    
+    # Calculate base price per seat, checking RCPM membership
+    rcpm_seats = 0
+    external_seats = 0
+    
+    for seat in filled_seats:
+        crew_id = seat.get('crew_member_id')
+        crew = crew_lookup.get(crew_id)
+        
+        if crew:
+            club = crew.get('club_affiliation', '')
+            # Check if RCPM member using centralized detection logic
+            if is_rcpm_member(club):
+                rcpm_seats += 1
+            else:
+                external_seats += 1
+    
+    # Calculate base price (only for external members)
+    base_price = base_seat_price * external_seats
     pricing['base_price'] = base_price
-    pricing['breakdown'].append({
-        'item': f'{seat_count} seat(s)',
-        'unit_price': base_seat_price,
-        'quantity': seat_count,
-        'amount': base_price
-    })
+    
+    if rcpm_seats > 0:
+        pricing['breakdown'].append({
+            'item': f'{rcpm_seats} RCPM seat(s)',
+            'unit_price': Decimal('0'),
+            'quantity': rcpm_seats,
+            'amount': Decimal('0')
+        })
+    
+    if external_seats > 0:
+        pricing['breakdown'].append({
+            'item': f'{external_seats} external seat(s)',
+            'unit_price': base_seat_price,
+            'quantity': external_seats,
+            'amount': base_price
+        })
     
     # Calculate rental fee if applicable
     if is_boat_rental:
         if boat_type == 'skiff':
             # Skiff rental: 2.5x base price
-            rental_fee = base_price * rental_multiplier_skiff
+            rental_fee = base_seat_price * rental_multiplier_skiff
             pricing['rental_fee'] = rental_fee
             pricing['breakdown'].append({
                 'item': 'Skiff rental',
@@ -93,20 +122,12 @@ def calculate_boat_pricing(
                 'amount': rental_fee
             })
     
-    # Calculate multi-club fee if applicable
-    if is_multi_club_crew:
-        # Multi-club fee: additional base price per seat
-        multi_club_fee = base_seat_price * seat_count
-        pricing['multi_club_fee'] = multi_club_fee
-        pricing['breakdown'].append({
-            'item': f'Multi-club crew surcharge ({seat_count} seats)',
-            'unit_price': base_seat_price,
-            'quantity': seat_count,
-            'amount': multi_club_fee
-        })
+    # Note: Multi-club crew seat rental is already included in base_price
+    # External members pay Base_Seat_Price, RCPM members pay zero
+    # No additional surcharge is applied for multi-club crews
     
     # Calculate total
-    pricing['total'] = pricing['base_price'] + pricing['rental_fee'] + pricing['multi_club_fee']
+    pricing['total'] = pricing['base_price'] + pricing['rental_fee']
     
     logger.info(f"Calculated pricing for boat {boat_registration.get('boat_registration_id')}: {pricing['total']} EUR")
     
