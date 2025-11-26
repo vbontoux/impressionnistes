@@ -335,7 +335,8 @@
         "rule1": "Cannot delete boats anymore",
         "rule2": "Can still pay for registered boats",
         "rule3": "Can modify existing boat details",
-        "rule4": "After payment: You can still modify boats but cannot delete them"
+        "rule4": "After payment: You can still modify boats but cannot delete them",
+        "rule5": "Refunds possible: contact us"
       },
       "phase3": {
         "title": "After Payment Deadline",

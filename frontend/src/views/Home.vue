@@ -41,6 +41,7 @@
               <p class="rule-text">✅ {{ $t('home.timeline.phase2.rule2') }}</p>
               <p class="rule-text">✅ {{ $t('home.timeline.phase2.rule3') }}</p>
               <p class="rule-text">⚠️ {{ $t('home.timeline.phase2.rule4') }}</p>
+              <p class="rule-text">✅ {{ $t('home.timeline.phase2.rule5') }}</p>
             </div>
           </div>
           <div class="date-card">
@@ -58,18 +59,9 @@
             <h3>{{ $t('home.dates.competitionDate') }}</h3>
             <p class="date-value">{{ $t('home.dates.competitionDateValue') }}</p>
             <div class="date-rules">
-              <p class="rule-text license-warning">⚠️ <strong>{{ $t('home.timeline.phase3.rule3') }}</strong></p>
-              <p class="rule-text license-warning">⚠️ <strong>{{ $t('home.timeline.phase3.rule4') }}</strong></p>
+              <p class="rule-text">⚠️ {{ $t('home.timeline.phase3.rule3') }}</p>
+              <p class="rule-text">⚠️ {{ $t('home.timeline.phase3.rule4') }}</p>
             </div>
-          </div>
-        </div>
-        
-        <!-- No Refund Policy Banner -->
-        <div class="policy-banner">
-          <div class="policy-icon">⚠️</div>
-          <div class="policy-content">
-            <strong>{{ $t('home.policy.noRefund.title') }}</strong>
-            <p>{{ $t('home.policy.noRefund.message') }}</p>
           </div>
         </div>
       </div>
@@ -447,6 +439,14 @@ section h2 {
   opacity: 0.95;
 }
 
+.refund-possible {
+  background-color: rgba(76, 175, 80, 0.15);
+  padding: 0.75rem;
+  border-radius: 6px;
+  border-left: 4px solid #4CAF50;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);
+}
+
 .license-warning {
   background-color: rgba(255, 107, 107, 0.25);
   padding: 0.75rem;
@@ -459,43 +459,6 @@ section h2 {
   color: #ffe0e0;
   font-weight: 700;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-/* Policy Banner */
-.policy-banner {
-  max-width: 900px;
-  margin: 2rem auto 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 1.5rem 2rem;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
-}
-
-.policy-icon {
-  font-size: 2.5rem;
-  flex-shrink: 0;
-}
-
-.policy-content {
-  flex: 1;
-}
-
-.policy-content strong {
-  display: block;
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-  font-weight: 700;
-}
-
-.policy-content p {
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.5;
-  opacity: 0.95;
 }
 
 /* Events Section */
@@ -853,24 +816,6 @@ section h2 {
 
   .container {
     padding: 0 1rem;
-  }
-
-  .policy-banner {
-    flex-direction: column;
-    text-align: center;
-    padding: 1.25rem 1.5rem;
-  }
-
-  .policy-icon {
-    font-size: 2rem;
-  }
-
-  .policy-content strong {
-    font-size: 1.125rem;
-  }
-
-  .policy-content p {
-    font-size: 0.95rem;
   }
 }
 </style>

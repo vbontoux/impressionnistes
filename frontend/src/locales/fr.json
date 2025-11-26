@@ -335,7 +335,8 @@
         "rule1": "Impossible de supprimer des bateaux",
         "rule2": "Possibilité de payer les bateaux inscrits",
         "rule3": "Possibilité de modifier les détails des bateaux existants",
-        "rule4": "Après paiement : Vous pouvez toujours modifier les bateaux mais pas les supprimer"
+        "rule4": "Après paiement : Vous pouvez toujours modifier les bateaux mais pas les supprimer",
+        "rule5": "Remboursements possibles : contactez-nous"
       },
       "phase3": {
         "title": "Après la date limite de paiement",
