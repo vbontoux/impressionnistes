@@ -457,6 +457,12 @@
         }
       }
     },
+    "policy": {
+      "noRefund": {
+        "title": "Important Payment Policy",
+        "message": "Once payment is completed, no refunds will be possible. Please ensure all your registrations are correct before proceeding with payment."
+      }
+    },
     "contact": {
       "title": "Need Help?",
       "description": "If you have any questions or need assistance with your registration, please contact us:"

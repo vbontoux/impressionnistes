@@ -457,6 +457,12 @@
         }
       }
     },
+    "policy": {
+      "noRefund": {
+        "title": "Politique de paiement importante",
+        "message": "Une fois le paiement effectué, aucun remboursement ne sera possible. Veuillez vous assurer que toutes vos inscriptions sont correctes avant de procéder au paiement."
+      }
+    },
     "contact": {
       "title": "Besoin d'aide ?",
       "description": "Si vous avez des questions ou besoin d'assistance pour votre inscription, veuillez nous contacter :"

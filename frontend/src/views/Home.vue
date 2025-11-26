@@ -50,7 +50,7 @@
             <div class="date-rules">
               <p class="rule-text">❌ {{ $t('home.timeline.phase3.rule1') }}</p>
               <p class="rule-text">❌ {{ $t('home.timeline.phase3.rule2') }}</p>
-              <p class="rule-text refund-warning">⚠️ <strong>{{ $t('home.timeline.phase3.rule5') }}</strong></p>
+              <p class="rule-text">⚠️ {{ $t('home.timeline.phase3.rule5') }}</p>
             </div>
           </div>
           <div class="date-card highlight">
@@ -61,6 +61,15 @@
               <p class="rule-text license-warning">⚠️ <strong>{{ $t('home.timeline.phase3.rule3') }}</strong></p>
               <p class="rule-text license-warning">⚠️ <strong>{{ $t('home.timeline.phase3.rule4') }}</strong></p>
             </div>
+          </div>
+        </div>
+        
+        <!-- No Refund Policy Banner -->
+        <div class="policy-banner">
+          <div class="policy-icon">⚠️</div>
+          <div class="policy-content">
+            <strong>{{ $t('home.policy.noRefund.title') }}</strong>
+            <p>{{ $t('home.policy.noRefund.message') }}</p>
           </div>
         </div>
       </div>
@@ -452,17 +461,41 @@ section h2 {
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.refund-warning {
-  background-color: rgba(255, 152, 0, 0.15);
-  padding: 0.75rem;
-  border-radius: 6px;
-  border-left: 4px solid #ff9800;
-  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.15);
+/* Policy Banner */
+.policy-banner {
+  max-width: 900px;
+  margin: 2rem auto 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem 2rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
 }
 
-.refund-warning strong {
-  color: #d84315;
+.policy-icon {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.policy-content {
+  flex: 1;
+}
+
+.policy-content strong {
+  display: block;
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
   font-weight: 700;
+}
+
+.policy-content p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  opacity: 0.95;
 }
 
 /* Events Section */
@@ -820,6 +853,24 @@ section h2 {
 
   .container {
     padding: 0 1rem;
+  }
+
+  .policy-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .policy-icon {
+    font-size: 2rem;
+  }
+
+  .policy-content strong {
+    font-size: 1.125rem;
+  }
+
+  .policy-content p {
+    font-size: 0.95rem;
   }
 }
 </style>
