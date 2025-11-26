@@ -318,6 +318,39 @@
       "competitionDate": "Jour de la compétition",
       "competitionDateValue": "1er mai 2024"
     },
+    "timeline": {
+      "title": "Calendrier et règles d'inscription",
+      "intro": "Comprendre ce que vous pouvez et ne pouvez pas faire à chaque étape est crucial. Suivez ce calendrier pour vous assurer que votre inscription est complète et valide.",
+      "phase1": {
+        "title": "Période d'inscription ouverte",
+        "date": "Du 19 mars au 19 avril",
+        "rule1": "Inscrire et supprimer des équipiers librement",
+        "rule2": "Créer et supprimer des inscriptions de bateaux",
+        "rule3": "Payer les bateaux à tout moment",
+        "rule4": "Après paiement : Vous pouvez modifier les bateaux mais pas les supprimer"
+      },
+      "phase2": {
+        "title": "Inscriptions closes - Fenêtre de paiement",
+        "date": "Du 19 avril au 25 avril",
+        "rule1": "Impossible de supprimer des bateaux",
+        "rule2": "Possibilité de payer les bateaux inscrits",
+        "rule3": "Possibilité de modifier les détails des bateaux existants",
+        "rule4": "Après paiement : Vous pouvez toujours modifier les bateaux mais pas les supprimer"
+      },
+      "phase3": {
+        "title": "Après la date limite de paiement",
+        "date": "Après le 25 avril",
+        "rule1": "Aucune modification possible",
+        "rule2": "Aucun nouveau paiement accepté",
+        "rule3": "Seuls les bateaux payés pourront participer à la course",
+        "rule4": "Seuls les bateaux dont tous les équipiers ont des licences de compétition valides seront autorisés à participer",
+        "rule5": "Aucun remboursement ne sera possible"
+      },
+      "notice": {
+        "title": "Avis important",
+        "message": "Assurez-vous de finaliser votre paiement avant la date limite ! Seuls les bateaux avec un paiement confirmé seront autorisés à participer à la compétition. Les paiements tardifs ne peuvent pas être acceptés."
+      }
+    },
     "events": {
       "title": "Épreuves de la compétition",
       "semiMarathon": {

@@ -318,6 +318,39 @@
       "competitionDate": "Competition Day",
       "competitionDateValue": "May 1, 2024"
     },
+    "timeline": {
+      "title": "Registration Timeline & Rules",
+      "intro": "Understanding what you can and cannot do at each stage is crucial. Follow this timeline to ensure your registration is complete and valid.",
+      "phase1": {
+        "title": "Registration Period Open",
+        "date": "From March 19 to April 19",
+        "rule1": "Register and delete team members freely",
+        "rule2": "Create and delete boat registrations",
+        "rule3": "Pay for boats at any time",
+        "rule4": "After payment: You can modify boats but cannot delete them"
+      },
+      "phase2": {
+        "title": "Registration Closed - Payment Window",
+        "date": "From April 19 to April 25",
+        "rule1": "Cannot delete boats anymore",
+        "rule2": "Can still pay for registered boats",
+        "rule3": "Can modify existing boat details",
+        "rule4": "After payment: You can still modify boats but cannot delete them"
+      },
+      "phase3": {
+        "title": "After Payment Deadline",
+        "date": "After April 25",
+        "rule1": "No changes possible at all",
+        "rule2": "No new payments accepted",
+        "rule3": "Only paid boats will be able to race",
+        "rule4": "Only boats with all crew members having valid competition licenses will be allowed to race",
+        "rule5": "No refunds will be possible"
+      },
+      "notice": {
+        "title": "Important Notice",
+        "message": "Make sure to complete your payment before the deadline! Only boats with confirmed payment will be allowed to participate in the competition. Late payments cannot be accepted."
+      }
+    },
     "events": {
       "title": "Competition Events",
       "semiMarathon": {

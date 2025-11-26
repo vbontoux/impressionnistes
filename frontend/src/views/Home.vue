@@ -25,21 +25,42 @@
             <div class="date-icon">📅</div>
             <h3>{{ $t('home.dates.registrationOpen') }}</h3>
             <p class="date-value">{{ $t('home.dates.registrationOpenDate') }}</p>
+            <div class="date-rules">
+              <p class="rule-text">✅ {{ $t('home.timeline.phase1.rule1') }}</p>
+              <p class="rule-text">✅ {{ $t('home.timeline.phase1.rule2') }}</p>
+              <p class="rule-text">✅ {{ $t('home.timeline.phase1.rule3') }}</p>
+              <p class="rule-text">⚠️ {{ $t('home.timeline.phase1.rule4') }}</p>
+            </div>
           </div>
           <div class="date-card">
             <div class="date-icon">🔒</div>
             <h3>{{ $t('home.dates.registrationClose') }}</h3>
             <p class="date-value">{{ $t('home.dates.registrationCloseDate') }}</p>
+            <div class="date-rules">
+              <p class="rule-text">❌ {{ $t('home.timeline.phase2.rule1') }}</p>
+              <p class="rule-text">✅ {{ $t('home.timeline.phase2.rule2') }}</p>
+              <p class="rule-text">✅ {{ $t('home.timeline.phase2.rule3') }}</p>
+              <p class="rule-text">⚠️ {{ $t('home.timeline.phase2.rule4') }}</p>
+            </div>
           </div>
           <div class="date-card">
             <div class="date-icon">💳</div>
             <h3>{{ $t('home.dates.paymentDeadline') }}</h3>
             <p class="date-value">{{ $t('home.dates.paymentDeadlineDate') }}</p>
+            <div class="date-rules">
+              <p class="rule-text">❌ {{ $t('home.timeline.phase3.rule1') }}</p>
+              <p class="rule-text">❌ {{ $t('home.timeline.phase3.rule2') }}</p>
+              <p class="rule-text refund-warning">⚠️ <strong>{{ $t('home.timeline.phase3.rule5') }}</strong></p>
+            </div>
           </div>
           <div class="date-card highlight">
             <div class="date-icon">🏁</div>
             <h3>{{ $t('home.dates.competitionDate') }}</h3>
             <p class="date-value">{{ $t('home.dates.competitionDateValue') }}</p>
+            <div class="date-rules">
+              <p class="rule-text license-warning">⚠️ <strong>{{ $t('home.timeline.phase3.rule3') }}</strong></p>
+              <p class="rule-text license-warning">⚠️ <strong>{{ $t('home.timeline.phase3.rule4') }}</strong></p>
+            </div>
           </div>
         </div>
       </div>
@@ -350,18 +371,24 @@ section h2 {
 
 .dates-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
   margin-top: 3rem;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .date-card {
   background: white;
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: 12px;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s;
+  display: flex;
+  flex-direction: column;
+  min-height: 400px;
 }
 
 .date-card:hover {
@@ -374,20 +401,68 @@ section h2 {
 }
 
 .date-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .date-card h3 {
   font-size: 1.125rem;
   margin-bottom: 0.5rem;
   color: inherit;
+  font-weight: 600;
 }
 
 .date-value {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 700;
   color: inherit;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.date-card.highlight .date-value {
+  border-bottom-color: rgba(255, 255, 255, 0.3);
+}
+
+.date-rules {
+  text-align: left;
+  margin-top: 1rem;
+}
+
+.rule-text {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0.75rem 0;
+  color: inherit;
+  opacity: 0.95;
+}
+
+.license-warning {
+  background-color: rgba(255, 107, 107, 0.25);
+  padding: 0.75rem;
+  border-radius: 6px;
+  border-left: 4px solid #ff6b6b;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
+}
+
+.license-warning strong {
+  color: #ffe0e0;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.refund-warning {
+  background-color: rgba(255, 152, 0, 0.15);
+  padding: 0.75rem;
+  border-radius: 6px;
+  border-left: 4px solid #ff9800;
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.15);
+}
+
+.refund-warning strong {
+  color: #d84315;
+  font-weight: 700;
 }
 
 /* Events Section */
@@ -713,6 +788,12 @@ section h2 {
 }
 
 /* Responsive */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .dates-grid {
+    max-width: 100%;
+  }
+}
+
 @media (max-width: 768px) {
   .hero h1 {
     font-size: 2rem;
@@ -731,6 +812,10 @@ section h2 {
   .process-steps,
   .pricing-grid {
     grid-template-columns: 1fr;
+  }
+
+  .date-card {
+    min-height: auto;
   }
 
   .container {
