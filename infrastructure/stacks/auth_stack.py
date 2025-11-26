@@ -22,12 +22,14 @@ class AuthStack(Stack):
         self,
         scope: Construct,
         construct_id: str,
+        frontend_stack=None,
         **kwargs
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # Get environment from context
         env_name = self.node.try_get_context("env") or "dev"
+        self.frontend_stack = frontend_stack
         
         # Get environment configuration
         env_config = self.node.try_get_context(env_name) or {}
@@ -128,6 +130,25 @@ class AuthStack(Stack):
             )
         )
         
+        # Build callback URLs list
+        callback_urls = [
+            "http://localhost:3000/callback",  # Development
+        ]
+        logout_urls = [
+            "http://localhost:3000/",  # Development
+        ]
+        
+        # Add CloudFront URL if frontend stack is provided
+        if self.frontend_stack:
+            cloudfront_url = f"https://{self.frontend_stack.distribution.distribution_domain_name}"
+            callback_urls.append(f"{cloudfront_url}/callback")
+            logout_urls.append(f"{cloudfront_url}/")
+        
+        # Add custom domain if configured
+        custom_domain = f"https://impressionnistes-{env_name}.rcpm-aviron.fr"
+        callback_urls.append(f"{custom_domain}/callback")
+        logout_urls.append(f"{custom_domain}/")
+        
         # Create app client for web application
         self.user_pool_client = self.user_pool.add_client(
             "WebAppClient",
@@ -144,14 +165,8 @@ class AuthStack(Stack):
                     cognito.OAuthScope.OPENID,
                     cognito.OAuthScope.PROFILE
                 ],
-                callback_urls=[
-                    "http://localhost:3000/callback",  # Development
-                    f"https://impressionnistes-{env_name}.rcpm-aviron.fr/callback"  # Production
-                ],
-                logout_urls=[
-                    "http://localhost:3000/",  # Development
-                    f"https://impressionnistes-{env_name}.rcpm-aviron.fr/"  # Production
-                ]
+                callback_urls=callback_urls,
+                logout_urls=logout_urls
             ),
             
             # Token validity

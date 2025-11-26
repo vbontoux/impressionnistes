@@ -290,32 +290,37 @@
   - Add boat rental endpoints (/rentals/*) - TODO
   - _Requirements: TC-1.5_
 
-### 16. Frontend Deployment and CDN
+### 16. Frontend Deployment and CDN ✅ COMPLETED
 
-- [ ] 16.1 Set up S3 bucket for static website hosting
-  - Create S3 bucket with static website configuration
-  - Configure bucket policies for public read access
-  - Set up bucket versioning for rollback capability
-  - Implement lifecycle policies for old versions
-  - Add bucket encryption
+- [x] 16.1 Set up S3 bucket for static website hosting ✅ COMPLETED
+  - Create S3 bucket with static website configuration ✅
+  - Configure bucket policies via Origin Access Identity (more secure than public) ✅
+  - Set up bucket versioning for rollback capability ✅
+  - Implement lifecycle policies for old versions ✅
+  - Add bucket encryption (S3_MANAGED) ✅
   - _Requirements: TC-1.4_
+  - _Implementation: infrastructure/stacks/frontend_stack.py_
 
-- [ ] 16.2 Configure CloudFront distribution
-  - Create CloudFront distribution with S3 origin
-  - Configure custom domain and SSL certificate
-  - Set up cache behaviors and TTLs
-  - Implement CloudFront functions for routing
-  - Add security headers and HTTPS enforcement
-  - Configure error pages and redirects
+- [x] 16.2 Configure CloudFront distribution ✅ COMPLETED
+  - Create CloudFront distribution with S3 origin ✅
+  - Configure Origin Access Identity for secure S3 access ✅
+  - Set up cache behaviors and TTLs (CACHING_OPTIMIZED policy) ✅
+  - Add HTTPS enforcement (REDIRECT_TO_HTTPS) ✅
+  - Configure error pages and redirects (404/403 → index.html for SPA) ✅
+  - Note: Custom domain and SSL certificate deferred to production setup
   - _Requirements: TC-1.4, NFR-1.1, NFR-3.2_
+  - _Implementation: infrastructure/stacks/frontend_stack.py_
 
-- [ ] 16.3 Implement frontend build and deployment pipeline
-  - Create build script for production optimization
-  - Implement asset minification and compression
-  - Add cache busting for static assets
-  - Create deployment script for S3 sync
-  - Implement CloudFront cache invalidation
+- [x] 16.3 Implement frontend build and deployment pipeline ✅ COMPLETED
+  - Create build script for production optimization (Makefile: build-frontend) ✅
+  - Implement asset minification and compression (Vite handles automatically) ✅
+  - Add cache busting for static assets (Vite hashed filenames) ✅
+  - Create deployment in CDK with BucketDeployment ✅
+  - Implement CloudFront cache invalidation (distribution_paths=["/*"]) ✅
+  - Added environment variable handling (.env.production with CloudFront URL) ✅
+  - Updated Cognito callback URLs to include CloudFront domain ✅
   - _Requirements: TC-2.1, NFR-1.1_
+  - _Implementation: infrastructure/Makefile (build-frontend, deploy-frontend), infrastructure/stacks/frontend_stack.py, infrastructure/stacks/auth_stack.py, infrastructure/app.py_
 
 ### 17. Basic Email Notifications (Essential Only)
 

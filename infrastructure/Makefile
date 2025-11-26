@@ -187,6 +187,12 @@ describe-infra:
 		echo "  ⚠️  Auth stack not deployed yet"; \
 	fi
 	@echo ""
+	@echo ""
+	@echo "Frontend (CloudFront):"
+	@CLOUDFRONT_URL=$$(aws cloudformation describe-stacks --stack-name ImpressiornistesFrontend-$(ENV) --query 'Stacks[0].Outputs[?OutputKey==`WebsiteURL`].OutputValue' --output text 2>/dev/null); \
+	CLOUDFRONT_DOMAIN=$$(aws cloudformation describe-stacks --stack-name ImpressiornistesFrontend-$(ENV) --query 'Stacks[0].Outputs[?OutputKey==`DistributionDomainName`].OutputValue' --output text 2>/dev/null); \
+	BUCKET_NAME=$$(aws cloudformation describe-stacks --stack-name ImpressiornistesFrontend-$(ENV) --query 'Stacks[0].Outputs[?OutputKey==`WebsiteBucketName`].OutputValue' --output text 2>/dev/null); \
+	if [ -n "$$CLOUDFRONT_URL" ]; then echo "  Website URL: $$CLOUDFRONT_URL"; echo "  CloudFront Domain: $$CLOUDFRONT_DOMAIN"; echo "  S3 Bucket: $$BUCKET_NAME"; else echo "  ⚠️  Frontend stack not deployed yet"; fi
 	@echo "Frontend .env configuration:"
 	@echo "=========================================="
 	@API_URL=$$(aws cloudformation describe-stacks \
@@ -205,7 +211,7 @@ describe-infra:
 		echo "VITE_API_URL=$$API_URL"; \
 		echo "VITE_COGNITO_DOMAIN=$$DOMAIN"; \
 		echo "VITE_COGNITO_CLIENT_ID=$$CLIENT_ID"; \
-		echo "VITE_COGNITO_REDIRECT_URI=http://localhost:3000/callback"; \
+		CLOUDFRONT_DOMAIN=$$(aws cloudformation describe-stacks --stack-name ImpressiornistesFrontend-$(ENV) --query 'Stacks[0].Outputs[?OutputKey==`DistributionDomainName`].OutputValue' --output text 2>/dev/null); if [ -n "$$CLOUDFRONT_DOMAIN" ]; then echo "VITE_COGNITO_REDIRECT_URI=https://$$CLOUDFRONT_DOMAIN/callback"; else echo "VITE_COGNITO_REDIRECT_URI=http://localhost:3000/callback"; fi; \
 	else \
 		echo "⚠️  Stacks not fully deployed yet"; \
 	fi
@@ -262,6 +268,40 @@ deploy-api: build-layer
 	@echo "Deploying API stack for $(ENV) environment..."
 	@$(CDK) deploy ImpressionnistesApi-$(ENV) --context env=$(ENV)
 	@echo "✓ API stack deployed"
+
+deploy-frontend: build-frontend
+	@echo "Deploying Frontend stack for $(ENV) environment..."
+	@. $(VENV)/bin/activate && $(CDK) deploy ImpressiornistesFrontend-$(ENV) --context env=$(ENV) --require-approval never
+	@echo "✓ Frontend stack deployed"
+	@echo ""
+	@echo "=========================================="
+	@echo "Frontend URL:"
+	@aws cloudformation describe-stacks --stack-name ImpressiornistesFrontend-$(ENV) --query 'Stacks[0].Outputs[?OutputKey==`WebsiteURL`].OutputValue' --output text
+	@echo "=========================================="
+
+build-frontend:
+	@echo "=========================================="
+	@echo "Building Frontend for $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@if [ ! -d "../frontend" ]; then echo "❌ Error: frontend directory not found"; exit 1; fi
+	@echo "1. Fetching infrastructure configuration..."
+	@API_URL=$$(aws cloudformation describe-stacks --stack-name ImpressionnistesApi-$(ENV) --query 'Stacks[0].Outputs[?OutputKey==`ApiUrl`].OutputValue' --output text 2>/dev/null); \
+	CLIENT_ID=$$(aws cloudformation describe-stacks --stack-name ImpressionnistesAuth-$(ENV) --query 'Stacks[0].Outputs[?OutputKey==`UserPoolClientId`].OutputValue' --output text 2>/dev/null); \
+	DOMAIN=$$(aws cloudformation describe-stacks --stack-name ImpressionnistesAuth-$(ENV) --query 'Stacks[0].Outputs[?OutputKey==`UserPoolDomain`].OutputValue' --output text 2>/dev/null); \
+	if [ -z "$$API_URL" ] || [ -z "$$CLIENT_ID" ]; then echo "❌ Error: Could not fetch infrastructure details"; echo "Make sure API and Auth stacks are deployed first:"; echo "  make deploy-dev"; exit 1; fi; \
+	echo "   API URL: $$API_URL"; echo "   Cognito Client ID: $$CLIENT_ID"; echo "   Cognito Domain: $$DOMAIN"; echo ""; \
+	echo "2. Creating production .env file..."; \
+	CLOUDFRONT_DOMAIN=$$(aws cloudformation describe-stacks --stack-name ImpressiornistesFrontend-$(ENV) --query 'Stacks[0].Outputs[?OutputKey==`DistributionDomainName`].OutputValue' --output text 2>/dev/null); \
+	if [ -z "$$CLOUDFRONT_DOMAIN" ] || [ "$$CLOUDFRONT_DOMAIN" = "None" ]; then echo "   ⚠️  Frontend stack not deployed yet, using placeholder"; CLOUDFRONT_DOMAIN="PLACEHOLDER-DEPLOY-FRONTEND-FIRST"; fi; \
+	cd ../frontend && echo "VITE_API_URL=$$API_URL" > .env.production && echo "VITE_COGNITO_DOMAIN=$$DOMAIN" >> .env.production && echo "VITE_COGNITO_CLIENT_ID=$$CLIENT_ID" >> .env.production && echo "VITE_COGNITO_REDIRECT_URI=https://$$CLOUDFRONT_DOMAIN/callback" >> .env.production && if grep -q VITE_STRIPE_PUBLISHABLE_KEY .env 2>/dev/null; then grep VITE_STRIPE_PUBLISHABLE_KEY .env >> .env.production; fi; \
+	echo "   ✓ Created .env.production"; echo ""; \
+	echo "3. Installing dependencies..."; npm install --silent; echo "   ✓ Dependencies installed"; echo ""; \
+	echo "4. Building production bundle..."; npm run build; echo "   ✓ Build complete"; echo ""; \
+	echo "=========================================="
+	@echo "✓ Frontend built successfully"
+	@echo "Build output: frontend/dist/"
+	@echo "=========================================="
 
 destroy:
 	@echo "Destroying $(ENV) environment..."

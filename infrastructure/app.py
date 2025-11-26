@@ -50,9 +50,21 @@ monitoring_stack = MonitoringStack(
     description="CloudWatch logs, alarms, and SNS topics"
 )
 
+# Create frontend stack first (just the CloudFront distribution, no deployment yet)
+# This allows us to get the CloudFront domain for Cognito callback URLs
+frontend_stack = FrontendStack(
+    app,
+    f"ImpressiornistesFrontend-{env_name}",
+    api_stack=None,  # Will be set later
+    env=aws_env,
+    description="S3 and CloudFront for frontend hosting"
+)
+
+# Create auth stack with reference to frontend stack for callback URLs
 auth_stack = AuthStack(
     app,
     f"ImpressionnistesAuth-{env_name}",
+    frontend_stack=frontend_stack,
     env=aws_env,
     description="Cognito user pool and authentication"
 )
@@ -66,13 +78,8 @@ api_stack = ApiStack(
     description="API Gateway and Lambda functions"
 )
 
-frontend_stack = FrontendStack(
-    app,
-    f"ImpressiornistesFrontend-{env_name}",
-    api_stack=api_stack,
-    env=aws_env,
-    description="S3 and CloudFront for frontend hosting"
-)
+# Update frontend stack with api_stack reference
+frontend_stack.api_stack = api_stack
 
 # Add common tags to all stacks
 for stack in [secrets_stack, database_stack, monitoring_stack, auth_stack, api_stack, frontend_stack]:
