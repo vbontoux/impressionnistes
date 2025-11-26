@@ -26,10 +26,30 @@
             <h3>{{ $t('home.dates.registrationOpen') }}</h3>
             <p class="date-value">{{ $t('home.dates.registrationOpenDate') }}</p>
             <div class="date-rules">
-              <p class="rule-text">✅ {{ $t('home.timeline.phase1.rule1') }}</p>
-              <p class="rule-text">✅ {{ $t('home.timeline.phase1.rule2') }}</p>
-              <p class="rule-text">✅ {{ $t('home.timeline.phase1.rule3') }}</p>
-              <p class="rule-text">⚠️ {{ $t('home.timeline.phase1.rule4') }}</p>
+              <p class="rule-text">
+                <svg class="rule-icon check" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                {{ $t('home.timeline.phase1.rule1') }}
+              </p>
+              <p class="rule-text">
+                <svg class="rule-icon check" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                {{ $t('home.timeline.phase1.rule2') }}
+              </p>
+              <p class="rule-text">
+                <svg class="rule-icon check" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                {{ $t('home.timeline.phase1.rule3') }}
+              </p>
+              <p class="rule-text">
+                <svg class="rule-icon warning" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                {{ $t('home.timeline.phase1.rule4') }}
+              </p>
             </div>
           </div>
           <div class="date-card">
@@ -37,11 +57,36 @@
             <h3>{{ $t('home.dates.registrationClose') }}</h3>
             <p class="date-value">{{ $t('home.dates.registrationCloseDate') }}</p>
             <div class="date-rules">
-              <p class="rule-text">❌ {{ $t('home.timeline.phase2.rule1') }}</p>
-              <p class="rule-text">✅ {{ $t('home.timeline.phase2.rule2') }}</p>
-              <p class="rule-text">✅ {{ $t('home.timeline.phase2.rule3') }}</p>
-              <p class="rule-text">⚠️ {{ $t('home.timeline.phase2.rule4') }}</p>
-              <p class="rule-text">✅ {{ $t('home.timeline.phase2.rule5') }}</p>
+              <p class="rule-text">
+                <svg class="rule-icon cross" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+                {{ $t('home.timeline.phase2.rule1') }}
+              </p>
+              <p class="rule-text">
+                <svg class="rule-icon check" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                {{ $t('home.timeline.phase2.rule2') }}
+              </p>
+              <p class="rule-text">
+                <svg class="rule-icon check" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                {{ $t('home.timeline.phase2.rule3') }}
+              </p>
+              <p class="rule-text refund-possible">
+                <svg class="rule-icon check" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                </svg>
+                {{ $t('home.timeline.phase2.rule5') }}
+              </p>
+              <p class="rule-text">
+                <svg class="rule-icon warning" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                {{ $t('home.timeline.phase2.rule4') }}
+              </p>
             </div>
           </div>
           <div class="date-card">
@@ -49,9 +94,24 @@
             <h3>{{ $t('home.dates.paymentDeadline') }}</h3>
             <p class="date-value">{{ $t('home.dates.paymentDeadlineDate') }}</p>
             <div class="date-rules">
-              <p class="rule-text">❌ {{ $t('home.timeline.phase3.rule1') }}</p>
-              <p class="rule-text">❌ {{ $t('home.timeline.phase3.rule2') }}</p>
-              <p class="rule-text">⚠️ {{ $t('home.timeline.phase3.rule5') }}</p>
+              <p class="rule-text">
+                <svg class="rule-icon cross" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+                {{ $t('home.timeline.phase3.rule1') }}
+              </p>
+              <p class="rule-text">
+                <svg class="rule-icon cross" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+                {{ $t('home.timeline.phase3.rule2') }}
+              </p>
+              <p class="rule-text">
+                <svg class="rule-icon warning" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                {{ $t('home.timeline.phase3.rule5') }}
+              </p>
             </div>
           </div>
           <div class="date-card highlight">
@@ -59,8 +119,18 @@
             <h3>{{ $t('home.dates.competitionDate') }}</h3>
             <p class="date-value">{{ $t('home.dates.competitionDateValue') }}</p>
             <div class="date-rules">
-              <p class="rule-text">⚠️ {{ $t('home.timeline.phase3.rule3') }}</p>
-              <p class="rule-text">⚠️ {{ $t('home.timeline.phase3.rule4') }}</p>
+              <p class="rule-text">
+                <svg class="rule-icon warning" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                <strong>{{ $t('home.timeline.phase3.rule3') }}</strong>
+              </p>
+              <p class="rule-text">
+                <svg class="rule-icon warning" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                <strong>{{ $t('home.timeline.phase3.rule4') }}</strong>
+              </p>
             </div>
           </div>
         </div>
@@ -437,14 +507,28 @@ section h2 {
   margin: 0.75rem 0;
   color: inherit;
   opacity: 0.95;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
 }
 
-.refund-possible {
-  background-color: rgba(76, 175, 80, 0.15);
-  padding: 0.75rem;
-  border-radius: 6px;
-  border-left: 4px solid #4CAF50;
-  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);
+.rule-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+}
+
+.rule-icon.check {
+  color: #4CAF50;
+}
+
+.rule-icon.cross {
+  color: #f44336;
+}
+
+.rule-icon.warning {
+  color: #ff9800;
 }
 
 .license-warning {
