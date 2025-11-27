@@ -16,6 +16,19 @@
         <span class="value">{{ formatDate(crewMember.date_of_birth) }}</span>
       </div>
       <div class="detail-row">
+        <span class="label">{{ $t('crew.card.age') }}:</span>
+        <span class="value">{{ calculateAge(crewMember.date_of_birth) }} {{ $t('crew.card.years') }}</span>
+      </div>
+      <div class="detail-row">
+        <span class="label">{{ $t('crew.card.category') }}:</span>
+        <span class="value category-badge" :class="`category-${getAgeCategory(crewMember.date_of_birth)}`">
+          {{ $t(`boat.${getAgeCategory(crewMember.date_of_birth)}`) }}
+          <span v-if="getAgeCategory(crewMember.date_of_birth) === 'master'" class="master-letter">
+            {{ getMasterCategoryLetter(crewMember.date_of_birth) }}
+          </span>
+        </span>
+      </div>
+      <div class="detail-row">
         <span class="label">{{ $t('crew.card.gender') }}:</span>
         <span class="value">{{ crewMember.gender === 'M' ? $t('crew.form.male') : $t('crew.form.female') }}</span>
       </div>
@@ -58,6 +71,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { getAgeCategory as getAgeCategoryUtil, getMasterCategory } from '../utils/raceEligibility';
 
 const props = defineProps({
   crewMember: {
@@ -82,6 +96,30 @@ const formatDate = (dateString) => {
     month: 'long', 
     day: 'numeric' 
   });
+};
+
+const calculateAge = (dateOfBirth) => {
+  const today = new Date();
+  const birthDate = new Date(dateOfBirth);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  
+  // Adjust if birthday hasn't occurred this year
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
+  return age;
+};
+
+const getAgeCategory = (dateOfBirth) => {
+  const age = calculateAge(dateOfBirth);
+  return getAgeCategoryUtil(age);
+};
+
+const getMasterCategoryLetter = (dateOfBirth) => {
+  const age = calculateAge(dateOfBirth);
+  return getMasterCategory(age);
 };
 </script>
 
@@ -170,6 +208,41 @@ const formatDate = (dateString) => {
 
 .value {
   color: #333;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.category-j16 {
+  background-color: #E3F2FD;
+  color: #1976D2;
+}
+
+.category-j18 {
+  background-color: #E8F5E9;
+  color: #388E3C;
+}
+
+.category-senior {
+  background-color: #FFF3E0;
+  color: #F57C00;
+}
+
+.category-master {
+  background-color: #F3E5F5;
+  color: #7B1FA2;
+}
+
+.master-letter {
+  margin-left: 0.25rem;
+  font-weight: 700;
+  font-size: 0.85rem;
 }
 
 .flagged-issues {

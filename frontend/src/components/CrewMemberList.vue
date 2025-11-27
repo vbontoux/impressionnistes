@@ -106,9 +106,9 @@
           <tr>
             <th>{{ $t('crew.form.firstName') }}</th>
             <th>{{ $t('crew.form.lastName') }}</th>
-            <th>{{ $t('crew.card.dateOfBirth') }}</th>
+            <th>{{ $t('crew.list.age') }}</th>
             <th>{{ $t('crew.form.gender') }}</th>
-            <th>{{ $t('crew.form.licenseNumber') }}</th>
+            <th>{{ $t('crew.card.category') }}</th>
             <th>{{ $t('crew.card.club') }}</th>
             <th>{{ $t('crew.card.assigned') }}</th>
             <th>{{ $t('common.actions') }}</th>
@@ -122,9 +122,16 @@
           >
             <td>{{ member.first_name }}</td>
             <td>{{ member.last_name }}</td>
-            <td>{{ formatDate(member.date_of_birth) }}</td>
+            <td>{{ calculateAge(member.date_of_birth) }}</td>
             <td>{{ member.gender === 'M' ? $t('crew.form.male') : $t('crew.form.female') }}</td>
-            <td>{{ member.license_number }}</td>
+            <td>
+              <span class="category-badge" :class="`category-${getAgeCategoryForMember(member.date_of_birth)}`">
+                {{ $t(`boat.${getAgeCategoryForMember(member.date_of_birth)}`) }}
+                <span v-if="getAgeCategoryForMember(member.date_of_birth) === 'master'" class="master-letter">
+                  {{ getMasterCategoryLetter(member.date_of_birth) }}
+                </span>
+              </span>
+            </td>
             <td>{{ member.club_affiliation }}</td>
             <td>
               <span v-if="member.assigned_boat_id" class="assigned-badge">✓</span>
@@ -176,6 +183,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useCrewStore } from '../stores/crewStore';
+import { calculateAge, getAgeCategory, getMasterCategory } from '../utils/raceEligibility';
 import CrewMemberCard from './CrewMemberCard.vue';
 import CrewMemberForm from './CrewMemberForm.vue';
 
@@ -200,6 +208,16 @@ watch(viewMode, (newMode) => {
 const formatDate = (dateString) => {
   if (!dateString) return '';
   return new Date(dateString).toLocaleDateString();
+};
+
+const getAgeCategoryForMember = (dateOfBirth) => {
+  const age = calculateAge(dateOfBirth);
+  return getAgeCategory(age);
+};
+
+const getMasterCategoryLetter = (dateOfBirth) => {
+  const age = calculateAge(dateOfBirth);
+  return getMasterCategory(age);
 };
 
 // Load crew members on mount
@@ -623,5 +641,39 @@ const closeForm = () => {
     margin: 0 -2rem;
     border-radius: 0;
   }
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.category-j16 {
+  background-color: #E3F2FD;
+  color: #1976D2;
+}
+
+.category-j18 {
+  background-color: #E8F5E9;
+  color: #388E3C;
+}
+
+.category-senior {
+  background-color: #FFF3E0;
+  color: #F57C00;
+}
+
+.category-master {
+  background-color: #F3E5F5;
+  color: #7B1FA2;
+}
+
+.master-letter {
+  margin-left: 0.25rem;
+  font-weight: 700;
 }
 </style>
