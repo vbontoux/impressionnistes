@@ -120,6 +120,7 @@
 import { ref, reactive, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useCrewStore } from '../stores/crewStore';
+import { useAuthStore } from '../stores/authStore';
 
 const props = defineProps({
   crewMember: {
@@ -132,8 +133,12 @@ const emit = defineEmits(['success', 'cancel']);
 
 const { t } = useI18n();
 const crewStore = useCrewStore();
+const authStore = useAuthStore();
 
 const isEdit = computed(() => !!props.crewMember);
+
+// Get the team manager's club as default
+const defaultClub = authStore.user?.club_affiliation || '';
 
 const form = reactive({
   first_name: '',
@@ -141,7 +146,7 @@ const form = reactive({
   date_of_birth: '',
   gender: '',
   license_number: '',
-  club_affiliation: '',
+  club_affiliation: defaultClub,
 });
 
 const errors = reactive({});
