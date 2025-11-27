@@ -125,15 +125,17 @@ def analyze_crew_composition(crew_members: List[Dict[str, Any]]) -> Dict[str, An
         # 100% women
         gender_category = "women"
     elif male_count > 0 and female_percentage >= 50:
-        # At least 1 man AND at least 50% women
+        # At least 1 man AND at least 50% women -> Mixed
         gender_category = "mixed"
     elif male_percentage > 50:
-        # More than 50% men
+        # More than 50% men -> Men's crew
+        gender_category = "men"
+    elif male_count == total_count:
+        # 100% men (catches the edge case where male_percentage == 100 but not > 50 due to rounding)
         gender_category = "men"
     else:
         # Edge case: shouldn't happen with valid data
-        # Default to men if more men than women but not meeting mixed criteria
-        gender_category = "men" if male_count >= female_count else "women"
+        gender_category = "men" if male_count > female_count else "women"
     
     # Determine age category (most restrictive)
     # Priority: master > senior > j18 > j16

@@ -109,6 +109,8 @@
       "firstNameRequired": "Le prénom est requis",
       "lastNameRequired": "Le nom est requis",
       "dateOfBirthRequired": "La date de naissance est requise",
+      "dateInFuture": "La date de naissance ne peut pas être dans le futur",
+      "dateTooOld": "Le rameur doit être né en {year} ou avant (âge minimum J14)",
       "licenseInvalid": "Le numéro de licence doit être alphanumérique et contenir 6-12 caractères"
     },
     "card": {

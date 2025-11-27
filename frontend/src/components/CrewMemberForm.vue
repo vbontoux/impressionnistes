@@ -175,8 +175,27 @@ const validateField = (field) => {
     errors.last_name = t('crew.validation.lastNameRequired');
   }
 
-  if (field === 'date_of_birth' && !form.date_of_birth) {
-    errors.date_of_birth = t('crew.validation.dateOfBirthRequired');
+  if (field === 'date_of_birth') {
+    if (!form.date_of_birth) {
+      errors.date_of_birth = t('crew.validation.dateOfBirthRequired');
+    } else {
+      const birthDate = new Date(form.date_of_birth);
+      const today = new Date();
+      const currentYear = today.getFullYear();
+      
+      // Calculate minimum birth year for J14 (14 years old in current season)
+      // For 2025 season, J14 must be born in 2011 or later
+      const minBirthYear = currentYear - 14;
+      const minDate = new Date(minBirthYear, 0, 1); // January 1st of min year
+      
+      // Maximum date is today (can't be born in the future)
+      if (birthDate > today) {
+        errors.date_of_birth = t('crew.validation.dateInFuture');
+      } else if (birthDate > minDate) {
+        // Born AFTER minDate means they're TOO YOUNG (not old enough)
+        errors.date_of_birth = t('crew.validation.dateTooOld', { year: minBirthYear });
+      }
+    }
   }
 
   if (field === 'license_number') {
@@ -188,7 +207,17 @@ const validateField = (field) => {
 };
 
 const validateForm = () => {
+  // Clear all errors first
+  Object.keys(errors).forEach(key => delete errors[key]);
+  
+  // Validate all fields
   Object.keys(form).forEach(validateField);
+  
+  console.log('Form validation result:', {
+    errors: { ...errors },
+    hasErrors: Object.keys(errors).length > 0
+  });
+  
   return Object.keys(errors).length === 0;
 };
 

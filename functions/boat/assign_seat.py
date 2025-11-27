@@ -85,18 +85,7 @@ def lambda_handler(event, context):
     
     # If assigning a crew member (not clearing)
     if crew_member_id:
-        # Validate seat assignment
-        validation = validate_seat_assignment(
-            boat_registration,
-            crew_member_id,
-            position,
-            all_boats
-        )
-        
-        if not validation['valid']:
-            return conflict_error(validation['reason'])
-        
-        # Get crew member to verify it exists
+        # Get crew member to verify it exists and for validation
         crew_member = db.get_item(
             pk=f'TEAM#{team_manager_id}',
             sk=f'CREW#{crew_member_id}'
@@ -104,6 +93,18 @@ def lambda_handler(event, context):
         
         if not crew_member:
             return not_found_error('Crew member not found')
+        
+        # Validate seat assignment (including J14 restriction)
+        validation = validate_seat_assignment(
+            boat_registration,
+            crew_member_id,
+            position,
+            all_boats,
+            crew_member
+        )
+        
+        if not validation['valid']:
+            return conflict_error(validation['reason'])
     
     # Find and update the seat
     seats = boat_registration.get('seats', [])

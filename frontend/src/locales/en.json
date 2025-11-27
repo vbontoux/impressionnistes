@@ -109,6 +109,8 @@
       "firstNameRequired": "First name is required",
       "lastNameRequired": "Last name is required",
       "dateOfBirthRequired": "Date of birth is required",
+      "dateInFuture": "Date of birth cannot be in the future",
+      "dateTooOld": "Rower must be born in {year} or earlier (minimum age J14)",
       "licenseInvalid": "License number must be alphanumeric and 6-12 characters"
     },
     "card": {

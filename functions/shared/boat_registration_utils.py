@@ -145,7 +145,8 @@ def validate_seat_assignment(
     boat_registration: Dict[str, Any],
     crew_member_id: str,
     position: int,
-    all_boat_registrations: List[Dict[str, Any]]
+    all_boat_registrations: List[Dict[str, Any]],
+    crew_member: Dict[str, Any] = None
 ) -> Dict[str, Any]:
     """
     Validate that a crew member can be assigned to a seat
@@ -153,12 +154,14 @@ def validate_seat_assignment(
     Checks:
     - Crew member is not already assigned to another boat
     - Position is valid for the boat type
+    - J14 rowers (14-15 years old) can only be coxswains
     
     Args:
         boat_registration: Current boat registration
         crew_member_id: ID of crew member to assign
         position: Seat position (1-9)
         all_boat_registrations: List of all boat registrations for this team
+        crew_member: Optional crew member data (to avoid extra DB lookup)
     
     Returns:
         Dictionary with 'valid' boolean and 'reason' string
@@ -189,6 +192,36 @@ def validate_seat_assignment(
             'valid': False,
             'reason': f"Position {position} is not valid for boat type {boat_type}"
         }
+    
+    # Check J14 restriction: J14 rowers can only be coxswains
+    if crew_member:
+        from race_eligibility import get_age_category
+        from datetime import datetime
+        
+        # Get crew member's age category
+        dob_str = crew_member.get('date_of_birth')
+        if dob_str:
+            try:
+                dob = datetime.fromisoformat(dob_str.replace('Z', '+00:00'))
+                age_category = get_age_category(dob.year)
+                
+                # Find the seat type for this position
+                seat_type = None
+                for seat in required_seats:
+                    if seat['position'] == position:
+                        seat_type = seat['type']
+                        break
+                
+                # J14 (14-15 years old) can only be coxswains
+                if age_category == 'j14' and seat_type == 'rower':
+                    return {
+                        'valid': False,
+                        'reason': 'J14 rowers (14-15 years old) can only be assigned as coxswains, not as rowers'
+                    }
+            except (ValueError, AttributeError) as e:
+                # If date parsing fails, log but don't block assignment
+                logger = logging.getLogger()
+                logger.warning(f"Could not parse date of birth for J14 validation: {e}")
     
     return {
         'valid': True,

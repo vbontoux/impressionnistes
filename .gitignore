@@ -79,4 +79,4 @@ secrets.json
 
 # Other
 functions/layer/python/*
-raw-requirements/*
+raw-files/*
