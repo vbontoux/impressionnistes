@@ -54,9 +54,11 @@ These requirements define what the system does from a business and user perspect
 1. WHEN a team manager adds a crew member, THE Registration_System SHALL require first and last name, date of birth, gender, license number, rowing club affiliation if different from the rowing club affiliation of the team manager
 2. WHILE the registration period is active, THE Registration_System SHALL allow team managers to edit crew member information or to delete a crew member
 3. WHEN a team manager enters a license number, THE Registration_System SHALL validate the alphanumeric format
-4. WHILE a crew member registration is incomplete, THE Registration_System SHALL allow team managers to save partial configurations and return later
-5. THE Registration_System SHALL persist crew member information throughout and after the registration period
-6. WHEN the registration period ends, THE Registration_System SHALL prevent team managers from editing crew member information unless granted by the Admin_User
+4. WHEN a team manager enters a license number, THE Registration_System SHALL verify that the license number is unique across all crew members in the competition
+5. IF a team manager attempts to add a crew member with a license number that already exists, THEN THE Registration_System SHALL prevent the addition and display an error message indicating the license number is already in use
+6. WHILE a crew member registration is incomplete, THE Registration_System SHALL allow team managers to save partial configurations and return later
+7. THE Registration_System SHALL persist crew member information throughout and after the registration period
+8. WHEN the registration period ends, THE Registration_System SHALL prevent team managers from editing crew member information unless granted by the Admin_User
 
 ### FR-3: Boat Registration and Seat Assignment
 

@@ -111,7 +111,8 @@
       "dateOfBirthRequired": "La date de naissance est requise",
       "dateInFuture": "La date de naissance ne peut pas être dans le futur",
       "dateTooOld": "Le rameur doit être né en {year} ou avant (âge minimum J14)",
-      "licenseInvalid": "Le numéro de licence doit être alphanumérique et contenir 6-12 caractères"
+      "licenseInvalid": "Le numéro de licence doit être alphanumérique et contenir 6-12 caractères",
+      "licenseDuplicate": "Ce numéro de licence est déjà utilisé par un autre rameur"
     },
     "card": {
       "assigned": "Assigné",

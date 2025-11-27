@@ -107,6 +107,28 @@ def lambda_handler(event, context):
         logger.error(f"Crew data being validated: {crew_data}")
         return validation_error(errors)
     
+    # Check for duplicate license number if license is being changed
+    if 'license_number' in update_data and update_data['license_number'] != existing_crew.get('license_number'):
+        if db.check_license_number_exists(update_data['license_number']):
+            logger.warning(f"Duplicate license number attempted during update: {update_data['license_number']}")
+            return {
+                'statusCode': 409,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*',
+                    'Access-Control-Allow-Credentials': True,
+                },
+                'body': json.dumps({
+                    'error': {
+                        'code': 'DUPLICATE_LICENSE',
+                        'message': 'License number already in use',
+                        'details': {
+                            'license_number': f'The license number {update_data["license_number"]} is already registered in the competition'
+                        }
+                    }
+                })
+            }
+    
     # Recalculate is_rcpm_member if club_affiliation changed
     # Uses case-insensitive matching for "RCPM", "Port-Marly", "Port Marly"
     if 'club_affiliation' in update_data:

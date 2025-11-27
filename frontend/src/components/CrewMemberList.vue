@@ -316,6 +316,8 @@ const handleFormSuccess = () => {
 const closeForm = () => {
   showCreateForm.value = false;
   editingMember.value = null;
+  // Clear any errors from the store when closing the form
+  crewStore.clearError();
 };
 </script>
 

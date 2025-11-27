@@ -261,8 +261,12 @@ const handleSubmit = async () => {
     if (error.response?.data?.error) {
       const errorData = error.response.data.error;
       
+      // Check for specific error codes that need translation
+      if (errorData.code === 'DUPLICATE_LICENSE') {
+        detailedError = t('crew.validation.licenseDuplicate');
+      }
       // Check if it's a validation error with field-specific messages
-      if (typeof errorData === 'object' && !errorData.message) {
+      else if (typeof errorData === 'object' && !errorData.message) {
         // Format validation errors
         const errorMessages = Object.entries(errorData)
           .map(([field, msg]) => `${field}: ${msg}`)
@@ -284,6 +288,9 @@ const handleSubmit = async () => {
 };
 
 const handleCancel = () => {
+  // Clear error messages when cancelling
+  errorMessage.value = '';
+  successMessage.value = '';
   emit('cancel');
 };
 </script>

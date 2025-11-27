@@ -87,6 +87,21 @@ class DatabaseStack(Stack):
             projection_type=dynamodb.ProjectionType.ALL,
         )
         
+        # GSI3: License Number Uniqueness Index
+        # Used to enforce license number uniqueness across all crew members
+        self.table.add_global_secondary_index(
+            index_name="GSI3",
+            partition_key=dynamodb.Attribute(
+                name="license_number",
+                type=dynamodb.AttributeType.STRING
+            ),
+            sort_key=dynamodb.Attribute(
+                name="SK",
+                type=dynamodb.AttributeType.STRING
+            ),
+            projection_type=dynamodb.ProjectionType.KEYS_ONLY,
+        )
+        
         # Create Lambda function for table initialization
         init_function = lambda_.Function(
             self,

@@ -22,11 +22,28 @@
 - [x] 2.2 Create team manager registration and profile management
 - [x] 2.3 Build frontend authentication components
 
-### 3. Crew Member Management ✅ COMPLETED
+### 3. Crew Member Management
 
 - [x] 3.1 Implement crew member data model and validation
 - [x] 3.2 Create crew member CRUD Lambda functions
 - [x] 3.3 Build crew member management frontend components
+
+- [x] 3.4 Implement license number uniqueness validation
+  - Add GSI3 (License Number Uniqueness Index) to DynamoDB table in CDK
+  - Update crew member creation Lambda to check for duplicate license numbers using GSI3
+  - Return 409 Conflict error with clear message when duplicate detected
+  - Ensure uniqueness check is performed atomically before creating crew member
+  - Update crew member update Lambda to check for duplicates when license number changes
+  - _Requirements: FR-2.4, FR-2.5_
+  - _Validates: Property 1 - License Number Uniqueness_
+
+- [ ] 3.5 Write property test for license number uniqueness
+  - **Feature: impressionnistes-registration-system, Property 1: License Number Uniqueness**
+  - Generate random crew members with random license numbers
+  - Attempt to add a second crew member with the same license number
+  - Verify the system rejects the duplicate and returns 409 Conflict error
+  - Test across different team managers to ensure competition-wide uniqueness
+  - **Validates: Requirements FR-2.4, FR-2.5**
 
 ### 4. Race Configuration and Management ✅ COMPLETED
 

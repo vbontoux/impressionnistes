@@ -69,6 +69,28 @@ def lambda_handler(event, context):
     if not is_valid:
         return validation_error(errors)
     
+    # Check for duplicate license number using GSI3
+    db = get_db_client()
+    if db.check_license_number_exists(crew_data['license_number']):
+        logger.warning(f"Duplicate license number attempted: {crew_data['license_number']}")
+        return {
+            'statusCode': 409,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': True,
+            },
+            'body': json.dumps({
+                'error': {
+                    'code': 'DUPLICATE_LICENSE',
+                    'message': 'License number already in use',
+                    'details': {
+                        'license_number': f'The license number {crew_data["license_number"]} is already registered in the competition'
+                    }
+                }
+            })
+        }
+    
     # Calculate is_rcpm_member based on club_affiliation
     # Uses case-insensitive matching for "RCPM", "Port-Marly", "Port Marly"
     rcpm_member = is_rcpm_member(crew_data['club_affiliation'])
@@ -77,8 +99,6 @@ def lambda_handler(event, context):
     crew_member_id = str(uuid.uuid4())
     
     # Store crew member in DynamoDB
-    db = get_db_client()
-    
     crew_member_item = {
         'PK': f'TEAM#{team_manager_id}',
         'SK': f'CREW#{crew_member_id}',
@@ -88,7 +108,7 @@ def lambda_handler(event, context):
         'last_name': crew_data['last_name'],
         'date_of_birth': crew_data['date_of_birth'],
         'gender': crew_data['gender'],
-        'license_number': crew_data['license_number'],
+        'license_number': crew_data['license_number'],  # GSI3 partition key
         'club_affiliation': crew_data['club_affiliation'],
         'is_rcpm_member': rcpm_member,
         'assigned_boat_id': None,

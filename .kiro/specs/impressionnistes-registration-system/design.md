@@ -171,6 +171,12 @@ Using a single DynamoDB table with the following access patterns:
 - SK: `age_category#{gender_category}`
 - Purpose: Race filtering and selection
 
+**GSI3: License Number Uniqueness Index**
+- PK: `license_number`
+- SK: `USER#{user_id}#CREW#{crew_id}`
+- Purpose: Enforce license number uniqueness across all crew members in the competition
+- Note: This index enables efficient duplicate detection when adding new crew members
+
 ### Configuration Management
 
 #### Storage Strategy
@@ -706,6 +712,28 @@ def calculate_boat_registration_price(boat_registration, crew_members, team_mana
         'is_multi_club_crew': detect_multi_club_crew(boat_registration, crew_members, team_manager)
     }
 ```
+
+## Correctness Properties
+
+*A property is a characteristic or behavior that should hold true across all valid executions of a system-essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
+
+### Property 1: License Number Uniqueness
+
+*For any* crew member registration attempt, if a license number already exists in the competition database, the system should reject the registration and return an error indicating the license number is already in use.
+
+**Validates: Requirements FR-2.4, FR-2.5**
+
+**Implementation Details:**
+- Before creating a new crew member, query DynamoDB to check if the license number exists
+- Use a Global Secondary Index (GSI) on license_number for efficient lookups
+- Return a 409 Conflict error with a clear message when a duplicate is detected
+- The uniqueness check must be performed atomically to prevent race conditions
+
+**Testing Approach:**
+- Generate random crew members with random license numbers
+- Attempt to add a second crew member with the same license number
+- Verify the system rejects the duplicate and returns the appropriate error
+- Test across different team managers to ensure uniqueness is competition-wide, not per-manager
 
 ## Error Handling
 
