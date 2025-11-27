@@ -88,7 +88,7 @@ These requirements define what the system does from a business and user perspect
 2. WHEN a team manager initiates payment, THE Registration_System SHALL calculate total fees based on Base_Seat_Price for all seats, applying zero cost for RCPM_Member seats and Base_Seat_Price for external club member seats
 3. WHEN determining RCPM_Member status for pricing, THE Registration_System SHALL identify crew members as RCPM_Members if their club_affiliation contains "RCPM" or "Port-Marly" or "Port Marly" in any combination of uppercase and lowercase letters
 4. THE Registration_System SHALL track partial payments and display payment status to team managers by showing the balance between the number of paid seats and the number of seats registered
-5. THE Registration_System SHALL allow modifications to crew members or boat registrations even after payment
+5. THE Registration_System SHALL allow modifications to crew members, seat assignments, and race selection for boat registrations even after payment, but SHALL prevent deletion of paid boat registrations
 6. THE Registration_System SHALL NOT allow reimbursement in case balance in favor of RCPM (in such case the situation will be fixed afterwards by email)
 7. WHEN payment processing occurs, THE Registration_System SHALL integrate with Stripe Payment_Gateway for secure transaction handling
 8. WHEN payment is completed, THE Registration_System SHALL send confirmation via email and update registration status

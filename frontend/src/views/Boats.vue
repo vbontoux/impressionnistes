@@ -3,6 +3,14 @@
     <div class="header">
       <h1>{{ $t('nav.boats') }}</h1>
       <div class="header-actions">
+        <div class="status-filter">
+          <select v-model="statusFilter" class="filter-select">
+            <option value="all">{{ $t('boat.filter.all') }}</option>
+            <option value="incomplete">{{ $t('boat.status.incomplete') }}</option>
+            <option value="complete">{{ $t('boat.status.complete') }}</option>
+            <option value="paid">{{ $t('boat.status.paid') }}</option>
+          </select>
+        </div>
         <div class="view-toggle">
           <button 
             @click="viewMode = 'cards'" 
@@ -87,6 +95,10 @@
             <div class="detail-row">
               <span class="label">{{ $t('boat.filledSeats') }}:</span>
               <span>{{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}</span>
+            </div>
+            <div v-if="boat.registration_status === 'paid' && boat.paid_at" class="detail-row">
+              <span class="label">{{ $t('boat.paidOn') }}:</span>
+              <span>{{ formatDate(boat.paid_at) }}</span>
             </div>
             <div v-if="boat.is_multi_club_crew" class="detail-row">
               <span class="multi-club-badge">{{ $t('boat.multiClub') }}</span>
@@ -185,13 +197,20 @@ export default {
     const showCreateForm = ref(false)
     // Load view mode from localStorage or default to 'cards'
     const viewMode = ref(localStorage.getItem('boatsViewMode') || 'cards')
+    const statusFilter = ref('all')
 
     // Watch for view mode changes and save to localStorage
     watch(viewMode, (newMode) => {
       localStorage.setItem('boatsViewMode', newMode)
     })
 
-    const boatRegistrations = computed(() => boatStore.boatRegistrations)
+    const boatRegistrations = computed(() => {
+      const boats = boatStore.boatRegistrations
+      if (statusFilter.value === 'all') {
+        return boats
+      }
+      return boats.filter(boat => boat.registration_status === statusFilter.value)
+    })
 
     const getFilledSeatsCount = (boat) => {
       if (!boat.seats) return 0
@@ -217,6 +236,16 @@ export default {
     const getCrewAverageAge = (boat) => {
       if (!boat.crew_composition || !boat.crew_composition.avg_age) return '-'
       return Math.round(boat.crew_composition.avg_age)
+    }
+
+    const formatDate = (dateString) => {
+      if (!dateString) return '-'
+      const date = new Date(dateString)
+      return date.toLocaleDateString(undefined, { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      })
     }
 
     const handleBoatCreated = (newBoat) => {
@@ -247,11 +276,13 @@ export default {
       boatStore,
       showCreateForm,
       viewMode,
+      statusFilter,
       boatRegistrations,
       getFilledSeatsCount,
       getFirstRowerLastName,
       getCrewGenderCategory,
       getCrewAverageAge,
+      formatDate,
       handleBoatCreated,
       viewBoat,
       deleteBoat
@@ -284,6 +315,32 @@ export default {
   display: flex;
   gap: 1rem;
   align-items: center;
+  flex-wrap: wrap;
+}
+
+.status-filter {
+  display: flex;
+  align-items: center;
+}
+
+.filter-select {
+  padding: 0.5rem 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: border-color 0.2s;
+}
+
+.filter-select:hover {
+  border-color: #007bff;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .view-toggle {
@@ -384,6 +441,8 @@ export default {
 
 .boat-card.status-paid {
   border-color: #007bff;
+  background: linear-gradient(to bottom, #f0f7ff 0%, white 100%);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
 }
 
 .boat-header {

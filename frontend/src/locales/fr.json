@@ -199,7 +199,11 @@
     "saveError": "Échec de l'enregistrement de l'inscription du bateau",
     "seats": "Places",
     "flags": "Indicateurs",
-    "cannotDeletePaid": "Impossible de supprimer un bateau payé. Veuillez contacter le support si vous devez apporter des modifications."
+    "cannotDeletePaid": "Impossible de supprimer un bateau payé. Veuillez contacter le support si vous devez apporter des modifications.",
+    "paidOn": "Payé le",
+    "filter": {
+      "all": "Tous les bateaux"
+    }
   },
   "payment": {
     "title": "Paiement",

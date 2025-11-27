@@ -199,7 +199,11 @@
     "saveError": "Failed to save boat registration",
     "seats": "Seats",
     "flags": "Flags",
-    "cannotDeletePaid": "Cannot delete a paid boat. Please contact support if you need to make changes."
+    "cannotDeletePaid": "Cannot delete a paid boat. Please contact support if you need to make changes.",
+    "paidOn": "Paid on",
+    "filter": {
+      "all": "All Boats"
+    }
   },
   "payment": {
     "title": "Payment",
