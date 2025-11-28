@@ -132,7 +132,7 @@
                 </span>
               </span>
             </td>
-            <td>{{ member.club_affiliation }}</td>
+            <td><span class="club-box">{{ member.club_affiliation }}</span></td>
             <td>
               <span v-if="member.assigned_boat_id" class="assigned-badge">✓</span>
               <span v-else>-</span>
@@ -677,5 +677,18 @@ const closeForm = () => {
 .master-letter {
   margin-left: 0.25rem;
   font-weight: 700;
+}
+
+.club-box {
+  display: inline-block;
+  max-width: 200px;
+  padding: 0.25rem 0.5rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 </style>

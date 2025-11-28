@@ -34,7 +34,7 @@
       </div>
       <div class="detail-row">
         <span class="label">{{ $t('crew.card.club') }}:</span>
-        <span class="value">{{ crewMember.club_affiliation }}</span>
+        <span class="value club-box">{{ crewMember.club_affiliation }}</span>
       </div>
     </div>
 
@@ -208,6 +208,19 @@ const getMasterCategoryLetter = (dateOfBirth) => {
 
 .value {
   color: #333;
+}
+
+.club-box {
+  display: inline-block;
+  max-width: 200px;
+  padding: 0.25rem 0.5rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .category-badge {
