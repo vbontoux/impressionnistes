@@ -52,6 +52,7 @@ def lambda_handler(event, context):
             initialize_pricing_config(table)
             initialize_notification_config(table)
             initialize_race_definitions(table)
+            initialize_rowing_clubs(table)
             
             print("Configuration initialized successfully")
             return send_response(event, context, 'SUCCESS', {
@@ -305,6 +306,70 @@ def initialize_race_definitions(table):
             pass
     
     print(f"Initialized {len(all_races)} race definitions")
+
+
+def initialize_rowing_clubs(table):
+    """Initialize rowing clubs from JSON file"""
+    # Load clubs data from JSON file (deployed with Lambda)
+    clubs_file = Path(__file__).parent / 'rowing_clubs_detailed.json'
+    
+    if not clubs_file.exists():
+        print(f"Warning: rowing_clubs_detailed.json not found at {clubs_file}")
+        return
+    
+    with open(clubs_file, 'r', encoding='utf-8') as f:
+        clubs_data = json.load(f)
+    
+    print(f"Loading {len(clubs_data)} rowing clubs...")
+    
+    # Track structure_numbers to handle duplicates
+    structure_number_counts = {}
+    clubs_added = 0
+    clubs_skipped = 0
+    
+    for idx, club in enumerate(clubs_data):
+        # Use structure_number as base for unique identifier
+        structure_number = club.get('structure_number', '')
+        
+        if not structure_number:
+            # Create a unique ID from name for clubs without structure_number
+            club_id = club['name'].lower().replace(' ', '-').replace("'", '').replace('–', '-')
+            unique_id = f"UNKNOWN-{club_id}"
+        else:
+            # Handle duplicate structure_numbers by appending a counter
+            if structure_number in structure_number_counts:
+                structure_number_counts[structure_number] += 1
+                unique_id = f"{structure_number}-{structure_number_counts[structure_number]}"
+            else:
+                structure_number_counts[structure_number] = 0
+                unique_id = structure_number
+        
+        club_item = {
+            'PK': 'CLUB',
+            'SK': unique_id,  # Use unique_id as sort key
+            'club_id': unique_id,
+            'name': club['name'],
+            'url': club.get('url', ''),
+            'structure_number': structure_number,
+            'phone': club.get('phone', []),
+            'management_team': club.get('management_team', []),
+            'created_at': datetime.utcnow().isoformat() + 'Z',
+        }
+        
+        try:
+            table.put_item(
+                Item=club_item,
+                ConditionExpression='attribute_not_exists(PK) AND attribute_not_exists(SK)'
+            )
+            clubs_added += 1
+        except table.meta.client.exceptions.ConditionalCheckFailedException:
+            # Club already exists, skip
+            clubs_skipped += 1
+        except Exception as e:
+            print(f"Error adding club {club['name']}: {str(e)}")
+            clubs_skipped += 1
+    
+    print(f"Initialized {clubs_added} rowing clubs ({clubs_skipped} skipped)")
 
 
 def send_response(event, context, response_status, response_data, physical_resource_id=None):

@@ -135,5 +135,6 @@ class DatabaseStack(Stack):
             service_token=provider.service_token,
             properties={
                 "Timestamp": str(self.node.addr),  # Force update on each deployment
+                "Version": "1.5",  # Increment to force re-initialization with clubs data
             },
         )
