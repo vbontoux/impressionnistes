@@ -78,6 +78,9 @@ class ApiStack(Stack):
         # Create crew member Lambda functions
         self._create_crew_functions()
         
+        # Create club Lambda functions
+        self._create_club_functions()
+        
         # Create boat registration Lambda functions
         self._create_boat_functions()
         
@@ -222,6 +225,16 @@ class ApiStack(Stack):
             'DeleteCrewMemberFunction',
             'crew/delete_crew_member',
             'Delete a crew member'
+        )
+    
+    def _create_club_functions(self):
+        """Create club management Lambda functions"""
+        
+        # List clubs function
+        self.lambda_functions['list_clubs'] = self._create_lambda_function(
+            'ListClubsFunction',
+            'club/list_clubs',
+            'List all rowing clubs'
         )
     
     def _create_boat_functions(self):
@@ -385,6 +398,48 @@ class ApiStack(Stack):
             )
         )
         
+        # Add Gateway Responses for CORS on error responses
+        # This ensures CORS headers are present even on 401, 403, 500 errors
+        self.api.add_gateway_response(
+            "Unauthorized",
+            type=apigateway.ResponseType.UNAUTHORIZED,
+            response_headers={
+                "Access-Control-Allow-Origin": "'*'",
+                "Access-Control-Allow-Headers": "'Content-Type,Authorization'",
+                "Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE,OPTIONS'"
+            }
+        )
+        
+        self.api.add_gateway_response(
+            "AccessDenied",
+            type=apigateway.ResponseType.ACCESS_DENIED,
+            response_headers={
+                "Access-Control-Allow-Origin": "'*'",
+                "Access-Control-Allow-Headers": "'Content-Type,Authorization'",
+                "Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE,OPTIONS'"
+            }
+        )
+        
+        self.api.add_gateway_response(
+            "Default4XX",
+            type=apigateway.ResponseType.DEFAULT_4_XX,
+            response_headers={
+                "Access-Control-Allow-Origin": "'*'",
+                "Access-Control-Allow-Headers": "'Content-Type,Authorization'",
+                "Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE,OPTIONS'"
+            }
+        )
+        
+        self.api.add_gateway_response(
+            "Default5XX",
+            type=apigateway.ResponseType.DEFAULT_5_XX,
+            response_headers={
+                "Access-Control-Allow-Origin": "'*'",
+                "Access-Control-Allow-Headers": "'Content-Type,Authorization'",
+                "Access-Control-Allow-Methods": "'GET,POST,PUT,DELETE,OPTIONS'"
+            }
+        )
+        
         # Create Cognito authorizer
         self.authorizer = apigateway.CognitoUserPoolsAuthorizer(
             self,
@@ -516,6 +571,19 @@ class ApiStack(Stack):
             delete_crew_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Create /clubs resource
+        clubs_resource = self.api.root.add_resource('clubs')
+        
+        # GET /clubs - List all clubs (public - no auth required for registration)
+        list_clubs_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['list_clubs'],
+            proxy=True
+        )
+        clubs_resource.add_method(
+            'GET',
+            list_clubs_integration
         )
         
         # Create /boat resource

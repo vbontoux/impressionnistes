@@ -81,13 +81,60 @@
       <!-- Club Affiliation -->
       <div class="form-group">
         <label for="clubAffiliation">{{ $t('auth.register.clubAffiliation') }} *</label>
+        
+        <!-- Foreign Club Checkbox -->
+        <div class="checkbox-group">
+          <input
+            id="foreignClub"
+            v-model="isForeignClub"
+            type="checkbox"
+            :disabled="loading"
+          />
+          <label for="foreignClub" class="checkbox-label">
+            {{ $t('crew.form.foreignClub') }}
+          </label>
+        </div>
+
+        <!-- Searchable Dropdown for French Clubs -->
+        <div v-if="!isForeignClub" class="autocomplete-wrapper">
+          <input
+            id="clubAffiliation"
+            v-model="clubSearchQuery"
+            type="text"
+            required
+            :disabled="loading"
+            :placeholder="$t('crew.form.clubSearchPlaceholder')"
+            @input="handleClubSearch"
+            @focus="handleClubFocus"
+            @blur="handleClubBlur"
+            autocomplete="off"
+          />
+          <div v-if="showClubDropdown && filteredClubs.length > 0" class="autocomplete-dropdown">
+            <div
+              v-for="club in filteredClubs"
+              :key="club.club_id"
+              class="autocomplete-item"
+              @mousedown.prevent="selectClub(club)"
+            >
+              <div class="club-name">{{ club.name }}</div>
+            </div>
+          </div>
+          <div v-if="showClubDropdown && clubSearchQuery && filteredClubs.length === 0" class="autocomplete-no-results">
+            {{ $t('crew.form.noClubsFound') }}
+          </div>
+        </div>
+
+        <!-- Free Text Input for Foreign Clubs -->
         <input
-          id="clubAffiliation"
+          v-else
+          id="clubAffiliationForeign"
           v-model="form.club_affiliation"
           type="text"
           required
           :disabled="loading"
+          :placeholder="$t('auth.register.clubAffiliation')"
         />
+        
         <span v-if="errors.club_affiliation" class="error">{{ errors.club_affiliation }}</span>
       </div>
 
@@ -132,10 +179,11 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue';
+import { ref, reactive, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
 import { useI18n } from 'vue-i18n';
+import axios from 'axios';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -161,6 +209,89 @@ const passwordChecks = reactive({
   hasUppercase: false,
   hasLowercase: false,
   hasNumber: false
+});
+
+// Club search state
+const clubs = ref([]);
+const clubSearchQuery = ref('');
+const filteredClubs = ref([]);
+const showClubDropdown = ref(false);
+const isForeignClub = ref(false);
+
+// Fetch clubs on mount
+onMounted(async () => {
+  await fetchClubs();
+});
+
+// Fetch clubs from API
+const fetchClubs = async () => {
+  try {
+    const apiUrl = import.meta.env.VITE_API_URL.replace(/\/$/, ''); // Remove trailing slash
+    console.log('Fetching clubs from:', `${apiUrl}/clubs`);
+    const response = await axios.get(`${apiUrl}/clubs`);
+    console.log('Clubs response:', response.data);
+    clubs.value = response.data.data.clubs || [];
+    console.log(`Loaded ${clubs.value.length} clubs`);
+    // Initialize filtered clubs with first 50
+    filteredClubs.value = clubs.value.slice(0, 50);
+  } catch (error) {
+    console.error('Error fetching clubs:', error);
+    console.error('Error details:', error.response?.data);
+    // Don't show error to user, they can still use foreign club checkbox
+  }
+};
+
+// Handle club focus - show dropdown with initial results
+const handleClubFocus = () => {
+  console.log('Club focus - clubs:', clubs.value.length, 'filtered:', filteredClubs.value.length);
+  showClubDropdown.value = true;
+  handleClubSearch();
+  console.log('After search - showDropdown:', showClubDropdown.value, 'filtered:', filteredClubs.value.length);
+};
+
+// Handle club search input
+const handleClubSearch = () => {
+  if (!clubSearchQuery.value) {
+    filteredClubs.value = clubs.value.slice(0, 50);
+    showClubDropdown.value = true;
+    return;
+  }
+  
+  const query = clubSearchQuery.value.toLowerCase();
+  filteredClubs.value = clubs.value
+    .filter(club => {
+      const nameMatch = club.name.toLowerCase().includes(query);
+      const urlMatch = club.url && club.url.toLowerCase().includes(query);
+      return nameMatch || urlMatch;
+    })
+    .slice(0, 50);
+  
+  showClubDropdown.value = true;
+};
+
+// Select a club from dropdown
+const selectClub = (club) => {
+  form.club_affiliation = club.name;
+  clubSearchQuery.value = club.name;
+  showClubDropdown.value = false;
+};
+
+// Handle blur event on club input
+const handleClubBlur = () => {
+  setTimeout(() => {
+    showClubDropdown.value = false;
+  }, 200);
+};
+
+// Watch for foreign club checkbox changes
+watch(isForeignClub, (newValue) => {
+  if (newValue) {
+    form.club_affiliation = '';
+    clubSearchQuery.value = '';
+  } else {
+    form.club_affiliation = '';
+    clubSearchQuery.value = '';
+  }
 });
 
 // Validation functions
@@ -399,5 +530,76 @@ a:hover {
 
 .requirement.valid .icon {
   color: #4CAF50;
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: auto;
+  margin-right: 0.5rem;
+}
+
+.checkbox-label {
+  margin-bottom: 0;
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.autocomplete-wrapper {
+  position: relative;
+}
+
+.autocomplete-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  z-index: 1000;
+}
+
+.autocomplete-item {
+  padding: 0.75rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.autocomplete-item:hover {
+  background-color: #f5f5f5;
+}
+
+.autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.club-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.club-url {
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+.autocomplete-no-results {
+  padding: 0.75rem;
+  color: #666;
+  font-style: italic;
+  background: white;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
 }
 </style>
