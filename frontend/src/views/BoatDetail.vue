@@ -85,6 +85,13 @@
           </div>
         </div>
       </div>
+
+      <!-- Bottom Save Button -->
+      <div class="bottom-actions">
+        <button @click="saveBoat" :disabled="saving" class="btn-primary btn-large">
+          {{ saving ? $t('common.saving') : $t('common.save') }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -428,5 +435,19 @@ export default {
 
 .issue-item small {
   color: #666;
+}
+
+.bottom-actions {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  border-top: 2px solid #e0e0e0;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-large {
+  padding: 1rem 3rem;
+  font-size: 1.1rem;
 }
 </style>
