@@ -5,32 +5,34 @@
 
 /**
  * Calculate age based on date of birth
+ * Age is calculated as the age the person will reach during the current year,
+ * regardless of whether their birthday has passed yet.
+ * 
  * @param {string} dateOfBirth - Date string in YYYY-MM-DD format
  * @param {Date} referenceDate - Reference date for age calculation (defaults to today)
- * @returns {number} Age in years
+ * @returns {number} Age the person will reach during the reference year
  */
 export function calculateAge(dateOfBirth, referenceDate = new Date()) {
   const birthDate = new Date(dateOfBirth);
-  let age = referenceDate.getFullYear() - birthDate.getFullYear();
-  
-  // Adjust if birthday hasn't occurred this year
-  const monthDiff = referenceDate.getMonth() - birthDate.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && referenceDate.getDate() < birthDate.getDate())) {
-    age--;
-  }
+  // Age is simply the difference in years - no adjustment for birthday
+  const age = referenceDate.getFullYear() - birthDate.getFullYear();
   
   return age;
 }
 
 /**
- * Determine age category based on age
+ * Determine age category based on age for display purposes
  * @param {number} age - Age in years
- * @returns {string} Age category (j16, j18, senior, master)
+ * @returns {string} Age category (j14, j16, j18, senior, master)
+ * 
+ * Note: J14 can only be cox. J15 competes in J16 races. J17 competes in J18 races.
  */
 export function getAgeCategory(age) {
-  if (age <= 16) {
+  if (age === 14) {
+    return "j14";
+  } else if (age === 15 || age === 16) {
     return "j16";
-  } else if (age <= 18) {
+  } else if (age === 17 || age === 18) {
     return "j18";
   } else if (age < 27) {
     return "senior";

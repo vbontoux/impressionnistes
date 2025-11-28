@@ -654,6 +654,11 @@ const closeForm = () => {
   text-transform: uppercase;
 }
 
+.category-j14 {
+  background-color: #E3F2FD;
+  color: #1976D2;
+}
+
 .category-j16 {
   background-color: #E3F2FD;
   color: #1976D2;

@@ -167,6 +167,7 @@ import { useI18n } from 'vue-i18n';
 import { useCrewStore } from '../stores/crewStore';
 import { useAuthStore } from '../stores/authStore';
 import axios from 'axios';
+import { calculateAge } from '../utils/raceEligibility';
 
 const props = defineProps({
   crewMember: {
@@ -342,18 +343,19 @@ const validateField = (field) => {
     } else {
       const birthDate = new Date(form.date_of_birth);
       const today = new Date();
-      const currentYear = today.getFullYear();
       
-      // Calculate minimum birth year for J14 (14 years old in current season)
-      // For 2025 season, J14 must be born in 2011 or later
-      const minBirthYear = currentYear - 14;
-      const minDate = new Date(minBirthYear, 0, 1); // January 1st of min year
+      // Use the centralized calculateAge function
+      const ageThisYear = calculateAge(form.date_of_birth);
+      
+      // Minimum age is J14 (14 years old)
+      const minAge = 14;
       
       // Maximum date is today (can't be born in the future)
       if (birthDate > today) {
         errors.date_of_birth = t('crew.validation.dateInFuture');
-      } else if (birthDate > minDate) {
-        // Born AFTER minDate means they're TOO YOUNG (not old enough)
+      } else if (ageThisYear < minAge) {
+        // Too young - will not reach minimum age this year
+        const minBirthYear = today.getFullYear() - minAge;
         errors.date_of_birth = t('crew.validation.dateTooOld', { year: minBirthYear });
       }
     }

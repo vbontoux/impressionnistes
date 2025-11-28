@@ -71,7 +71,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { getAgeCategory as getAgeCategoryUtil, getMasterCategory } from '../utils/raceEligibility';
+import { calculateAge, getAgeCategory as getAgeCategoryUtil, getMasterCategory } from '../utils/raceEligibility';
 
 const props = defineProps({
   crewMember: {
@@ -96,20 +96,6 @@ const formatDate = (dateString) => {
     month: 'long', 
     day: 'numeric' 
   });
-};
-
-const calculateAge = (dateOfBirth) => {
-  const today = new Date();
-  const birthDate = new Date(dateOfBirth);
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDiff = today.getMonth() - birthDate.getMonth();
-  
-  // Adjust if birthday hasn't occurred this year
-  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
-  }
-  
-  return age;
 };
 
 const getAgeCategory = (dateOfBirth) => {
@@ -230,6 +216,11 @@ const getMasterCategoryLetter = (dateOfBirth) => {
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
+}
+
+.category-j14 {
+  background-color: #E3F2FD;
+  color: #1976D2;
 }
 
 .category-j16 {

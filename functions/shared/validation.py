@@ -57,8 +57,9 @@ class CustomValidator(Validator):
     def _validate_birth_date_range(self, constraint, field, value):
         """
         Validate that birth date is within acceptable range for rowers
-        Must be born in current_year - 14 or later (minimum J14 age)
-        Cannot be in the future
+        Age is calculated as the age the person will reach during the current year.
+        Minimum age is J14 (14 years old).
+        Cannot be in the future.
         
         The rule's arguments are validated against this schema:
         {'type': 'boolean'}
@@ -68,15 +69,19 @@ class CustomValidator(Validator):
                 birth_date = datetime.strptime(value, '%Y-%m-%d').date()
                 today = datetime.now().date()
                 current_year = today.year
+                birth_year = birth_date.year
                 
-                # Calculate minimum birth year for J14 (14 years old in current season)
-                min_birth_year = current_year - 14
-                min_date = datetime(min_birth_year, 1, 1).date()
+                # Calculate age the person will reach during the current year
+                age_this_year = current_year - birth_year
+                
+                # Minimum age is J14 (14 years old)
+                min_age = 14
                 
                 if birth_date > today:
                     self._error(field, "Date of birth cannot be in the future")
-                elif birth_date > min_date:
-                    # Born AFTER minDate means they're TOO YOUNG (not old enough for J14)
+                elif age_this_year < min_age:
+                    # Too young - will not reach minimum age this year
+                    min_birth_year = current_year - min_age
                     self._error(field, f"Rower must be born in {min_birth_year} or earlier (minimum age J14)")
             except ValueError:
                 pass  # Date format error will be caught by date_format validator
