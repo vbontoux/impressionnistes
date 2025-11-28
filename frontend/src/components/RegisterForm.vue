@@ -30,10 +30,26 @@
           type="password"
           required
           :disabled="loading"
-          @blur="validatePassword"
+          @input="validatePassword"
         />
-        <span v-if="errors.password" class="error">{{ errors.password }}</span>
-        <small class="hint">{{ $t('auth.register.passwordHint') }}</small>
+        <div class="password-requirements">
+          <div class="requirement" :class="{ valid: passwordChecks.minLength }">
+            <span class="icon">{{ passwordChecks.minLength ? '✓' : '○' }}</span>
+            <span>{{ $t('auth.validation.passwordMinLength') }}</span>
+          </div>
+          <div class="requirement" :class="{ valid: passwordChecks.hasUppercase }">
+            <span class="icon">{{ passwordChecks.hasUppercase ? '✓' : '○' }}</span>
+            <span>{{ $t('auth.validation.passwordHasUppercase') }}</span>
+          </div>
+          <div class="requirement" :class="{ valid: passwordChecks.hasLowercase }">
+            <span class="icon">{{ passwordChecks.hasLowercase ? '✓' : '○' }}</span>
+            <span>{{ $t('auth.validation.passwordHasLowercase') }}</span>
+          </div>
+          <div class="requirement" :class="{ valid: passwordChecks.hasNumber }">
+            <span class="icon">{{ passwordChecks.hasNumber ? '✓' : '○' }}</span>
+            <span>{{ $t('auth.validation.passwordHasNumber') }}</span>
+          </div>
+        </div>
       </div>
 
       <!-- First Name -->
@@ -139,6 +155,14 @@ const loading = ref(false);
 const errorMessage = ref('');
 const successMessage = ref('');
 
+// Password validation checks
+const passwordChecks = reactive({
+  minLength: false,
+  hasUppercase: false,
+  hasLowercase: false,
+  hasNumber: false
+});
+
 // Validation functions
 const validateEmail = () => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -150,14 +174,20 @@ const validateEmail = () => {
 };
 
 const validatePassword = () => {
-  if (form.password.length < 8) {
-    errors.password = t('auth.validation.passwordTooShort');
-  } else if (!/[A-Z]/.test(form.password)) {
-    errors.password = t('auth.validation.passwordNeedsUppercase');
-  } else if (!/[a-z]/.test(form.password)) {
-    errors.password = t('auth.validation.passwordNeedsLowercase');
-  } else if (!/[0-9]/.test(form.password)) {
-    errors.password = t('auth.validation.passwordNeedsNumber');
+  // Update individual checks
+  passwordChecks.minLength = form.password.length >= 8;
+  passwordChecks.hasUppercase = /[A-Z]/.test(form.password);
+  passwordChecks.hasLowercase = /[a-z]/.test(form.password);
+  passwordChecks.hasNumber = /[0-9]/.test(form.password);
+  
+  // Set error if any check fails
+  const allValid = passwordChecks.minLength && 
+                   passwordChecks.hasUppercase && 
+                   passwordChecks.hasLowercase && 
+                   passwordChecks.hasNumber;
+  
+  if (!allValid) {
+    errors.password = t('auth.validation.passwordRequirements');
   } else {
     delete errors.password;
   }
@@ -337,5 +367,37 @@ a {
 
 a:hover {
   text-decoration: underline;
+}
+
+.password-requirements {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  font-size: 0.875rem;
+}
+
+.requirement {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  color: #666;
+  transition: color 0.3s;
+}
+
+.requirement.valid {
+  color: #4CAF50;
+  font-weight: 500;
+}
+
+.requirement .icon {
+  font-weight: bold;
+  font-size: 1rem;
+  min-width: 1.2rem;
+}
+
+.requirement.valid .icon {
+  color: #4CAF50;
 }
 </style>

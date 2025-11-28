@@ -62,7 +62,12 @@
       "passwordTooShort": "Password must be at least 8 characters",
       "passwordNeedsUppercase": "Password must contain at least one uppercase letter",
       "passwordNeedsLowercase": "Password must contain at least one lowercase letter",
-      "passwordNeedsNumber": "Password must contain at least one number"
+      "passwordNeedsNumber": "Password must contain at least one number",
+      "passwordRequirements": "Password must meet all requirements above",
+      "passwordMinLength": "At least 8 characters",
+      "passwordHasUppercase": "At least one uppercase letter (A-Z)",
+      "passwordHasLowercase": "At least one lowercase letter (a-z)",
+      "passwordHasNumber": "At least one number (0-9)"
     },
     "verify": {
       "title": "Verify Your Email",
