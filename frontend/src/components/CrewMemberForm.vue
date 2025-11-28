@@ -289,8 +289,27 @@ const handleClubBlur = () => {
   // Delay hiding dropdown to allow click events to fire
   setTimeout(() => {
     showClubDropdown.value = false;
+    
+    // If not foreign club, validate that the entered text matches a club name
+    if (!isForeignClub.value && clubSearchQuery.value) {
+      const matchingClub = clubs.value.find(
+        club => club.name.toLowerCase() === clubSearchQuery.value.toLowerCase()
+      );
+      
+      if (!matchingClub) {
+        // Reset to empty if no match found
+        clubSearchQuery.value = '';
+        form.club_affiliation = '';
+      } else {
+        // Ensure exact match
+        form.club_affiliation = matchingClub.name;
+        clubSearchQuery.value = matchingClub.name;
+      }
+    }
   }, 200);
 };
+
+
 
 // Watch for foreign club checkbox changes
 watch(isForeignClub, (newValue) => {
