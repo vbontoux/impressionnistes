@@ -166,7 +166,7 @@
     "noBoats": "No boat registrations yet",
     "confirmDelete": "Are you sure you want to delete {name}?",
     "rental": "Rental",
-    "multiClub": "Multi-Club",
+    "multiClub": "RCPM Rowers",
     "firstRower": "First Rower",
     "averageAge": "Average Age",
     "status": {
@@ -195,7 +195,7 @@
     "rower": "Rower",
     "selectCrewMember": "Select crew member",
     "filledSeats": "Filled seats",
-    "multiClubWarning": "Multi-club crew detected - seat rental fees apply",
+    "multiClubWarning": "RCPM rowers detected - RCPM seats are free",
     "selectRace": "Select Race",
     "selectedRace": "Selected Race",
     "assignCrewFirst": "Please assign crew members to all seats first",

@@ -166,7 +166,7 @@
     "noBoats": "Aucune inscription de bateau pour le moment",
     "confirmDelete": "Êtes-vous sûr de vouloir supprimer {name} ?",
     "rental": "Location",
-    "multiClub": "Multi-Club",
+    "multiClub": "Rameurs RCPM",
     "firstRower": "Premier rameur",
     "averageAge": "Âge moyen",
     "status": {
@@ -195,7 +195,7 @@
     "rower": "Rameur",
     "selectCrewMember": "Sélectionner un membre d'équipage",
     "filledSeats": "Places remplies",
-    "multiClubWarning": "Équipage multi-club détecté - des frais de location de place s'appliquent",
+    "multiClubWarning": "Rameurs RCPM détectés - places RCPM gratuites",
     "selectRace": "Sélectionner une course",
     "selectedRace": "Course sélectionnée",
     "assignCrewFirst": "Veuillez d'abord attribuer des membres d'équipage à toutes les places",

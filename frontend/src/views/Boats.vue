@@ -94,14 +94,14 @@
             </div>
             <div class="detail-row">
               <span class="label">{{ $t('boat.filledSeats') }}:</span>
-              <span>{{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}</span>
+              <span>
+                <span v-if="boat.is_multi_club_crew" class="multi-club-badge">{{ $t('boat.multiClub') }}</span>
+                {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
+              </span>
             </div>
             <div v-if="boat.registration_status === 'paid' && boat.paid_at" class="detail-row">
               <span class="label">{{ $t('boat.paidOn') }}:</span>
               <span>{{ formatDate(boat.paid_at) }}</span>
-            </div>
-            <div v-if="boat.is_multi_club_crew" class="detail-row">
-              <span class="multi-club-badge">{{ $t('boat.multiClub') }}</span>
             </div>
           </div>
 
@@ -525,6 +525,8 @@ export default {
 
 .rental-badge,
 .multi-club-badge {
+  display: inline-block;
+  margin-left: 0.5rem;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-size: 0.75rem;
