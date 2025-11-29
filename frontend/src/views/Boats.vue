@@ -105,6 +105,10 @@
             </div>
           </div>
 
+          <div v-if="getRaceName(boat)" class="race-name">
+            <strong>{{ $t('boat.selectedRace') }}:</strong> {{ getRaceName(boat) }}
+          </div>
+
           <div class="boat-actions">
             <button @click="viewBoat(boat)" class="btn-secondary">
               {{ $t('common.view') }}
@@ -137,39 +141,44 @@
             </tr>
           </thead>
           <tbody>
-            <tr 
-              v-for="boat in boatRegistrations" 
-              :key="boat.boat_registration_id"
-              :class="`row-status-${boat.registration_status}`"
-            >
-              <td>{{ boat.event_type }}</td>
-              <td>{{ boat.boat_type }}</td>
-              <td>{{ getFirstRowerLastName(boat) }}</td>
-              <td>{{ getCrewGenderCategory(boat) }}</td>
-              <td>{{ getCrewAverageAge(boat) }}</td>
-              <td>
-                <span class="status-badge" :class="`status-${boat.registration_status}`">
-                  {{ $t(`boat.status.${boat.registration_status}`) }}
-                </span>
-              </td>
-              <td>
-                {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
-                <span v-if="boat.is_multi_club_crew" class="multi-club-badge-small">{{ $t('boat.multiClub') }}</span>
-              </td>
-              <td class="actions-cell">
-                <button @click="viewBoat(boat)" class="btn-table btn-view-table">
-                  {{ $t('common.view') }}
-                </button>
-                <button 
-                  @click="deleteBoat(boat)" 
-                  class="btn-table btn-delete-table"
-                  :disabled="boat.registration_status === 'paid'"
-                  :title="boat.registration_status === 'paid' ? $t('boat.cannotDeletePaid') : ''"
-                >
-                  {{ $t('common.delete') }}
-                </button>
-              </td>
-            </tr>
+            <template v-for="boat in boatRegistrations" :key="boat.boat_registration_id">
+              <tr 
+                :class="`row-status-${boat.registration_status}`"
+              >
+                <td>{{ boat.event_type }}</td>
+                <td>{{ boat.boat_type }}</td>
+                <td>{{ getFirstRowerLastName(boat) }}</td>
+                <td>{{ getCrewGenderCategory(boat) }}</td>
+                <td>{{ getCrewAverageAge(boat) }}</td>
+                <td>
+                  <span class="status-badge" :class="`status-${boat.registration_status}`">
+                    {{ $t(`boat.status.${boat.registration_status}`) }}
+                  </span>
+                </td>
+                <td>
+                  {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
+                  <span v-if="boat.is_multi_club_crew" class="multi-club-badge-small">{{ $t('boat.multiClub') }}</span>
+                </td>
+                <td class="actions-cell">
+                  <button @click="viewBoat(boat)" class="btn-table btn-view-table">
+                    {{ $t('common.view') }}
+                  </button>
+                  <button 
+                    @click="deleteBoat(boat)" 
+                    class="btn-table btn-delete-table"
+                    :disabled="boat.registration_status === 'paid'"
+                    :title="boat.registration_status === 'paid' ? $t('boat.cannotDeletePaid') : ''"
+                  >
+                    {{ $t('common.delete') }}
+                  </button>
+                </td>
+              </tr>
+              <tr v-if="getRaceName(boat)" class="race-row" :class="`row-status-${boat.registration_status}`">
+                <td colspan="8" class="race-cell">
+                  <span class="race-label">{{ $t('boat.selectedRace') }}:</span> {{ getRaceName(boat) }}
+                </td>
+              </tr>
+            </template>
           </tbody>
         </table>
       </div>
@@ -181,6 +190,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBoatStore } from '../stores/boatStore'
+import { useRaceStore } from '../stores/raceStore'
 import { useI18n } from 'vue-i18n'
 import BoatRegistrationForm from '../components/BoatRegistrationForm.vue'
 
@@ -192,6 +202,7 @@ export default {
   setup() {
     const router = useRouter()
     const boatStore = useBoatStore()
+    const raceStore = useRaceStore()
     const { t } = useI18n()
 
     const showCreateForm = ref(false)
@@ -248,6 +259,18 @@ export default {
       })
     }
 
+    const getRaceName = (boat) => {
+      if (!boat.race_id) return null
+      const race = raceStore.races.find(r => r.race_id === boat.race_id)
+      if (!race || !race.name) return null
+      
+      // Try to get translation, fallback to original name if not found
+      const translationKey = `races.${race.name}`
+      const translated = t(translationKey)
+      // If translation key is returned as-is, it means no translation exists
+      return translated === translationKey ? race.name : translated
+    }
+
     const handleBoatCreated = (newBoat) => {
       showCreateForm.value = false
       // Navigate to boat detail page
@@ -268,8 +291,12 @@ export default {
       }
     }
 
-    onMounted(() => {
-      boatStore.fetchBoatRegistrations()
+    onMounted(async () => {
+      // Load races if not already loaded
+      if (raceStore.races.length === 0) {
+        await raceStore.fetchRaces()
+      }
+      await boatStore.fetchBoatRegistrations()
     })
 
     return {
@@ -283,6 +310,7 @@ export default {
       getCrewGenderCategory,
       getCrewAverageAge,
       formatDate,
+      getRaceName,
       handleBoatCreated,
       viewBoat,
       deleteBoat
@@ -527,6 +555,20 @@ export default {
   color: #000;
 }
 
+.race-name {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: #495057;
+}
+
+.race-name strong {
+  color: #212529;
+}
+
 .boat-actions {
   display: flex;
   gap: 0.5rem;
@@ -623,6 +665,28 @@ export default {
 
 .boat-table tbody tr.row-status-incomplete {
   border-left: 4px solid #ffc107;
+}
+
+.boat-table .race-row {
+  background-color: #f8f9fa;
+  border-left-width: 4px;
+}
+
+.boat-table .race-row:hover {
+  background-color: #f8f9fa;
+}
+
+.boat-table .race-cell {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-style: italic;
+  color: #495057;
+}
+
+.boat-table .race-label {
+  font-weight: 600;
+  font-style: normal;
+  color: #212529;
 }
 
 .actions-cell {

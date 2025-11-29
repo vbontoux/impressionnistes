@@ -197,6 +197,7 @@
     "filledSeats": "Filled seats",
     "multiClubWarning": "Multi-club crew detected - seat rental fees apply",
     "selectRace": "Select Race",
+    "selectedRace": "Selected Race",
     "assignCrewFirst": "Please assign crew members to all seats first",
     "noEligibleRaces": "No eligible races found for this crew composition",
     "checkCrewComposition": "Check crew member ages and genders",
