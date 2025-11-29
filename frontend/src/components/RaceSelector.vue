@@ -26,7 +26,7 @@
           @click="selectRace(race)"
         >
           <div class="race-header">
-            <h5>{{ getRaceDisplay(race) }}</h5>
+            <h5>{{ getTranslatedRaceName(race) }}</h5>
             <span v-if="selectedRaceId === race.race_id" class="selected-badge">
               {{ $t('boat.selected') }}
             </span>
@@ -116,11 +116,23 @@ export default {
       emit('update:selectedRaceId', race.race_id)
     }
 
+    const getTranslatedRaceName = (race) => {
+      if (!race.name) {
+        return getRaceDisplay(race)
+      }
+      // Try to get translation, fallback to original name if not found
+      const translationKey = `races.${race.name}`
+      const translated = t(translationKey)
+      // If translation key is returned as-is, it means no translation exists
+      return translated === translationKey ? race.name : translated
+    }
+
     return {
       eligibleRaces,
       crewDescription,
       selectRace,
-      getRaceDisplay
+      getRaceDisplay,
+      getTranslatedRaceName
     }
   }
 }
