@@ -1,5 +1,12 @@
 <template>
   <div id="app" :class="{ 'sidebar-open': sidebarOpen }">
+    <!-- Session Timeout Warning -->
+    <SessionTimeoutWarning 
+      :show="sessionTimeout.showWarning.value" 
+      :time-remaining="sessionTimeout.timeRemaining.value"
+      @continue="sessionTimeout.continueSession"
+    />
+    
     <!-- Top Header -->
     <header class="top-header">
       <button 
@@ -134,12 +141,17 @@
 import { ref, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from './stores/authStore';
+import { useSessionTimeout } from './composables/useSessionTimeout';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
+import SessionTimeoutWarning from './components/SessionTimeoutWarning.vue';
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const sidebarOpen = ref(false);
+
+// Initialize session timeout monitoring
+const sessionTimeout = useSessionTimeout();
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value;
@@ -168,6 +180,15 @@ watch(() => route.path, () => {
     closeSidebar();
   }
 });
+
+// Watch authentication state to start/stop session monitoring
+watch(() => authStore.isAuthenticated, (isAuth) => {
+  if (isAuth) {
+    sessionTimeout.startMonitoring();
+  } else {
+    sessionTimeout.stopMonitoring();
+  }
+}, { immediate: true });
 </script>
 
 <style>

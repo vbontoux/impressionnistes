@@ -29,6 +29,13 @@
     "logout": "Déconnexion",
     "toggleMenu": "Basculer le menu"
   },
+  "session": {
+    "warningTitle": "Session bientôt expirée",
+    "warningMessage": "Votre session expirera dans {seconds} secondes en raison de l'inactivité. Cliquez ci-dessous pour continuer votre session.",
+    "continueSession": "Continuer la session",
+    "expiredInactivity": "Votre session a expiré en raison de l'inactivité. Veuillez vous reconnecter.",
+    "expiredDuration": "Votre session a expiré après 5 heures. Veuillez vous reconnecter pour des raisons de sécurité."
+  },
   "auth": {
     "login": {
       "title": "Connexion",

@@ -29,6 +29,13 @@
     "logout": "Logout",
     "toggleMenu": "Toggle menu"
   },
+  "session": {
+    "warningTitle": "Session Expiring Soon",
+    "warningMessage": "Your session will expire in {seconds} seconds due to inactivity. Click below to continue your session.",
+    "continueSession": "Continue Session",
+    "expiredInactivity": "Your session has expired due to inactivity. Please log in again.",
+    "expiredDuration": "Your session has expired after 5 hours. Please log in again for security."
+  },
   "auth": {
     "login": {
       "title": "Login",

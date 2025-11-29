@@ -177,9 +177,9 @@ class AuthStack(Stack):
                 admin_user_password=True
             ),
             
-            # Session configuration (30 minutes as per requirements)
-            access_token_validity=Duration.minutes(30),
-            id_token_validity=Duration.minutes(30),
+            # Session configuration (5 hours max, 30 min inactivity handled by frontend)
+            access_token_validity=Duration.hours(5),
+            id_token_validity=Duration.hours(5),
             refresh_token_validity=Duration.days(30),
             
             # Prevent user existence errors (security)
