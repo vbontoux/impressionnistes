@@ -25,9 +25,9 @@
               v-for="member in availableCrewMembers(seat)"
               :key="member.crew_member_id"
               :value="member.crew_member_id"
+              :data-category="getAgeCategory(member.date_of_birth)"
             >
-              {{ member.first_name }} {{ member.last_name }}
-              <span v-if="member.is_rcpm_member">(RCPM)</span>
+              {{ member.first_name }} {{ member.last_name }} - {{ formatCategoryDisplay(member.date_of_birth) }} - {{ member.club_affiliation }}
             </option>
           </select>
 
@@ -39,10 +39,6 @@
           >
             {{ $t('common.clear') }}
           </button>
-        </div>
-
-        <div v-if="getCrewMemberInfo(seat.crew_member_id)" class="crew-info">
-          <span>{{ getCrewMemberInfo(seat.crew_member_id).club_affiliation }}</span>
         </div>
       </div>
     </div>
@@ -61,8 +57,10 @@
 </template>
 
 <script>
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useCrewStore } from '../stores/crewStore'
+import { useI18n } from 'vue-i18n'
+import { calculateAge, getAgeCategory as getAgeCategoryUtil, getMasterCategory } from '../utils/raceEligibility'
 
 export default {
   name: 'SeatAssignment',
@@ -79,6 +77,7 @@ export default {
   emits: ['update:seats'],
   setup(props, { emit }) {
     const crewStore = useCrewStore()
+    const { t } = useI18n()
     const error = ref(null)
 
     // Fetch crew members if not already loaded
@@ -149,6 +148,24 @@ export default {
       emit('update:seats', props.seats)
     }
 
+    const getAgeCategory = (dateOfBirth) => {
+      const age = calculateAge(dateOfBirth)
+      return getAgeCategoryUtil(age)
+    }
+
+    const formatCategoryDisplay = (dateOfBirth) => {
+      const age = calculateAge(dateOfBirth)
+      const category = getAgeCategoryUtil(age)
+      const categoryLabel = t(`boat.${category}`)
+      
+      if (category === 'master') {
+        const masterLetter = getMasterCategory(age)
+        return `${categoryLabel} ${masterLetter}`
+      }
+      
+      return categoryLabel
+    }
+
     return {
       error,
       filledSeatsCount,
@@ -156,7 +173,9 @@ export default {
       availableCrewMembers,
       getCrewMemberInfo,
       onSeatChange,
-      clearSeat
+      clearSeat,
+      getAgeCategory,
+      formatCategoryDisplay
     }
   }
 }
@@ -220,6 +239,36 @@ export default {
   border: 1px solid #ced4da;
   border-radius: 4px;
   font-size: 0.875rem;
+}
+
+.crew-select option[data-category="j14"] {
+  background-color: #E3F2FD;
+  color: #1976D2;
+  font-weight: 600;
+}
+
+.crew-select option[data-category="j16"] {
+  background-color: #E3F2FD;
+  color: #1976D2;
+  font-weight: 600;
+}
+
+.crew-select option[data-category="j18"] {
+  background-color: #E8F5E9;
+  color: #388E3C;
+  font-weight: 600;
+}
+
+.crew-select option[data-category="senior"] {
+  background-color: #FFF3E0;
+  color: #F57C00;
+  font-weight: 600;
+}
+
+.crew-select option[data-category="master"] {
+  background-color: #F3E5F5;
+  color: #7B1FA2;
+  font-weight: 600;
 }
 
 .btn-clear {
