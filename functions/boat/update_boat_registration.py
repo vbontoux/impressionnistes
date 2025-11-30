@@ -249,7 +249,20 @@ def lambda_handler(event, context):
                 seat['crew_member_last_name'] = None
     
     # Calculate registration status
-    registration_status = calculate_registration_status(boat_fields_to_validate)
+    # Pass assigned_members if seats were updated, otherwise get them from existing data
+    crew_for_status = assigned_members if 'seats' in update_data else None
+    if crew_for_status is None and boat_fields_to_validate.get('seats'):
+        # Get crew members for status calculation
+        all_crew_members = db.query_by_pk(
+            pk=f'TEAM#{team_manager_id}',
+            sk_prefix='CREW#'
+        )
+        crew_for_status = get_assigned_crew_members(
+            boat_fields_to_validate['seats'],
+            all_crew_members
+        )
+    
+    registration_status = calculate_registration_status(boat_fields_to_validate, crew_for_status)
     boat_fields_to_validate['registration_status'] = registration_status
     
     # Merge validated fields back into the full database record

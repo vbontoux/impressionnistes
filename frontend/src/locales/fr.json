@@ -173,6 +173,7 @@
       "label": "Statut",
       "incomplete": "Incomplet",
       "complete": "Complet",
+      "free": "Gratuit",
       "paid": "Payé"
     },
     "createRegistration": "Créer une inscription de bateau",

@@ -62,6 +62,7 @@ export const usePaymentStore = defineStore('payment', {
         const allBoats = response.data.boat_registrations || []
 
         // Filter boats with status 'complete' (ready for payment)
+        // Exclude 'free' boats (RCPM-only boats that don't need payment)
         this.boatsReadyForPayment = allBoats.filter(
           boat => boat.registration_status === 'complete'
         )

@@ -229,15 +229,36 @@ def validate_seat_assignment(
     }
 
 
-def calculate_registration_status(boat_registration: Dict[str, Any]) -> str:
+def is_all_rcpm_crew(crew_members: List[Dict[str, Any]]) -> bool:
     """
-    Calculate the registration status based on completion and payment
+    Check if all crew members are RCPM members
+    
+    Args:
+        crew_members: List of crew member objects
+    
+    Returns:
+        True if all crew members are RCPM members
+    """
+    if not crew_members:
+        return False
+    
+    for member in crew_members:
+        if not member.get('is_rcpm_member', False):
+            return False
+    
+    return True
+
+
+def calculate_registration_status(boat_registration: Dict[str, Any], assigned_crew_members: List[Dict[str, Any]] = None) -> str:
+    """
+    Calculate the registration status based on completion, payment, and crew composition
     
     Args:
         boat_registration: Boat registration dictionary
+        assigned_crew_members: Optional list of assigned crew member objects
     
     Returns:
-        Status string: 'incomplete', 'complete', or 'paid'
+        Status string: 'incomplete', 'complete', 'free', or 'paid'
     """
     # If already marked as paid, keep that status
     if boat_registration.get('registration_status') == 'paid':
@@ -245,6 +266,9 @@ def calculate_registration_status(boat_registration: Dict[str, Any]) -> str:
     
     # Check if registration is complete
     if is_registration_complete(boat_registration):
+        # If all crew members are RCPM, the boat is free
+        if assigned_crew_members and is_all_rcpm_crew(assigned_crew_members):
+            return 'free'
         return 'complete'
     
     return 'incomplete'

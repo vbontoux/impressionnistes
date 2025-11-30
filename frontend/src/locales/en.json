@@ -173,6 +173,7 @@
       "label": "Status",
       "incomplete": "Incomplete",
       "complete": "Complete",
+      "free": "Free",
       "paid": "Paid"
     },
     "createRegistration": "Create Boat Registration",

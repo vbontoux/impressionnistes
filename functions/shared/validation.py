@@ -193,7 +193,7 @@ boat_registration_schema = {
     'registration_status': {
         'type': 'string',
         'required': False,
-        'allowed': ['incomplete', 'complete', 'paid'],
+        'allowed': ['incomplete', 'complete', 'free', 'paid'],
         'default': 'incomplete'
     },
     'flagged_issues': {

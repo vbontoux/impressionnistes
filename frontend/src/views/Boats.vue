@@ -467,6 +467,12 @@ export default {
   border-color: #28a745;
 }
 
+.boat-card.status-free {
+  border-color: #007bff;
+  background: linear-gradient(to bottom, #f0f7ff 0%, white 100%);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+}
+
 .boat-card.status-paid {
   border-color: #007bff;
   background: linear-gradient(to bottom, #f0f7ff 0%, white 100%);
@@ -499,6 +505,11 @@ export default {
 
 .status-badge.status-complete {
   background-color: #28a745;
+  color: white;
+}
+
+.status-badge.status-free {
+  background-color: #007bff;
   color: white;
 }
 
@@ -659,6 +670,10 @@ export default {
 
 .boat-table tbody tr.row-status-complete {
   border-left: 4px solid #28a745;
+}
+
+.boat-table tbody tr.row-status-free {
+  border-left: 4px solid #007bff;
 }
 
 .boat-table tbody tr.row-status-paid {
