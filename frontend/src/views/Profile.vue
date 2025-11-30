@@ -143,7 +143,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useAuthStore } from '../stores/authStore'
 import { useI18n } from 'vue-i18n'
 import axios from 'axios'
@@ -213,6 +213,23 @@ const selectClub = (club) => {
 const handleClubBlur = () => {
   setTimeout(() => {
     showClubDropdown.value = false
+    
+    // If not foreign club, validate that the entered text matches a club name
+    if (!isForeignClub.value && clubSearchQuery.value) {
+      const matchingClub = clubs.value.find(
+        club => club.name.toLowerCase() === clubSearchQuery.value.toLowerCase()
+      )
+      
+      if (!matchingClub) {
+        // Reset to empty if no match found
+        clubSearchQuery.value = ''
+        profile.value.club_affiliation = ''
+      } else {
+        // Ensure exact match
+        profile.value.club_affiliation = matchingClub.name
+        clubSearchQuery.value = matchingClub.name
+      }
+    }
   }, 200)
 }
 
@@ -228,6 +245,14 @@ const loadProfile = async () => {
     // Initialize club search query with current club
     if (profile.value.club_affiliation) {
       clubSearchQuery.value = profile.value.club_affiliation
+      
+      // Check if the club is in the French clubs list
+      const matchingClub = clubs.value.find(
+        club => club.name.toLowerCase() === profile.value.club_affiliation.toLowerCase()
+      )
+      
+      // If not found in French clubs, it's a foreign club
+      isForeignClub.value = !matchingClub
     }
   } catch (err) {
     error.value = err.message || t('profile.loadError')
@@ -261,6 +286,17 @@ const saveProfile = async () => {
     saving.value = false
   }
 }
+
+// Watch for foreign club checkbox changes
+watch(isForeignClub, (newValue) => {
+  if (newValue) {
+    profile.value.club_affiliation = ''
+    clubSearchQuery.value = ''
+  } else {
+    profile.value.club_affiliation = ''
+    clubSearchQuery.value = ''
+  }
+})
 
 onMounted(async () => {
   await fetchClubs()
