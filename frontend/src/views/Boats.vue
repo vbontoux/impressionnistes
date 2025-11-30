@@ -95,7 +95,7 @@
             <div class="detail-row">
               <span class="label">{{ $t('boat.filledSeats') }}:</span>
               <span>
-                <span v-if="boat.is_multi_club_crew" class="multi-club-badge">{{ $t('boat.multiClub') }}</span>
+                <span v-if="boat.is_multi_club_crew || boat.registration_status === 'free'" class="multi-club-badge">{{ $t('boat.multiClub') }}</span>
                 {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
               </span>
             </div>
@@ -157,7 +157,7 @@
                 </td>
                 <td>
                   {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
-                  <span v-if="boat.is_multi_club_crew" class="multi-club-badge-small">{{ $t('boat.multiClub') }}</span>
+                  <span v-if="boat.is_multi_club_crew || boat.registration_status === 'free'" class="multi-club-badge-small">{{ $t('boat.multiClub') }}</span>
                 </td>
                 <td class="actions-cell">
                   <button @click="viewBoat(boat)" class="btn-table btn-view-table">
