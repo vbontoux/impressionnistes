@@ -24,10 +24,6 @@
           </router-link>
         </div>
         <p class="race-name" v-if="boat.race_id">{{ getRaceName(boat) }}</p>
-        <p class="crew-preview" v-if="getCrewPreview(boat)">
-          <span class="icon">👤</span>
-          {{ getCrewPreview(boat) }}
-        </p>
       </div>
       <div class="boat-price">
         <span class="price-amount">{{ formatPrice(boat.pricing?.total) }}</span>
@@ -35,19 +31,28 @@
     </div>
 
     <div class="card-body">
-      <div class="boat-details">
-        <div class="detail-item">
-          <span class="icon">👥</span>
-          <span>{{ getFilledSeatsCount(boat) }} {{ $t('payment.seats') }}</span>
-        </div>
-        <div class="detail-item" v-if="boat.is_boat_rental">
-          <span class="icon">🚣</span>
-          <span>{{ $t('payment.rental') }}</span>
-        </div>
-        <div class="detail-item" v-if="boat.is_multi_club_crew">
-          <span class="icon">🏛️</span>
-          <span>{{ $t('payment.multiClub') }}</span>
-        </div>
+      <div class="boat-summary">
+        <span class="summary-item">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ getFilledSeatsCount(boat) }} {{ $t('payment.seats') }}
+        </span>
+        <span class="separator">•</span>
+        <span class="summary-item">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ getFirstRowerName(boat) }}
+        </span>
+        <span v-if="boat.is_multi_club_crew || boat.registration_status === 'free'" class="rcpm-indicator">
+          <span class="separator">•</span>
+          <span class="rcpm-badge">{{ $t('boat.multiClub') }}</span>
+        </span>
       </div>
 
       <!-- Price Breakdown -->
@@ -106,29 +111,25 @@ const getFilledSeatsCount = (boat) => {
   return boat.seats.filter(seat => seat.crew_member_id).length
 }
 
-const getCrewPreview = (boat) => {
-  if (!boat.seats || boat.seats.length === 0) return ''
+const getFirstRowerName = (boat) => {
+  if (!boat.seats || boat.seats.length === 0) return '-'
   
-  // Get filled seats sorted by position
-  const filledSeats = boat.seats
-    .filter(seat => seat.crew_member_id && (seat.crew_member_first_name || seat.crew_member_last_name))
-    .sort((a, b) => a.position - b.position)
+  // Count filled seats
+  const filledSeatsCount = boat.seats.filter(seat => seat.crew_member_id).length
   
-  if (filledSeats.length === 0) return ''
+  // Find first rower (position 1, type 'rower')
+  const firstRower = boat.seats.find(seat => seat.position === 1 && seat.type === 'rower')
   
-  // Show first rower and count
-  const firstName = filledSeats[0].crew_member_first_name || ''
-  const lastName = filledSeats[0].crew_member_last_name || ''
-  const firstRower = `${firstName} ${lastName}`.trim()
-  
-  if (filledSeats.length === 1) {
-    return firstRower
-  } else if (filledSeats.length === 2) {
-    const secondName = `${filledSeats[1].crew_member_first_name || ''} ${filledSeats[1].crew_member_last_name || ''}`.trim()
-    return `${firstRower}, ${secondName}`
-  } else {
-    return `${firstRower} ${t('payment.andOthers', { count: filledSeats.length - 1 })}`
+  if (firstRower && (firstRower.crew_member_first_name || firstRower.crew_member_last_name)) {
+    const firstName = firstRower.crew_member_first_name || ''
+    const lastName = firstRower.crew_member_last_name || ''
+    const name = `${firstName} ${lastName}`.trim()
+    
+    // Add ", ..." if there are more than 1 crew member
+    return filledSeatsCount > 1 ? `${name}, ...` : name
   }
+  
+  return '-'
 }
 
 const getRaceName = (boat) => {
@@ -139,8 +140,14 @@ const getRaceName = (boat) => {
   // Find the race in the store
   const race = raceStore.races.find(r => r.race_id === boat.race_id)
   
-  if (race) {
-    // Use the same display format as RaceSelector
+  if (race && race.name) {
+    // Try to get translation, fallback to original name if not found
+    const translationKey = `races.${race.name}`
+    const translated = t(translationKey)
+    // If translation key is returned as-is, it means no translation exists
+    return translated === translationKey ? race.name : translated
+  } else if (race) {
+    // Fallback to generic display if no name
     return getRaceDisplay(race)
   }
   
@@ -261,18 +268,47 @@ const formatPrice = (amount) => {
   gap: 1rem;
 }
 
-.boat-details {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-}
-
-.detail-item {
+.boat-summary {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-wrap: wrap;
   color: #666;
   font-size: 0.875rem;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.icon-svg {
+  width: 16px;
+  height: 16px;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.separator {
+  color: #ccc;
+  margin: 0 0.25rem;
+}
+
+.rcpm-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rcpm-badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  background-color: #ffc107;
+  color: #000;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 .icon {
