@@ -195,15 +195,17 @@ def validate_seat_assignment(
     
     # Check J14 restriction: J14 rowers can only be coxswains
     if crew_member:
-        from race_eligibility import get_age_category
+        from race_eligibility import calculate_age
         from datetime import datetime
         
-        # Get crew member's age category
+        # Get crew member's age
         dob_str = crew_member.get('date_of_birth')
         if dob_str:
             try:
-                dob = datetime.fromisoformat(dob_str.replace('Z', '+00:00'))
-                age_category = get_age_category(dob.year)
+                # Calculate the age the person will reach during the current year
+                birth_date = datetime.strptime(dob_str[:10], '%Y-%m-%d').date()
+                current_year = datetime.now().year
+                age_this_year = current_year - birth_date.year
                 
                 # Find the seat type for this position
                 seat_type = None
@@ -212,11 +214,12 @@ def validate_seat_assignment(
                         seat_type = seat['type']
                         break
                 
-                # J14 (14-15 years old) can only be coxswains
-                if age_category == 'j14' and seat_type == 'rower':
+                # J14 (14 years old) can only be coxswains, not rowers
+                # Note: 15-year-olds compete in J16 races and can row
+                if age_this_year == 14 and seat_type == 'rower':
                     return {
                         'valid': False,
-                        'reason': 'J14 rowers (14-15 years old) can only be assigned as coxswains, not as rowers'
+                        'reason': 'J14 rowers (14 years old) can only be assigned as coxswains, not as rowers'
                     }
             except (ValueError, AttributeError) as e:
                 # If date parsing fails, log but don't block assignment

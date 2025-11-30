@@ -46,13 +46,6 @@
     <div v-if="error" class="error-message">
       {{ error }}
     </div>
-
-    <div class="assignment-summary">
-      <p>{{ $t('boat.filledSeats') }}: {{ filledSeatsCount }} / {{ seats.length }}</p>
-      <p v-if="isMultiClubCrew" class="multi-club-warning">
-        {{ $t('boat.multiClubWarning') }}
-      </p>
-    </div>
   </div>
 </template>
 
@@ -120,6 +113,16 @@ export default {
         if (member.assigned_boat_id && member.assigned_boat_id !== props.boatRegistrationId) {
           return false
         }
+        
+        // J14 rowers (14-15 years old) can only be coxswains, not rowers
+        if (currentSeat.type === 'rower') {
+          const age = calculateAge(member.date_of_birth)
+          const ageCategory = getAgeCategoryUtil(age)
+          if (ageCategory === 'j14') {
+            return false
+          }
+        }
+        
         return true
       })
     }

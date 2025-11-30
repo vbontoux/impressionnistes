@@ -38,9 +38,8 @@
             <span class="label">{{ $t('boat.boatType') }}:</span>
             <span>{{ boat.boat_type }}</span>
           </div>
-          <div class="info-item">
-            <span class="label">{{ $t('boat.multiClub') }}:</span>
-            <span>{{ boat.is_multi_club_crew ? $t('common.yes') : $t('common.no') }}</span>
+          <div class="info-item" v-if="boat.is_multi_club_crew || boat.registration_status === 'free'">
+            <span class="multi-club-badge">{{ $t('boat.multiClub') }}</span>
           </div>
         </div>
       </div>
@@ -394,6 +393,16 @@ export default {
 .info-item .label {
   font-weight: 500;
   color: #666;
+}
+
+.multi-club-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background-color: #ffc107;
+  color: #000;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 .issues-list {
