@@ -26,6 +26,7 @@
     "crew": "Crew Members",
     "boats": "Boats",
     "payment": "Payment",
+    "profile": "Profile",
     "logout": "Logout",
     "toggleMenu": "Toggle menu"
   },
@@ -501,5 +502,21 @@
       "description": "Create your account today and start registering your crews for the Course des Impressionnistes.",
       "button": "Get Started Now"
     }
+  },
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your personal information",
+    "personalInfo": "Personal Information",
+    "clubInfo": "Club Information",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "emailReadonly": "Email cannot be changed",
+    "clubAffiliation": "Club Affiliation",
+    "mobileNumber": "Mobile Number",
+    "mobileHint": "Format: +33612345678",
+    "loadError": "Error loading profile",
+    "saveSuccess": "Profile updated successfully!",
+    "saveError": "Error saving profile"
   }
 }

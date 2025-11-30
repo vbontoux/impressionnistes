@@ -26,6 +26,7 @@
     "crew": "Équipiers",
     "boats": "Bateaux",
     "payment": "Paiement",
+    "profile": "Profil",
     "logout": "Déconnexion",
     "toggleMenu": "Basculer le menu"
   },
@@ -501,6 +502,22 @@
       "description": "Créez votre compte aujourd'hui et commencez à inscrire vos équipages pour la Course des Impressionnistes.",
       "button": "Commencer maintenant"
     }
+  },
+  "profile": {
+    "title": "Mon Profil",
+    "subtitle": "Gérez vos informations personnelles",
+    "personalInfo": "Informations Personnelles",
+    "clubInfo": "Informations du Club",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Email",
+    "emailReadonly": "L'email ne peut pas être modifié",
+    "clubAffiliation": "Club d'affiliation",
+    "mobileNumber": "Numéro de mobile",
+    "mobileHint": "Format : +33612345678",
+    "loadError": "Erreur lors du chargement du profil",
+    "saveSuccess": "Profil mis à jour avec succès !",
+    "saveError": "Erreur lors de la sauvegarde du profil"
   },
   "races": {
     "1X SENIOR WOMAN": "1X SENIOR FEMME",

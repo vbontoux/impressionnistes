@@ -14,6 +14,7 @@ const BoatDetail = () => import('../views/BoatDetail.vue');
 const Payment = () => import('../views/Payment.vue');
 const PaymentCheckout = () => import('../views/PaymentCheckout.vue');
 const PaymentSuccess = () => import('../views/PaymentSuccess.vue');
+const Profile = () => import('../views/Profile.vue');
 
 const routes = [
   {
@@ -84,6 +85,12 @@ const routes = [
     path: '/payment/success',
     name: 'PaymentSuccess',
     component: PaymentSuccess,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: Profile,
     meta: { requiresAuth: true },
   },
 ];
