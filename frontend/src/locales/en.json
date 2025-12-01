@@ -226,6 +226,8 @@
     "flags": "Flags",
     "cannotDeletePaid": "Cannot delete a paid boat. Please contact support if you need to make changes.",
     "paidOn": "Paid on",
+    "selectRaceToSave": "Please select a race before saving",
+    "selectRaceRequired": "A race must be selected when all seats are filled",
     "filter": {
       "all": "All Boats"
     }

@@ -82,9 +82,12 @@
 
       <!-- Bottom Save Button -->
       <div class="bottom-actions">
-        <button @click="saveBoat" :disabled="saving" class="btn-primary btn-large">
+        <button @click="saveBoat" :disabled="saving || !canSave" class="btn-primary btn-large">
           {{ saving ? $t('common.saving') : $t('common.save') }}
         </button>
+        <p v-if="allSeatsFilled && !boat.race_id" class="save-hint">
+          {{ $t('boat.selectRaceToSave') }}
+        </p>
       </div>
     </div>
   </div>
@@ -163,7 +166,29 @@ export default {
       }
     }
 
+    // Check if all seats are filled
+    const allSeatsFilled = computed(() => {
+      if (!boat.value || !boat.value.seats) return false
+      return boat.value.seats.every(seat => seat.crew_member_id)
+    })
+
+    // Check if save button should be disabled
+    const canSave = computed(() => {
+      if (!boat.value) return false
+      // If all seats are filled, require a race to be selected
+      if (allSeatsFilled.value && !boat.value.race_id) {
+        return false
+      }
+      return true
+    })
+
     const saveBoat = async () => {
+      // Validate before saving
+      if (!canSave.value) {
+        error.value = t('boat.selectRaceRequired')
+        return
+      }
+
       saving.value = true
       error.value = null
       try {
@@ -229,6 +254,8 @@ export default {
       boat,
       availableRaces,
       assignedCrewMembers,
+      allSeatsFilled,
+      canSave,
       handleSeatsUpdate,
       handleRaceSelection,
       saveBoat,
@@ -447,7 +474,19 @@ export default {
   background-color: #f9f9f9;
   border-top: 2px solid #e0e0e0;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.save-hint {
+  color: #856404;
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin: 0;
+  font-size: 0.9rem;
 }
 
 .btn-large {
