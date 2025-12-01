@@ -393,6 +393,24 @@ const handleSubmit = async () => {
     return;
   }
 
+  // Handle club affiliation before submitting
+  if (!isForeignClub.value) {
+    // If not foreign club, ensure we have a valid club or use default
+    if (!form.club_affiliation || form.club_affiliation.trim() === '') {
+      // Empty field → use team manager's club
+      form.club_affiliation = defaultClub;
+    } else {
+      // Check if the entered text matches a valid club
+      const matchingClub = clubs.value.find(
+        club => club.name.toLowerCase() === form.club_affiliation.toLowerCase()
+      );
+      if (!matchingClub) {
+        // Invalid text → use team manager's club
+        form.club_affiliation = defaultClub;
+      }
+    }
+  }
+
   loading.value = true;
 
   try {
