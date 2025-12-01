@@ -19,11 +19,6 @@
             {{ $t(`boat.status.${boat.registration_status}`) }}
           </span>
         </div>
-        <div class="header-actions">
-          <button @click="saveBoat" :disabled="saving" class="btn-primary">
-            {{ saving ? $t('common.saving') : $t('common.save') }}
-          </button>
-        </div>
       </div>
 
       <!-- Boat Info -->
