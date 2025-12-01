@@ -136,17 +136,21 @@ export function analyzeCrewComposition(crewMembers) {
   }
   
   // Determine eligible boat types based on crew size
+  // Include both sweep and scull variants where applicable
   const crewSize = crewMembers.length;
   const eligibleBoatTypes = [];
   
   if (crewSize === 1) {
     eligibleBoatTypes.push("skiff");
   } else if (crewSize === 4) {
-    eligibleBoatTypes.push("4-");
+    eligibleBoatTypes.push("4-");   // Coxless four (sweep)
+    eligibleBoatTypes.push("4x-");  // Coxless quad (scull)
   } else if (crewSize === 5) {
-    eligibleBoatTypes.push("4+");
+    eligibleBoatTypes.push("4+");   // Coxed four (sweep)
+    eligibleBoatTypes.push("4x+");  // Coxed quad (scull)
   } else if (crewSize === 8 || crewSize === 9) {
-    eligibleBoatTypes.push("8+");
+    eligibleBoatTypes.push("8+");   // Eight (sweep)
+    eligibleBoatTypes.push("8x+");  // Octuple (scull)
   }
   
   const avgAge = ages.length > 0 ? ages.reduce((sum, age) => sum + age, 0) / ages.length : 0;

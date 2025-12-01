@@ -79,29 +79,49 @@ export default {
   setup(props, { emit }) {
     const { t } = useI18n()
 
+    // Get boat type variants (sweep + scull)
+    const getBoatTypeVariants = (boatType) => {
+      const variants = [boatType] // Always include the original boat type
+      
+      // Map sweep boat types to their scull equivalents
+      const sweepToScull = {
+        '4+': '4x+',   // Coxed four → Coxed quad
+        '4-': '4x-',   // Coxless four → Coxless quad
+        '8+': '8x+',   // Eight → Octuple
+      }
+      
+      // If this is a sweep boat, add the scull variant
+      if (sweepToScull[boatType]) {
+        variants.push(sweepToScull[boatType])
+      }
+      
+      // If this is a scull boat, add the sweep variant
+      const scullToSweep = Object.fromEntries(
+        Object.entries(sweepToScull).map(([k, v]) => [v, k])
+      )
+      if (scullToSweep[boatType]) {
+        variants.push(scullToSweep[boatType])
+      }
+      
+      return variants
+    }
+
     const eligibleRaces = computed(() => {
       if (!props.crewMembers || props.crewMembers.length === 0) {
         return []
       }
 
-      console.log('RaceSelector - Crew members:', props.crewMembers)
-      console.log('RaceSelector - Available races:', props.availableRaces.length)
-      console.log('RaceSelector - Event type:', props.eventType, 'Boat type:', props.boatType)
+
 
       // Filter races by event type and boat type first
+      // Also include scull equivalent (e.g., if boat is 4+, also show 4x+)
+      const boatTypeVariants = getBoatTypeVariants(props.boatType)
       const filteredRaces = props.availableRaces.filter(race => {
-        return race.event_type === props.eventType && race.boat_type === props.boatType
+        return race.event_type === props.eventType && boatTypeVariants.includes(race.boat_type)
       })
 
-      console.log('RaceSelector - Filtered races by event/boat:', filteredRaces.length)
-      console.log('RaceSelector - Filtered races:', filteredRaces.map(r => ({ id: r.race_id, name: r.name, age: r.age_category, master: r.master_category })))
-
       // Then filter by crew eligibility
-      const eligible = getEligibleRaces(props.crewMembers, filteredRaces)
-      console.log('RaceSelector - Eligible races after crew analysis:', eligible.length)
-      console.log('RaceSelector - Eligible races:', eligible.map(r => ({ id: r.race_id, name: r.name })))
-      
-      return eligible
+      return getEligibleRaces(props.crewMembers, filteredRaces)
     })
 
     const crewDescription = computed(() => {

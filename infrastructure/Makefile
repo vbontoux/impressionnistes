@@ -39,10 +39,14 @@ help:
 	@echo "  make list           - List all stacks"
 	@echo "  make describe-infra - Show API URL and Cognito details for frontend config"
 	@echo "  make costs          - Show AWS costs for last month (default: last 30 days)"
-	@echo "  make db-export      - Export DynamoDB table to CSV (default: dev)"
-	@echo "  make db-view        - View DynamoDB table contents (default: dev)"
-	@echo "  make db-migrate     - Run database migration (optional, see functions/migrations/)"
-	@echo "  make db-reset       - Reset database to initial state (⚠️  DELETES ALL DATA)"
+	@echo "  make db-backup         - Create AWS-managed on-demand backup (recommended)"
+	@echo "  make db-backup-local   - Create local JSON backup file"
+	@echo "  make db-list-backups   - List all AWS backups"
+	@echo "  make db-restore-backup - Restore from AWS backup (BACKUP_ARN=<arn>)"
+	@echo "  make db-export         - Export DynamoDB table to CSV (default: dev)"
+	@echo "  make db-view           - View DynamoDB table contents (default: dev)"
+	@echo "  make db-migrate        - Run database migration (optional, see functions/migrations/)"
+	@echo "  make db-reset          - Reset database to initial state (⚠️  DELETES ALL DATA)"
 	@echo "  make destroy        - Destroy all stacks (default: dev)"
 	@echo "  make destroy-dev    - Destroy dev environment"
 	@echo "  make destroy-prod   - Destroy prod environment (with confirmation)"
@@ -391,6 +395,131 @@ costs:
 	@echo "=========================================="
 
 
+db-backup:
+	@echo "=========================================="
+	@echo "Creating DynamoDB On-Demand Backup"
+	@echo "Environment: $(ENV)"
+	@echo "Table: impressionnistes-registration-$(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@TIMESTAMP=$$(date +%Y%m%d-%H%M%S); \
+	BACKUP_NAME="impressionnistes-$(ENV)-$$TIMESTAMP"; \
+	echo "Creating AWS backup: $$BACKUP_NAME"; \
+	echo ""; \
+	BACKUP_ARN=$$(aws dynamodb create-backup \
+		--table-name impressionnistes-registration-$(ENV) \
+		--backup-name $$BACKUP_NAME \
+		--query 'BackupDetails.BackupArn' \
+		--output text); \
+	echo "Backup initiated..."; \
+	echo ""; \
+	echo "Waiting for backup to complete..."; \
+	aws dynamodb describe-backup --backup-arn $$BACKUP_ARN --query 'BackupDescription.BackupDetails.BackupStatus' --output text | \
+		while read status; do \
+			if [ "$$status" = "AVAILABLE" ]; then \
+				break; \
+			fi; \
+			sleep 2; \
+		done; \
+	echo ""; \
+	echo "=========================================="
+	@echo "✓ Backup created successfully!"
+	@echo ""
+	@echo "Backup Name: $$BACKUP_NAME"
+	@echo "Backup ARN: $$BACKUP_ARN"
+	@echo ""
+	@echo "To list all backups: make db-list-backups"
+	@echo "To restore: make db-restore-backup BACKUP_ARN=<arn>"
+	@echo "=========================================="
+
+db-backup-local:
+	@echo "=========================================="
+	@echo "Creating Local Database Backup"
+	@echo "Environment: $(ENV)"
+	@echo "Table: impressionnistes-registration-$(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@mkdir -p exports
+	@TIMESTAMP=$$(date +%Y%m%d-%H%M%S); \
+	BACKUP_FILE="exports/backup-$(ENV)-$$TIMESTAMP.json"; \
+	echo "Creating local backup..."; \
+	aws dynamodb scan \
+		--table-name impressionnistes-registration-$(ENV) \
+		--output json > $$BACKUP_FILE; \
+	ITEM_COUNT=$$(cat $$BACKUP_FILE | python3 -c "import json, sys; print(len(json.load(sys.stdin).get('Items', [])))"); \
+	FILE_SIZE=$$(ls -lh $$BACKUP_FILE | awk '{print $$5}'); \
+	echo ""; \
+	echo "=========================================="
+	@echo "✓ Local backup created successfully!"
+	@echo ""
+	@echo "File: $$BACKUP_FILE"
+	@echo "Items: $$ITEM_COUNT"
+	@echo "Size: $$FILE_SIZE"
+	@echo ""
+	@echo "Note: This is a local file backup. For AWS-managed backups, use 'make db-backup'"
+	@echo "=========================================="
+
+db-list-backups:
+	@echo "=========================================="
+	@echo "DynamoDB Backups"
+	@echo "Environment: $(ENV)"
+	@echo "Table: impressionnistes-registration-$(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@aws dynamodb list-backups \
+		--table-name impressionnistes-registration-$(ENV) \
+		--query 'BackupSummaries[].{Name:BackupName,Status:BackupStatus,Created:BackupCreationDateTime,Size:BackupSizeBytes}' \
+		--output table
+	@echo ""
+	@echo "To restore a backup: make db-restore-backup BACKUP_ARN=<arn>"
+
+db-restore-backup:
+	@echo "=========================================="
+	@echo "Restore DynamoDB Backup"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@if [ -z "$(BACKUP_ARN)" ]; then \
+		echo "❌ Error: BACKUP_ARN parameter required"; \
+		echo ""; \
+		echo "Usage:"; \
+		echo "  make db-restore-backup BACKUP_ARN=<backup-arn>"; \
+		echo ""; \
+		echo "To list available backups:"; \
+		echo "  make db-list-backups"; \
+		echo ""; \
+		exit 1; \
+	fi
+	@echo "⚠️  WARNING: This will restore the table from backup"
+	@echo ""
+	@echo "Backup ARN: $(BACKUP_ARN)"
+	@echo "Target Table: impressionnistes-registration-$(ENV)-restored"
+	@echo ""
+	@echo "Note: This creates a NEW table. You'll need to manually:"
+	@echo "  1. Verify the restored data"
+	@echo "  2. Delete the old table"
+	@echo "  3. Rename the restored table"
+	@echo ""
+	@read -p "Continue? (yes/no): " confirm; \
+	if [ "$confirm" != "yes" ]; then \
+		echo "Restore cancelled"; \
+		exit 1; \
+	fi
+	@echo ""
+	@echo "Restoring backup..."
+	@aws dynamodb restore-table-from-backup \
+		--target-table-name impressionnistes-registration-$(ENV)-restored \
+		--backup-arn $(BACKUP_ARN)
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ Restore initiated!"
+	@echo ""
+	@echo "Table: impressionnistes-registration-$(ENV)-restored"
+	@echo ""
+	@echo "The restore process may take several minutes."
+	@echo "Check status with: aws dynamodb describe-table --table-name impressionnistes-registration-$(ENV)-restored"
+	@echo "=========================================="
+
 db-view:
 	@echo "=========================================="
 	@echo "DynamoDB Table Contents"
@@ -585,7 +714,7 @@ db-migrate:
 	@echo ""
 	@if [ -z "$(MIGRATION)" ]; then \
 		echo "❌ Error: MIGRATION parameter required"; \
-		echo "Usage: make db-migrate MIGRATION=your_migration TEAM_MANAGER_ID=your-id"; \
+		echo "Usage: make db-migrate MIGRATION=your_migration [TEAM_MANAGER_ID=your-id]"; \
 		echo ""; \
 		echo "Available migrations:"; \
 		if ls ../functions/migrations/*.py 2>/dev/null | grep -v __pycache__ >/dev/null; then \
@@ -593,11 +722,6 @@ db-migrate:
 		else \
 			echo "  (none - see functions/migrations/README.md for template)"; \
 		fi; \
-		exit 1; \
-	fi
-	@if [ -z "$(TEAM_MANAGER_ID)" ]; then \
-		echo "❌ Error: TEAM_MANAGER_ID parameter required"; \
-		echo "Usage: make db-migrate MIGRATION=your_migration TEAM_MANAGER_ID=your-id"; \
 		exit 1; \
 	fi
 	@if [ ! -f "../functions/migrations/$(MIGRATION).py" ]; then \
@@ -612,7 +736,11 @@ db-migrate:
 		exit 1; \
 	fi
 	@echo "Migration: $(MIGRATION)"
-	@echo "Team Manager ID: $(TEAM_MANAGER_ID)"
+	@if [ -n "$(TEAM_MANAGER_ID)" ]; then \
+		echo "Team Manager ID: $(TEAM_MANAGER_ID)"; \
+	else \
+		echo "Team Manager ID: (not provided - running as system)"; \
+	fi
 	@echo "Table: impressionnistes-registration-$(ENV)"
 	@echo ""
 	@read -p "Continue? (yes/no): " confirm; \
@@ -623,8 +751,9 @@ db-migrate:
 	@echo ""
 	@echo "Running migration..."
 	@cd ../functions/migrations && \
-		export DYNAMODB_TABLE_NAME=impressionnistes-registration-$(ENV) && \
-		../../infrastructure/$(VENV)/bin/python $(MIGRATION).py --team-manager-id $(TEAM_MANAGER_ID)
+		export TABLE_NAME=impressionnistes-registration-$(ENV) && \
+		export TEAM_MANAGER_ID=$(TEAM_MANAGER_ID) && \
+		../../infrastructure/$(VENV)/bin/python $(MIGRATION).py
 	@echo ""
 	@echo "=========================================="
 	@echo "✓ Migration complete!"
