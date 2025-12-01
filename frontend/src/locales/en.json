@@ -112,7 +112,7 @@
       "clubAffiliation": "Club Affiliation",
       "clubPlaceholder": "Leave empty to use your club",
       "clubHint": "Leave empty to use team manager's club",
-      "foreignClub": "Foreign club (not in French federation)",
+      "foreignClub": "Foreign club or not affiliated with",
       "clubSearchPlaceholder": "Search for a club by name or URL...",
       "noClubsFound": "No clubs found matching your search",
       "create": "Create",
