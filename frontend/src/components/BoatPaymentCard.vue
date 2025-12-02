@@ -117,12 +117,14 @@ const getFirstRowerName = (boat) => {
   // Count filled seats
   const filledSeatsCount = boat.seats.filter(seat => seat.crew_member_id).length
   
-  // Find first rower (position 1, type 'rower')
-  const firstRower = boat.seats.find(seat => seat.position === 1 && seat.type === 'rower')
+  // Find stroke seat (highest position number that is a rower)
+  const rowers = boat.seats.filter(seat => seat.type === 'rower')
+  if (rowers.length === 0) return '-'
+  const strokeSeat = rowers.reduce((max, seat) => seat.position > max.position ? seat : max, rowers[0])
   
-  if (firstRower && (firstRower.crew_member_first_name || firstRower.crew_member_last_name)) {
-    const firstName = firstRower.crew_member_first_name || ''
-    const lastName = firstRower.crew_member_last_name || ''
+  if (strokeSeat && (strokeSeat.crew_member_first_name || strokeSeat.crew_member_last_name)) {
+    const firstName = strokeSeat.crew_member_first_name || ''
+    const lastName = strokeSeat.crew_member_last_name || ''
     const name = `${firstName} ${lastName}`.trim()
     
     // Add ", ..." if there are more than 1 crew member

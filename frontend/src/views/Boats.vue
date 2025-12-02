@@ -230,9 +230,11 @@ export default {
 
     const getFirstRowerLastName = (boat) => {
       if (!boat.seats || boat.seats.length === 0) return '-'
-      // Find first rower (position 1, type 'rower')
-      const firstRower = boat.seats.find(seat => seat.position === 1 && seat.type === 'rower')
-      return firstRower?.crew_member_last_name || '-'
+      // Find stroke seat (highest position number that is a rower)
+      const rowers = boat.seats.filter(seat => seat.type === 'rower')
+      if (rowers.length === 0) return '-'
+      const strokeSeat = rowers.reduce((max, seat) => seat.position > max.position ? seat : max, rowers[0])
+      return strokeSeat?.crew_member_last_name || '-'
     }
 
     const getCrewGenderCategory = (boat) => {
