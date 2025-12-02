@@ -85,15 +85,25 @@ export function analyzeCrewComposition(crewMembers) {
   }
   
   // Calculate ages and determine categories
+  // Note: Age category is based on ROWERS ONLY (excluding coxswains)
   const ages = [];
   const genders = [];
   const ageCategories = [];
+  const rowerAges = [];  // Ages of rowers only (for age category calculation)
+  const rowerAgeCategories = [];  // Age categories of rowers only
   
   crewMembers.forEach(member => {
     const age = calculateAge(member.date_of_birth);
     ages.push(age);
     genders.push(member.gender);
     ageCategories.push(getAgeCategory(age));
+    
+    // Track rower ages separately (exclude coxswains from age category calculation)
+    const seatType = member.seat_type || 'rower';
+    if (seatType === 'rower') {
+      rowerAges.push(age);
+      rowerAgeCategories.push(getAgeCategory(age));
+    }
   });
   
   // Determine gender category based on competition rules:
@@ -122,16 +132,22 @@ export function analyzeCrewComposition(crewMembers) {
     genderCategory = maleCount >= femaleCount ? "men" : "women";
   }
   
-  // Determine age category (most restrictive)
+  // Determine age category (most restrictive) based on ROWERS ONLY
   // Priority: master > senior > j18 > j16
+  // Use rowerAgeCategories instead of ageCategories to exclude coxswains
   let crewAgeCategory;
-  if (ageCategories.includes("master")) {
-    crewAgeCategory = "master";
-  } else if (ageCategories.includes("senior")) {
-    crewAgeCategory = "senior";
-  } else if (ageCategories.includes("j18")) {
-    crewAgeCategory = "j18";
+  if (rowerAgeCategories.length > 0) {
+    if (rowerAgeCategories.includes("master")) {
+      crewAgeCategory = "master";
+    } else if (rowerAgeCategories.includes("senior")) {
+      crewAgeCategory = "senior";
+    } else if (rowerAgeCategories.includes("j18")) {
+      crewAgeCategory = "j18";
+    } else {
+      crewAgeCategory = "j16";
+    }
   } else {
+    // Fallback if no rowers (shouldn't happen in valid data)
     crewAgeCategory = "j16";
   }
   
@@ -153,8 +169,10 @@ export function analyzeCrewComposition(crewMembers) {
     eligibleBoatTypes.push("8x+");  // Octuple (scull)
   }
   
+  // Calculate average age based on ROWERS ONLY (for master category)
   const avgAge = ages.length > 0 ? ages.reduce((sum, age) => sum + age, 0) / ages.length : 0;
-  const masterCategory = crewAgeCategory === "master" ? getMasterCategory(avgAge) : null;
+  const rowerAvgAge = rowerAges.length > 0 ? rowerAges.reduce((sum, age) => sum + age, 0) / rowerAges.length : 0;
+  const masterCategory = crewAgeCategory === "master" ? getMasterCategory(rowerAvgAge) : null;
   
   return {
     crewSize,
@@ -165,9 +183,9 @@ export function analyzeCrewComposition(crewMembers) {
     ageCategory: crewAgeCategory,
     masterCategory,
     eligibleBoatTypes,
-    minAge: ages.length > 0 ? Math.min(...ages) : 0,
-    maxAge: ages.length > 0 ? Math.max(...ages) : 0,
-    avgAge,
+    minAge: rowerAges.length > 0 ? Math.min(...rowerAges) : 0,
+    maxAge: rowerAges.length > 0 ? Math.max(...rowerAges) : 0,
+    avgAge: rowerAvgAge,  // Use rower average age (excluding cox)
     // Gender composition details
     maleCount,
     femaleCount,

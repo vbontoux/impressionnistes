@@ -124,11 +124,11 @@ def get_assigned_crew_members(seats: List[Dict[str, Any]], all_crew_members: Lis
     Get the crew member objects for all assigned seats
     
     Args:
-        seats: List of seat dictionaries with crew_member_id
+        seats: List of seat dictionaries with crew_member_id and type
         all_crew_members: List of all available crew member objects
     
     Returns:
-        List of crew member objects assigned to seats
+        List of crew member objects assigned to seats, with seat_type added
     """
     assigned_members = []
     crew_member_map = {member['crew_member_id']: member for member in all_crew_members}
@@ -136,7 +136,10 @@ def get_assigned_crew_members(seats: List[Dict[str, Any]], all_crew_members: Lis
     for seat in seats:
         crew_member_id = seat.get('crew_member_id')
         if crew_member_id and crew_member_id in crew_member_map:
-            assigned_members.append(crew_member_map[crew_member_id])
+            member = crew_member_map[crew_member_id].copy()
+            # Add seat type (rower or cox) to the member object
+            member['seat_type'] = seat.get('type', 'rower')
+            assigned_members.append(member)
     
     return assigned_members
 

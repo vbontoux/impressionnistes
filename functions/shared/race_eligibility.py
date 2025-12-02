@@ -101,15 +101,23 @@ def analyze_crew_composition(crew_members: List[Dict[str, Any]]) -> Dict[str, An
         }
     
     # Calculate ages and determine categories
+    # Note: Age category is based on ROWERS ONLY (excluding coxswains)
     ages = []
     genders = []
     age_categories = []
+    rower_ages = []  # Ages of rowers only (for age category calculation)
+    rower_age_categories = []  # Age categories of rowers only
     
     for member in crew_members:
         age = calculate_age(member['date_of_birth'])
         ages.append(age)
         genders.append(member['gender'])
         age_categories.append(get_age_category(age))
+        
+        # Track rower ages separately (exclude coxswains from age category calculation)
+        if member.get('seat_type', 'rower') == 'rower':
+            rower_ages.append(age)
+            rower_age_categories.append(get_age_category(age))
     
     # Determine gender category based on competition rules:
     # - Women's crews: 100% women
@@ -137,15 +145,20 @@ def analyze_crew_composition(crew_members: List[Dict[str, Any]]) -> Dict[str, An
         # Edge case: shouldn't happen with valid data
         gender_category = "men" if male_count > female_count else "women"
     
-    # Determine age category (most restrictive)
+    # Determine age category (most restrictive) based on ROWERS ONLY
     # Priority: master > senior > j18 > j16
-    if "master" in age_categories:
-        crew_age_category = "master"
-    elif "senior" in age_categories:
-        crew_age_category = "senior"
-    elif "j18" in age_categories:
-        crew_age_category = "j18"
+    # Use rower_age_categories instead of age_categories to exclude coxswains
+    if rower_age_categories:
+        if "master" in rower_age_categories:
+            crew_age_category = "master"
+        elif "senior" in rower_age_categories:
+            crew_age_category = "senior"
+        elif "j18" in rower_age_categories:
+            crew_age_category = "j18"
+        else:
+            crew_age_category = "j16"
     else:
+        # Fallback if no rowers (shouldn't happen in valid data)
         crew_age_category = "j16"
     
     # Determine eligible boat types based on crew size
@@ -161,8 +174,10 @@ def analyze_crew_composition(crew_members: List[Dict[str, Any]]) -> Dict[str, An
     elif crew_size == 8 or crew_size == 9:
         eligible_boat_types = ["8+"]
     
+    # Calculate average age based on ROWERS ONLY (for master category)
     avg_age = sum(ages) / len(ages) if ages else 0
-    master_category = get_master_category(avg_age) if crew_age_category == "master" else None
+    rower_avg_age = sum(rower_ages) / len(rower_ages) if rower_ages else 0
+    master_category = get_master_category(rower_avg_age) if crew_age_category == "master" else None
     
     return {
         'crew_size': crew_size,
@@ -173,9 +188,9 @@ def analyze_crew_composition(crew_members: List[Dict[str, Any]]) -> Dict[str, An
         'age_category': crew_age_category,
         'master_category': master_category,
         'eligible_boat_types': eligible_boat_types,
-        'min_age': min(ages) if ages else 0,
-        'max_age': max(ages) if ages else 0,
-        'avg_age': avg_age,
+        'min_age': min(rower_ages) if rower_ages else 0,
+        'max_age': max(rower_ages) if rower_ages else 0,
+        'avg_age': rower_avg_age,  # Use rower average age (excluding cox)
         # Gender composition details
         'male_count': male_count,
         'female_count': female_count,

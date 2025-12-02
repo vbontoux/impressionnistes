@@ -129,13 +129,23 @@ export default {
     const assignedCrewMembers = computed(() => {
       if (!boat.value || !boat.value.seats) return []
       
-      const assignedIds = boat.value.seats
-        .filter(seat => seat.crew_member_id)
-        .map(seat => seat.crew_member_id)
+      // Build a map of crew_member_id to seat_type
+      const seatTypeMap = {}
+      boat.value.seats.forEach(seat => {
+        if (seat.crew_member_id) {
+          seatTypeMap[seat.crew_member_id] = seat.type
+        }
+      })
       
-      return crewStore.crewMembers.filter(member => 
-        assignedIds.includes(member.crew_member_id)
-      )
+      const assignedIds = Object.keys(seatTypeMap)
+      
+      // Add seat_type to each crew member
+      return crewStore.crewMembers
+        .filter(member => assignedIds.includes(member.crew_member_id))
+        .map(member => ({
+          ...member,
+          seat_type: seatTypeMap[member.crew_member_id]
+        }))
     })
 
     const loadBoat = async () => {
