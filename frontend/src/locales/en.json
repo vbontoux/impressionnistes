@@ -195,6 +195,8 @@
     "position": "Position",
     "coxswain": "Coxswain",
     "rower": "Rower",
+    "bow": "bow",
+    "stroke": "stroke",
     "selectCrewMember": "Select crew member",
     "filledSeats": "Filled seats",
     "multiClubWarning": "RCPM rowers detected - RCPM seats are free",

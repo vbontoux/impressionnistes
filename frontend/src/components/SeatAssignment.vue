@@ -10,7 +10,7 @@
         :class="{ 'seat-filled': seat.crew_member_id, 'seat-cox': seat.type === 'cox' }"
       >
         <div class="seat-header">
-          <span class="seat-position">{{ $t('boat.position') }} {{ seat.position }}</span>
+          <span class="seat-position">{{ $t('boat.position') }} {{ seat.position }}{{ getSeatLabel(seat) }}</span>
           <span class="seat-type">{{ seat.type === 'cox' ? $t('boat.coxswain') : $t('boat.rower') }}</span>
         </div>
 
@@ -169,6 +169,25 @@ export default {
       return categoryLabel
     }
 
+    // Get seat label (bow/stroke) for multi-rower boats
+    const getSeatLabel = (seat) => {
+      if (seat.type === 'cox') return '' // No label for coxswain
+      
+      const rowerSeats = props.seats.filter(s => s.type === 'rower')
+      if (rowerSeats.length <= 1) return '' // No label for single rower (skiff)
+      
+      const minPosition = Math.min(...rowerSeats.map(s => s.position))
+      const maxPosition = Math.max(...rowerSeats.map(s => s.position))
+      
+      if (seat.position === minPosition) {
+        return ` (${t('boat.bow')})`
+      } else if (seat.position === maxPosition) {
+        return ` (${t('boat.stroke')})`
+      }
+      
+      return ''
+    }
+
     return {
       error,
       filledSeatsCount,
@@ -178,6 +197,7 @@ export default {
       onSeatChange,
       clearSeat,
       getAgeCategory,
+      getSeatLabel,
       formatCategoryDisplay
     }
   }

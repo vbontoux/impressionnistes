@@ -195,6 +195,8 @@
     "position": "Position",
     "coxswain": "Barreur",
     "rower": "Rameur",
+    "bow": "proue",
+    "stroke": "nage",
     "selectCrewMember": "Sélectionner un membre d'équipage",
     "filledSeats": "Places remplies",
     "multiClubWarning": "Rameurs RCPM détectés - places RCPM gratuites",
