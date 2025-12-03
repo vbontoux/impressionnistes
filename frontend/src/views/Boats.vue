@@ -323,7 +323,7 @@ export default {
 
 <style scoped>
 .boats-view {
-  padding: 2rem;
+  padding: 0;
   max-width: 1200px;
   margin: 0 auto;
 }

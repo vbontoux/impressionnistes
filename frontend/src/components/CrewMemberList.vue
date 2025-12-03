@@ -1,7 +1,7 @@
 <template>
   <div class="crew-member-list">
     <div class="list-header">
-      <h2>{{ $t('crew.list.title') }}</h2>
+      <h1>{{ $t('crew.list.title') }}</h1>
       <div class="header-actions">
         <div class="view-toggle">
           <button 
@@ -359,7 +359,7 @@ const closeForm = () => {
 .crew-member-list {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0;
 }
 
 .list-header {
@@ -371,7 +371,7 @@ const closeForm = () => {
   gap: 1rem;
 }
 
-.list-header h2 {
+.list-header h1 {
   margin: 0;
   color: #333;
 }
@@ -411,14 +411,14 @@ const closeForm = () => {
 
 .filters {
   background: white;
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 8px;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .search-box {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 .search-input {
@@ -433,7 +433,6 @@ const closeForm = () => {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: 1rem;
   align-items: center;
 }
 

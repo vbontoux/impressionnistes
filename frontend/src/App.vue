@@ -217,6 +217,14 @@ body {
   overflow-x: hidden;
 }
 
+h1 {
+  margin-top: 0;
+}
+
+h2 {
+  margin-top: 0;
+}
+
 #app {
   min-height: 100vh;
   display: flex;
@@ -444,7 +452,7 @@ body {
 /* Main Content */
 .main-content {
   flex: 1;
-  padding: 1.5rem;
+  padding: 1rem;
   transition: margin-left 0.3s ease;
 }
 
@@ -496,7 +504,7 @@ body {
 /* Large Desktop */
 @media (min-width: 1200px) {
   .main-content {
-    padding: 2rem;
+    padding: 1.5rem;
   }
 }
 
@@ -515,7 +523,7 @@ body {
   }
 
   .main-content {
-    padding: 1rem;
+    padding: 0.75rem;
   }
 
   .btn-header {

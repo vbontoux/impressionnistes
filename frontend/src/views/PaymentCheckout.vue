@@ -103,7 +103,7 @@ onMounted(async () => {
 .payment-checkout-page {
   max-width: 800px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0;
 }
 
 .page-header {
