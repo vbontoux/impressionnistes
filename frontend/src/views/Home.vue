@@ -5,12 +5,17 @@
       <div class="container">
         <h1>{{ $t('home.hero.title') }}</h1>
         <p class="hero-subtitle">{{ $t('home.hero.subtitle') }}</p>
-        <div class="hero-actions">
+        <div v-if="!authStore.isAuthenticated" class="hero-actions">
           <router-link to="/register" class="btn btn-primary">
             {{ $t('home.hero.register') }}
           </router-link>
           <router-link to="/login" class="btn btn-secondary">
             {{ $t('home.hero.login') }}
+          </router-link>
+        </div>
+        <div v-else class="hero-actions">
+          <router-link to="/dashboard" class="btn btn-primary">
+            {{ $t('nav.dashboard') }}
           </router-link>
         </div>
       </div>
@@ -339,6 +344,12 @@
     </section>
   </div>
 </template>
+
+<script setup>
+import { useAuthStore } from '../stores/authStore';
+
+const authStore = useAuthStore();
+</script>
 
 <style scoped>
 .home {

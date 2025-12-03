@@ -26,7 +26,36 @@
       <div class="header-actions">
         <LanguageSwitcher />
         <template v-if="!authStore.isAuthenticated">
-          <router-link to="/login" class="btn-header">{{ $t('nav.login') }}</router-link>
+          <router-link to="/login" class="btn-header btn-secondary">{{ $t('nav.login') }}</router-link>
+          <router-link to="/register" class="btn-header btn-primary">{{ $t('nav.register') }}</router-link>
+        </template>
+        <template v-else>
+          <div class="user-menu" v-click-outside="closeUserMenu">
+            <button class="user-menu-button" @click="toggleUserMenu">
+              <span class="user-name">{{ authStore.user?.first_name }}</span>
+              <svg class="dropdown-icon" :class="{ open: userMenuOpen }" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <div v-if="userMenuOpen" class="user-menu-dropdown">
+              <router-link to="/profile" class="menu-item" @click="closeUserMenu">
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2"/>
+                  <path d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                {{ $t('nav.profile') }}
+              </router-link>
+              <button @click="handleLogout" class="menu-item logout">
+                <svg class="menu-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" stroke-width="2"/>
+                  <path d="M16 17L21 12L16 7" stroke="currentColor" stroke-width="2"/>
+                  <path d="M21 12H9" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                {{ $t('nav.logout') }}
+              </button>
+            </div>
+          </div>
         </template>
       </div>
     </header>
@@ -103,29 +132,7 @@
           <span class="nav-text">{{ $t('nav.payment') }}</span>
         </router-link>
 
-        <div class="nav-spacer"></div>
 
-        <router-link to="/profile" class="nav-item" @click="closeSidebarOnMobile">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M6.168 18.849A4 4 0 0 1 10 16h4a4 4 0 0 1 3.834 2.855" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          <span class="nav-text">{{ $t('nav.profile') }}</span>
-        </router-link>
-
-        <button @click="handleLogout" class="nav-item nav-logout">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M16 17L21 12L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          <span class="nav-text">{{ $t('nav.logout') }}</span>
-        </button>
       </nav>
     </aside>
 
@@ -160,6 +167,7 @@ const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const sidebarOpen = ref(false);
+const userMenuOpen = ref(false);
 
 // Initialize session timeout monitoring
 const sessionTimeout = useSessionTimeout();
@@ -179,10 +187,40 @@ const closeSidebarOnMobile = () => {
   }
 };
 
+const toggleUserMenu = () => {
+  userMenuOpen.value = !userMenuOpen.value;
+};
+
+const closeUserMenu = () => {
+  userMenuOpen.value = false;
+};
+
+const getInitials = () => {
+  const firstName = authStore.user?.first_name || '';
+  const lastName = authStore.user?.last_name || '';
+  return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+};
+
 const handleLogout = () => {
   authStore.logout();
   router.push('/login');
   closeSidebar();
+  closeUserMenu();
+};
+
+// Click outside directive
+const vClickOutside = {
+  mounted(el, binding) {
+    el.clickOutsideEvent = (event) => {
+      if (!(el === event.target || el.contains(event.target))) {
+        binding.value();
+      }
+    };
+    document.addEventListener('click', el.clickOutsideEvent);
+  },
+  unmounted(el) {
+    document.removeEventListener('click', el.clickOutsideEvent);
+  }
 };
 
 // Close sidebar when route changes on mobile
@@ -331,16 +369,136 @@ h2 {
 
 .btn-header {
   padding: 0.5rem 1rem;
-  background-color: #4CAF50;
   color: white;
   text-decoration: none;
   border-radius: 4px;
   font-size: 0.9rem;
   transition: background-color 0.3s;
+  white-space: nowrap;
 }
 
-.btn-header:hover {
+.btn-header.btn-primary {
+  background-color: #4CAF50;
+}
+
+.btn-header.btn-primary:hover {
   background-color: #45a049;
+}
+
+.btn-header.btn-secondary {
+  background-color: transparent;
+  color: #4CAF50;
+  border: 1px solid #4CAF50;
+}
+
+.btn-header.btn-secondary:hover {
+  background-color: #f0f9f0;
+}
+
+/* User Menu */
+.user-menu {
+  position: relative;
+}
+
+.user-menu-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: white;
+  color: #333;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.user-menu-button:hover {
+  border-color: #4CAF50;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.15);
+}
+
+.user-name {
+  font-weight: 500;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-icon {
+  transition: transform 0.2s;
+  color: #666;
+}
+
+.dropdown-icon.open {
+  transform: rotate(180deg);
+}
+
+.user-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  min-width: 200px;
+  z-index: 1000;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.user-menu-dropdown .menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  color: #333;
+  text-decoration: none;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  font-size: 0.9rem;
+}
+
+.user-menu-dropdown .menu-item:hover {
+  background-color: #f8f9fa;
+}
+
+.user-menu-dropdown .menu-item .menu-icon {
+  width: 20px;
+  height: 20px;
+  color: #666;
+  flex-shrink: 0;
+}
+
+.user-menu-dropdown .menu-item.logout {
+  color: #e74c3c;
+  border-top: 1px solid #f0f0f0;
+}
+
+.user-menu-dropdown .menu-item.logout .menu-icon {
+  color: #e74c3c;
+}
+
+.user-menu-dropdown .menu-item.logout:hover {
+  background-color: #fff5f5;
 }
 
 /* Sidebar */
@@ -421,16 +579,6 @@ h2 {
 
 .nav-spacer {
   flex: 1;
-}
-
-.nav-logout {
-  color: #e74c3c;
-  margin-top: auto;
-}
-
-.nav-logout:hover {
-  background-color: #c0392b;
-  color: white;
 }
 
 /* Sidebar Overlay */
