@@ -67,7 +67,7 @@ class AuthStack(Stack):
                 require_lowercase=True,
                 require_uppercase=True,
                 require_digits=True,
-                require_symbols=False,  # Optional for better UX
+                require_symbols=True,  # Required for better security
                 temp_password_validity=Duration.days(3)
             ),
             

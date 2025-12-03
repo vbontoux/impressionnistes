@@ -75,7 +75,8 @@
       "passwordMinLength": "At least 8 characters",
       "passwordHasUppercase": "At least one uppercase letter (A-Z)",
       "passwordHasLowercase": "At least one lowercase letter (a-z)",
-      "passwordHasNumber": "At least one number (0-9)"
+      "passwordHasNumber": "At least one number (0-9)",
+      "passwordHasSymbol": "At least one special character (!@#$%...)"
     },
     "verify": {
       "title": "Verify Your Email",

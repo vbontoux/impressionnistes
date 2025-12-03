@@ -49,6 +49,10 @@
             <span class="icon">{{ passwordChecks.hasNumber ? '✓' : '○' }}</span>
             <span>{{ $t('auth.validation.passwordHasNumber') }}</span>
           </div>
+          <div class="requirement" :class="{ valid: passwordChecks.hasSymbol }">
+            <span class="icon">{{ passwordChecks.hasSymbol ? '✓' : '○' }}</span>
+            <span>{{ $t('auth.validation.passwordHasSymbol') }}</span>
+          </div>
         </div>
       </div>
 
@@ -209,7 +213,8 @@ const passwordChecks = reactive({
   minLength: false,
   hasUppercase: false,
   hasLowercase: false,
-  hasNumber: false
+  hasNumber: false,
+  hasSymbol: false
 });
 
 // Club search state
@@ -328,12 +333,14 @@ const validatePassword = () => {
   passwordChecks.hasUppercase = /[A-Z]/.test(form.password);
   passwordChecks.hasLowercase = /[a-z]/.test(form.password);
   passwordChecks.hasNumber = /[0-9]/.test(form.password);
+  passwordChecks.hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(form.password);
   
   // Set error if any check fails
   const allValid = passwordChecks.minLength && 
                    passwordChecks.hasUppercase && 
                    passwordChecks.hasLowercase && 
-                   passwordChecks.hasNumber;
+                   passwordChecks.hasNumber &&
+                   passwordChecks.hasSymbol;
   
   if (!allValid) {
     errors.password = t('auth.validation.passwordRequirements');
