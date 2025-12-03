@@ -32,11 +32,11 @@
             </span>
           </div>
           <div class="race-details">
-            <span class="race-detail">{{ $t('boat.distance') }}: {{ race.event_type }}</span>
-            <span class="race-detail">{{ $t('boat.boatType') }}: {{ race.boat_type }}</span>
-            <span class="race-detail">{{ $t('boat.gender') }}: {{ $t(`boat.${race.gender_category}`) }}</span>
+            <span class="race-detail">{{ $t('boat.distance') }}&nbsp;: {{ race.event_type }}</span>
+            <span class="race-detail">{{ $t('boat.boatType') }}&nbsp;: {{ race.boat_type }}</span>
+            <span class="race-detail">{{ $t('boat.gender') }}&nbsp;: {{ $t(`boat.${race.gender_category}`) }}</span>
             <span class="race-detail">
-              {{ $t('boat.ageCategory') }}: {{ $t(`boat.${race.age_category}`) }}
+              {{ $t('boat.ageCategory') }}&nbsp;: {{ $t(`boat.${race.age_category}`) }}
               <span v-if="race.master_category" class="master-category-badge">{{ race.master_category }}</span>
             </span>
           </div>

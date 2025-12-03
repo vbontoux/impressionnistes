@@ -26,11 +26,11 @@
         <h2>{{ $t('boat.boatInformation') }}</h2>
         <div class="info-grid">
           <div class="info-item">
-            <span class="label">{{ $t('boat.eventType') }}:</span>
+            <span class="label">{{ $t('boat.eventType') }}&nbsp;:</span>
             <span>{{ boat.event_type }}</span>
           </div>
           <div class="info-item">
-            <span class="label">{{ $t('boat.boatType') }}:</span>
+            <span class="label">{{ $t('boat.boatType') }}&nbsp;:</span>
             <span>{{ boat.boat_type }}</span>
           </div>
           <div class="info-item" v-if="boat.is_multi_club_crew || boat.registration_status === 'free'">
@@ -75,7 +75,7 @@
               <span v-if="issue.resolved" class="resolved-badge">{{ $t('boat.resolved') }}</span>
             </div>
             <p>{{ issue.description }}</p>
-            <small>{{ $t('boat.flaggedAt') }}: {{ formatDate(issue.flagged_at) }}</small>
+            <small>{{ $t('boat.flaggedAt') }}&nbsp;: {{ formatDate(issue.flagged_at) }}</small>
           </div>
         </div>
       </div>

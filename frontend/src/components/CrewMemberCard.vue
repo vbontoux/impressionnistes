@@ -12,15 +12,15 @@
 
     <div class="card-body">
       <div class="detail-row">
-        <span class="label">{{ $t('crew.card.dateOfBirth') }}:</span>
+        <span class="label">{{ $t('crew.card.dateOfBirth') }}&nbsp;:</span>
         <span class="value">{{ formatDate(crewMember.date_of_birth) }}</span>
       </div>
       <div class="detail-row">
-        <span class="label">{{ $t('crew.card.age') }}:</span>
+        <span class="label">{{ $t('crew.card.age') }}&nbsp;:</span>
         <span class="value">{{ calculateAge(crewMember.date_of_birth) }} {{ $t('crew.card.years') }}</span>
       </div>
       <div class="detail-row">
-        <span class="label">{{ $t('crew.card.category') }}:</span>
+        <span class="label">{{ $t('crew.card.category') }}&nbsp;:</span>
         <span class="value category-badge" :class="`category-${getAgeCategory(crewMember.date_of_birth)}`">
           {{ $t(`boat.${getAgeCategory(crewMember.date_of_birth)}`) }}
           <span v-if="getAgeCategory(crewMember.date_of_birth) === 'master'" class="master-letter">
@@ -29,11 +29,11 @@
         </span>
       </div>
       <div class="detail-row">
-        <span class="label">{{ $t('crew.card.gender') }}:</span>
+        <span class="label">{{ $t('crew.card.gender') }}&nbsp;:</span>
         <span class="value">{{ crewMember.gender === 'M' ? $t('crew.form.male') : $t('crew.form.female') }}</span>
       </div>
       <div class="detail-row">
-        <span class="label">{{ $t('crew.card.club') }}:</span>
+        <span class="label">{{ $t('crew.card.club') }}&nbsp;:</span>
         <span class="value club-box">{{ crewMember.club_affiliation }}</span>
       </div>
     </div>
@@ -91,11 +91,10 @@ const hasFlaggedIssues = computed(() =>
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
-  return date.toLocaleDateString(undefined, { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
-  });
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
 };
 
 const getAgeCategory = (dateOfBirth) => {

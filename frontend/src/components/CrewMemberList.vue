@@ -60,7 +60,7 @@
       </div>
 
       <div class="sort-controls">
-        <label>{{ $t('crew.list.sortBy') }}:</label>
+        <label>{{ $t('crew.list.sortBy') }}&nbsp;:</label>
         <select v-model="sortBy" class="sort-select">
           <option value="last_name">{{ $t('crew.list.lastName') }}</option>
           <option value="first_name">{{ $t('crew.list.firstName') }}</option>

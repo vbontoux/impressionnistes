@@ -81,32 +81,32 @@
 
           <div class="boat-details">
             <div class="detail-row">
-              <span class="label">{{ $t('boat.firstRower') }}:</span>
+              <span class="label">{{ $t('boat.firstRower') }}&nbsp;:</span>
               <span>{{ getFirstRowerLastName(boat) }}</span>
             </div>
             <div class="detail-row">
-              <span class="label">{{ $t('boat.gender') }}:</span>
+              <span class="label">{{ $t('boat.gender') }}&nbsp;:</span>
               <span>{{ getCrewGenderCategory(boat) }}</span>
             </div>
             <div class="detail-row">
-              <span class="label">{{ $t('boat.averageAge') }}:</span>
+              <span class="label">{{ $t('boat.averageAge') }}&nbsp;:</span>
               <span>{{ getCrewAverageAge(boat) }}</span>
             </div>
             <div class="detail-row">
-              <span class="label">{{ $t('boat.filledSeats') }}:</span>
+              <span class="label">{{ $t('boat.filledSeats') }}&nbsp;:</span>
               <span>
                 <span v-if="boat.is_multi_club_crew || boat.registration_status === 'free'" class="multi-club-badge">{{ $t('boat.multiClub') }}</span>
                 {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
               </span>
             </div>
             <div v-if="boat.registration_status === 'paid' && boat.paid_at" class="detail-row">
-              <span class="label">{{ $t('boat.paidOn') }}:</span>
+              <span class="label">{{ $t('boat.paidOn') }}&nbsp;:</span>
               <span>{{ formatDate(boat.paid_at) }}</span>
             </div>
           </div>
 
           <div v-if="getRaceName(boat)" class="race-name">
-            <strong>{{ $t('boat.selectedRace') }}:</strong> {{ getRaceName(boat) }}
+            <strong>{{ $t('boat.selectedRace') }}&nbsp;:</strong> {{ getRaceName(boat) }}
           </div>
 
           <div class="boat-actions">
@@ -175,7 +175,7 @@
               </tr>
               <tr v-if="getRaceName(boat)" class="race-row" :class="`row-status-${boat.registration_status}`">
                 <td colspan="8" class="race-cell">
-                  <span class="race-label">{{ $t('boat.selectedRace') }}:</span> {{ getRaceName(boat) }}
+                  <span class="race-label">{{ $t('boat.selectedRace') }}&nbsp;:</span> {{ getRaceName(boat) }}
                 </td>
               </tr>
             </template>
