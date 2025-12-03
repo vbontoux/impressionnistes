@@ -38,7 +38,7 @@
         />
       </div>
       
-      <div class="filter-buttons">
+      <div class="filter-row">
         <button 
           :class="['filter-btn', { active: filter === 'all' }]"
           @click="filter = 'all'"
@@ -51,22 +51,35 @@
         >
           {{ $t('crew.list.assigned') }} ({{ crewStore.assignedCrewMembers.length }})
         </button>
-        <button 
-          :class="['filter-btn', { active: filter === 'flagged' }]"
-          @click="filter = 'flagged'"
-        >
-          {{ $t('crew.list.flagged') }} ({{ crewStore.flaggedCrewMembers.length }})
-        </button>
-      </div>
 
-      <div class="sort-controls">
-        <label>{{ $t('crew.list.sortBy') }}&nbsp;:</label>
-        <select v-model="sortBy" class="sort-select">
-          <option value="last_name">{{ $t('crew.list.lastName') }}</option>
-          <option value="first_name">{{ $t('crew.list.firstName') }}</option>
-          <option value="date_of_birth">{{ $t('crew.list.age') }}</option>
-          <option value="created_at">{{ $t('crew.list.dateAdded') }}</option>
-        </select>
+        <div class="filter-group">
+          <label>{{ $t('crew.list.gender') }}&nbsp;:</label>
+          <select v-model="genderFilter" class="filter-select">
+            <option value="all">{{ $t('crew.list.allGenders') }}</option>
+            <option value="M">{{ $t('crew.form.male') }}</option>
+            <option value="F">{{ $t('crew.form.female') }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>{{ $t('crew.list.category') }}&nbsp;:</label>
+          <select v-model="categoryFilter" class="filter-select">
+            <option value="all">{{ $t('crew.list.allCategories') }}</option>
+            <option value="junior">{{ $t('crew.list.junior') }}</option>
+            <option value="senior">{{ $t('boat.senior') }}</option>
+            <option value="master">{{ $t('boat.master') }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>{{ $t('crew.list.sortBy') }}&nbsp;:</label>
+          <select v-model="sortBy" class="sort-select">
+            <option value="last_name">{{ $t('crew.list.lastName') }}</option>
+            <option value="first_name">{{ $t('crew.list.firstName') }}</option>
+            <option value="date_of_birth">{{ $t('crew.list.age') }}</option>
+            <option value="created_at">{{ $t('crew.list.dateAdded') }}</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -192,6 +205,8 @@ const crewStore = useCrewStore();
 
 const searchQuery = ref('');
 const filter = ref('all');
+const genderFilter = ref('all');
+const categoryFilter = ref('all');
 const sortBy = ref('last_name');
 // Load view mode from localStorage or default to 'cards'
 const viewMode = ref(localStorage.getItem('crewViewMode') || 'cards');
@@ -261,9 +276,28 @@ const filteredCrewMembers = computed(() => {
     case 'assigned':
       members = crewStore.assignedCrewMembers;
       break;
-    case 'flagged':
-      members = crewStore.flaggedCrewMembers;
-      break;
+  }
+
+  // Apply gender filter
+  if (genderFilter.value !== 'all') {
+    members = members.filter(member => member.gender === genderFilter.value);
+  }
+
+  // Apply category filter
+  if (categoryFilter.value !== 'all') {
+    members = members.filter(member => {
+      const age = calculateAge(member.date_of_birth);
+      const category = getAgeCategory(age);
+      
+      if (categoryFilter.value === 'junior') {
+        return category === 'j16' || category === 'j18';
+      } else if (categoryFilter.value === 'senior') {
+        return category === 'senior';
+      } else if (categoryFilter.value === 'master') {
+        return category === 'master';
+      }
+      return true;
+    });
   }
 
   // Apply search
@@ -395,11 +429,12 @@ const closeForm = () => {
   font-size: 1rem;
 }
 
-.filter-buttons {
+.filter-row {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
   flex-wrap: wrap;
   margin-bottom: 1rem;
+  align-items: center;
 }
 
 .filter-btn {
@@ -419,6 +454,26 @@ const closeForm = () => {
   background: #4CAF50;
   color: white;
   border-color: #4CAF50;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.filter-select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  min-width: 120px;
 }
 
 .sort-controls {
