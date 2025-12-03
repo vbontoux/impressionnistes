@@ -85,12 +85,13 @@ export function analyzeCrewComposition(crewMembers) {
   }
   
   // Calculate ages and determine categories
-  // Note: Age category is based on ROWERS ONLY (excluding coxswains)
+  // Note: Age and gender categories are based on ROWERS ONLY (excluding coxswains)
   const ages = [];
   const genders = [];
   const ageCategories = [];
   const rowerAges = [];  // Ages of rowers only (for age category calculation)
   const rowerAgeCategories = [];  // Age categories of rowers only
+  const rowerGenders = [];  // Genders of rowers only (for gender category calculation)
   
   crewMembers.forEach(member => {
     const age = calculateAge(member.date_of_birth);
@@ -98,38 +99,48 @@ export function analyzeCrewComposition(crewMembers) {
     genders.push(member.gender);
     ageCategories.push(getAgeCategory(age));
     
-    // Track rower ages separately (exclude coxswains from age category calculation)
+    // Track rower data separately (exclude coxswains from age and gender category calculations)
     const seatType = member.seat_type || 'rower';
     if (seatType === 'rower') {
       rowerAges.push(age);
       rowerAgeCategories.push(getAgeCategory(age));
+      rowerGenders.push(member.gender);
     }
   });
   
-  // Determine gender category based on competition rules:
-  // - Women's crews: 100% women
-  // - Men's crews: More than 50% men
-  // - Mixed-gender crews: At least 1 man AND at least 50% women
-  const maleCount = genders.filter(g => g === 'M').length;
-  const femaleCount = genders.filter(g => g === 'F').length;
-  const totalCount = genders.length;
-  const malePercentage = (maleCount / totalCount) * 100;
-  const femalePercentage = (femaleCount / totalCount) * 100;
+  // Determine gender category based on ROWERS ONLY (excluding coxswains)
+  // Competition rules:
+  // - Women's crews: 100% women rowers
+  // - Men's crews: More than 50% men rowers
+  // - Mixed-gender crews: At least 1 man AND at least 50% women rowers
   
+  // Use rowerGenders instead of genders to exclude coxswains
   let genderCategory;
-  if (femaleCount === totalCount) {
-    // 100% women
-    genderCategory = "women";
-  } else if (maleCount > 0 && femalePercentage >= 50) {
-    // At least 1 man AND at least 50% women
-    genderCategory = "mixed";
-  } else if (malePercentage > 50) {
-    // More than 50% men
-    genderCategory = "men";
+  if (rowerGenders.length > 0) {
+    const maleCount = rowerGenders.filter(g => g === 'M').length;
+    const femaleCount = rowerGenders.filter(g => g === 'F').length;
+    const totalCount = rowerGenders.length;
+    const malePercentage = (maleCount / totalCount) * 100;
+    const femalePercentage = (femaleCount / totalCount) * 100;
+    
+    if (femaleCount === totalCount) {
+      // 100% women rowers
+      genderCategory = "women";
+    } else if (maleCount > 0 && femalePercentage >= 50) {
+      // At least 1 man AND at least 50% women rowers -> Mixed
+      genderCategory = "mixed";
+    } else if (malePercentage > 50) {
+      // More than 50% men rowers -> Men's crew
+      genderCategory = "men";
+    } else {
+      // Edge case: shouldn't happen with valid data
+      genderCategory = maleCount >= femaleCount ? "men" : "women";
+    }
   } else {
-    // Edge case: shouldn't happen with valid data
-    // Default to men if more men than women but not meeting mixed criteria
-    genderCategory = maleCount >= femaleCount ? "men" : "women";
+    // Fallback if no rowers (shouldn't happen in valid data)
+    const maleCount = genders.filter(g => g === 'M').length;
+    const femaleCount = genders.filter(g => g === 'F').length;
+    genderCategory = femaleCount === genders.length ? "women" : (maleCount >= femaleCount ? "men" : "women");
   }
   
   // Determine age category (most restrictive) based on ROWERS ONLY

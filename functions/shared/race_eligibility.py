@@ -101,12 +101,13 @@ def analyze_crew_composition(crew_members: List[Dict[str, Any]]) -> Dict[str, An
         }
     
     # Calculate ages and determine categories
-    # Note: Age category is based on ROWERS ONLY (excluding coxswains)
+    # Note: Age and gender categories are based on ROWERS ONLY (excluding coxswains)
     ages = []
     genders = []
     age_categories = []
     rower_ages = []  # Ages of rowers only (for age category calculation)
     rower_age_categories = []  # Age categories of rowers only
+    rower_genders = []  # Genders of rowers only (for gender category calculation)
     
     for member in crew_members:
         age = calculate_age(member['date_of_birth'])
@@ -114,36 +115,50 @@ def analyze_crew_composition(crew_members: List[Dict[str, Any]]) -> Dict[str, An
         genders.append(member['gender'])
         age_categories.append(get_age_category(age))
         
-        # Track rower ages separately (exclude coxswains from age category calculation)
+        # Track rower data separately (exclude coxswains from age and gender category calculations)
         if member.get('seat_type', 'rower') == 'rower':
             rower_ages.append(age)
             rower_age_categories.append(get_age_category(age))
+            rower_genders.append(member['gender'])
     
-    # Determine gender category based on competition rules:
-    # - Women's crews: 100% women
-    # - Men's crews: More than 50% men
-    # - Mixed-gender crews: At least 1 man AND at least 50% women
-    male_count = sum(1 for g in genders if g == 'M')
-    female_count = sum(1 for g in genders if g == 'F')
-    total_count = len(genders)
-    male_percentage = (male_count / total_count) * 100 if total_count > 0 else 0
-    female_percentage = (female_count / total_count) * 100 if total_count > 0 else 0
+    # Determine gender category based on ROWERS ONLY (excluding coxswains)
+    # Competition rules:
+    # - Women's crews: 100% women rowers
+    # - Men's crews: More than 50% men rowers
+    # - Mixed-gender crews: At least 1 man AND at least 50% women rowers
     
-    if female_count == total_count:
-        # 100% women
-        gender_category = "women"
-    elif male_count > 0 and female_percentage >= 50:
-        # At least 1 man AND at least 50% women -> Mixed
-        gender_category = "mixed"
-    elif male_percentage > 50:
-        # More than 50% men -> Men's crew
-        gender_category = "men"
-    elif male_count == total_count:
-        # 100% men (catches the edge case where male_percentage == 100 but not > 50 due to rounding)
-        gender_category = "men"
+    # Use rower_genders instead of genders to exclude coxswains
+    if rower_genders:
+        male_count = sum(1 for g in rower_genders if g == 'M')
+        female_count = sum(1 for g in rower_genders if g == 'F')
+        total_count = len(rower_genders)
+        male_percentage = (male_count / total_count) * 100 if total_count > 0 else 0
+        female_percentage = (female_count / total_count) * 100 if total_count > 0 else 0
+        
+        if female_count == total_count:
+            # 100% women rowers
+            gender_category = "women"
+        elif male_count > 0 and female_percentage >= 50:
+            # At least 1 man AND at least 50% women rowers -> Mixed
+            gender_category = "mixed"
+        elif male_percentage > 50:
+            # More than 50% men rowers -> Men's crew
+            gender_category = "men"
+        elif male_count == total_count:
+            # 100% men rowers
+            gender_category = "men"
+        else:
+            # Edge case: shouldn't happen with valid data
+            gender_category = "men" if male_count > female_count else "women"
     else:
-        # Edge case: shouldn't happen with valid data
-        gender_category = "men" if male_count > female_count else "women"
+        # Fallback if no rowers (shouldn't happen in valid data)
+        # Use all genders as fallback
+        male_count = sum(1 for g in genders if g == 'M')
+        female_count = sum(1 for g in genders if g == 'F')
+        total_count = len(genders)
+        male_percentage = (male_count / total_count) * 100 if total_count > 0 else 0
+        female_percentage = (female_count / total_count) * 100 if total_count > 0 else 0
+        gender_category = "women" if female_count == total_count else ("men" if male_count > female_count else "women")
     
     # Determine age category (most restrictive) based on ROWERS ONLY
     # Priority: master > senior > j18 > j16
