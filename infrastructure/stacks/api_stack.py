@@ -90,6 +90,9 @@ class ApiStack(Stack):
         # Create payment Lambda functions
         self._create_payment_functions()
         
+        # Create admin Lambda functions
+        self._create_admin_functions()
+        
         # Create API Gateway REST API
         self._create_api_gateway()
         
@@ -347,6 +350,23 @@ class ApiStack(Stack):
             'GetPaymentReceiptFunction',
             'payment/get_payment_receipt',
             'Get payment receipt details'
+        )
+    
+    def _create_admin_functions(self):
+        """Create admin configuration Lambda functions"""
+        
+        # Get event configuration function
+        self.lambda_functions['get_event_config'] = self._create_lambda_function(
+            'GetEventConfigFunction',
+            'admin/get_event_config',
+            'Get event dates and registration period configuration'
+        )
+        
+        # Update event configuration function
+        self.lambda_functions['update_event_config'] = self._create_lambda_function(
+            'UpdateEventConfigFunction',
+            'admin/update_event_config',
+            'Update event dates and registration period configuration'
         )
 
     def _create_api_gateway(self):
@@ -729,6 +749,34 @@ class ApiStack(Stack):
         payment_id_resource.add_method(
             'GET',
             receipt_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Create /admin resource (admin only)
+        admin_resource = self.api.root.add_resource('admin')
+        
+        # GET /admin/event-config - Get event configuration (admin only)
+        event_config_resource = admin_resource.add_resource('event-config')
+        get_event_config_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['get_event_config'],
+            proxy=True
+        )
+        event_config_resource.add_method(
+            'GET',
+            get_event_config_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # PUT /admin/event-config - Update event configuration (admin only)
+        update_event_config_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['update_event_config'],
+            proxy=True
+        )
+        event_config_resource.add_method(
+            'PUT',
+            update_event_config_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )

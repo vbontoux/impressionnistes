@@ -179,18 +179,23 @@
 
 ### 10. Admin Mode - Configuration Management (PRIORITY)
 
-- [ ] 10.1 Implement admin data model and access control
+- [x] 10.1 Implement admin data model and access control ✅ COMPLETED
   - Add admin role to Cognito user groups (already exists)
-  - Create admin authorization middleware for Lambda functions
-  - Implement admin-only route guards in frontend
-  - Add admin menu/navigation in frontend
+  - Create admin authorization middleware for Lambda functions (already exists)
+  - Implement admin-only route guards in frontend ✅
+  - Add admin menu/navigation in frontend ✅
+  - Created AdminDashboard.vue component ✅
+  - Added translations for admin section ✅
+  - Fixed Cognito groups extraction in Callback.vue ✅
   - _Requirements: FR-5.1, FR-10.1_
 
-- [ ] 10.2 Backend: Event date configuration
-  - Create get_event_config Lambda to retrieve event dates
-  - Create update_event_config Lambda (admin only)
-  - Store event configuration in DynamoDB (event_id, date, registration_open, registration_close)
-  - Add validation for date ranges (close > open, event > close)
+- [x] 10.2 Backend: Event date configuration ✅ COMPLETED
+  - Create get_event_config Lambda to retrieve event dates ✅
+  - Create update_event_config Lambda (admin only) ✅
+  - Store event configuration in DynamoDB (event_id, date, registration_open, registration_close) ✅
+  - Add validation for date ranges (close > open, event > close) ✅
+  - Added API Gateway routes: GET/PUT /admin/event-config ✅
+  - Deployed to AWS successfully ✅
   - _Requirements: FR-5.1, FR-10.1, FR-10.2_
 
 - [ ] 10.3 Frontend: Event date configuration
