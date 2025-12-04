@@ -16,7 +16,8 @@
     "no": "No",
     "actions": "Actions",
     "cardView": "Card view",
-    "tableView": "Table view"
+    "tableView": "Table view",
+    "retry": "Retry"
   },
   "nav": {
     "home": "Home",
@@ -46,6 +47,31 @@
       "boatInventoryDesc": "Manage boats available for rental",
       "dataExports": "Data Exports",
       "dataExportsDesc": "Export crew members and boat registrations"
+    },
+    "eventConfig": {
+      "title": "Event Date Configuration",
+      "subtitle": "Manage event dates and registration periods",
+      "eventDate": "Event Date",
+      "competitionDate": "Competition Date",
+      "registrationPeriod": "Registration Period",
+      "registrationStart": "Registration Opens",
+      "registrationEnd": "Registration Closes",
+      "paymentDeadline": "Payment Deadline",
+      "rentalSettings": "Rental Settings",
+      "rentalPriorityDays": "Rental Priority Days",
+      "rentalPriorityHelp": "Number of days before closure when RCPM members have priority",
+      "loadError": "Error loading configuration",
+      "saveSuccess": "Configuration saved successfully!",
+      "saveError": "Error saving configuration",
+      "confirmSave": "Are you sure you want to save these changes?",
+      "confirmCancel": "You have unsaved changes. Do you really want to cancel?",
+      "errors": {
+        "endBeforeStart": "End date must be after start date",
+        "paymentBeforeEnd": "Payment deadline must be on or after registration end date",
+        "eventBeforeRegistration": "Event date must be after registration closes",
+        "eventBeforePayment": "Event date must be after payment deadline",
+        "rentalDaysRange": "Rental priority days must be between 0 and 90"
+      }
     }
   },
   "session": {

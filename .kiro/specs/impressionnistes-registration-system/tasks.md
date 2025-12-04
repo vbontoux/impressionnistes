@@ -198,12 +198,15 @@
   - Deployed to AWS successfully ✅
   - _Requirements: FR-5.1, FR-10.1, FR-10.2_
 
-- [ ] 10.3 Frontend: Event date configuration
-  - Create AdminEventConfig.vue component
-  - Display current event dates in editable form
-  - Add date pickers for registration open/close dates
-  - Show validation errors for invalid date ranges
-  - Add save/cancel functionality with confirmation
+- [x] 10.3 Frontend: Event date configuration ✅ COMPLETED
+  - Create AdminEventConfig.vue component ✅
+  - Display current event dates in editable form ✅
+  - Add date pickers for registration open/close dates ✅
+  - Show validation errors for invalid date ranges ✅
+  - Add save/cancel functionality with confirmation ✅
+  - Added route /admin/events with admin guard ✅
+  - Added French and English translations ✅
+  - Connected to backend API ✅
   - _Requirements: FR-5.1, FR-10.1, FR-10.2_
 
 - [ ] 10.4 Backend: Pricing configuration

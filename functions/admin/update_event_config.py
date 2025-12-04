@@ -9,34 +9,40 @@ from datetime import datetime
 from responses import success_response, validation_error, handle_exceptions
 from auth_utils import require_admin, get_user_from_event
 from configuration import ConfigurationManager
-from validation import validate_data
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-def validate_event_dates(updates):
+def validate_event_dates(updates, current_config):
     """
     Validate event date configuration
     
     Args:
         updates: Dictionary of date updates
+        current_config: Current configuration to merge with updates
         
     Returns:
         tuple: (is_valid, error_message)
     """
+    # Merge current config with updates to validate complete date set
+    merged = {
+        'event_date': updates.get('event_date', current_config.get('event_date')),
+        'registration_start_date': updates.get('registration_start_date', current_config.get('registration_start_date')),
+        'registration_end_date': updates.get('registration_end_date', current_config.get('registration_end_date')),
+        'payment_deadline': updates.get('payment_deadline', current_config.get('payment_deadline')),
+    }
+    
     # Parse dates if they exist
     dates = {}
-    date_fields = ['event_date', 'registration_start_date', 'registration_end_date', 'payment_deadline']
-    
-    for field in date_fields:
-        if field in updates:
+    for field, value in merged.items():
+        if value:
             try:
-                dates[field] = datetime.fromisoformat(updates[field])
-            except ValueError:
+                dates[field] = datetime.fromisoformat(value)
+            except (ValueError, TypeError):
                 return False, f"Invalid date format for {field}. Use YYYY-MM-DD format."
     
-    # Validate date logic
+    # Validate date logic only if both dates exist
     if 'registration_start_date' in dates and 'registration_end_date' in dates:
         if dates['registration_start_date'] >= dates['registration_end_date']:
             return False, "Registration start date must be before end date"
@@ -94,8 +100,12 @@ def lambda_handler(event, context):
     if not updates:
         return validation_error('No valid fields provided for update')
     
+    # Get current configuration for validation
+    config_manager = ConfigurationManager()
+    current_config = config_manager.get_system_config()
+    
     # Validate date logic
-    is_valid, error_message = validate_event_dates(updates)
+    is_valid, error_message = validate_event_dates(updates, current_config)
     if not is_valid:
         return validation_error(error_message)
     
@@ -110,8 +120,6 @@ def lambda_handler(event, context):
             return validation_error('Rental priority days must be a valid number')
     
     # Update configuration
-    config_manager = ConfigurationManager()
-    
     try:
         config_manager.update_config('SYSTEM', updates, admin_user_id)
         logger.info(f"Event configuration updated by admin {admin_user_id}: {updates}")

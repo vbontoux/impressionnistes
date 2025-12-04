@@ -16,7 +16,8 @@
     "no": "Non",
     "actions": "Actions",
     "cardView": "Vue en cartes",
-    "tableView": "Vue en tableau"
+    "tableView": "Vue en tableau",
+    "retry": "Réessayer"
   },
   "nav": {
     "home": "Accueil",
@@ -46,6 +47,31 @@
       "boatInventoryDesc": "Gérer les bateaux disponibles à la location",
       "dataExports": "Exports de données",
       "dataExportsDesc": "Exporter les équipiers et les inscriptions de bateaux"
+    },
+    "eventConfig": {
+      "title": "Configuration des dates",
+      "subtitle": "Gérer les dates de l'événement et les périodes d'inscription",
+      "eventDate": "Date de l'événement",
+      "competitionDate": "Date de la compétition",
+      "registrationPeriod": "Période d'inscription",
+      "registrationStart": "Ouverture des inscriptions",
+      "registrationEnd": "Clôture des inscriptions",
+      "paymentDeadline": "Date limite de paiement",
+      "rentalSettings": "Paramètres de location",
+      "rentalPriorityDays": "Jours de priorité de location",
+      "rentalPriorityHelp": "Nombre de jours avant la clôture où les membres RCPM ont la priorité",
+      "loadError": "Erreur lors du chargement de la configuration",
+      "saveSuccess": "Configuration enregistrée avec succès !",
+      "saveError": "Erreur lors de l'enregistrement de la configuration",
+      "confirmSave": "Êtes-vous sûr de vouloir enregistrer ces modifications ?",
+      "confirmCancel": "Vous avez des modifications non enregistrées. Voulez-vous vraiment annuler ?",
+      "errors": {
+        "endBeforeStart": "La date de clôture doit être après la date d'ouverture",
+        "paymentBeforeEnd": "La date limite de paiement doit être après ou égale à la date de clôture",
+        "eventBeforeRegistration": "La date de l'événement doit être après la clôture des inscriptions",
+        "eventBeforePayment": "La date de l'événement doit être après la date limite de paiement",
+        "rentalDaysRange": "Les jours de priorité doivent être entre 0 et 90"
+      }
     }
   },
   "session": {
