@@ -69,7 +69,7 @@ These requirements define what the system does from a business and user perspect
 1. WHEN a team manager creates a boat registration, THE Registration_System SHALL propose two different events (21 or 42 km races)
 2. WHEN a team manager selects an event, THE Registration_System SHALL display the possible boat types: skiff for the 42km event; 4 without cox or 4 with cox or 8 with cox for the 21 km event
 3. WHEN a team manager selects a boat type, THE Registration_System SHALL display available seats for crew member assignment
-4. WHEN a team manager has assigned crew members to each seat, THE Registration_System SHALL display all possible races among the 14 marathon races or 28 semi-marathon races (see appendix), filtering out races that are not compatible with crew members' age and gender, allowing the team manager to select the race
+4. WHEN a team manager has assigned crew members to each seat, THE Registration_System SHALL display all possible races among the 14 marathon races or 52 semi-marathon races (see appendix), filtering out races that are not compatible with crew members' age and gender and boat configuration (sweep vs scull), allowing the team manager to select the race
 5. WHILE a boat registration is incomplete, THE Registration_System SHALL allow team managers to save partial configurations and return later
 6. WHILE the registration period is active, THE Registration_System SHALL allow team managers to edit boat registration information or to delete a boat registration
 7. WHEN crew members are assigned to all required seats and a race is selected, THE Registration_System SHALL mark the boat registration as complete
@@ -337,9 +337,11 @@ The Course des Impressionnistes competition consists of two distinct events:
 - **Semi-marathon (21 km)**: Raced in fours and eights of all configurations
 - **Marathon (42 km)**: Individual race in single sculls (skiffs)
 
-#### Age Categories (based on average crew age)
+#### Age Categories (based on average age of ROWERS ONLY)
 
 Here is how the French Rowing Federation (FFA) defines categories based on age.
+
+**Important:** Age category determination is based on ROWERS ONLY. Coxswains are excluded from age category calculations.
 
 - **J14**: aged 14
 - **J15**: aged 15
@@ -361,9 +363,12 @@ Here is how the French Rowing Federation (FFA) defines categories based on age.
   - K: Average age 85 years or over
 
 #### Gender Categories and Crew Composition Rules
-- **Men's crews**: More than 50% men
-- **Women's crews**: 100% women
-- **Mixed-gender crews**: At least 1 man and at least 50% women
+
+**Important:** Gender category determination is based on ROWERS ONLY. Coxswains are excluded from gender category calculations.
+
+- **Men's crews**: More than 50% men (among rowers)
+- **Women's crews**: 100% women (among rowers)
+- **Mixed-gender crews**: At least 1 man and at least 50% women (among rowers)
 - **Substitution rules**: Women can substitute for men in men's or mixed-gender crews; men cannot substitute for women in women's or mixed-gender crews
 
 #### Boat Types and Configurations
@@ -400,35 +405,73 @@ The races taken into account are as follows:
 
 ##### Semi-Marathon event 21 km
 
-The races taken into account are as follows:
-1.	WOMEN-JUNIOR J16–COXED SWEEP FOUR OR QUAD SCULL
-2.	MEN-JUNIOR J16–COXED SWEEP FOUR OR QUAD SCULL
-3.	MIXED-GENDER-JUNIOR J16–COXED SWEEP FOUR OR QUAD SCULL
-4.	WOMEN-JUNIOR J16–SWEEP EIGHT WITH COXSWAIN
-5.	MEN-JUNIOR J16–SWEEP EIGHT WITH COXSWAIN
-6.	WOMEN-JUNIOR J18–SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN
-7.	MEN-JUNIOR J18–SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN
-8.	MIXED-GENDER-JUNIOR J18–SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN
-9.	MEN-JUNIOR J18–COXED SWEEP FOUR
-10.	WOMEN-JUNIOR J18–SWEEP EIGHT WITH COXSWAIN
-11.	MEN-JUNIOR J18–SWEEP EIGHT WITH COXSWAIN
-12.	WOMEN-SENIOR–SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN
-13.	MEN-SENIOR–SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN
-14.	MEN-SENIOR–COXED SWEEP FOUR
-15.	WOMEN-SENIOR–SWEEP EIGHT WITH COXSWAIN
-16.	MEN-SENIOR–SWEEP EIGHT WITH COXSWAIN
-17.	WOMEN-MASTER–COXED SWEEP FOUR OR QUAD SCULL YOLETTE
-18.	MEN-MASTER–COXED SWEEP FOUR OR QUAD SCULL YOLETTE
-19.	MIXED-GENDER-MASTER–COXED SWEEP FOUR OR QUAD SCULL YOLETTE
-20.	WOMEN-MASTER–COXED SWEEP FOUR OR QUAD SCULL
-21.	MEN-MASTER–COXED SWEEP FOUR OR QUAD SCULL
-22.	MIXED-GENDER-MASTER–COXED SWEEP FOUR OR QUAD SCULL
-23.	WOMEN-MASTER–SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN
-24.	MEN-MASTER–SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN
-25.	MIXED-GENDER-MASTER–SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN
-26.	WOMEN-MASTER–SWEEP EIGHT OR QUAD SCULL WITH COXSWAIN
-27.	MEN-MASTER–SWEEP EIGHT OR QUAD SCULL WITH COXSWAIN
-28.	MIXED-GENDER-MASTER–SWEEP EIGHT OR QUAD SCULL WITH COXSWAIN
+The races are organized by age category, gender, and boat configuration. Each race distinguishes between sweep rowing (one oar per rower) and sculling (two oars per rower). The 52 races are as follows:
+
+**J16 Category (8 races):**
+1. WOMEN-JUNIOR J16-COXED SWEEP FOUR (SM01A)
+2. WOMEN-JUNIOR J16-COXED QUAD SCULL (SM01B)
+3. MEN-JUNIOR J16-COXED SWEEP FOUR (SM02A)
+4. MEN-JUNIOR J16-COXED QUAD SCULL (SM02B)
+5. MIXED-GENDER-JUNIOR J16-COXED SWEEP FOUR (SM03A)
+6. MIXED-GENDER-JUNIOR J16-COXED QUAD SCULL (SM03B)
+7. WOMEN-JUNIOR J16-SWEEP EIGHT WITH COXSWAIN (SM04)
+8. MEN-JUNIOR J16-SWEEP EIGHT WITH COXSWAIN (SM05)
+
+**J18 Category (9 races):**
+9. WOMEN-JUNIOR J18-SWEEP FOUR WITHOUT COXSWAIN (SM06A)
+10. WOMEN-JUNIOR J18-QUAD SCULL WITHOUT COXSWAIN (SM06B)
+11. MEN-JUNIOR J18-SWEEP FOUR WITHOUT COXSWAIN (SM07A)
+12. MEN-JUNIOR J18-QUAD SCULL WITHOUT COXSWAIN (SM07B)
+13. MIXED-GENDER-JUNIOR J18-SWEEP FOUR WITHOUT COXSWAIN (SM08A)
+14. MIXED-GENDER-JUNIOR J18-QUAD SCULL WITHOUT COXSWAIN (SM08B)
+15. MEN-JUNIOR J18-COXED SWEEP FOUR (SM09)
+16. WOMEN-JUNIOR J18-SWEEP EIGHT WITH COXSWAIN (SM10)
+17. MEN-JUNIOR J18-SWEEP EIGHT WITH COXSWAIN (SM11)
+
+**Senior Category (7 races):**
+18. WOMEN-SENIOR-SWEEP FOUR WITHOUT COXSWAIN (SM12A)
+19. WOMEN-SENIOR-QUAD SCULL WITHOUT COXSWAIN (SM12B)
+20. MEN-SENIOR-SWEEP FOUR WITHOUT COXSWAIN (SM13A)
+21. MEN-SENIOR-QUAD SCULL WITHOUT COXSWAIN (SM13B)
+22. MEN-SENIOR-COXED SWEEP FOUR (SM14)
+23. WOMEN-SENIOR-SWEEP EIGHT WITH COXSWAIN (SM15)
+24. MEN-SENIOR-SWEEP EIGHT WITH COXSWAIN (SM16)
+
+**Master Category (28 races):**
+
+*Yolette races (6 races):*
+25. WOMEN-MASTER-COXED SWEEP FOUR YOLETTE (SM17A)
+26. WOMEN-MASTER-COXED QUAD SCULL YOLETTE (SM17B)
+27. MEN-MASTER-COXED SWEEP FOUR YOLETTE (SM18A)
+28. MEN-MASTER-COXED QUAD SCULL YOLETTE (SM18B)
+29. MIXED-GENDER-MASTER-COXED SWEEP FOUR YOLETTE (SM19A)
+30. MIXED-GENDER-MASTER-COXED QUAD SCULL YOLETTE (SM19B)
+
+*Coxed four races (6 races):*
+31. WOMEN-MASTER-COXED SWEEP FOUR (SM20A)
+32. WOMEN-MASTER-COXED QUAD SCULL (SM20B)
+33. MEN-MASTER-COXED SWEEP FOUR (SM21A)
+34. MEN-MASTER-COXED QUAD SCULL (SM21B)
+35. MIXED-GENDER-MASTER-COXED SWEEP FOUR (SM22A)
+36. MIXED-GENDER-MASTER-COXED QUAD SCULL (SM22B)
+
+*Four without coxswain races (6 races):*
+37. WOMEN-MASTER-SWEEP FOUR WITHOUT COXSWAIN (SM23A)
+38. WOMEN-MASTER-QUAD SCULL WITHOUT COXSWAIN (SM23B)
+39. MEN-MASTER-SWEEP FOUR WITHOUT COXSWAIN (SM24A)
+40. MEN-MASTER-QUAD SCULL WITHOUT COXSWAIN (SM24B)
+41. MIXED-GENDER-MASTER-SWEEP FOUR WITHOUT COXSWAIN (SM25A)
+42. MIXED-GENDER-MASTER-QUAD SCULL WITHOUT COXSWAIN (SM25B)
+
+*Eight with coxswain races (6 races):*
+43. WOMEN-MASTER-SWEEP EIGHT WITH COXSWAIN (SM26A)
+44. WOMEN-MASTER-OCTUPLE SCULL WITH COXSWAIN (SM26B)
+45. MEN-MASTER-SWEEP EIGHT WITH COXSWAIN (SM27A)
+46. MEN-MASTER-OCTUPLE SCULL WITH COXSWAIN (SM27B)
+47. MIXED-GENDER-MASTER-SWEEP EIGHT WITH COXSWAIN (SM28A)
+48. MIXED-GENDER-MASTER-OCTUPLE SCULL WITH COXSWAIN (SM28B)
+
+**Note:** Races ending in "A" are sweep rowing races (one oar per rower), while races ending in "B" are sculling races (two oars per rower). The system automatically filters available races based on the boat type selected and crew composition.
 
 ### A.2 Boat and Seat Rental Rules
 
@@ -475,8 +518,8 @@ This appendix lists all configurable parameters that must be managed through the
 - **Backup Retention Period** (default: 35 days for point-in-time recovery)
 
 ### B.5 Competition Data Parameters
-- **Race Categories List** (28 predefined race categories for semi-marathon)
-- **Marathon Race Categories** (Men's and Women's Senior and Master A-H divisions)
+- **Race Categories List** (52 predefined race categories for semi-marathon, distinguishing sweep rowing and sculling)
+- **Marathon Race Categories** (14 races: Men's and Women's Senior and Master A-F divisions)
 - **Age Categories** (J14, J15, J16, J17, J18, Senior, Master A-K with age thresholds)
 - **Distance Options** (21 km and 42 km)
 - **Boat Type Configurations** (skiff for 42km, 4 without cox/4 with cox/8 with cox for 21km)
@@ -516,7 +559,7 @@ The Course des Impressionnistes is a rowing regatta featuring two distinct event
 - Oar configurations: Sweep rowing (one oar per rower) or sculling (two oars per rower)
 - Crew compositions: Men's, women's, and mixed-gender crews
 - Age categories: J16, J18, Senior, and Master
-- [28 different races for the semi-marathon](#semi-marathon-event-21-km)
+- [52 different races for the semi-marathon](#semi-marathon-event-21-km) (each category split by sweep/scull configuration)
 
 **Marathon (42 km)**  
 - Event distance: 42 kilometers

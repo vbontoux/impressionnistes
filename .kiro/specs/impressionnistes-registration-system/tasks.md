@@ -177,33 +177,117 @@
   - ✅ Update boat status filter to include "paid" (added dropdown filter)
   - _Requirements: FR-4.3_
 
-### 10. Boat Rental Management
+### 10. Admin Mode - Configuration Management (PRIORITY)
 
-- [ ] 10.1 Implement boat rental data model and availability tracking
-  - Create boat inventory in DynamoDB with availability status
-  - Implement rental request tracking (pending, confirmed, rejected)
+- [ ] 10.1 Implement admin data model and access control
+  - Add admin role to Cognito user groups (already exists)
+  - Create admin authorization middleware for Lambda functions
+  - Implement admin-only route guards in frontend
+  - Add admin menu/navigation in frontend
+  - _Requirements: FR-5.1, FR-10.1_
+
+- [ ] 10.2 Backend: Event date configuration
+  - Create get_event_config Lambda to retrieve event dates
+  - Create update_event_config Lambda (admin only)
+  - Store event configuration in DynamoDB (event_id, date, registration_open, registration_close)
+  - Add validation for date ranges (close > open, event > close)
+  - _Requirements: FR-5.1, FR-10.1, FR-10.2_
+
+- [ ] 10.3 Frontend: Event date configuration
+  - Create AdminEventConfig.vue component
+  - Display current event dates in editable form
+  - Add date pickers for registration open/close dates
+  - Show validation errors for invalid date ranges
+  - Add save/cancel functionality with confirmation
+  - _Requirements: FR-5.1, FR-10.1, FR-10.2_
+
+- [ ] 10.4 Backend: Pricing configuration
+  - Create get_pricing_config Lambda to retrieve all pricing
+  - Create update_pricing_config Lambda (admin only)
+  - Store pricing in DynamoDB (base_seat_price, multi_club_surcharge, rental_multipliers)
+  - Add validation for positive numbers and reasonable ranges
+  - _Requirements: FR-5.2, FR-9.2, FR-9.3, FR-10.3_
+
+- [ ] 10.5 Frontend: Pricing configuration
+  - Create AdminPricingConfig.vue component
+  - Display base seat price editor
+  - Add multi-club surcharge editor
+  - Show rental pricing multipliers (skiff 2.5x, crew boat 1x)
+  - Add save/cancel functionality with confirmation
+  - Display pricing preview/calculator
+  - _Requirements: FR-5.2, FR-9.2, FR-9.3, FR-10.3_
+
+- [ ] 10.6 Backend: Boat inventory management
+  - Create boat_inventory data model in DynamoDB
+  - Implement create_boat Lambda (admin only) - boat_id, boat_type, boat_name, status
+  - Implement update_boat Lambda (admin only) - update name, status (available/unavailable/rented)
+  - Implement delete_boat Lambda (admin only) - soft delete with validation
+  - Create list_boats Lambda (admin only) - list all boats with filters
+  - _Requirements: FR-8.1, FR-10.4_
+
+- [ ] 10.7 Frontend: Boat inventory management
+  - Create AdminBoatInventory.vue component
+  - Display list of all boats with type, name, status
+  - Add "Add Boat" button with modal form (boat type, name)
+  - Implement inline editing for boat name and status
+  - Add delete button with confirmation dialog
+  - Show boat availability status (available/unavailable/rented)
+  - Add filters by boat type and status
+  - _Requirements: FR-8.1, FR-10.4_
+
+- [ ] 10.8 Backend: Data export for admin
+  - Create export_crew_members Lambda (admin only) - CSV with all crew details
+  - Create export_boat_registrations Lambda (admin only) - CSV with boat and race details
+  - Add filtering options (by event, by race, by payment status)
+  - Implement CSV generation with proper formatting
+  - Return downloadable file or S3 URL
+  - _Requirements: FR-7.2, FR-10.5_
+
+- [ ] 10.9 Frontend: Data export interface
+  - Create AdminDataExport.vue component
+  - Add export type selector (crew members, boat registrations)
+  - Implement filter options (event, race, payment status)
+  - Add "Export" button that triggers download
+  - Show export progress/loading state
+  - Display success message with download link
+  - _Requirements: FR-7.2, FR-10.5_
+
+- [ ] 10.10 Create admin dashboard landing page
+  - Create AdminDashboard.vue as main admin page
+  - Add navigation to all admin sections (events, pricing, boats, exports)
+  - Display quick stats (total registrations, total payments, boats available)
+  - Add links to configuration sections
+  - Show recent activity or alerts
+  - _Requirements: FR-10.1_
+
+### 11. Boat Rental Management
+
+- [ ] 11.1 Implement boat rental data model and availability tracking
+  - Create rental request tracking in DynamoDB (pending, confirmed, rejected)
   - Add rental priority period logic (15 days before closure)
   - Create RCPM member priority validation
   - Implement automatic confirmation after priority period
+  - Link rental requests to boat inventory from admin section
   - _Requirements: FR-8.1, FR-8.2, FR-8.3, FR-8.4_
 
-- [ ] 10.2 Create boat rental Lambda functions
+- [ ] 11.2 Create boat rental Lambda functions
   - Implement request_boat_rental Lambda with availability check
   - Create confirm_boat_rental Lambda for admin approval
   - Implement list_boat_rentals Lambda for admin management
   - Add automatic rental confirmation scheduler
   - Create rental fee calculation and integration with payment
+  - Update boat inventory status when rental confirmed
   - _Requirements: FR-8.2, FR-8.4, FR-8.5, FR-8.6, FR-8.7, FR-8.8_
 
-- [ ] 10.3 Build boat rental frontend components
+- [ ] 11.3 Build boat rental frontend components
   - Create BoatRentalRequest.vue for external clubs
-  - Add boat availability display with real-time updates
+  - Add boat availability display with real-time updates (from inventory)
   - Create admin boat rental management interface
   - Implement rental status tracking and notifications
   - Add rental fee display in payment summary
   - _Requirements: FR-8.1, FR-8.5, FR-8.7_
 
-### 11. Home Page and Public Information ✅ COMPLETED
+### 12. Home Page and Public Information ✅ COMPLETED
 
 - [x] 11.1 Create home page with competition information ✅ COMPLETED
   - Build HomePage.vue with competition overview ✅
@@ -223,7 +307,7 @@
   - Create multilingual routing ✅
   - _Requirements: FR-11.3, FR-11.5, NFR-4.1, NFR-4.2, NFR-4.3_
 
-### 12. Internationalization (i18n) ✅ COMPLETED
+### 13. Internationalization (i18n) ✅ COMPLETED
 
 - [x] 12.1 Set up Vue i18n infrastructure ✅ COMPLETED
   - Configure Vue i18n plugin with French and English locales ✅
@@ -242,25 +326,23 @@
   - Add home page content translations ✅
   - _Requirements: NFR-4.1, NFR-4.5, FR-11.5_
 
-### 13. Data Export for External Tools
+### 14. Additional Data Export Features (Beyond Admin Exports)
 
-- [ ] 13.1 Implement data export Lambda functions
-  - Create export_registrations Lambda for CSV/Excel generation (race timing systems)
-  - Implement export_crew_members Lambda with all details
-  - Create export_boat_assignments Lambda for race organization
-  - Add export format options (CSV, Excel, JSON)
-  - Implement date range filtering for exports
+- [ ] 14.1 Implement advanced export formats
+  - Add Excel format support (beyond CSV)
+  - Add JSON format for API integrations
+  - Create export templates for race timing systems
+  - Implement custom field selection for exports
+  - Add export scheduling for recurring reports
   - _Requirements: FR-7.2_
 
-- [ ] 13.2 Build export frontend interface
-  - Create DataExport.vue with export options
-  - Add format selection (CSV, Excel, JSON)
-  - Implement download functionality
-  - Create export templates for common use cases
+- [ ] 14.2 Build public export interface (if needed)
+  - Create public-facing export page for race results
   - Add export history tracking
+  - Implement export notifications
   - _Requirements: FR-7.2_
 
-### 14. Frontend Application Structure ✅ COMPLETED
+### 15. Frontend Application Structure ✅ COMPLETED
 
 - [x] 14.1 Set up Vue.js 3 application with Vite ✅ COMPLETED
   - Initialize Vite project with Vue 3 ✅
@@ -288,7 +370,7 @@
   - Create error message display components ✅
   - _Requirements: NFR-5.2_
 
-### 15. API Gateway Integration
+### 16. API Gateway Integration
 
 - [x] 15.1 Set up API Gateway REST API ✅ COMPLETED
   - Create API Gateway REST API with CORS configuration
@@ -307,7 +389,7 @@
   - Add boat rental endpoints (/rentals/*) - TODO
   - _Requirements: TC-1.5_
 
-### 16. Frontend Deployment and CDN ✅ COMPLETED
+### 17. Frontend Deployment and CDN ✅ COMPLETED
 
 - [x] 16.1 Set up S3 bucket for static website hosting ✅ COMPLETED
   - Create S3 bucket with static website configuration ✅
@@ -339,7 +421,7 @@
   - _Requirements: TC-2.1, NFR-1.1_
   - _Implementation: infrastructure/Makefile (build-frontend, deploy-frontend), infrastructure/stacks/frontend_stack.py, infrastructure/stacks/auth_stack.py, infrastructure/app.py_
 
-### 17. Basic Email Notifications (Essential Only)
+### 18. Basic Email Notifications (Essential Only)
 
 - [ ] 17.1 Set up AWS SES for email delivery
   - Configure SES domain verification
@@ -356,7 +438,7 @@
   - Implement notification tracking in DynamoDB
   - _Requirements: NFR-6.1_
 
-### 18. Error Handling and Resilience
+### 19. Error Handling and Resilience
 
 - [ ] 18.1 Implement comprehensive error handling
   - Create standardized error response format
@@ -374,7 +456,7 @@
   - Add timeout handling for long-running operations
   - _Requirements: NFR-5.3, NFR-5.4_
 
-### 19. Security Implementation
+### 20. Security Implementation
 
 - [ ] 19.1 Implement input sanitization and validation
   - Create input sanitization utilities to prevent XSS
@@ -390,7 +472,7 @@
   - Add Secrets Manager for sensitive credentials (Stripe keys)
   - _Requirements: NFR-3.1, NFR-3.2_
 
-### 20. Testing and Quality Assurance
+### 21. Testing and Quality Assurance
 
 - [ ] 20.1 Create integration test suite
   - Write integration tests for complete registration flow
@@ -405,7 +487,7 @@
   - Test DynamoDB throughput
   - _Requirements: NFR-1.1, NFR-1.3, NFR-2.1_
 
-### 21. Production Deployment (V1)
+### 22. Production Deployment (V1)
 
 - [ ] 21.1 Production environment setup
   - Create production AWS environment
@@ -434,7 +516,7 @@
 
 ## VERSION 2 - Enhanced Features
 
-### 22. Payment History and Advanced Features
+### 23. Payment History and Advanced Features
 
 - [ ] 22.1 Implement payment history page
   - Create PaymentHistory.vue to display all payments
@@ -452,7 +534,7 @@
   - Implement receipt email sending (beyond Stripe)
   - _Requirements: FR-4.7_
 
-### 23. Admin Configuration Management
+### 24. Advanced Admin Configuration (V2)
 
 - [ ] 23.1 Implement admin configuration Lambda functions
   - Create get_configuration Lambda for retrieving all config types
@@ -471,7 +553,7 @@
   - Display configuration change history
   - _Requirements: FR-5.1, FR-5.2, FR-10.1, FR-10.2, FR-10.3_
 
-### 24. Registration Validation and Admin Management
+### 25. Registration Validation and Admin Management
 
 - [ ] 24.1 Implement registration validation Lambda functions
   - Create get_all_registrations Lambda for admin review
@@ -499,7 +581,7 @@
   - Add boat rental status overview
   - _Requirements: FR-7.1, FR-7.3, FR-7.4_
 
-### 25. Advanced Reporting and Analytics
+### 26. Advanced Reporting and Analytics
 
 - [ ] 25.1 Implement advanced reporting Lambda functions
   - Create export_payments Lambda for financial reports
@@ -516,7 +598,7 @@
   - Create financial dashboards
   - _Requirements: FR-7.2, FR-7.5, FR-9.6, FR-9.7_
 
-### 26. Enhanced Notification System
+### 27. Enhanced Notification System
 
 - [ ] 26.1 Implement advanced notification features
   - Create schedule_notifications Lambda for recurring alerts
@@ -540,7 +622,7 @@
   - Add real-time notification updates
   - _Requirements: NFR-6.4, FR-11.7_
 
-### 27. Slack Integration for Admin and DevOps
+### 28. Slack Integration for Admin and DevOps
 
 - [ ] 27.1 Implement Slack webhook configuration
   - Add Slack webhook URL fields to notification config
@@ -565,7 +647,7 @@
   - Implement daily summary Slack messages
   - _Requirements: NFR-6.6, NFR-6.7_
 
-### 28. Contact Us Feature
+### 29. Contact Us Feature
 
 - [ ] 28.1 Implement contact form Lambda function
   - Create submit_contact_form Lambda with validation
@@ -584,7 +666,7 @@
   - Display contact information and alternative contact methods
   - _Requirements: FR-12.1, FR-12.7, FR-12.8_
 
-### 29. GDPR Compliance Features
+### 30. GDPR Compliance Features
 
 - [ ] 29.1 Implement GDPR compliance features
   - Create data deletion request handler
@@ -601,7 +683,7 @@
   - Document compliance procedures
   - _Requirements: NFR-3.4_
 
-### 30. Performance Optimization
+### 31. Performance Optimization
 
 - [ ] 30.1 Implement frontend performance optimizations
   - Add code splitting for route-based lazy loading
@@ -628,7 +710,7 @@
   - Implement batch get operations
   - _Requirements: NFR-1.2, NFR-2.3_
 
-### 31. Advanced Testing
+### 32. Advanced Testing
 
 - [ ] 31.1 Implement end-to-end testing
   - Set up Cypress for E2E testing
@@ -645,7 +727,7 @@
   - Test DynamoDB auto-scaling
   - _Requirements: NFR-1.1, NFR-1.3, NFR-2.1_
 
-### 32. DevOps Utilities and Tools
+### 33. DevOps Utilities and Tools
 
 - [ ] 32.1 Create DevOps configuration access tools
   - Build CLI tool for emergency configuration updates
@@ -662,7 +744,7 @@
   - Implement automated smoke tests post-deployment
   - _Requirements: TC-2.1, TC-2.4_
 
-### 33. Documentation
+### 34. Documentation
 
 - [ ] 33.1 Create comprehensive API documentation
   - Document all API endpoints with request/response examples
@@ -689,9 +771,13 @@ V1 focuses on the core registration system with essential features:
 - User authentication and crew/boat management
 - Race eligibility and seat assignment
 - Payment processing with Stripe
-- Boat rental management
+- **Admin mode (PRIORITY before boat rental):**
+  - Event date configuration
+  - Pricing configuration
+  - Boat inventory management
+  - Data exports (crew members, boat registrations)
+- Boat rental management (depends on admin boat inventory)
 - Basic home page with contact email link
-- Data exports for external tools (race timing, etc.)
 - Frontend deployment
 - Essential email notifications only
 - Basic security and error handling
