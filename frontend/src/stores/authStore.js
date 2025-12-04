@@ -105,7 +105,11 @@ export const useAuthStore = defineStore('auth', {
       // Fetch full profile from API
       try {
         const response = await authService.getProfile();
-        this.user = response.data;
+        // Merge profile data with Cognito groups
+        this.user = {
+          ...response.data,
+          groups: cognitoUser.groups || [],
+        };
         authService.setUser(this.user);
       } catch (error) {
         console.error('Failed to fetch user profile:', error);
@@ -115,6 +119,7 @@ export const useAuthStore = defineStore('auth', {
           first_name: cognitoUser.given_name,
           last_name: cognitoUser.family_name,
           user_id: cognitoUser.sub,
+          groups: cognitoUser.groups || [],
         };
         authService.setUser(this.user);
       }

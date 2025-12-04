@@ -59,12 +59,16 @@ onMounted(async () => {
     localStorage.setItem('id_token', tokens.id_token);
     localStorage.setItem('refresh_token', tokens.refresh_token);
     
+    // Extract groups from Cognito token
+    const groups = idTokenPayload['cognito:groups'] || [];
+    
     // Set auth in store
     await authStore.setAuthFromCognito(tokens.access_token, {
       sub: idTokenPayload.sub,
       email: idTokenPayload.email,
       given_name: idTokenPayload.given_name,
       family_name: idTokenPayload.family_name,
+      groups: groups,
     });
 
     // Redirect to dashboard

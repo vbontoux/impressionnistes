@@ -28,7 +28,25 @@
     "payment": "Paiement",
     "profile": "Profil",
     "logout": "Déconnexion",
-    "toggleMenu": "Basculer le menu"
+    "toggleMenu": "Basculer le menu",
+    "admin": "Administration"
+  },
+  "admin": {
+    "dashboard": {
+      "subtitle": "Gérer la configuration du système et les inscriptions",
+      "totalRegistrations": "Inscriptions totales",
+      "totalPayments": "Paiements totaux",
+      "boatsAvailable": "Bateaux disponibles",
+      "configuration": "Configuration",
+      "eventDates": "Dates des événements",
+      "eventDatesDesc": "Configurer les dates d'ouverture et de clôture des inscriptions",
+      "pricing": "Tarification",
+      "pricingDesc": "Gérer les prix des sièges et les frais de location",
+      "boatInventory": "Inventaire des bateaux",
+      "boatInventoryDesc": "Gérer les bateaux disponibles à la location",
+      "dataExports": "Exports de données",
+      "dataExportsDesc": "Exporter les équipiers et les inscriptions de bateaux"
+    }
   },
   "session": {
     "warningTitle": "Session bientôt expirée",

@@ -132,6 +132,19 @@
           <span class="nav-text">{{ $t('nav.payment') }}</span>
         </router-link>
 
+        <!-- Admin Section (only visible to admins) -->
+        <div v-if="authStore.isAdmin" class="nav-divider"></div>
+        
+        <router-link v-if="authStore.isAdmin" to="/admin" class="nav-item admin-item" @click="closeSidebarOnMobile">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 15C15.866 15 19 11.866 19 8C19 4.13401 15.866 1 12 1C8.13401 1 5 4.13401 5 8C5 11.866 8.13401 15 12 15Z" stroke="currentColor" stroke-width="2"/>
+              <path d="M8.21 13.89L7 23L12 20L17 23L15.79 13.88" stroke="currentColor" stroke-width="2"/>
+              <circle cx="12" cy="8" r="3" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </span>
+          <span class="nav-text">{{ $t('nav.admin') }}</span>
+        </router-link>
 
       </nav>
     </aside>
@@ -575,6 +588,33 @@ h2 {
 
 .nav-text {
   flex: 1;
+}
+
+.nav-divider {
+  height: 1px;
+  background-color: #34495e;
+  margin: 1rem 1.5rem;
+}
+
+.nav-item.admin-item {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+.nav-item.admin-item:hover {
+  background-color: rgba(52, 152, 219, 0.2);
+}
+
+.nav-item.admin-item.router-link-active {
+  background-color: #3498db;
+  border-left: 4px solid #2980b9;
+}
+
+.nav-item.admin-item:hover .nav-icon svg {
+  color: #3498db;
+}
+
+.nav-item.admin-item.router-link-active .nav-icon svg {
+  color: white;
 }
 
 .nav-spacer {

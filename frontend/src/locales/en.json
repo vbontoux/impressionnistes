@@ -28,7 +28,25 @@
     "payment": "Payment",
     "profile": "Profile",
     "logout": "Logout",
-    "toggleMenu": "Toggle menu"
+    "toggleMenu": "Toggle menu",
+    "admin": "Administration"
+  },
+  "admin": {
+    "dashboard": {
+      "subtitle": "Manage system configuration and registrations",
+      "totalRegistrations": "Total Registrations",
+      "totalPayments": "Total Payments",
+      "boatsAvailable": "Boats Available",
+      "configuration": "Configuration",
+      "eventDates": "Event Dates",
+      "eventDatesDesc": "Configure registration opening and closing dates",
+      "pricing": "Pricing",
+      "pricingDesc": "Manage seat prices and rental fees",
+      "boatInventory": "Boat Inventory",
+      "boatInventoryDesc": "Manage boats available for rental",
+      "dataExports": "Data Exports",
+      "dataExportsDesc": "Export crew members and boat registrations"
+    }
   },
   "session": {
     "warningTitle": "Session Expiring Soon",

@@ -15,6 +15,7 @@ const Payment = () => import('../views/Payment.vue');
 const PaymentCheckout = () => import('../views/PaymentCheckout.vue');
 const PaymentSuccess = () => import('../views/PaymentSuccess.vue');
 const Profile = () => import('../views/Profile.vue');
+const AdminDashboard = () => import('../views/admin/AdminDashboard.vue');
 
 const routes = [
   {
@@ -93,6 +94,12 @@ const routes = [
     component: Profile,
     meta: { requiresAuth: true },
   },
+  {
+    path: '/admin',
+    name: 'AdminDashboard',
+    component: AdminDashboard,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
 ];
 
 const router = createRouter({
@@ -108,6 +115,11 @@ router.beforeEach((to, from, next) => {
   // Check if route requires authentication
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login');
+  }
+  // Check if route requires admin access
+  else if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    console.warn('Access denied: Admin privileges required');
+    next('/dashboard');
   }
   // Check if route is for guests only (login/register)
   else if (to.meta.guest && isAuthenticated) {
