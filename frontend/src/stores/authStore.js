@@ -136,7 +136,9 @@ export const useAuthStore = defineStore('auth', {
 
       try {
         const response = await authService.getProfile();
-        this.user = response.data;
+        // Preserve groups from Cognito when updating profile from DynamoDB
+        const groups = this.user?.groups || [];
+        this.user = { ...response.data, groups };
         authService.setUser(this.user);
         return this.user;
       } catch (error) {
