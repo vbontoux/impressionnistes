@@ -39,9 +39,10 @@
   "admin": {
     "dashboard": {
       "subtitle": "Manage system configuration and registrations",
-      "totalRegistrations": "Total Registrations",
-      "totalPayments": "Total Payments",
-      "boatsAvailable": "Boats Available",
+      "totalCrewMembers": "Registered Crew Members",
+      "totalBoatRegistrations": "Registered Boats",
+      "totalPayments": "Completed Payments",
+      "rentalBoatsReserved": "Reserved Rental Boats",
       "configuration": "Configuration",
       "eventDates": "Event Dates",
       "eventDatesDesc": "Configure registration opening and closing dates",

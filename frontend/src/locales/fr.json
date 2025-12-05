@@ -39,9 +39,10 @@
   "admin": {
     "dashboard": {
       "subtitle": "Gérer la configuration du système et les inscriptions",
-      "totalRegistrations": "Inscriptions totales",
-      "totalPayments": "Paiements totaux",
-      "boatsAvailable": "Bateaux disponibles",
+      "totalCrewMembers": "Équipiers inscrits",
+      "totalBoatRegistrations": "Bateaux inscrits",
+      "totalPayments": "Paiements effectués",
+      "rentalBoatsReserved": "Bateaux de location réservés",
       "configuration": "Configuration",
       "eventDates": "Dates des événements",
       "eventDatesDesc": "Configurer les dates d'ouverture et de clôture des inscriptions",

@@ -9,26 +9,68 @@
       <!-- Quick Stats -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-icon">👥</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
           <div class="stat-content">
-            <div class="stat-value">{{ stats.totalRegistrations }}</div>
-            <div class="stat-label">{{ $t('admin.dashboard.totalRegistrations') }}</div>
+            <div class="stat-value">{{ stats.totalCrewMembers }}</div>
+            <div class="stat-label">{{ $t('admin.dashboard.totalCrewMembers') }}</div>
           </div>
         </div>
         
         <div class="stat-card">
-          <div class="stat-icon">💰</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="7" cy="3" r="1.5" fill="currentColor"/>
+              <path d="M7 4.5 L3 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M7 4.5 L8 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="3" y1="7" x2="10" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              <circle cx="17" cy="3" r="1.5" fill="currentColor"/>
+              <path d="M17 4.5 L13 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M17 4.5 L18 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="13" y1="7" x2="20" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              <line x1="1" y1="11" x2="23" y2="11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+              <path d="M1 16C1 16 3 14.5 6 14.5C9 14.5 11 16 14 16C17 16 19 14.5 22 14.5C23 14.5 24 16 24 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{ stats.totalBoatRegistrations }}</div>
+            <div class="stat-label">{{ $t('admin.dashboard.totalBoatRegistrations') }}</div>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="1" y="4" width="22" height="16" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="1" y1="10" x2="23" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
           <div class="stat-content">
             <div class="stat-value">{{ stats.totalPayments }}</div>
             <div class="stat-label">{{ $t('admin.dashboard.totalPayments') }}</div>
           </div>
         </div>
-        
+
         <div class="stat-card">
-          <div class="stat-icon">🚣</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="8" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="8" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <line x1="8" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="4" cy="6" r="1.5" fill="currentColor"/>
+              <circle cx="4" cy="12" r="1.5" fill="currentColor"/>
+              <circle cx="4" cy="18" r="1.5" fill="currentColor"/>
+            </svg>
+          </div>
           <div class="stat-content">
-            <div class="stat-value">{{ stats.boatsAvailable }}</div>
-            <div class="stat-label">{{ $t('admin.dashboard.boatsAvailable') }}</div>
+            <div class="stat-value">{{ stats.rentalBoatsReserved }}</div>
+            <div class="stat-label">{{ $t('admin.dashboard.rentalBoatsReserved') }}</div>
           </div>
         </div>
       </div>
@@ -111,18 +153,20 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 
 const stats = ref({
-  totalRegistrations: 0,
+  totalCrewMembers: 0,
+  totalBoatRegistrations: 0,
   totalPayments: 0,
-  boatsAvailable: 0,
+  rentalBoatsReserved: 0,
 });
 
 onMounted(async () => {
   // TODO: Fetch real stats from API
   // For now, using placeholder values
   stats.value = {
-    totalRegistrations: 0,
+    totalCrewMembers: 0,
+    totalBoatRegistrations: 0,
     totalPayments: 0,
-    boatsAvailable: 0,
+    rentalBoatsReserved: 0,
   };
 });
 </script>
@@ -167,7 +211,18 @@ onMounted(async () => {
 }
 
 .stat-icon {
-  font-size: 2.5rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon svg {
+  width: 100%;
+  height: 100%;
+  color: #3498db;
 }
 
 .stat-content {
