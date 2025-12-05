@@ -18,6 +18,7 @@ const Profile = () => import('../views/Profile.vue');
 const AdminDashboard = () => import('../views/admin/AdminDashboard.vue');
 const AdminEventConfig = () => import('../views/admin/AdminEventConfig.vue');
 const AdminPricingConfig = () => import('../views/admin/AdminPricingConfig.vue');
+const AdminBoatInventory = () => import('../views/admin/AdminBoatInventory.vue');
 
 const routes = [
   {
@@ -112,6 +113,12 @@ const routes = [
     path: '/admin/pricing',
     name: 'AdminPricingConfig',
     component: AdminPricingConfig,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/boats',
+    name: 'AdminBoatInventory',
+    component: AdminBoatInventory,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
 ];

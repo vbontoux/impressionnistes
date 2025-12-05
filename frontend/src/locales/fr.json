@@ -102,6 +102,46 @@
         "multiplierRange": "Le multiplicateur doit être supérieur à 0 et inférieur à 10",
         "crewPriceRange": "Le prix de location doit être entre 0 et 1000 euros"
       }
+    },
+    "boatInventory": {
+      "title": "Inventaire des bateaux",
+      "subtitle": "Gérer les bateaux disponibles à la location",
+      "addBoat": "Ajouter un bateau",
+      "filterByType": "Filtrer par type",
+      "filterByStatus": "Filtrer par statut",
+      "allTypes": "Tous les types",
+      "allStatuses": "Tous les statuts",
+      "showing": "Affichage",
+      "boats": "bateaux",
+      "boatType": "Type de bateau",
+      "boatName": "Nom du bateau",
+      "statusLabel": "Statut",
+      "status": {
+        "new": "Nouveau",
+        "available": "Disponible",
+        "requested": "Demandé",
+        "confirmed": "Confirmé",
+        "paid": "Payé"
+      },
+      "requester": "Demandeur",
+      "actions": "Actions",
+      "noBoats": "Aucun bateau trouvé",
+      "selectType": "Sélectionner un type",
+      "boatNamePlaceholder": "Ex: Blue Lightning",
+      "initialStatus": "Statut initial",
+      "deleteBoat": "Supprimer le bateau",
+      "cannotDeleteConfirmed": "Impossible de supprimer un bateau confirmé. Changez d'abord le statut.",
+      "cannotDeletePaid": "Impossible de supprimer un bateau payé. Cette location est verrouillée.",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer le bateau '{name}' ?",
+      "loadError": "Erreur lors du chargement des bateaux",
+      "createError": "Erreur lors de la création du bateau",
+      "updateError": "Erreur lors de la mise à jour du bateau",
+      "deleteError": "Erreur lors de la suppression du bateau",
+      "errors": {
+        "typeRequired": "Le type de bateau est requis",
+        "nameRequired": "Le nom du bateau est requis",
+        "nameTooLong": "Le nom du bateau doit faire 100 caractères maximum"
+      }
     }
   },
   "session": {

@@ -382,6 +382,31 @@ class ApiStack(Stack):
             'admin/update_pricing_config',
             'Update pricing configuration'
         )
+        
+        # Rental boat inventory management functions
+        self.lambda_functions['create_rental_boat'] = self._create_lambda_function(
+            'CreateRentalBoatFunction',
+            'admin/create_rental_boat',
+            'Create a new rental boat hull in inventory'
+        )
+        
+        self.lambda_functions['list_rental_boats'] = self._create_lambda_function(
+            'ListRentalBoatsFunction',
+            'admin/list_rental_boats',
+            'List all rental boat hulls with filtering'
+        )
+        
+        self.lambda_functions['update_rental_boat'] = self._create_lambda_function(
+            'UpdateRentalBoatFunction',
+            'admin/update_rental_boat',
+            'Update rental boat name, status, or requester'
+        )
+        
+        self.lambda_functions['delete_rental_boat'] = self._create_lambda_function(
+            'DeleteRentalBoatFunction',
+            'admin/delete_rental_boat',
+            'Delete a rental boat hull from inventory'
+        )
 
     def _create_api_gateway(self):
         """Create API Gateway REST API with Cognito authorizer"""
@@ -816,6 +841,60 @@ class ApiStack(Stack):
         pricing_config_resource.add_method(
             'PUT',
             update_pricing_config_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Rental boat inventory management routes
+        rental_boats_resource = admin_resource.add_resource('rental-boats')
+        
+        # GET /admin/rental-boats - List all rental boats (admin only)
+        list_rental_boats_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['list_rental_boats'],
+            proxy=True
+        )
+        rental_boats_resource.add_method(
+            'GET',
+            list_rental_boats_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # POST /admin/rental-boats - Create a new rental boat (admin only)
+        create_rental_boat_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['create_rental_boat'],
+            proxy=True
+        )
+        rental_boats_resource.add_method(
+            'POST',
+            create_rental_boat_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Single rental boat resource /admin/rental-boats/{rental_boat_id}
+        rental_boat_resource = rental_boats_resource.add_resource('{rental_boat_id}')
+        
+        # PUT /admin/rental-boats/{rental_boat_id} - Update a rental boat (admin only)
+        update_rental_boat_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['update_rental_boat'],
+            proxy=True
+        )
+        rental_boat_resource.add_method(
+            'PUT',
+            update_rental_boat_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # DELETE /admin/rental-boats/{rental_boat_id} - Delete a rental boat (admin only)
+        delete_rental_boat_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['delete_rental_boat'],
+            proxy=True
+        )
+        rental_boat_resource.add_method(
+            'DELETE',
+            delete_rental_boat_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )

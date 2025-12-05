@@ -102,6 +102,46 @@
         "multiplierRange": "Multiplier must be greater than 0 and less than 10",
         "crewPriceRange": "Rental price must be between 0 and 1000 euros"
       }
+    },
+    "boatInventory": {
+      "title": "Boat Inventory",
+      "subtitle": "Manage boats available for rental",
+      "addBoat": "Add Boat",
+      "filterByType": "Filter by type",
+      "filterByStatus": "Filter by status",
+      "allTypes": "All types",
+      "allStatuses": "All statuses",
+      "showing": "Showing",
+      "boats": "boats",
+      "boatType": "Boat Type",
+      "boatName": "Boat Name",
+      "statusLabel": "Status",
+      "status": {
+        "new": "New",
+        "available": "Available",
+        "requested": "Requested",
+        "confirmed": "Confirmed",
+        "paid": "Paid"
+      },
+      "requester": "Requester",
+      "actions": "Actions",
+      "noBoats": "No boats found",
+      "selectType": "Select a type",
+      "boatNamePlaceholder": "e.g., Blue Lightning",
+      "initialStatus": "Initial status",
+      "deleteBoat": "Delete boat",
+      "cannotDeleteConfirmed": "Cannot delete a confirmed boat. Change status first.",
+      "cannotDeletePaid": "Cannot delete a paid boat. This rental is locked.",
+      "confirmDelete": "Are you sure you want to delete the boat '{name}'?",
+      "loadError": "Error loading boats",
+      "createError": "Error creating boat",
+      "updateError": "Error updating boat",
+      "deleteError": "Error deleting boat",
+      "errors": {
+        "typeRequired": "Boat type is required",
+        "nameRequired": "Boat name is required",
+        "nameTooLong": "Boat name must be 100 characters or less"
+      }
     }
   },
   "session": {

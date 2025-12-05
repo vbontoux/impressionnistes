@@ -229,22 +229,28 @@
   - Connected to backend API ✅
   - _Requirements: FR-5.2, FR-9.2, FR-9.3, FR-10.3_
 
-- [ ] 10.6 Backend: Boat inventory management
-  - Create boat_inventory data model in DynamoDB
-  - Implement create_boat Lambda (admin only) - boat_id, boat_type, boat_name, status
-  - Implement update_boat Lambda (admin only) - update name, status (available/unavailable/rented)
-  - Implement delete_boat Lambda (admin only) - soft delete with validation
-  - Create list_boats Lambda (admin only) - list all boats with filters
+- [x] 10.6 Backend: Boat inventory management ✅ COMPLETED
+  - Create boat_inventory data model in DynamoDB ✅
+  - Implement create_boat Lambda (admin only) - boat_id, boat_type, boat_name, status ✅
+  - Implement update_boat Lambda (admin only) - update name, status, requester ✅
+  - Implement delete_boat Lambda (admin only) - with validation (cannot delete confirmed) ✅
+  - Create list_boats Lambda (admin only) - list all boats with filters ✅
+  - Added API routes: POST/GET /admin/boats, PUT/DELETE /admin/boats/{boat_id} ✅
+  - Boat statuses: new, available, requested, confirmed ✅
+  - Boat types: skiff, 4-, 4+, 4x-, 4x+, 8+, 8x+ ✅
   - _Requirements: FR-8.1, FR-10.4_
 
-- [ ] 10.7 Frontend: Boat inventory management
-  - Create AdminBoatInventory.vue component
-  - Display list of all boats with type, name, status
-  - Add "Add Boat" button with modal form (boat type, name)
-  - Implement inline editing for boat name and status
-  - Add delete button with confirmation dialog
-  - Show boat availability status (available/unavailable/rented)
-  - Add filters by boat type and status
+- [x] 10.7 Frontend: Boat inventory management ✅ COMPLETED
+  - Create AdminBoatInventory.vue component ✅
+  - Display list of all boats with type, name, status, requester ✅
+  - Add "Add Boat" button with modal form (boat type, name, initial status) ✅
+  - Implement inline editing for boat name and status ✅
+  - Add delete button with confirmation dialog ✅
+  - Show boat availability status with color-coded badges ✅
+  - Add filters by boat type and status ✅
+  - Added route /admin/boats with admin guard ✅
+  - Added French and English translations ✅
+  - Connected to backend API ✅
   - _Requirements: FR-8.1, FR-10.4_
 
 - [ ] 10.8 Backend: Data export for admin
