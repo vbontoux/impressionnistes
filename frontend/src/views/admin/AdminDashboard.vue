@@ -149,6 +149,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import apiClient from '../../services/apiClient';
 
 const { t } = useI18n();
 
@@ -159,15 +160,34 @@ const stats = ref({
   rentalBoatsReserved: 0,
 });
 
+const loading = ref(true);
+const error = ref(null);
+
+const loadStats = async () => {
+  loading.value = true;
+  error.value = null;
+  
+  try {
+    const response = await apiClient.get('/admin/stats');
+    const data = response.data.data;
+    
+    stats.value = {
+      totalCrewMembers: data.total_crew_members || 0,
+      totalBoatRegistrations: data.total_boat_registrations || 0,
+      totalPayments: data.total_payments || 0,
+      rentalBoatsReserved: data.rental_boats_reserved || 0,
+    };
+  } catch (err) {
+    console.error('Failed to load stats:', err);
+    error.value = t('admin.dashboard.statsError');
+    // Keep zeros on error
+  } finally {
+    loading.value = false;
+  }
+};
+
 onMounted(async () => {
-  // TODO: Fetch real stats from API
-  // For now, using placeholder values
-  stats.value = {
-    totalCrewMembers: 0,
-    totalBoatRegistrations: 0,
-    totalPayments: 0,
-    rentalBoatsReserved: 0,
-  };
+  await loadStats();
 });
 </script>
 

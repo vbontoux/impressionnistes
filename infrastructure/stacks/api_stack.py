@@ -407,6 +407,12 @@ class ApiStack(Stack):
             'admin/delete_rental_boat',
             'Delete a rental boat hull from inventory'
         )
+        
+        self.lambda_functions['get_stats'] = self._create_lambda_function(
+            'GetStatsFunction',
+            'admin/get_stats',
+            'Get admin dashboard statistics'
+        )
 
     def _create_api_gateway(self):
         """Create API Gateway REST API with Cognito authorizer"""
@@ -895,6 +901,19 @@ class ApiStack(Stack):
         rental_boat_resource.add_method(
             'DELETE',
             delete_rental_boat_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # GET /admin/stats - Get admin dashboard statistics (admin only)
+        stats_resource = admin_resource.add_resource('stats')
+        get_stats_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['get_stats'],
+            proxy=True
+        )
+        stats_resource.add_method(
+            'GET',
+            get_stats_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )
