@@ -72,6 +72,36 @@
         "eventBeforePayment": "Event date must be after payment deadline",
         "rentalDaysRange": "Rental priority days must be between 0 and 90"
       }
+    },
+    "pricingConfig": {
+      "title": "Pricing Configuration",
+      "subtitle": "Manage seat prices and rental fees",
+      "basePricing": "Base Pricing",
+      "baseSeatPrice": "Base Seat Price (external clubs)",
+      "baseSeatPriceHelp": "Price per seat for external club members (RCPM = free)",
+      "rentalPricing": "Rental Pricing",
+      "skiffMultiplier": "Skiff Rental Multiplier",
+      "skiffMultiplierHelp": "Multiplier applied to base price for skiffs (e.g., 2.5x)",
+      "crewBoatPrice": "Crew Boat Rental Price",
+      "crewBoatPriceHelp": "Price per seat for crew boat rental",
+      "pricingPreview": "Pricing Preview",
+      "rcpmMember": "RCPM Member",
+      "externalClub": "External Club",
+      "regularSeat": "Regular Seat",
+      "rentalSkiff": "Rental Skiff",
+      "rentalCrewBoat": "Rental Crew Boat",
+      "perSeat": "per seat",
+      "previewNote": "These prices are calculated in real-time based on your configuration. RCPM only pays for rentals.",
+      "loadError": "Error loading pricing configuration",
+      "saveSuccess": "Pricing configuration saved successfully!",
+      "saveError": "Error saving pricing configuration",
+      "confirmSave": "Are you sure you want to save these pricing changes?",
+      "confirmCancel": "You have unsaved changes. Do you really want to cancel?",
+      "errors": {
+        "basePriceRange": "Base price must be greater than 0 and less than 1000 euros",
+        "multiplierRange": "Multiplier must be greater than 0 and less than 10",
+        "crewPriceRange": "Rental price must be between 0 and 1000 euros"
+      }
     }
   },
   "session": {

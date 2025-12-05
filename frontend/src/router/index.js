@@ -17,6 +17,7 @@ const PaymentSuccess = () => import('../views/PaymentSuccess.vue');
 const Profile = () => import('../views/Profile.vue');
 const AdminDashboard = () => import('../views/admin/AdminDashboard.vue');
 const AdminEventConfig = () => import('../views/admin/AdminEventConfig.vue');
+const AdminPricingConfig = () => import('../views/admin/AdminPricingConfig.vue');
 
 const routes = [
   {
@@ -105,6 +106,12 @@ const routes = [
     path: '/admin/events',
     name: 'AdminEventConfig',
     component: AdminEventConfig,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/pricing',
+    name: 'AdminPricingConfig',
+    component: AdminPricingConfig,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
 ];

@@ -368,6 +368,20 @@ class ApiStack(Stack):
             'admin/update_event_config',
             'Update event dates and registration period configuration'
         )
+        
+        # Get pricing configuration function
+        self.lambda_functions['get_pricing_config'] = self._create_lambda_function(
+            'GetPricingConfigFunction',
+            'admin/get_pricing_config',
+            'Get pricing configuration'
+        )
+        
+        # Update pricing configuration function
+        self.lambda_functions['update_pricing_config'] = self._create_lambda_function(
+            'UpdatePricingConfigFunction',
+            'admin/update_pricing_config',
+            'Update pricing configuration'
+        )
 
     def _create_api_gateway(self):
         """Create API Gateway REST API with Cognito authorizer"""
@@ -777,6 +791,31 @@ class ApiStack(Stack):
         event_config_resource.add_method(
             'PUT',
             update_event_config_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # GET /admin/pricing-config - Get pricing configuration (admin only)
+        pricing_config_resource = admin_resource.add_resource('pricing-config')
+        get_pricing_config_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['get_pricing_config'],
+            proxy=True
+        )
+        pricing_config_resource.add_method(
+            'GET',
+            get_pricing_config_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # PUT /admin/pricing-config - Update pricing configuration (admin only)
+        update_pricing_config_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['update_pricing_config'],
+            proxy=True
+        )
+        pricing_config_resource.add_method(
+            'PUT',
+            update_pricing_config_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )

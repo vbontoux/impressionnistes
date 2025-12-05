@@ -209,20 +209,24 @@
   - Connected to backend API ✅
   - _Requirements: FR-5.1, FR-10.1, FR-10.2_
 
-- [ ] 10.4 Backend: Pricing configuration
-  - Create get_pricing_config Lambda to retrieve all pricing
-  - Create update_pricing_config Lambda (admin only)
-  - Store pricing in DynamoDB (base_seat_price, multi_club_surcharge, rental_multipliers)
-  - Add validation for positive numbers and reasonable ranges
+- [x] 10.4 Backend: Pricing configuration ✅ COMPLETED
+  - Create get_pricing_config Lambda to retrieve all pricing ✅
+  - Create update_pricing_config Lambda (admin only) ✅
+  - Store pricing in DynamoDB (base_seat_price, boat_rental_multiplier_skiff, boat_rental_price_crew) ✅
+  - Add validation for positive numbers and reasonable ranges ✅
+  - Added API routes GET/PUT /admin/pricing-config ✅
   - _Requirements: FR-5.2, FR-9.2, FR-9.3, FR-10.3_
 
-- [ ] 10.5 Frontend: Pricing configuration
-  - Create AdminPricingConfig.vue component
-  - Display base seat price editor
-  - Add multi-club surcharge editor
-  - Show rental pricing multipliers (skiff 2.5x, crew boat 1x)
-  - Add save/cancel functionality with confirmation
-  - Display pricing preview/calculator
+- [x] 10.5 Frontend: Pricing configuration ✅ COMPLETED
+  - Create AdminPricingConfig.vue component ✅
+  - Display base seat price editor ✅
+  - Add boat rental multiplier editor (skiff) ✅
+  - Add crew boat rental price editor ✅
+  - Add save/cancel functionality with confirmation ✅
+  - Display pricing preview/calculator ✅
+  - Added route /admin/pricing with admin guard ✅
+  - Added French and English translations ✅
+  - Connected to backend API ✅
   - _Requirements: FR-5.2, FR-9.2, FR-9.3, FR-10.3_
 
 - [ ] 10.6 Backend: Boat inventory management
