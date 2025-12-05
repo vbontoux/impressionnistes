@@ -229,6 +229,8 @@
       "female": "Femme",
       "licenseNumber": "Numéro de licence",
       "licenseHint": "Alphanumérique, 6-12 caractères",
+      "licenseWarningTitle": "AVERTISSEMENT IMPORTANT",
+      "licenseWarningText": "Si le numéro de licence n'est pas valide, vous assumez l'entière responsabilité de toute conséquence. Le rameur ET tous les autres membres de l'équipage ne seront PAS autorisés à participer à la course.",
       "clubAffiliation": "Club d'affiliation",
       "clubPlaceholder": "Laissez vide pour utiliser votre club",
       "clubHint": "Laissez vide pour utiliser le club du gestionnaire d'équipe",

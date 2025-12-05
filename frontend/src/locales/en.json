@@ -229,6 +229,8 @@
       "female": "Female",
       "licenseNumber": "License Number",
       "licenseHint": "Alphanumeric, 6-12 characters",
+      "licenseWarningTitle": "IMPORTANT WARNING",
+      "licenseWarningText": "If the license number is not valid, you assume full responsibility for any consequences. The rower AND all other crew members in the same boat will NOT be allowed to race.",
       "clubAffiliation": "Club Affiliation",
       "clubPlaceholder": "Leave empty to use your club",
       "clubHint": "Leave empty to use team manager's club",

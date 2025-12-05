@@ -61,21 +61,38 @@
         <span v-if="errors.gender" class="error">{{ errors.gender }}</span>
       </div>
 
-      <!-- License Number -->
-      <div class="form-group">
-        <label for="licenseNumber">{{ $t('crew.form.licenseNumber') }} *</label>
-        <input
-          id="licenseNumber"
-          v-model="form.license_number"
-          type="text"
-          required
-          :disabled="loading"
-          placeholder="ABC123456"
-          maxlength="12"
-          @blur="validateField('license_number')"
-        />
-        <small class="hint">{{ $t('crew.form.licenseHint') }}</small>
-        <span v-if="errors.license_number" class="error">{{ errors.license_number }}</span>
+      <!-- License Number with Warning -->
+      <div class="form-group license-with-warning">
+        <div class="license-field">
+          <label for="licenseNumber">{{ $t('crew.form.licenseNumber') }} *</label>
+          <input
+            id="licenseNumber"
+            v-model="form.license_number"
+            type="text"
+            required
+            :disabled="loading"
+            placeholder="ABC123456"
+            maxlength="12"
+            @blur="validateField('license_number')"
+          />
+          <small class="hint">{{ $t('crew.form.licenseHint') }}</small>
+          <span v-if="errors.license_number" class="error">{{ errors.license_number }}</span>
+        </div>
+        
+        <div class="warning-box" :class="{ 'expanded': warningExpanded }" @click="warningExpanded = !warningExpanded">
+          <svg class="warning-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 20h20L12 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="currentColor" fill-opacity="0.1"/>
+            <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="12" cy="17" r="1" fill="currentColor"/>
+          </svg>
+          <div class="warning-content">
+            <strong>{{ $t('crew.form.licenseWarningTitle') }}</strong>
+            <p v-show="warningExpanded">{{ $t('crew.form.licenseWarningText') }}</p>
+          </div>
+          <svg class="expand-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <polyline points="6 9 12 15 18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
       </div>
 
       <!-- Club Affiliation -->
@@ -201,6 +218,7 @@ const errors = reactive({});
 const loading = ref(false);
 const errorMessage = ref('');
 const successMessage = ref('');
+const warningExpanded = ref(false);
 
 // Club search state
 const clubs = ref([]);
@@ -528,6 +546,87 @@ input:disabled, select:disabled {
   color: #f44336;
   font-size: 0.875rem;
   margin-top: 0.25rem;
+}
+
+.license-with-warning {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.license-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.warning-box {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: #fff3e0;
+  border: 2px solid #ff9800;
+  border-radius: 6px;
+  align-items: flex-start;
+  height: fit-content;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.warning-box:hover {
+  background-color: #ffe0b2;
+}
+
+.warning-icon {
+  width: 24px;
+  height: 24px;
+  color: #ff9800;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.warning-content {
+  flex: 1;
+}
+
+.warning-content strong {
+  display: block;
+  color: #e65100;
+  font-size: 0.85rem;
+  margin-bottom: 0;
+  font-weight: 600;
+}
+
+.warning-box.expanded .warning-content strong {
+  margin-bottom: 0.35rem;
+}
+
+.warning-content p {
+  color: #e65100;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin: 0;
+  margin-top: 0.35rem;
+}
+
+.expand-icon {
+  width: 20px;
+  height: 20px;
+  color: #ff9800;
+  flex-shrink: 0;
+  transition: transform 0.3s;
+}
+
+.warning-box.expanded .expand-icon {
+  transform: rotate(180deg);
+}
+
+/* Stack on mobile */
+@media (max-width: 768px) {
+  .license-with-warning {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 }
 
 .alert {
