@@ -30,7 +30,11 @@
     "profile": "Profile",
     "logout": "Logout",
     "toggleMenu": "Toggle menu",
-    "admin": "Administration"
+    "admin": "Administration",
+    "eventConfig": "Event Configuration",
+    "pricingConfig": "Pricing Configuration",
+    "boatInventory": "Boat Inventory",
+    "dataExports": "Data Exports"
   },
   "admin": {
     "dashboard": {

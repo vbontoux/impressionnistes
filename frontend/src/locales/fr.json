@@ -30,7 +30,11 @@
     "profile": "Profil",
     "logout": "Déconnexion",
     "toggleMenu": "Basculer le menu",
-    "admin": "Administration"
+    "admin": "Administration",
+    "eventConfig": "Configuration Événement",
+    "pricingConfig": "Configuration Tarifs",
+    "boatInventory": "Inventaire Bateaux",
+    "dataExports": "Exports de Données"
   },
   "admin": {
     "dashboard": {
