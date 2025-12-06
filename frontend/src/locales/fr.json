@@ -195,7 +195,7 @@
       "passwordHasUppercase": "Au moins une majuscule (A-Z)",
       "passwordHasLowercase": "Au moins une minuscule (a-z)",
       "passwordHasNumber": "Au moins un chiffre (0-9)",
-      "passwordHasSymbol": "Au moins un caractère spécial (!@#$%...)"
+      "passwordHasSymbol": "Au moins un caractère spécial (!{'@'}#$%...)"
     },
     "verify": {
       "title": "Vérifiez votre email",

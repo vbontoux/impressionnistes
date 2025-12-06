@@ -116,12 +116,17 @@ export function analyzeCrewComposition(crewMembers) {
   
   // Use rowerGenders instead of genders to exclude coxswains
   let genderCategory;
+  let maleCount = 0;
+  let femaleCount = 0;
+  let malePercentage = 0;
+  let femalePercentage = 0;
+  
   if (rowerGenders.length > 0) {
-    const maleCount = rowerGenders.filter(g => g === 'M').length;
-    const femaleCount = rowerGenders.filter(g => g === 'F').length;
+    maleCount = rowerGenders.filter(g => g === 'M').length;
+    femaleCount = rowerGenders.filter(g => g === 'F').length;
     const totalCount = rowerGenders.length;
-    const malePercentage = (maleCount / totalCount) * 100;
-    const femalePercentage = (femaleCount / totalCount) * 100;
+    malePercentage = (maleCount / totalCount) * 100;
+    femalePercentage = (femaleCount / totalCount) * 100;
     
     if (femaleCount === totalCount) {
       // 100% women rowers
@@ -138,8 +143,11 @@ export function analyzeCrewComposition(crewMembers) {
     }
   } else {
     // Fallback if no rowers (shouldn't happen in valid data)
-    const maleCount = genders.filter(g => g === 'M').length;
-    const femaleCount = genders.filter(g => g === 'F').length;
+    maleCount = genders.filter(g => g === 'M').length;
+    femaleCount = genders.filter(g => g === 'F').length;
+    const totalCount = genders.length;
+    malePercentage = totalCount > 0 ? (maleCount / totalCount) * 100 : 0;
+    femalePercentage = totalCount > 0 ? (femaleCount / totalCount) * 100 : 0;
     genderCategory = femaleCount === genders.length ? "women" : (maleCount >= femaleCount ? "men" : "women");
   }
   
