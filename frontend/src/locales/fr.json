@@ -19,6 +19,9 @@
     "tableView": "Vue en tableau",
     "retry": "Réessayer"
   },
+  "footer": {
+    "contactUs": "Nous contacter"
+  },
   "nav": {
     "home": "Accueil",
     "login": "Connexion",
@@ -465,7 +468,8 @@
       "title": "Course des Impressionnistes",
       "subtitle": "Système d'inscription à la compétition d'aviron",
       "register": "Créer un compte",
-      "login": "Se connecter"
+      "login": "Se connecter",
+      "eventWebsite": "Site de l'événement"
     },
     "dates": {
       "title": "Dates importantes",

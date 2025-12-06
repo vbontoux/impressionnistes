@@ -212,12 +212,17 @@
 
     <!-- Footer -->
     <footer class="footer" :class="{ 'with-sidebar': authStore.isAuthenticated }">
-      <p>&copy; 2024 RCPM - Course des Impressionnistes</p>
+      <p>
+        {{ copyrightText }} | 
+        <a :href="`mailto:${contactEmail}`" class="footer-link">{{ $t('footer.contactUs') }}</a>
+      </p>
     </footer>
   </div>
 </template>
 
 <script setup>
+const copyrightText = import.meta.env.VITE_COPYRIGHT_TEXT || '© 2024 RCPM - Course des Impressionnistes'
+const contactEmail = import.meta.env.VITE_CONTACT_EMAIL || 'impressionnistes@rcpm-aviron.fr'
 import { ref, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from './stores/authStore';
@@ -708,6 +713,17 @@ h2 {
 
 .footer.with-sidebar {
   margin-left: 0;
+}
+
+.footer-link {
+  color: #3498db;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+  color: #5dade2;
+  text-decoration: underline;
 }
 
 /* Tablet and Desktop */

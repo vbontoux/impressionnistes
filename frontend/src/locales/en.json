@@ -19,6 +19,9 @@
     "tableView": "Table view",
     "retry": "Retry"
   },
+  "footer": {
+    "contactUs": "Contact Us"
+  },
   "nav": {
     "home": "Home",
     "login": "Login",
@@ -465,7 +468,8 @@
       "title": "Course des Impressionnistes",
       "subtitle": "Rowing Competition Registration System",
       "register": "Create Account",
-      "login": "Sign In"
+      "login": "Sign In",
+      "eventWebsite": "Event Website"
     },
     "dates": {
       "title": "Important Dates",

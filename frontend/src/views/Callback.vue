@@ -71,8 +71,8 @@ onMounted(async () => {
       groups: groups,
     });
 
-    // Redirect to dashboard
-    router.push('/dashboard');
+    // Redirect to home page
+    router.push('/');
   } catch (error) {
     console.error('Callback error:', error);
     router.push('/login');

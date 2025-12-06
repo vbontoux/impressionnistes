@@ -12,11 +12,17 @@
           <router-link to="/login" class="btn btn-secondary">
             {{ $t('home.hero.login') }}
           </router-link>
+          <a :href="eventWebsite" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+            {{ $t('home.hero.eventWebsite') }}
+          </a>
         </div>
         <div v-else class="hero-actions">
           <router-link to="/dashboard" class="btn btn-primary">
             {{ $t('nav.dashboard') }}
           </router-link>
+          <a :href="eventWebsite" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+            {{ $t('home.hero.eventWebsite') }}
+          </a>
         </div>
       </div>
     </section>
@@ -326,8 +332,8 @@
       <div class="container">
         <h2>{{ $t('home.contact.title') }}</h2>
         <p>{{ $t('home.contact.description') }}</p>
-        <a href="mailto:contact@impressionnistes.rcpm.fr" class="contact-email">
-          contact@impressionnistes.rcpm.fr
+        <a :href="`mailto:${contactEmail}`" class="contact-email">
+          {{ contactEmail }}
         </a>
       </div>
     </section>
@@ -349,6 +355,8 @@
 import { useAuthStore } from '../stores/authStore';
 
 const authStore = useAuthStore();
+const contactEmail = import.meta.env.VITE_CONTACT_EMAIL || 'impressionnistes@rcpm-aviron.fr';
+const eventWebsite = import.meta.env.VITE_EVENT_WEBSITE || 'https://rcpm-aviron.fr/';
 </script>
 
 <style scoped>
@@ -419,6 +427,17 @@ const authStore = useAuthStore();
 .btn-secondary:hover {
   background-color: transparent;
   color: white;
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.btn-outline:hover {
+  background-color: white;
+  color: #667eea;
 }
 
 .btn-large {
