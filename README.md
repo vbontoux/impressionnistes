@@ -72,6 +72,8 @@ The Course des Impressionnistes Registration System enables rowing club team man
 
 **📖 For detailed setup instructions, see [SETUP.md](SETUP.md)**
 
+**🚀 For deployment instructions, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)**
+
 ## Getting Started
 
 ### 1. Set Up Python Virtual Environments

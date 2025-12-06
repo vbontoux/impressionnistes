@@ -11,6 +11,12 @@ CDK = cdk
 # Default environment
 ENV ?= dev
 
+# AWS Profile configuration
+# Automatically use 'rcpm' profile for prod environment
+ifeq ($(ENV),prod)
+    export AWS_PROFILE=rcpm
+endif
+
 help:
 	@echo "Course des Impressionnistes - Infrastructure Commands"
 	@echo ""
@@ -122,6 +128,20 @@ bootstrap:
 	@. $(VENV)/bin/activate && $(CDK) bootstrap --context env=$(ENV)
 	@echo "✓ CDK bootstrap complete"
 
+bootstrap-dev:
+	@$(MAKE) bootstrap ENV=dev
+
+bootstrap-prod:
+	@echo "⚠️  WARNING: Bootstrapping CDK in PRODUCTION AWS Account"
+	@echo "This will create CDK resources in the production account"
+	@read -p "Type 'BOOTSTRAP PROD' to confirm: " confirm; \
+	if [ "$$confirm" = "BOOTSTRAP PROD" ]; then \
+		$(MAKE) bootstrap ENV=prod; \
+	else \
+		echo "Bootstrap cancelled"; \
+		exit 1; \
+	fi
+
 synth:
 	@echo "Synthesizing CloudFormation templates for $(ENV)..."
 	@. $(VENV)/bin/activate && $(CDK) synth --context env=$(ENV)
@@ -224,6 +244,12 @@ describe-infra:
 	@echo "Copy the configuration above to frontend/.env"
 	@echo ""
 
+describe-infra-dev:
+	@$(MAKE) describe-infra ENV=dev
+
+describe-infra-prod:
+	@$(MAKE) describe-infra ENV=prod
+
 deploy-secrets:
 	@echo "=========================================="
 	@echo "Deploying Secrets Stack"
@@ -258,9 +284,35 @@ deploy-secrets:
 	@echo "Lambda functions will automatically retrieve them at runtime."
 	@echo "=========================================="
 
+deploy-secrets-dev:
+	@$(MAKE) deploy-secrets ENV=dev
+
+deploy-secrets-prod:
+	@echo "⚠️  WARNING: Deploying Secrets to PRODUCTION"
+	@read -p "Type 'DEPLOY PROD' to confirm: " confirm; \
+	if [ "$$confirm" = "DEPLOY PROD" ]; then \
+		$(MAKE) deploy-secrets ENV=prod; \
+	else \
+		echo "Deployment cancelled"; \
+		exit 1; \
+	fi
+
 deploy-auth:
 	@echo "Deploying Auth stack for $(ENV) environment..."
 	@$(CDK) deploy ImpressionnistesAuth-$(ENV) --context env=$(ENV)
+
+deploy-auth-dev:
+	@$(MAKE) deploy-auth ENV=dev
+
+deploy-auth-prod:
+	@echo "⚠️  WARNING: Deploying Auth to PRODUCTION"
+	@read -p "Type 'DEPLOY PROD' to confirm: " confirm; \
+	if [ "$$confirm" = "DEPLOY PROD" ]; then \
+		$(MAKE) deploy-auth ENV=prod; \
+	else \
+		echo "Deployment cancelled"; \
+		exit 1; \
+	fi
 	@echo "✓ Auth stack deployed"
 
 build-layer:
@@ -273,6 +325,19 @@ deploy-api: build-layer
 	@$(CDK) deploy ImpressionnistesApi-$(ENV) --context env=$(ENV)
 	@echo "✓ API stack deployed"
 
+deploy-api-dev:
+	@$(MAKE) deploy-api ENV=dev
+
+deploy-api-prod:
+	@echo "⚠️  WARNING: Deploying API to PRODUCTION"
+	@read -p "Type 'DEPLOY PROD' to confirm: " confirm; \
+	if [ "$$confirm" = "DEPLOY PROD" ]; then \
+		$(MAKE) deploy-api ENV=prod; \
+	else \
+		echo "Deployment cancelled"; \
+		exit 1; \
+	fi
+
 deploy-frontend: build-frontend
 	@echo "Deploying Frontend stack for $(ENV) environment..."
 	@. $(VENV)/bin/activate && $(CDK) deploy ImpressiornistesFrontend-$(ENV) --context env=$(ENV) --require-approval never
@@ -282,6 +347,48 @@ deploy-frontend: build-frontend
 	@echo "Frontend URL:"
 	@aws cloudformation describe-stacks --stack-name ImpressiornistesFrontend-$(ENV) --query 'Stacks[0].Outputs[?OutputKey==`WebsiteURL`].OutputValue' --output text
 	@echo "=========================================="
+
+deploy-frontend-dev:
+	@$(MAKE) deploy-frontend ENV=dev
+
+deploy-frontend-prod:
+	@echo "⚠️  WARNING: Deploying Frontend to PRODUCTION"
+	@read -p "Type 'DEPLOY PROD' to confirm: " confirm; \
+	if [ "$$confirm" = "DEPLOY PROD" ]; then \
+		$(MAKE) deploy-frontend ENV=prod; \
+	else \
+		echo "Deployment cancelled"; \
+		exit 1; \
+	fi
+
+deploy-frontend-complete:
+	@echo "=========================================="
+	@echo "Complete Frontend Deployment (2-stage)"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@echo "Stage 1: Initial deployment (with placeholder redirect URI)..."
+	@$(MAKE) deploy-frontend ENV=$(ENV)
+	@echo ""
+	@echo "Stage 2: Rebuilding with correct CloudFront URL..."
+	@$(MAKE) deploy-frontend ENV=$(ENV)
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ Complete frontend deployment finished!"
+	@echo "=========================================="
+
+deploy-frontend-complete-dev:
+	@$(MAKE) deploy-frontend-complete ENV=dev
+
+deploy-frontend-complete-prod:
+	@echo "⚠️  WARNING: Complete Frontend Deployment to PRODUCTION"
+	@read -p "Type 'DEPLOY PROD' to confirm: " confirm; \
+	if [ "$$confirm" = "DEPLOY PROD" ]; then \
+		$(MAKE) deploy-frontend-complete ENV=prod; \
+	else \
+		echo "Deployment cancelled"; \
+		exit 1; \
+	fi
 
 build-frontend:
 	@echo "=========================================="
@@ -298,7 +405,7 @@ build-frontend:
 	echo "2. Creating production .env file..."; \
 	CLOUDFRONT_DOMAIN=$$(aws cloudformation describe-stacks --stack-name ImpressiornistesFrontend-$(ENV) --query 'Stacks[0].Outputs[?OutputKey==`DistributionDomainName`].OutputValue' --output text 2>/dev/null); \
 	if [ -z "$$CLOUDFRONT_DOMAIN" ] || [ "$$CLOUDFRONT_DOMAIN" = "None" ]; then echo "   ⚠️  Frontend stack not deployed yet, using placeholder"; CLOUDFRONT_DOMAIN="PLACEHOLDER-DEPLOY-FRONTEND-FIRST"; fi; \
-	cd ../frontend && echo "VITE_API_URL=$$API_URL" > .env.production && echo "VITE_COGNITO_DOMAIN=$$DOMAIN" >> .env.production && echo "VITE_COGNITO_CLIENT_ID=$$CLIENT_ID" >> .env.production && echo "VITE_COGNITO_REDIRECT_URI=https://$$CLOUDFRONT_DOMAIN/callback" >> .env.production && if grep -q VITE_STRIPE_PUBLISHABLE_KEY .env 2>/dev/null; then grep VITE_STRIPE_PUBLISHABLE_KEY .env >> .env.production; fi; \
+	cd ../frontend && echo "VITE_API_URL=$$API_URL" > .env.production && echo "VITE_COGNITO_DOMAIN=$$DOMAIN" >> .env.production && echo "VITE_COGNITO_CLIENT_ID=$$CLIENT_ID" >> .env.production && echo "VITE_COGNITO_REDIRECT_URI=https://$$CLOUDFRONT_DOMAIN/callback" >> .env.production && if [ -f ".env.$(ENV)" ]; then grep VITE_STRIPE_PUBLISHABLE_KEY .env.$(ENV) >> .env.production 2>/dev/null || true; fi; \
 	echo "   ✓ Created .env.production"; echo ""; \
 	echo "3. Installing dependencies..."; npm install --silent; echo "   ✓ Dependencies installed"; echo ""; \
 	echo "4. Building production bundle..."; npm run build; echo "   ✓ Build complete"; echo ""; \

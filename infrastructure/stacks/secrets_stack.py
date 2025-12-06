@@ -65,13 +65,20 @@ class SecretsStack(Stack):
             FileNotFoundError: If secrets.json doesn't exist
             json.JSONDecodeError: If secrets.json is invalid
         """
-        secrets_file = Path(__file__).parent.parent / "secrets.json"
+        # Get environment name
+        env_name = self.node.try_get_context("env") or "dev"
+        
+        # Try environment-specific secrets file first, fall back to secrets.json
+        secrets_file = Path(__file__).parent.parent / f"secrets.{env_name}.json"
         
         if not secrets_file.exists():
-            raise FileNotFoundError(
-                f"secrets.json not found at {secrets_file}\n"
-                "Please create secrets.json from secrets.json.example"
-            )
+            # Fall back to secrets.json for backward compatibility
+            secrets_file = Path(__file__).parent.parent / "secrets.json"
+            if not secrets_file.exists():
+                raise FileNotFoundError(
+                    f"secrets.{env_name}.json or secrets.json not found\n"
+                    f"Please create secrets.{env_name}.json with your {env_name} environment secrets"
+                )
         
         try:
             with open(secrets_file, 'r') as f:
@@ -94,11 +101,11 @@ class SecretsStack(Stack):
             secrets_data: Dictionary of secrets from secrets.json
             env_name: Environment name (dev or prod)
         """
-        # Get the appropriate key based on environment
-        secret_key_name = f"stripe_secret_key_{env_name}"
+        # Use simplified key name (no environment suffix)
+        secret_key_name = "stripe_secret_key"
         
         if secret_key_name not in secrets_data:
-            print(f"⚠ Warning: {secret_key_name} not found in secrets.json")
+            print(f"⚠ Warning: {secret_key_name} not found in secrets.{env_name}.json")
             return
         
         stripe_api_key = secrets_data[secret_key_name]
@@ -138,11 +145,11 @@ class SecretsStack(Stack):
             secrets_data: Dictionary of secrets from secrets.json
             env_name: Environment name (dev or prod)
         """
-        # Get the appropriate webhook secret based on environment
-        webhook_secret_name = f"stripe_webhook_secret_{env_name}"
+        # Use simplified key name (no environment suffix)
+        webhook_secret_name = "stripe_webhook_secret"
         
         if webhook_secret_name not in secrets_data:
-            print(f"⚠ Warning: {webhook_secret_name} not found in secrets.json")
+            print(f"⚠ Warning: {webhook_secret_name} not found in secrets.{env_name}.json")
             return
         
         webhook_secret = secrets_data[webhook_secret_name]

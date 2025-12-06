@@ -50,6 +50,8 @@ cdk.context.json
 .env
 .env.local
 .env.*.local
+.env.prod
+.env.dev
 
 # Build outputs
 dist/
@@ -74,8 +76,8 @@ exports/
 infrastructure/exports/
 
 # Secrets
-secrets.json
-**/secrets.json
+secrets*.json
+**/secrets*.json
 
 # Other
 functions/layer/python/*

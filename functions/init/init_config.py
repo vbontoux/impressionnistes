@@ -200,15 +200,21 @@ def initialize_race_definitions(table):
     ]
     
     # Semi-marathon races (21km) - Team races
-    # Based on BoatDetail.vue - this is the source of truth
+    # Updated to include separate SWEEP and SCULL races (48 total)
     semi_marathon_races = [
-        # J16 races (ages 15-16) - 4+ (coxed four or quad scull)
-        {'race_id': 'SM01', 'name': 'WOMEN-JUNIOR J16-COXED SWEEP FOUR OR QUAD SCULL', 'event_type': '21km',
+        # J16 races (ages 15-16) - Split into SWEEP and SCULL
+        {'race_id': 'SM01A', 'name': 'WOMEN-JUNIOR J16-COXED SWEEP FOUR', 'event_type': '21km',
          'boat_type': '4+', 'age_category': 'j16', 'gender_category': 'women', 'distance': 21},
-        {'race_id': 'SM02', 'name': 'MEN-JUNIOR J16-COXED SWEEP FOUR OR QUAD SCULL', 'event_type': '21km',
+        {'race_id': 'SM01B', 'name': 'WOMEN-JUNIOR J16-COXED QUAD SCULL', 'event_type': '21km',
+         'boat_type': '4x+', 'age_category': 'j16', 'gender_category': 'women', 'distance': 21},
+        {'race_id': 'SM02A', 'name': 'MEN-JUNIOR J16-COXED SWEEP FOUR', 'event_type': '21km',
          'boat_type': '4+', 'age_category': 'j16', 'gender_category': 'men', 'distance': 21},
-        {'race_id': 'SM03', 'name': 'MIXED-GENDER-JUNIOR J16-COXED SWEEP FOUR OR QUAD SCULL', 'event_type': '21km',
+        {'race_id': 'SM02B', 'name': 'MEN-JUNIOR J16-COXED QUAD SCULL', 'event_type': '21km',
+         'boat_type': '4x+', 'age_category': 'j16', 'gender_category': 'men', 'distance': 21},
+        {'race_id': 'SM03A', 'name': 'MIXED-GENDER-JUNIOR J16-COXED SWEEP FOUR', 'event_type': '21km',
          'boat_type': '4+', 'age_category': 'j16', 'gender_category': 'mixed', 'distance': 21},
+        {'race_id': 'SM03B', 'name': 'MIXED-GENDER-JUNIOR J16-COXED QUAD SCULL', 'event_type': '21km',
+         'boat_type': '4x+', 'age_category': 'j16', 'gender_category': 'mixed', 'distance': 21},
         
         # J16 races - 8+ (eight with coxswain)
         {'race_id': 'SM04', 'name': 'WOMEN-JUNIOR J16-SWEEP EIGHT WITH COXSWAIN', 'event_type': '21km',
@@ -216,13 +222,19 @@ def initialize_race_definitions(table):
         {'race_id': 'SM05', 'name': 'MEN-JUNIOR J16-SWEEP EIGHT WITH COXSWAIN', 'event_type': '21km',
          'boat_type': '8+', 'age_category': 'j16', 'gender_category': 'men', 'distance': 21},
         
-        # J18 races (ages 17-18) - 4- (four without cox)
-        {'race_id': 'SM06', 'name': 'WOMEN-JUNIOR J18-SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN', 'event_type': '21km',
+        # J18 races (ages 17-18) - Split into SWEEP and SCULL
+        {'race_id': 'SM06A', 'name': 'WOMEN-JUNIOR J18-SWEEP FOUR WITHOUT COXSWAIN', 'event_type': '21km',
          'boat_type': '4-', 'age_category': 'j18', 'gender_category': 'women', 'distance': 21},
-        {'race_id': 'SM07', 'name': 'MEN-JUNIOR J18-SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN', 'event_type': '21km',
+        {'race_id': 'SM06B', 'name': 'WOMEN-JUNIOR J18-QUAD SCULL WITHOUT COXSWAIN', 'event_type': '21km',
+         'boat_type': '4x-', 'age_category': 'j18', 'gender_category': 'women', 'distance': 21},
+        {'race_id': 'SM07A', 'name': 'MEN-JUNIOR J18-SWEEP FOUR WITHOUT COXSWAIN', 'event_type': '21km',
          'boat_type': '4-', 'age_category': 'j18', 'gender_category': 'men', 'distance': 21},
-        {'race_id': 'SM08', 'name': 'MIXED-GENDER-JUNIOR J18-SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN', 'event_type': '21km',
+        {'race_id': 'SM07B', 'name': 'MEN-JUNIOR J18-QUAD SCULL WITHOUT COXSWAIN', 'event_type': '21km',
+         'boat_type': '4x-', 'age_category': 'j18', 'gender_category': 'men', 'distance': 21},
+        {'race_id': 'SM08A', 'name': 'MIXED-GENDER-JUNIOR J18-SWEEP FOUR WITHOUT COXSWAIN', 'event_type': '21km',
          'boat_type': '4-', 'age_category': 'j18', 'gender_category': 'mixed', 'distance': 21},
+        {'race_id': 'SM08B', 'name': 'MIXED-GENDER-JUNIOR J18-QUAD SCULL WITHOUT COXSWAIN', 'event_type': '21km',
+         'boat_type': '4x-', 'age_category': 'j18', 'gender_category': 'mixed', 'distance': 21},
         
         # J18 races - 4+ (coxed four)
         {'race_id': 'SM09', 'name': 'MEN-JUNIOR J18-COXED SWEEP FOUR', 'event_type': '21km',
@@ -234,11 +246,15 @@ def initialize_race_definitions(table):
         {'race_id': 'SM11', 'name': 'MEN-JUNIOR J18-SWEEP EIGHT WITH COXSWAIN', 'event_type': '21km',
          'boat_type': '8+', 'age_category': 'j18', 'gender_category': 'men', 'distance': 21},
         
-        # Senior races (ages 19-26) - 4- (four without cox)
-        {'race_id': 'SM12', 'name': 'WOMEN-SENIOR-SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN', 'event_type': '21km',
+        # Senior races (ages 19-26) - Split into SWEEP and SCULL
+        {'race_id': 'SM12A', 'name': 'WOMEN-SENIOR-SWEEP FOUR WITHOUT COXSWAIN', 'event_type': '21km',
          'boat_type': '4-', 'age_category': 'senior', 'gender_category': 'women', 'distance': 21},
-        {'race_id': 'SM13', 'name': 'MEN-SENIOR-SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN', 'event_type': '21km',
+        {'race_id': 'SM12B', 'name': 'WOMEN-SENIOR-QUAD SCULL WITHOUT COXSWAIN', 'event_type': '21km',
+         'boat_type': '4x-', 'age_category': 'senior', 'gender_category': 'women', 'distance': 21},
+        {'race_id': 'SM13A', 'name': 'MEN-SENIOR-SWEEP FOUR WITHOUT COXSWAIN', 'event_type': '21km',
          'boat_type': '4-', 'age_category': 'senior', 'gender_category': 'men', 'distance': 21},
+        {'race_id': 'SM13B', 'name': 'MEN-SENIOR-QUAD SCULL WITHOUT COXSWAIN', 'event_type': '21km',
+         'boat_type': '4x-', 'age_category': 'senior', 'gender_category': 'men', 'distance': 21},
         
         # Senior races - 4+ (coxed four)
         {'race_id': 'SM14', 'name': 'MEN-SENIOR-COXED SWEEP FOUR', 'event_type': '21km',
@@ -250,37 +266,62 @@ def initialize_race_definitions(table):
         {'race_id': 'SM16', 'name': 'MEN-SENIOR-SWEEP EIGHT WITH COXSWAIN', 'event_type': '21km',
          'boat_type': '8+', 'age_category': 'senior', 'gender_category': 'men', 'distance': 21},
         
-        # Master races (ages 27+) - 4+ (coxed four or quad scull - yolette)
-        {'race_id': 'SM17', 'name': 'WOMEN-MASTER-COXED SWEEP FOUR OR QUAD SCULL YOLETTE', 'event_type': '21km',
+        # Master races (ages 27+) - Split into SWEEP and SCULL
+        # Yolette category
+        {'race_id': 'SM17A', 'name': 'WOMEN-MASTER-COXED SWEEP FOUR YOLETTE', 'event_type': '21km',
          'boat_type': '4+', 'age_category': 'master', 'gender_category': 'women', 'distance': 21},
-        {'race_id': 'SM18', 'name': 'MEN-MASTER-COXED SWEEP FOUR OR QUAD SCULL YOLETTE', 'event_type': '21km',
+        {'race_id': 'SM17B', 'name': 'WOMEN-MASTER-COXED QUAD SCULL YOLETTE', 'event_type': '21km',
+         'boat_type': '4x+', 'age_category': 'master', 'gender_category': 'women', 'distance': 21},
+        {'race_id': 'SM18A', 'name': 'MEN-MASTER-COXED SWEEP FOUR YOLETTE', 'event_type': '21km',
          'boat_type': '4+', 'age_category': 'master', 'gender_category': 'men', 'distance': 21},
-        {'race_id': 'SM19', 'name': 'MIXED-GENDER-MASTER-COXED SWEEP FOUR OR QUAD SCULL YOLETTE', 'event_type': '21km',
+        {'race_id': 'SM18B', 'name': 'MEN-MASTER-COXED QUAD SCULL YOLETTE', 'event_type': '21km',
+         'boat_type': '4x+', 'age_category': 'master', 'gender_category': 'men', 'distance': 21},
+        {'race_id': 'SM19A', 'name': 'MIXED-GENDER-MASTER-COXED SWEEP FOUR YOLETTE', 'event_type': '21km',
          'boat_type': '4+', 'age_category': 'master', 'gender_category': 'mixed', 'distance': 21},
+        {'race_id': 'SM19B', 'name': 'MIXED-GENDER-MASTER-COXED QUAD SCULL YOLETTE', 'event_type': '21km',
+         'boat_type': '4x+', 'age_category': 'master', 'gender_category': 'mixed', 'distance': 21},
         
-        # Master races - 4+ (coxed four or quad scull)
-        {'race_id': 'SM20', 'name': 'WOMEN-MASTER-COXED SWEEP FOUR OR QUAD SCULL', 'event_type': '21km',
+        # Master races - Coxed four
+        {'race_id': 'SM20A', 'name': 'WOMEN-MASTER-COXED SWEEP FOUR', 'event_type': '21km',
          'boat_type': '4+', 'age_category': 'master', 'gender_category': 'women', 'distance': 21},
-        {'race_id': 'SM21', 'name': 'MEN-MASTER-COXED SWEEP FOUR OR QUAD SCULL', 'event_type': '21km',
+        {'race_id': 'SM20B', 'name': 'WOMEN-MASTER-COXED QUAD SCULL', 'event_type': '21km',
+         'boat_type': '4x+', 'age_category': 'master', 'gender_category': 'women', 'distance': 21},
+        {'race_id': 'SM21A', 'name': 'MEN-MASTER-COXED SWEEP FOUR', 'event_type': '21km',
          'boat_type': '4+', 'age_category': 'master', 'gender_category': 'men', 'distance': 21},
-        {'race_id': 'SM22', 'name': 'MIXED-GENDER-MASTER-COXED SWEEP FOUR OR QUAD SCULL', 'event_type': '21km',
+        {'race_id': 'SM21B', 'name': 'MEN-MASTER-COXED QUAD SCULL', 'event_type': '21km',
+         'boat_type': '4x+', 'age_category': 'master', 'gender_category': 'men', 'distance': 21},
+        {'race_id': 'SM22A', 'name': 'MIXED-GENDER-MASTER-COXED SWEEP FOUR', 'event_type': '21km',
          'boat_type': '4+', 'age_category': 'master', 'gender_category': 'mixed', 'distance': 21},
+        {'race_id': 'SM22B', 'name': 'MIXED-GENDER-MASTER-COXED QUAD SCULL', 'event_type': '21km',
+         'boat_type': '4x+', 'age_category': 'master', 'gender_category': 'mixed', 'distance': 21},
         
-        # Master races - 4- (four without cox)
-        {'race_id': 'SM23', 'name': 'WOMEN-MASTER-SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN', 'event_type': '21km',
+        # Master races - Four without cox
+        {'race_id': 'SM23A', 'name': 'WOMEN-MASTER-SWEEP FOUR WITHOUT COXSWAIN', 'event_type': '21km',
          'boat_type': '4-', 'age_category': 'master', 'gender_category': 'women', 'distance': 21},
-        {'race_id': 'SM24', 'name': 'MEN-MASTER-SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN', 'event_type': '21km',
+        {'race_id': 'SM23B', 'name': 'WOMEN-MASTER-QUAD SCULL WITHOUT COXSWAIN', 'event_type': '21km',
+         'boat_type': '4x-', 'age_category': 'master', 'gender_category': 'women', 'distance': 21},
+        {'race_id': 'SM24A', 'name': 'MEN-MASTER-SWEEP FOUR WITHOUT COXSWAIN', 'event_type': '21km',
          'boat_type': '4-', 'age_category': 'master', 'gender_category': 'men', 'distance': 21},
-        {'race_id': 'SM25', 'name': 'MIXED-GENDER-MASTER-SWEEP FOUR OR QUAD SCULL WITHOUT COXSWAIN', 'event_type': '21km',
+        {'race_id': 'SM24B', 'name': 'MEN-MASTER-QUAD SCULL WITHOUT COXSWAIN', 'event_type': '21km',
+         'boat_type': '4x-', 'age_category': 'master', 'gender_category': 'men', 'distance': 21},
+        {'race_id': 'SM25A', 'name': 'MIXED-GENDER-MASTER-SWEEP FOUR WITHOUT COXSWAIN', 'event_type': '21km',
          'boat_type': '4-', 'age_category': 'master', 'gender_category': 'mixed', 'distance': 21},
+        {'race_id': 'SM25B', 'name': 'MIXED-GENDER-MASTER-QUAD SCULL WITHOUT COXSWAIN', 'event_type': '21km',
+         'boat_type': '4x-', 'age_category': 'master', 'gender_category': 'mixed', 'distance': 21},
         
-        # Master races - 8+ (eight with coxswain)
-        {'race_id': 'SM26', 'name': 'WOMEN-MASTER-SWEEP EIGHT OR QUAD SCULL WITH COXSWAIN', 'event_type': '21km',
+        # Master races - Eight with coxswain
+        {'race_id': 'SM26A', 'name': 'WOMEN-MASTER-SWEEP EIGHT WITH COXSWAIN', 'event_type': '21km',
          'boat_type': '8+', 'age_category': 'master', 'gender_category': 'women', 'distance': 21},
-        {'race_id': 'SM27', 'name': 'MEN-MASTER-SWEEP EIGHT OR QUAD SCULL WITH COXSWAIN', 'event_type': '21km',
+        {'race_id': 'SM26B', 'name': 'WOMEN-MASTER-OCTUPLE SCULL WITH COXSWAIN', 'event_type': '21km',
+         'boat_type': '8x+', 'age_category': 'master', 'gender_category': 'women', 'distance': 21},
+        {'race_id': 'SM27A', 'name': 'MEN-MASTER-SWEEP EIGHT WITH COXSWAIN', 'event_type': '21km',
          'boat_type': '8+', 'age_category': 'master', 'gender_category': 'men', 'distance': 21},
-        {'race_id': 'SM28', 'name': 'MIXED-GENDER-MASTER-SWEEP EIGHT OR QUAD SCULL WITH COXSWAIN', 'event_type': '21km',
+        {'race_id': 'SM27B', 'name': 'MEN-MASTER-OCTUPLE SCULL WITH COXSWAIN', 'event_type': '21km',
+         'boat_type': '8x+', 'age_category': 'master', 'gender_category': 'men', 'distance': 21},
+        {'race_id': 'SM28A', 'name': 'MIXED-GENDER-MASTER-SWEEP EIGHT WITH COXSWAIN', 'event_type': '21km',
          'boat_type': '8+', 'age_category': 'master', 'gender_category': 'mixed', 'distance': 21},
+        {'race_id': 'SM28B', 'name': 'MIXED-GENDER-MASTER-OCTUPLE SCULL WITH COXSWAIN', 'event_type': '21km',
+         'boat_type': '8x+', 'age_category': 'master', 'gender_category': 'mixed', 'distance': 21},
     ]
     
     # Insert all races
@@ -305,7 +346,7 @@ def initialize_race_definitions(table):
             # Race already exists, skip
             pass
     
-    print(f"Initialized {len(all_races)} race definitions")
+    print(f"Initialized {len(all_races)} race definitions (14 marathon + {len(semi_marathon_races)} semi-marathon)")
 
 
 def initialize_rowing_clubs(table):

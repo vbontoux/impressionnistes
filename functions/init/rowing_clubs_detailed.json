@@ -1,0 +1,5965 @@
+[
+  {
+    "club_id": "C049004",
+    "name": "ANGERS NAUTIQUE AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/angers-ana/",
+    "structure_number": "C049004",
+    "phone": [
+      "0241482361"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C032006",
+    "name": "ARMAGNAC AVIRON CLUB",
+    "url": "https://www.ffaviron.fr/clubs/cazaubon-aac/",
+    "structure_number": "C032006",
+    "phone": [
+      "0562695462"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C083013",
+    "name": "ASPTT D’HYERES",
+    "url": "https://www.ffaviron.fr/clubs/hyeres-asptt/",
+    "structure_number": "C083013",
+    "phone": [
+      "0494664445"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C013016",
+    "name": "ASPTT MARSEILLE – SECTION AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/marseille-asptt/",
+    "structure_number": "C013016",
+    "phone": [
+      "0491168026"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C029018",
+    "name": "ASSOCIATION AVIRON DE MER – AR REDERIEN MOR",
+    "url": "https://www.ffaviron.fr/clubs/plougastel-daoulas-arm/",
+    "structure_number": "C029018",
+    "phone": [
+      "0298405818"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C066025",
+    "name": "ASSOCIATION COLLIOURE SPORTIF AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/collioure-acsa/",
+    "structure_number": "C066025",
+    "phone": [
+      "0468955331"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C066025-1",
+    "name": "ASSOCIATION COLLIOURE SPORTIF AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/collioure-acsa/",
+    "structure_number": "C066025",
+    "phone": [
+      "0468955331"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C042040",
+    "name": "ASSOCIATION DES RAMEURS DES GORGES DE LA LOIRE",
+    "url": "https://www.ffaviron.fr/clubs/st-priest-la-roche-argl/",
+    "structure_number": "C042040",
+    "phone": [
+      "0477721767"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C972021",
+    "name": "ASSOCIATION DES SPORTS ET LOISIRS NAUTIQUES DE SAINT-PIERRE",
+    "url": "https://www.ffaviron.fr/clubs/st-pierre-aslnsp/",
+    "structure_number": "C972021",
+    "phone": [
+      "0596661447"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C972019",
+    "name": "ASSOCIATION DLO FERE",
+    "url": "https://www.ffaviron.fr/clubs/les-anses-darlet-adf/",
+    "structure_number": "C972019",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C059003",
+    "name": "ASSOCIATION DOUAISIENNE DES SPORTS DE L’EAU",
+    "url": "https://www.ffaviron.fr/clubs/douai-adse/",
+    "structure_number": "C059003",
+    "phone": [
+      "0684700711"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C013026",
+    "name": "ASSOCIATION L’AVI SOURIRE",
+    "url": "https://www.ffaviron.fr/clubs/marseille-aas/",
+    "structure_number": "C013026",
+    "phone": [
+      "0491858933"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C066039",
+    "name": "ASSOCIATION NAUTIQUE CATALANE",
+    "url": "https://www.ffaviron.fr/clubs/association-nautique-catalane/",
+    "structure_number": "C066039",
+    "phone": [
+      "0612499584"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C035035",
+    "name": "ASSOCIATION NAUTIQUE DES COMMUNES DU PAYS DE VITRE",
+    "url": "https://www.ffaviron.fr/clubs/vitre-ancpv/",
+    "structure_number": "C035035",
+    "phone": [
+      "0299758246"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C013021",
+    "name": "ASSOCIATION NAUTIQUE OMNISPORT ISTREENNE",
+    "url": "https://www.ffaviron.fr/clubs/istres-anoi/",
+    "structure_number": "C013021",
+    "phone": [
+      "0781923237"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C027001",
+    "name": "ASSOCIATION OMNISPORTS NAUTIQUE EURE ET SEINE",
+    "url": "https://www.ffaviron.fr/clubs/le-vaudreuil-aones/",
+    "structure_number": "C027001",
+    "phone": [
+      "0235781615"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C019005",
+    "name": "ASSOCIATION POUR LE DEVELOPPEMENT SPORT ET LOISIRS",
+    "url": "https://www.ffaviron.fr/clubs/sechemailles-adsl/",
+    "structure_number": "C019005",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C020001",
+    "name": "ASSOCIATION SPORTIVE AVIRON PORT’ELICE",
+    "url": "https://www.ffaviron.fr/clubs/association-sportive-aviron-portelice/",
+    "structure_number": "C020001",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C020011",
+    "name": "ASSOCIATION SPORTIVE AVIRON PORT’ELICE",
+    "url": "https://www.ffaviron.fr/clubs/association-sportive-aviron-portelice-2/",
+    "structure_number": "C020011",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C091015",
+    "name": "ASSOCIATION SPORTIVE CORBEIL-ESSONNES AVIRON 91",
+    "url": "https://www.ffaviron.fr/clubs/corbeil-asce-91/",
+    "structure_number": "C091015",
+    "phone": [
+      "0160755152"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C038018",
+    "name": "ASSOCIATION SPORTIVE DE FONTAINE",
+    "url": "https://www.ffaviron.fr/clubs/fontaine-asf-aviron/",
+    "structure_number": "C038018",
+    "phone": [
+      "0641712227"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C001043",
+    "name": "ASSOCIATION SPORTIVE DE LA PLAINE DE L’AIN",
+    "url": "https://www.ffaviron.fr/clubs/ste-julie-aspla/",
+    "structure_number": "C001043",
+    "phone": [
+      "0606792414"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C078022",
+    "name": "ASSOCIATION SPORTIVE MANTAISE",
+    "url": "https://www.ffaviron.fr/clubs/mantes-asm/",
+    "structure_number": "C078022",
+    "phone": [
+      "0130945631"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C014006",
+    "name": "ASSOCIATION SPORTIVE RENAULT TRUCKS DE BLAINVILLE",
+    "url": "https://www.ffaviron.fr/clubs/blainville-asrtb/",
+    "structure_number": "C014006",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C069017",
+    "name": "ASSOCIATION SPORTIVE UNIVERSITAIRE LYONNAISE",
+    "url": "https://www.ffaviron.fr/clubs/vaulx-en-velin-asul-aviron/",
+    "structure_number": "C069017",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C031005",
+    "name": "ASSOCIATION SPORTIVE VILLEMURIENNE",
+    "url": "https://www.ffaviron.fr/clubs/villemur-asv/",
+    "structure_number": "C031005",
+    "phone": [
+      "0561099746"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C004020",
+    "name": "ASSOCIATION VOILE ET NAUTISME 04",
+    "url": "https://www.ffaviron.fr/clubs/ste-croix-avn-04/",
+    "structure_number": "C004020",
+    "phone": [
+      "0492777651"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C088009",
+    "name": "ASSOCIATON SPORTIVE DE GERARDMER",
+    "url": "https://www.ffaviron.fr/clubs/gerardmer-asg/",
+    "structure_number": "C088009",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C017013",
+    "name": "AVIMAR (AVIRON MARANDAIS)",
+    "url": "https://www.ffaviron.fr/clubs/marans-am/",
+    "structure_number": "C017013",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C085010",
+    "name": "AVIRON 85 – LA ROCHE-SUR-YON",
+    "url": "https://www.ffaviron.fr/clubs/la-roche-sur-yon-a-85/",
+    "structure_number": "C085010",
+    "phone": [
+      "0251053672"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C034001",
+    "name": "AVIRON AGATHOIS",
+    "url": "https://www.ffaviron.fr/clubs/agde-aa/",
+    "structure_number": "C034001",
+    "phone": [
+      "0467944740"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C047012",
+    "name": "AVIRON AGENAIS",
+    "url": "https://www.ffaviron.fr/clubs/agen-a1/",
+    "structure_number": "C047012",
+    "phone": [
+      "0687867169"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C033002",
+    "name": "AVIRON ARCACHONNAIS",
+    "url": "https://www.ffaviron.fr/clubs/arcachon-aa/",
+    "structure_number": "C033002",
+    "phone": [
+      "0556838240"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C062013",
+    "name": "AVIRON AUDOMAROIS",
+    "url": "https://www.ffaviron.fr/clubs/st-omer-aa/",
+    "structure_number": "C062013",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C029049",
+    "name": "AVIRON BAIE DE MORLAIX",
+    "url": "https://www.ffaviron.fr/clubs/morlaix-abm/",
+    "structure_number": "C029049",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C022064",
+    "name": "AVIRON BAIE D’ARMOR",
+    "url": "https://www.ffaviron.fr/clubs/plerin-aba/",
+    "structure_number": "C022064",
+    "phone": [
+      "0612703730"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C034030",
+    "name": "AVIRON BALARUC",
+    "url": "https://www.ffaviron.fr/clubs/balaruc-ab/",
+    "structure_number": "C034030",
+    "phone": [
+      "0619755180"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C066023",
+    "name": "AVIRON BANYULENC",
+    "url": "https://www.ffaviron.fr/clubs/banyuls-ab/",
+    "structure_number": "C066023",
+    "phone": [
+      "0616903417"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C066023-1",
+    "name": "AVIRON BANYULENC",
+    "url": "https://www.ffaviron.fr/clubs/banyuls-ab/",
+    "structure_number": "C066023",
+    "phone": [
+      "0616903417"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C064019",
+    "name": "AVIRON BAYONNAIS",
+    "url": "https://www.ffaviron.fr/clubs/bayonne-ab/",
+    "structure_number": "C064019",
+    "phone": [
+      "0559633315"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C030011",
+    "name": "AVIRON BEAUCAIRE",
+    "url": "https://www.ffaviron.fr/clubs/beaucaire-ab/",
+    "structure_number": "C030011",
+    "phone": [
+      "04 66 59 18 28"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C001041",
+    "name": "AVIRON BELLEGARDE",
+    "url": "https://www.ffaviron.fr/clubs/bellegarde-ab/",
+    "structure_number": "C001041",
+    "phone": [
+      "0450419638"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C001041-1",
+    "name": "AVIRON BELLEGARDE",
+    "url": "https://www.ffaviron.fr/clubs/bellegarde-ab/",
+    "structure_number": "C001041",
+    "phone": [
+      "0450419638"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C062022",
+    "name": "AVIRON BETHUNE ARTOIS",
+    "url": "https://www.ffaviron.fr/clubs/bethune-aba/",
+    "structure_number": "C062022",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C037016",
+    "name": "AVIRON BLERE VAL-DE-CHER",
+    "url": "https://www.ffaviron.fr/clubs/blere-abvc/",
+    "structure_number": "C037016",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C037016-1",
+    "name": "AVIRON BLERE VAL-DE-CHER",
+    "url": "https://www.ffaviron.fr/clubs/blere-abvc/",
+    "structure_number": "C037016",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C041003",
+    "name": "AVIRON BLESOIS",
+    "url": "https://www.ffaviron.fr/clubs/blois-ab/",
+    "structure_number": "C041003",
+    "phone": [
+      "0952985855"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C062018",
+    "name": "AVIRON BOULONNAIS",
+    "url": "https://www.ffaviron.fr/clubs/boulogne-ab/",
+    "structure_number": "C062018",
+    "phone": [
+      "0321873146"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C029002",
+    "name": "AVIRON BRESTOIS",
+    "url": "https://www.ffaviron.fr/clubs/brest-ab/",
+    "structure_number": "C029002",
+    "phone": [
+      "0298042632"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C001037",
+    "name": "AVIRON BUGEY HAUT-RHONE",
+    "url": "https://www.ffaviron.fr/clubs/belley-virignin-abhr/",
+    "structure_number": "C001037",
+    "phone": [
+      "0479420205"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C046008",
+    "name": "AVIRON CADURCIEN",
+    "url": "https://www.ffaviron.fr/clubs/cahors-ac/",
+    "structure_number": "C046008",
+    "phone": [
+      "0565354495"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C011037",
+    "name": "AVIRON CARCASSONNE",
+    "url": "https://www.ffaviron.fr/clubs/carcassonne-ac/",
+    "structure_number": "C011037",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C005034",
+    "name": "AVIRON CATURIGE 780",
+    "url": "https://www.ffaviron.fr/clubs/aviron-caturige-780/",
+    "structure_number": "C005034",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C076012",
+    "name": "AVIRON CAUDEBEC VALLEE DE SEINE",
+    "url": "https://www.ffaviron.fr/clubs/caudebec-en-caux-acvs/",
+    "structure_number": "C076012",
+    "phone": [
+      "0782265400"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C002010",
+    "name": "AVIRON CHATEAU-THIERRY 02",
+    "url": "https://www.ffaviron.fr/clubs/chateau-thierry-act-02/",
+    "structure_number": "C002010",
+    "phone": [
+      "0323834783"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C029015",
+    "name": "AVIRON CHATEAULINOIS",
+    "url": "https://www.ffaviron.fr/clubs/chateaulin-ac/",
+    "structure_number": "C029015",
+    "phone": [
+      "0298863325"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C047013",
+    "name": "AVIRON CLAIRACAIS",
+    "url": "https://www.ffaviron.fr/clubs/clairac-ac/",
+    "structure_number": "C047013",
+    "phone": [
+      "0677175139"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C063010",
+    "name": "AVIRON CLERMONT AYDAT",
+    "url": "https://www.ffaviron.fr/clubs/clermont-ferrand-aca/",
+    "structure_number": "C063010",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C972006",
+    "name": "AVIRON CLUB 233",
+    "url": "https://www.ffaviron.fr/clubs/schoelcher-ac-233/",
+    "structure_number": "C972006",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C094059",
+    "name": "AVIRON CLUB 94 DU PARC INTERDEPARTEMENTAL",
+    "url": "https://www.ffaviron.fr/clubs/aci-94/",
+    "structure_number": "C094059",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C081011",
+    "name": "AVIRON CLUB ALBIGEOIS",
+    "url": "https://www.ffaviron.fr/clubs/albi-aca/",
+    "structure_number": "C081011",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C081011-1",
+    "name": "AVIRON CLUB ALBIGEOIS",
+    "url": "https://www.ffaviron.fr/clubs/albi-aca/",
+    "structure_number": "C081011",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C027019",
+    "name": "AVIRON CLUB ANDELYS TOSNY",
+    "url": "https://www.ffaviron.fr/clubs/tosny-acat/",
+    "structure_number": "C027019",
+    "phone": [
+      "0616971773"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C027019-1",
+    "name": "AVIRON CLUB ANDELYS TOSNY",
+    "url": "https://www.ffaviron.fr/clubs/tosny-acat/",
+    "structure_number": "C027019",
+    "phone": [
+      "0616971773"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C032024",
+    "name": "AVIRON CLUB AUSCITAIN",
+    "url": "https://www.ffaviron.fr/clubs/auch-aca/",
+    "structure_number": "C032024",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C034018",
+    "name": "AVIRON CLUB BITERROIS",
+    "url": "https://www.ffaviron.fr/clubs/beziers-acb/",
+    "structure_number": "C034018",
+    "phone": [
+      "0675502260"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C046029",
+    "name": "AVIRON CLUB CAJARCOIS",
+    "url": "https://www.ffaviron.fr/clubs/cajarc-acc/",
+    "structure_number": "C046029",
+    "phone": [
+      "0789883868"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C033040",
+    "name": "AVIRON CLUB DE BORDEAUX BEGLES",
+    "url": "https://www.ffaviron.fr/clubs/begles-acbb/",
+    "structure_number": "C033040",
+    "phone": [
+      "0782290138"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C018001",
+    "name": "AVIRON CLUB DE BOURGES",
+    "url": "https://www.ffaviron.fr/clubs/bourges-acb/",
+    "structure_number": "C018001",
+    "phone": [
+      "0248679446"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C013025",
+    "name": "AVIRON CLUB DE CASSIS",
+    "url": "https://www.ffaviron.fr/clubs/cassis-acc/",
+    "structure_number": "C013025",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C068004",
+    "name": "AVIRON CLUB DE LA REGION DE COLMAR",
+    "url": "https://www.ffaviron.fr/clubs/colmar-acrc/",
+    "structure_number": "C068004",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C069008",
+    "name": "AVIRON CLUB DE LYON CALUIRE",
+    "url": "https://www.ffaviron.fr/clubs/lyon-caluire-aclc/",
+    "structure_number": "C069008",
+    "phone": [
+      "0478300141"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C004023",
+    "name": "AVIRON CLUB DE MANOSQUE",
+    "url": "https://www.ffaviron.fr/clubs/manosque-ac/",
+    "structure_number": "C004023",
+    "phone": [
+      "0492724249"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C001014",
+    "name": "AVIRON CLUB DE NANTUA",
+    "url": "https://www.ffaviron.fr/clubs/nantua-acn/",
+    "structure_number": "C001014",
+    "phone": [
+      "0474752619"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C030007",
+    "name": "AVIRON CLUB DE SAINT-GILLES",
+    "url": "https://www.ffaviron.fr/clubs/st-gilles-acsg/",
+    "structure_number": "C030007",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C057017",
+    "name": "AVIRON CLUB DE SARREGUEMINES",
+    "url": "https://www.ffaviron.fr/clubs/sarreguemines-acs/",
+    "structure_number": "C057017",
+    "phone": [],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C038027",
+    "name": "AVIRON CLUB DE SASSENAGE ISERE",
+    "url": "https://www.ffaviron.fr/clubs/sassenage-acsi/",
+    "structure_number": "C038027",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C083010",
+    "name": "AVIRON CLUB DE SIX-FOURS",
+    "url": "https://www.ffaviron.fr/clubs/six-fours-acsf/",
+    "structure_number": "C083010",
+    "phone": [
+      "0752057105"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C078050",
+    "name": "AVIRON CLUB DE VILLENNES – POISSY",
+    "url": "https://www.ffaviron.fr/clubs/villennes-poissy-acvp/",
+    "structure_number": "C078050",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C039002",
+    "name": "AVIRON CLUB DOLOIS",
+    "url": "https://www.ffaviron.fr/clubs/dole-acd/",
+    "structure_number": "C039002",
+    "phone": [
+      "0384821424"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C034005",
+    "name": "AVIRON CLUB DU BASSIN DE THAU",
+    "url": "https://www.ffaviron.fr/clubs/sete-acbt/",
+    "structure_number": "C034005",
+    "phone": [
+      "0628923010"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C085024",
+    "name": "AVIRON CLUB DU BOCAGE VENDEEN",
+    "url": "https://www.ffaviron.fr/clubs/bocage-acbv/",
+    "structure_number": "C085024",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C073017",
+    "name": "AVIRON CLUB DU LAC D’AIGUEBELETTE",
+    "url": "https://www.ffaviron.fr/clubs/aiguebelette-acl/",
+    "structure_number": "C073017",
+    "phone": [
+      "0479360290"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C087004",
+    "name": "AVIRON CLUB DU PALAIS",
+    "url": "https://www.ffaviron.fr/clubs/palais-sur-vienne-acp/",
+    "structure_number": "C087004",
+    "phone": [
+      "0769314590"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C067008",
+    "name": "AVIRON CLUB DU PAYS D’ERSTEIN",
+    "url": "https://www.ffaviron.fr/clubs/erstein-acpe/",
+    "structure_number": "C067008",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C034008",
+    "name": "AVIRON CLUB DU PONANT – LA GRANDE-MOTTE",
+    "url": "https://www.ffaviron.fr/clubs/la-grande-motte-acp/",
+    "structure_number": "C034008",
+    "phone": [
+      "0981882557"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C972007",
+    "name": "AVIRON CLUB DU ROBERT",
+    "url": "https://www.ffaviron.fr/clubs/le-robert-acr/",
+    "structure_number": "C972007",
+    "phone": [
+      "0696308252"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C972007-1",
+    "name": "AVIRON CLUB DU ROBERT",
+    "url": "https://www.ffaviron.fr/clubs/le-robert-acr/",
+    "structure_number": "C972007",
+    "phone": [
+      "0696308252"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C034041",
+    "name": "AVIRON CLUB DU SALAGOU",
+    "url": "https://www.ffaviron.fr/clubs/octon-acs/",
+    "structure_number": "C034041",
+    "phone": [
+      "0603902347"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C083014",
+    "name": "AVIRON CLUB DU VERDON",
+    "url": "https://www.ffaviron.fr/clubs/verdon-acv/",
+    "structure_number": "C083014",
+    "phone": [
+      "0675483382"
+    ],
+    "management_team": [
+      ""
+    ]
+  },
+  {
+    "club_id": "C016001",
+    "name": "AVIRON CLUB D’ANGOULEME",
+    "url": "https://www.ffaviron.fr/clubs/angouleme-aca/",
+    "structure_number": "C016001",
+    "phone": [
+      "0545958801"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C056011",
+    "name": "AVIRON CLUB D’AURAY",
+    "url": "https://www.ffaviron.fr/clubs/auray-aca/",
+    "structure_number": "C056011",
+    "phone": [
+      "0290991688"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C088015",
+    "name": "AVIRON CLUB D’EPINAL",
+    "url": "https://www.ffaviron.fr/clubs/epinal-ace/",
+    "structure_number": "C088015",
+    "phone": [
+      "0329330567"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C082013",
+    "name": "AVIRON CLUB MOISSAC",
+    "url": "https://www.ffaviron.fr/clubs/moissac-acm/",
+    "structure_number": "C082013",
+    "phone": [
+      "0563044339"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C045004",
+    "name": "AVIRON CLUB MONTARGIS GATINAIS",
+    "url": "https://www.ffaviron.fr/clubs/montargis-acmg/",
+    "structure_number": "C045004",
+    "phone": [
+      "0218127464"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C045011",
+    "name": "AVIRON CLUB ORLEANS-OLIVET",
+    "url": "https://www.ffaviron.fr/clubs/orleans-olivet-acoo/",
+    "structure_number": "C045011",
+    "phone": [
+      "0238633873"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C045011-1",
+    "name": "AVIRON CLUB ORLEANS-OLIVET",
+    "url": "https://www.ffaviron.fr/clubs/orleans-olivet-acoo/",
+    "structure_number": "C045011",
+    "phone": [
+      "0238633873"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C069012",
+    "name": "AVIRON CLUB PAYS VIENNOIS",
+    "url": "https://www.ffaviron.fr/clubs/pays-viennois-acpv/",
+    "structure_number": "C069012",
+    "phone": [
+      "0474852765"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C056054",
+    "name": "AVIRON CLUB RHUYS-HOEDIC",
+    "url": "https://www.ffaviron.fr/clubs/sarzeau-acrh/",
+    "structure_number": "C056054",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C018019",
+    "name": "AVIRON CLUB SAINT-AMANDOIS",
+    "url": "https://www.ffaviron.fr/clubs/st-amand-acsa/",
+    "structure_number": "C018019",
+    "phone": [
+      "0680733370"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C021016",
+    "name": "AVIRON CLUB SEURROIS",
+    "url": "https://www.ffaviron.fr/clubs/aviron-club-seurrois/",
+    "structure_number": "C021016",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C040031",
+    "name": "AVIRON CLUB SOUSTONNAIS",
+    "url": "https://www.ffaviron.fr/clubs/soustons-acs/",
+    "structure_number": "C040031",
+    "phone": [
+      "0558971063"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C041015",
+    "name": "AVIRON CLUB VAL-DE-CHER SAINT-AIGNAN",
+    "url": "https://www.ffaviron.fr/clubs/st-aignan-acvcsa/",
+    "structure_number": "C041015",
+    "phone": [
+      "0612869456"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C02B006",
+    "name": "AVIRON DE LA HAUTE-CORSE",
+    "url": "https://www.ffaviron.fr/clubs/haute-corse-ahc/",
+    "structure_number": "C02B006",
+    "phone": [
+      "0680620991"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C02B006-1",
+    "name": "AVIRON DE LA HAUTE-CORSE",
+    "url": "https://www.ffaviron.fr/clubs/haute-corse-ahc/",
+    "structure_number": "C02B006",
+    "phone": [
+      "0680620991"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C029010",
+    "name": "AVIRON DE MER CORNOUAILLE",
+    "url": "https://www.ffaviron.fr/clubs/fouesnant-amc/",
+    "structure_number": "C029010",
+    "phone": [
+      "0687611793"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C029028",
+    "name": "AVIRON DE MER DE PLOUGONVELIN",
+    "url": "https://www.ffaviron.fr/clubs/plougonvelin-amp/",
+    "structure_number": "C029028",
+    "phone": [
+      "0298482741"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C077069",
+    "name": "AVIRON DE NEMOURS ET DU LOING",
+    "url": "https://www.ffaviron.fr/clubs/nemours-anl/",
+    "structure_number": "C077069",
+    "phone": [
+      "0680429411"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C005033",
+    "name": "AVIRON DE SERRE-PONCON",
+    "url": "https://www.ffaviron.fr/clubs/aviron-de-serre-poncon/",
+    "structure_number": "C005033",
+    "phone": [
+      "0736059689"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C074013",
+    "name": "AVIRON DE SEVRIER LAC D’ANNECY",
+    "url": "https://www.ffaviron.fr/clubs/sevrier-asla/",
+    "structure_number": "C074013",
+    "phone": [
+      "0450526177"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C069006",
+    "name": "AVIRON DECINOIS",
+    "url": "https://www.ffaviron.fr/clubs/decines-ad/",
+    "structure_number": "C069006",
+    "phone": [
+      "0950153189"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C069006-1",
+    "name": "AVIRON DECINOIS",
+    "url": "https://www.ffaviron.fr/clubs/decines-ad/",
+    "structure_number": "C069006",
+    "phone": [
+      "0950153189"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C021010",
+    "name": "AVIRON DIJONNAIS",
+    "url": "https://www.ffaviron.fr/clubs/dijon-ad/",
+    "structure_number": "C021010",
+    "phone": [
+      "0684979347"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C029050",
+    "name": "AVIRON DOUARNENEZ",
+    "url": "https://www.ffaviron.fr/clubs/douarnenez-ad/",
+    "structure_number": "C029050",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C046031",
+    "name": "AVIRON DOUELLAIS",
+    "url": "https://www.ffaviron.fr/clubs/douelle-ad/",
+    "structure_number": "C046031",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C031018",
+    "name": "AVIRON DU BOCAGE",
+    "url": "https://www.ffaviron.fr/clubs/fenouillet-ab/",
+    "structure_number": "C031018",
+    "phone": [
+      "0782596675"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C091060",
+    "name": "AVIRON DU COUDRAY-MONTCEAUX",
+    "url": "https://www.ffaviron.fr/clubs/coudray-montceaux-acm/",
+    "structure_number": "C091060",
+    "phone": [
+      "0164939181"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C087005",
+    "name": "AVIRON DU HAUT LIMOUSIN",
+    "url": "https://www.ffaviron.fr/clubs/aviron-du-haut-limousin/",
+    "structure_number": "C087005",
+    "phone": [
+      "0684984725"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C077016",
+    "name": "AVIRON DU PAYS DE FONTAINEBLEAU",
+    "url": "https://www.ffaviron.fr/clubs/fontainebleau-apf/",
+    "structure_number": "C077016",
+    "phone": [
+      "0160720664"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C056023",
+    "name": "AVIRON DU SCORFF",
+    "url": "https://www.ffaviron.fr/clubs/lorient-a-scorff/",
+    "structure_number": "C056023",
+    "phone": [
+      "02 97 84 04 96"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C022056",
+    "name": "AVIRON DU TRIEUX",
+    "url": "https://www.ffaviron.fr/clubs/lezardrieux-at/",
+    "structure_number": "C022056",
+    "phone": [
+      "06 79 81 62 56"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C033005",
+    "name": "AVIRON ET SAUVETEURS REOLAIS",
+    "url": "https://www.ffaviron.fr/clubs/la-reole-asr/",
+    "structure_number": "C033005",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C021008",
+    "name": "AVIRON ETOILE AUXONNAISE",
+    "url": "https://www.ffaviron.fr/clubs/auxonne-aea/",
+    "structure_number": "C021008",
+    "phone": [
+      "0699372668"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C021008-1",
+    "name": "AVIRON ETOILE AUXONNAISE",
+    "url": "https://www.ffaviron.fr/clubs/auxonne-aea/",
+    "structure_number": "C021008",
+    "phone": [
+      "0699372668"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C089015",
+    "name": "AVIRON FARGEAULAIS",
+    "url": "https://www.ffaviron.fr/clubs/st-fargeau-af/",
+    "structure_number": "C089015",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C008014",
+    "name": "AVIRON FLIZE PAYS DES SOURCES",
+    "url": "https://www.ffaviron.fr/clubs/flize-afps/",
+    "structure_number": "C008014",
+    "phone": [
+      "0953097031"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C050007",
+    "name": "AVIRON GRANVILLAIS",
+    "url": "https://www.ffaviron.fr/clubs/granville-ag/",
+    "structure_number": "C050007",
+    "phone": [
+      "0233912260"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C070009",
+    "name": "AVIRON GRAY SAONE",
+    "url": "https://www.ffaviron.fr/clubs/gray-saone-ags/",
+    "structure_number": "C070009",
+    "phone": [
+      "0675518542"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C038005",
+    "name": "AVIRON GRENOBLOIS",
+    "url": "https://www.ffaviron.fr/clubs/grenoble-ag/",
+    "structure_number": "C038005",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C056021",
+    "name": "AVIRON HENNEBONTAIS",
+    "url": "https://www.ffaviron.fr/clubs/hennebont-ah/",
+    "structure_number": "C056021",
+    "phone": [
+      "0297364371"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C016007",
+    "name": "AVIRON JARNACAIS",
+    "url": "https://www.ffaviron.fr/clubs/jarnac-aj/",
+    "structure_number": "C016007",
+    "phone": [
+      "0545800066"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C040045",
+    "name": "AVIRON LANDES",
+    "url": "https://www.ffaviron.fr/clubs/aviron-landes/",
+    "structure_number": "C040045",
+    "phone": [
+      "0558413787"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C011031",
+    "name": "AVIRON LAURAGAIS",
+    "url": "https://www.ffaviron.fr/clubs/castelnaudary-al/",
+    "structure_number": "C011031",
+    "phone": [
+      "0634634743"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C095066",
+    "name": "AVIRON LIBRE SEINE ET OISE",
+    "url": "https://www.ffaviron.fr/clubs/jouy-le-moutier-also/",
+    "structure_number": "C095066",
+    "phone": [
+      "0643466057"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C044029",
+    "name": "AVIRON LOIRE OCEAN",
+    "url": "https://www.ffaviron.fr/clubs/coueron-alo/",
+    "structure_number": "C044029",
+    "phone": [
+      "0768318009"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C035046",
+    "name": "AVIRON LOISIR EN PAYS D’AUBIGNE",
+    "url": "https://www.ffaviron.fr/clubs/feins-alpa/",
+    "structure_number": "C035046",
+    "phone": [
+      "0299697069"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C035046-1",
+    "name": "AVIRON LOISIR EN PAYS D’AUBIGNE",
+    "url": "https://www.ffaviron.fr/clubs/feins-alpa/",
+    "structure_number": "C035046",
+    "phone": [
+      "0299697069"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C047015",
+    "name": "AVIRON MARMANDAIS",
+    "url": "https://www.ffaviron.fr/clubs/marmande-am/",
+    "structure_number": "C047015",
+    "phone": [
+      "0622994661"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C094004",
+    "name": "AVIRON MARNE ET JOINVILLE",
+    "url": "https://www.ffaviron.fr/clubs/joinville-amj/",
+    "structure_number": "C094004",
+    "phone": [
+      "0954452677"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C029059",
+    "name": "AVIRON MER CONCARNEAU",
+    "url": "https://www.ffaviron.fr/clubs/concarneau-amc/",
+    "structure_number": "C029059",
+    "phone": [
+      "0766899940"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C078018",
+    "name": "AVIRON MEULAN-LES-MUREAUX – HARDRICOURT",
+    "url": "https://www.ffaviron.fr/clubs/meulan-les-mureaux-ammh/",
+    "structure_number": "C078018",
+    "phone": [
+      "0953403179"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C034027",
+    "name": "AVIRON MEZOIS",
+    "url": "https://www.ffaviron.fr/clubs/aviron-mezois/",
+    "structure_number": "C034027",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C026002",
+    "name": "AVIRON NAUTIQUE ROMANAIS PEAGEOIS GOUBETOIS",
+    "url": "https://www.ffaviron.fr/clubs/romans-anrpg/",
+    "structure_number": "C026002",
+    "phone": [
+      "0601435986"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C011033",
+    "name": "AVIRON NOUVELLOIS",
+    "url": "https://www.ffaviron.fr/clubs/port-la-nouvelle-an/",
+    "structure_number": "C011033",
+    "phone": [],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C011033-1",
+    "name": "AVIRON NOUVELLOIS",
+    "url": "https://www.ffaviron.fr/clubs/port-la-nouvelle-an/",
+    "structure_number": "C011033",
+    "phone": [],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C035005",
+    "name": "AVIRON PAYS DE REDON",
+    "url": "https://www.ffaviron.fr/clubs/redon-apr/",
+    "structure_number": "C035005",
+    "phone": [
+      "0749185248"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C042031",
+    "name": "AVIRON PETRIBOCIEN",
+    "url": "https://www.ffaviron.fr/clubs/st-pierre-de-boeuf-ap/",
+    "structure_number": "C042031",
+    "phone": [
+      "04 74 87 42 63"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C025006",
+    "name": "AVIRON PONTISSALIEN – LAC SAINT-POINT",
+    "url": "https://www.ffaviron.fr/clubs/pontarlier-ap/",
+    "structure_number": "C025006",
+    "phone": [
+      "0651263936"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C042002",
+    "name": "AVIRON ROANNE – LE COTEAU",
+    "url": "https://www.ffaviron.fr/clubs/roanne-le-coteau-arc/",
+    "structure_number": "C042002",
+    "phone": [
+      "0477670882"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C026001",
+    "name": "AVIRON ROMANAIS PEAGEOIS RCBI",
+    "url": "https://www.ffaviron.fr/clubs/romans-arp/",
+    "structure_number": "C026001",
+    "phone": [
+      "0475703448"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C002002",
+    "name": "AVIRON SAINT-QUENTINOIS",
+    "url": "https://www.ffaviron.fr/clubs/st-quentin-asq/",
+    "structure_number": "C002002",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C025010",
+    "name": "AVIRON SAINT-VITOIS",
+    "url": "https://www.ffaviron.fr/clubs/st-vit-asv/",
+    "structure_number": "C025010",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C008002",
+    "name": "AVIRON SEDANAIS",
+    "url": "https://www.ffaviron.fr/clubs/sedan-as/",
+    "structure_number": "C008002",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C034016",
+    "name": "AVIRON SETOIS",
+    "url": "https://www.ffaviron.fr/clubs/sete-as/",
+    "structure_number": "C034016",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C083012",
+    "name": "AVIRON SEYNOIS",
+    "url": "https://www.ffaviron.fr/clubs/la-seyne-sur-mer-as/",
+    "structure_number": "C083012",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C049005",
+    "name": "AVIRON SPORT CHOLETAIS",
+    "url": "https://www.ffaviron.fr/clubs/cholet-asc/",
+    "structure_number": "C049005",
+    "phone": [
+      "0241712827"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C093064",
+    "name": "AVIRON SPORTS ET LOISIRS DE LA MARNE",
+    "url": "https://www.ffaviron.fr/clubs/noisy-le-grand-aslm/",
+    "structure_number": "C093064",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C042003",
+    "name": "AVIRON STEPHANOIS",
+    "url": "https://www.ffaviron.fr/clubs/st-etienne-as/",
+    "structure_number": "C042003",
+    "phone": [],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C030014",
+    "name": "AVIRON TERRE DE CAMARGUE – LE GRAU-DU-ROI",
+    "url": "https://www.ffaviron.fr/clubs/le-grau-du-roi-atc/",
+    "structure_number": "C030014",
+    "phone": [
+      "0466515008"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C083007",
+    "name": "AVIRON TOULONNAIS",
+    "url": "https://www.ffaviron.fr/clubs/toulon-at/",
+    "structure_number": "C083007",
+    "phone": [
+      "0494411990"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C031004",
+    "name": "AVIRON TOULOUSAIN",
+    "url": "https://www.ffaviron.fr/clubs/toulouse-at/",
+    "structure_number": "C031004",
+    "phone": [
+      "0561527102"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C037018",
+    "name": "AVIRON TOURS METROPOLE",
+    "url": "https://www.ffaviron.fr/clubs/tours-atm/",
+    "structure_number": "C037018",
+    "phone": [
+      "0247443044"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C059008",
+    "name": "AVIRON UNION NAUTIQUE DE LILLE",
+    "url": "https://www.ffaviron.fr/clubs/lille-aunl/",
+    "structure_number": "C059008",
+    "phone": [
+      "0320921098"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C069013",
+    "name": "AVIRON UNION NAUTIQUE DE VILLEFRANCHE",
+    "url": "https://www.ffaviron.fr/clubs/villefranche-aunv/",
+    "structure_number": "C069013",
+    "phone": [
+      "0474680212"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C077065",
+    "name": "AVIRON VAIRES – TORCY",
+    "url": "https://www.ffaviron.fr/clubs/vaires-torcy-avt/",
+    "structure_number": "C077065",
+    "phone": [
+      "0783814477"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C026004",
+    "name": "AVIRON VALENTINOIS",
+    "url": "https://www.ffaviron.fr/clubs/valence-av/",
+    "structure_number": "C026004",
+    "phone": [
+      "0695211276"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C076014",
+    "name": "AVIRON VARENNE COTE D’ALBATRE",
+    "url": "https://www.ffaviron.fr/clubs/saint-aubin-avca/",
+    "structure_number": "C076014",
+    "phone": [
+      "0607091064"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C011042",
+    "name": "AVIRON VILLEDUBERT",
+    "url": "https://www.ffaviron.fr/clubs/av/",
+    "structure_number": "C011042",
+    "phone": [
+      "0468775540"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C047017",
+    "name": "AVIRON VILLENEUVOIS",
+    "url": "https://www.ffaviron.fr/clubs/villeneuve-av/",
+    "structure_number": "C047017",
+    "phone": [
+      "0553491827"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C007028",
+    "name": "AVIRON VIVIERS MONTELIMAR CHATEAUNEUF",
+    "url": "https://www.ffaviron.fr/clubs/viviers-avmc/",
+    "structure_number": "C007028",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "62018",
+    "name": "Aviron Boulonnais",
+    "url": "https://www.ffaviron.fr/clubs/aviron-boulonnais/",
+    "structure_number": "62018",
+    "phone": [
+      "03 21 87 31 46"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C066022",
+    "name": "BARCAREMS I VELAS",
+    "url": "https://www.ffaviron.fr/clubs/le-barcares-biv/",
+    "structure_number": "C066022",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C974004",
+    "name": "BASE NAUTIQUE DE L’OUEST",
+    "url": "https://www.ffaviron.fr/clubs/st-gilles-les-bains-bno/",
+    "structure_number": "C974004",
+    "phone": [
+      "0026226244"
+    ],
+    "management_team": [
+      ""
+    ]
+  },
+  {
+    "club_id": "C074042",
+    "name": "BASE NAUTIQUE DE SCIEZ",
+    "url": "https://www.ffaviron.fr/clubs/sciez-bns/",
+    "structure_number": "C074042",
+    "phone": [
+      "0450726277"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C974001",
+    "name": "BASE NAUTIQUE DES MASCAREIGNES",
+    "url": "https://www.ffaviron.fr/clubs/le-port-bnm/",
+    "structure_number": "C974001",
+    "phone": [
+      "0262551835"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C069044",
+    "name": "BASE NAUTIQUE ET DE PLEIN AIR DU LAC DES SAPINS",
+    "url": "https://www.ffaviron.fr/clubs/ronno-bnpals/",
+    "structure_number": "C069044",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C069044-1",
+    "name": "BASE NAUTIQUE ET DE PLEIN AIR DU LAC DES SAPINS",
+    "url": "https://www.ffaviron.fr/clubs/ronno-bnpals/",
+    "structure_number": "C069044",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C095053",
+    "name": "BEAUMONT AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/beaumont-ba/",
+    "structure_number": "C095053",
+    "phone": [
+      "0130361275"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C055011",
+    "name": "BELLEVILLE 55 AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/belleville-55-av/",
+    "structure_number": "C055011",
+    "phone": [
+      "0615384826"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C028010",
+    "name": "BONNEVAL AVIRON DU LOIR",
+    "url": "https://www.ffaviron.fr/clubs/bonneval-bal/",
+    "structure_number": "C028010",
+    "phone": [
+      "0764412247"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C092021",
+    "name": "BOULOGNE 92",
+    "url": "https://www.ffaviron.fr/clubs/boulogne-92/",
+    "structure_number": "C092021",
+    "phone": [
+      "0146290148"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "UNKNOWN-bordeaux",
+    "name": "Bordeaux",
+    "url": "https://www.ffaviron.fr/clubs/bordeaux/",
+    "structure_number": "UNKNOWN-bordeaux",
+    "phone": [],
+    "management_team": []
+  },
+  {
+    "club_id": "C040010",
+    "name": "CANOT CLUB DES GAVES",
+    "url": "https://www.ffaviron.fr/clubs/peyrehorade-ccg/",
+    "structure_number": "C040010",
+    "phone": [
+      "0558730018"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C971003",
+    "name": "CAP TI BOU AVIRON CLUB",
+    "url": "https://www.ffaviron.fr/clubs/petit-bourg-ctbac/",
+    "structure_number": "C971003",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C081028",
+    "name": "CASTRES SPORTS NAUTIQUES",
+    "url": "https://www.ffaviron.fr/clubs/castres-csn/",
+    "structure_number": "C081028",
+    "phone": [
+      "0563354790"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C056016",
+    "name": "CENTRE NAUTIQUE DE LORIENT",
+    "url": "https://www.ffaviron.fr/clubs/lorient-cnl/",
+    "structure_number": "C056016",
+    "phone": [
+      "0297848130"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C044001",
+    "name": "CERCLE AVIRON DE NANTES",
+    "url": "https://www.ffaviron.fr/clubs/nantes-can/",
+    "structure_number": "C044001",
+    "phone": [
+      "0240506745"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C071001",
+    "name": "CERCLE DE L’AVIRON DE CHALON-SUR-SAONE",
+    "url": "https://www.ffaviron.fr/clubs/chalon-sur-saone-cacs/",
+    "structure_number": "C071001",
+    "phone": [
+      "0385413004"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C033032",
+    "name": "CERCLE DE L’AVIRON DE LAMOTHE",
+    "url": "https://www.ffaviron.fr/clubs/calme/",
+    "structure_number": "C033032",
+    "phone": [
+      "0556202012"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C013006",
+    "name": "CERCLE DE L’AVIRON DE MARSEILLE",
+    "url": "https://www.ffaviron.fr/clubs/marseille-cam/",
+    "structure_number": "C013006",
+    "phone": [
+      "0491460066"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C013034",
+    "name": "CERCLE DE L’AVIRON DE SAINT-CHAMAS",
+    "url": "https://www.ffaviron.fr/clubs/st-chamas-casc/",
+    "structure_number": "C013034",
+    "phone": [
+      "0660049577"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C056007",
+    "name": "CERCLE DE L’AVIRON DE VANNES",
+    "url": "https://www.ffaviron.fr/clubs/vannes-cav/",
+    "structure_number": "C056007",
+    "phone": [
+      "0297475503"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C062021",
+    "name": "CERCLE DE L’AVIRON DU CALAISIS",
+    "url": "https://www.ffaviron.fr/clubs/calais-cac/",
+    "structure_number": "C062021",
+    "phone": [
+      "0321823155"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C078057",
+    "name": "CERCLE DES RAMEURS MANSONNIENS ET MESNILOIS",
+    "url": "https://www.ffaviron.fr/clubs/maisons-mesnil-ceramm/",
+    "structure_number": "C078057",
+    "phone": [
+      "0664082142"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C077043",
+    "name": "CERCLE D’AVIRON DE LA FERTE-SOUS-JOUARRE",
+    "url": "https://www.ffaviron.fr/clubs/ferte-sous-jouarre-cafj/",
+    "structure_number": "C077043",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C078055",
+    "name": "CERCLE D’AVIRON DU CONFLUENT",
+    "url": "https://www.ffaviron.fr/clubs/andresy-cac/",
+    "structure_number": "C078055",
+    "phone": [
+      "0682505287"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C010009",
+    "name": "CERCLE D’AVIRON NOGENTAIS",
+    "url": "https://www.ffaviron.fr/clubs/nogent-sur-seine-can/",
+    "structure_number": "C010009",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C987002",
+    "name": "CERCLE D’AVIRON POLYNESIEN – MARARA",
+    "url": "https://www.ffaviron.fr/clubs/cap-marara-tahiti/",
+    "structure_number": "C987002",
+    "phone": [
+      "0068987781"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C077062",
+    "name": "CERCLE D’AVIRON TRILPORTAIS",
+    "url": "https://www.ffaviron.fr/clubs/cercle-daviron-trilportais/",
+    "structure_number": "C077062",
+    "phone": [
+      "0950799765"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C022001",
+    "name": "CERCLE NAUTIQUE DE DINAN",
+    "url": "https://www.ffaviron.fr/clubs/dinan-cnd/",
+    "structure_number": "C022001",
+    "phone": [
+      "0296851403"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C092003",
+    "name": "CERCLE NAUTIQUE DE FRANCE",
+    "url": "https://www.ffaviron.fr/clubs/france-cnf/",
+    "structure_number": "C092003",
+    "phone": [
+      "01 47 22 61 74"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C054003",
+    "name": "CERCLE NAUTIQUE DE LA HAUTE MOSELLE",
+    "url": "https://www.ffaviron.fr/clubs/pont-st-vincent-cnhm/",
+    "structure_number": "C054003",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C054003-1",
+    "name": "CERCLE NAUTIQUE DE LA HAUTE MOSELLE",
+    "url": "https://www.ffaviron.fr/clubs/pont-st-vincent-cnhm/",
+    "structure_number": "C054003",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C077002",
+    "name": "CERCLE NAUTIQUE DE MEAUX",
+    "url": "https://www.ffaviron.fr/clubs/meaux-cnm/",
+    "structure_number": "C077002",
+    "phone": [
+      "0160610729"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C077013",
+    "name": "CERCLE NAUTIQUE DE MELUN",
+    "url": "https://www.ffaviron.fr/clubs/melun-cnm/",
+    "structure_number": "C077013",
+    "phone": [
+      "0164370783"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C040009",
+    "name": "CERCLE NAUTIQUE DE MIMIZAN",
+    "url": "https://www.ffaviron.fr/clubs/mimizan-cnm/",
+    "structure_number": "C040009",
+    "phone": [
+      "0558824182"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C972008",
+    "name": "CERCLE NAUTIQUE DE SCHOELCHER",
+    "url": "https://www.ffaviron.fr/clubs/schoelcher-cns/",
+    "structure_number": "C972008",
+    "phone": [
+      "0596612083"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C091047",
+    "name": "CERCLE NAUTIQUE DE SOISY-SUR-SEINE",
+    "url": "https://www.ffaviron.fr/clubs/soisy-sur-seine-cnss/",
+    "structure_number": "C091047",
+    "phone": [
+      "0164850611"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C074014",
+    "name": "CERCLE NAUTIQUE DE TALLOIRES",
+    "url": "https://www.ffaviron.fr/clubs/talloires-cnt/",
+    "structure_number": "C074014",
+    "phone": [
+      "0757410571"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C078011",
+    "name": "CERCLE NAUTIQUE DE VERSAILLES",
+    "url": "https://www.ffaviron.fr/clubs/versailles-cnv/",
+    "structure_number": "C078011",
+    "phone": [
+      "0130211096"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C051006",
+    "name": "CERCLE NAUTIQUE DES REGATES REMOISES",
+    "url": "https://www.ffaviron.fr/clubs/reims-cnrr/",
+    "structure_number": "C051006",
+    "phone": [
+      "0326501934"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C013027",
+    "name": "CERCLE NAUTIQUE DU PAYS D’AIX",
+    "url": "https://www.ffaviron.fr/clubs/peyrolles-cnpa/",
+    "structure_number": "C013027",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C031040",
+    "name": "CERCLE NAUTIQUE DU VOLVESTRE",
+    "url": "https://www.ffaviron.fr/clubs/rieux-volvestre-usrva/",
+    "structure_number": "C031040",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C074010",
+    "name": "CERCLE NAUTIQUE D’ANNECY",
+    "url": "https://www.ffaviron.fr/clubs/annecy-cna/",
+    "structure_number": "C074010",
+    "phone": [
+      "0450457467"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C044020",
+    "name": "CERCLE NAUTIQUE D’INDRE",
+    "url": "https://www.ffaviron.fr/clubs/indre-cni/",
+    "structure_number": "C044020",
+    "phone": [
+      "0769658317"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C031002",
+    "name": "CERCLE NAUTIQUE GRENADE ET CASTELNAU D’ESTRETEFOND",
+    "url": "https://www.ffaviron.fr/clubs/grenade-cngce/",
+    "structure_number": "C031002",
+    "phone": [
+      "0785980354"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C059007",
+    "name": "CERCLE NAUTIQUE HAUBOURDINOIS",
+    "url": "https://www.ffaviron.fr/clubs/haubourdin-cnh/",
+    "structure_number": "C059007",
+    "phone": [
+      "0320448998"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C067022",
+    "name": "CERCLE NAUTIQUE ILL – CLUB STRASBOURG",
+    "url": "https://www.ffaviron.fr/clubs/strasbourg-cni/",
+    "structure_number": "C067022",
+    "phone": [
+      "0390675019"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C054018",
+    "name": "CERCLE NAUTIQUE LIVERDUNOIS",
+    "url": "https://www.ffaviron.fr/clubs/liverdun-cnl/",
+    "structure_number": "C054018",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C047046",
+    "name": "CERCLE NAUTIQUE PENNE SAINT-SYLVESTRE",
+    "url": "https://www.ffaviron.fr/clubs/st-sylvestre-cnpss/",
+    "structure_number": "C047046",
+    "phone": [
+      "0607479986"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C074015",
+    "name": "CHABLAIS AVIRON THONON",
+    "url": "https://www.ffaviron.fr/clubs/thonon-cat/",
+    "structure_number": "C074015",
+    "phone": [
+      "0450702352"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C050005",
+    "name": "CHERBOURG CLUB AVIRON DE MER",
+    "url": "https://www.ffaviron.fr/clubs/cherbourg-ccam/",
+    "structure_number": "C050005",
+    "phone": [
+      "0233940494"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C001036",
+    "name": "CLUB AQUATIQUE DE PARCIEUX SAONE VALLEE",
+    "url": "https://www.ffaviron.fr/clubs/parcieux-capsv/",
+    "structure_number": "C001036",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C012034",
+    "name": "CLUB AVIRON ARVIEU-PARELOUP",
+    "url": "https://www.ffaviron.fr/clubs/arvieu-pareloup-caap/",
+    "structure_number": "C012034",
+    "phone": [
+      "0565424074"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C074012",
+    "name": "CLUB AVIRON EVIAN",
+    "url": "https://www.ffaviron.fr/clubs/evian-cae/",
+    "structure_number": "C074012",
+    "phone": [
+      "0450751207"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C044002",
+    "name": "CLUB AVIRON LEO LAGRANGE NANTES",
+    "url": "https://www.ffaviron.fr/clubs/nantes-cll/",
+    "structure_number": "C044002",
+    "phone": [
+      "0240930759"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C003003",
+    "name": "CLUB DE L’AVIRON DE VICHY",
+    "url": "https://www.ffaviron.fr/clubs/vichy-cav/",
+    "structure_number": "C003003",
+    "phone": [
+      "0470323652"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C074011",
+    "name": "CLUB DES SPORTS ANNECY-LE-VIEUX",
+    "url": "https://www.ffaviron.fr/clubs/annecy-le-vieux-csav/",
+    "structure_number": "C074011",
+    "phone": [
+      "0450277769"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C019001",
+    "name": "CLUB DES SPORTS NAUTIQUES DE BRIVE",
+    "url": "https://www.ffaviron.fr/clubs/brive-csnb/",
+    "structure_number": "C019001",
+    "phone": [
+      "0555245158"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C029013",
+    "name": "CLUB D’AVIRON CARANTECOIS",
+    "url": "https://www.ffaviron.fr/clubs/carantec-cac/",
+    "structure_number": "C029013",
+    "phone": [
+      "0637963023"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C095038",
+    "name": "CLUB D’AVIRON DE L’ESSEC",
+    "url": "https://www.ffaviron.fr/clubs/essec/",
+    "structure_number": "C095038",
+    "phone": [
+      "0130305390"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C029004",
+    "name": "CLUB D’AVIRON DE L’ODET",
+    "url": "https://www.ffaviron.fr/clubs/quimper-cao/",
+    "structure_number": "C029004",
+    "phone": [
+      "0768880912"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C050003",
+    "name": "CLUB D’AVIRON DE MER BARNEVILLE-CARTERET",
+    "url": "https://www.ffaviron.fr/clubs/carteret-cambc/",
+    "structure_number": "C050003",
+    "phone": [],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C017008",
+    "name": "CLUB D’AVIRON DE MER DE LA ROCHELLE",
+    "url": "https://www.ffaviron.fr/clubs/la-rochelle-camr/",
+    "structure_number": "C017008",
+    "phone": [
+      "0617712773"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C029009",
+    "name": "CLUB D’AVIRON DE PALUDEN",
+    "url": "https://www.ffaviron.fr/clubs/plouguerneau-cap/",
+    "structure_number": "C029009",
+    "phone": [
+      "0298045307"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C026030",
+    "name": "CLUB D’AVIRON DE PIERRELATTE",
+    "url": "https://www.ffaviron.fr/clubs/pierrelatte-cap/",
+    "structure_number": "C026030",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C039008",
+    "name": "CLUB D’AVIRON DE VOUGLANS",
+    "url": "https://www.ffaviron.fr/clubs/orgelet-cav/",
+    "structure_number": "C039008",
+    "phone": [
+      "0384442453"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C038019",
+    "name": "CLUB D’AVIRON DU SUD GRESIVAUDAN",
+    "url": "https://www.ffaviron.fr/clubs/sud-gresivaudan-casg/",
+    "structure_number": "C038019",
+    "phone": [
+      "0476644461"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C005001",
+    "name": "CLUB D’AVIRON D’EMBRUN",
+    "url": "https://www.ffaviron.fr/clubs/embrun-cae/",
+    "structure_number": "C005001",
+    "phone": [
+      "0601879447"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C083015",
+    "name": "CLUB D’AVIRON MAXIMOIS",
+    "url": "https://www.ffaviron.fr/clubs/ste-maxime-cam/",
+    "structure_number": "C083015",
+    "phone": [
+      "0677327079"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C017003",
+    "name": "CLUB D’AVIRON SAINTAIS",
+    "url": "https://www.ffaviron.fr/clubs/saintes-cas/",
+    "structure_number": "C017003",
+    "phone": [
+      "0546740166"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C014010",
+    "name": "CLUB HEROUVILLAIS D’AVIRON RIVIERE ET MER",
+    "url": "https://www.ffaviron.fr/clubs/herouville-charm/",
+    "structure_number": "C014010",
+    "phone": [
+      "0682291604"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C059001",
+    "name": "CLUB LEO LAGRANGE ARMENTIERES",
+    "url": "https://www.ffaviron.fr/clubs/armentieres-clla/",
+    "structure_number": "C059001",
+    "phone": [
+      "0320770940"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C013003",
+    "name": "CLUB MARIGNANAIS DES SPORTS D’AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/marignane-cmsa/",
+    "structure_number": "C013003",
+    "phone": [
+      "0442881758"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C003002",
+    "name": "CLUB MONTLUCONNAIS D’AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/montlucon-cma/",
+    "structure_number": "C003002",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C058012",
+    "name": "CLUB NAUTIQUE CLAMECYCOIS",
+    "url": "https://www.ffaviron.fr/clubs/clamecy-cnc/",
+    "structure_number": "C058012",
+    "phone": [
+      "0676549289"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C058012-1",
+    "name": "CLUB NAUTIQUE CLAMECYCOIS",
+    "url": "https://www.ffaviron.fr/clubs/clamecy-cnc/",
+    "structure_number": "C058012",
+    "phone": [
+      "0676549289"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C071002",
+    "name": "CLUB NAUTIQUE CREUSOTIN",
+    "url": "https://www.ffaviron.fr/clubs/le-creusot-cnc/",
+    "structure_number": "C071002",
+    "phone": [
+      "0385804131"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C076002",
+    "name": "CLUB NAUTIQUE DE BELBEUF",
+    "url": "https://www.ffaviron.fr/clubs/belbeuf-cnb/",
+    "structure_number": "C076002",
+    "phone": [
+      "0235020333"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C004035",
+    "name": "CLUB NAUTIQUE DE CASTILLON",
+    "url": "https://www.ffaviron.fr/clubs/st-julien-du-verdon-cnc/",
+    "structure_number": "C004035",
+    "phone": [
+      "0032472490"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C008001",
+    "name": "CLUB NAUTIQUE DE CHARLEVILLE-MEZIERES",
+    "url": "https://www.ffaviron.fr/clubs/charleville-mezieres-cncm/",
+    "structure_number": "C008001",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C053007",
+    "name": "CLUB NAUTIQUE DE CHATEAU-GONTIER AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/chateau-gontier-cncga/",
+    "structure_number": "C053007",
+    "phone": [
+      "0607881707"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C033030",
+    "name": "CLUB NAUTIQUE DE CLAOUEY",
+    "url": "https://www.ffaviron.fr/clubs/claouey-cnc/",
+    "structure_number": "C033030",
+    "phone": [
+      "0556607315"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C053008",
+    "name": "CLUB NAUTIQUE DE LAVAL",
+    "url": "https://www.ffaviron.fr/clubs/laval-cnl/",
+    "structure_number": "C053008",
+    "phone": [
+      "0243493299"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C033042",
+    "name": "CLUB NAUTIQUE DE LIBOURNE 1876",
+    "url": "https://www.ffaviron.fr/clubs/libourne-cnl/",
+    "structure_number": "C033042",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C087003",
+    "name": "CLUB NAUTIQUE DE LIMOGES",
+    "url": "https://www.ffaviron.fr/clubs/limoges-cnl/",
+    "structure_number": "C087003",
+    "phone": [
+      "0786551428"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C006003",
+    "name": "CLUB NAUTIQUE DE NICE",
+    "url": "https://www.ffaviron.fr/clubs/nice-cnn/",
+    "structure_number": "C006003",
+    "phone": [
+      "0493893978"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C044021",
+    "name": "CLUB NAUTIQUE DE PORNIC",
+    "url": "https://www.ffaviron.fr/clubs/pornic-cnp/",
+    "structure_number": "C044021",
+    "phone": [
+      "0240823472"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C972018",
+    "name": "CLUB NAUTIQUE DE RIVIERE-PILOTE",
+    "url": "https://www.ffaviron.fr/clubs/riviere-pilote-cnrp/",
+    "structure_number": "C972018",
+    "phone": [],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C001016",
+    "name": "CLUB NAUTIQUE DE TREVOUX",
+    "url": "https://www.ffaviron.fr/clubs/trevoux-cnt/",
+    "structure_number": "C001016",
+    "phone": [
+      "0953784611"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C059024",
+    "name": "CLUB NAUTIQUE DES HAUTS DE FLANDRE",
+    "url": "https://www.ffaviron.fr/clubs/bergues-cnhf/",
+    "structure_number": "C059024",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C059024-1",
+    "name": "CLUB NAUTIQUE DES HAUTS DE FLANDRE",
+    "url": "https://www.ffaviron.fr/clubs/bergues-cnhf/",
+    "structure_number": "C059024",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C083016",
+    "name": "CLUB NAUTIQUE DES SALETTES",
+    "url": "https://www.ffaviron.fr/clubs/salettes-cns/",
+    "structure_number": "C083016",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C972015",
+    "name": "CLUB NAUTIQUE DES TROIS ILETS",
+    "url": "https://www.ffaviron.fr/clubs/les-trois-ilets-cnti/",
+    "structure_number": "C972015",
+    "phone": [
+      "0596661014"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C076004",
+    "name": "CLUB NAUTIQUE DIEPPOIS",
+    "url": "https://www.ffaviron.fr/clubs/dieppe-cnd/",
+    "structure_number": "C076004",
+    "phone": [
+      "0672115196"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C001019",
+    "name": "CLUB NAUTIQUE DIVONNE",
+    "url": "https://www.ffaviron.fr/clubs/divonne-cnd/",
+    "structure_number": "C001019",
+    "phone": [
+      "0450134108"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C046026",
+    "name": "CLUB NAUTIQUE DU HAUT-SEGALA",
+    "url": "https://www.ffaviron.fr/clubs/senaillac-latronquiere-cnhs/",
+    "structure_number": "C046026",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C044019",
+    "name": "CLUB NAUTIQUE DU MIGRON AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/frossay-cnma/",
+    "structure_number": "C044019",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C094058",
+    "name": "CLUB NAUTIQUE D’ABLON-SUR-SEINE",
+    "url": "https://www.ffaviron.fr/clubs/ablon-sur-seine-cnas/",
+    "structure_number": "C094058",
+    "phone": [],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C076007",
+    "name": "CLUB NAUTIQUE ET ATHLETIQUE DE ROUEN",
+    "url": "https://www.ffaviron.fr/clubs/rouen-cnar/",
+    "structure_number": "C076007",
+    "phone": [
+      "0235714179"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C033008",
+    "name": "CLUB NAUTIQUE FOYEN",
+    "url": "https://www.ffaviron.fr/clubs/ste-foy-cnf/",
+    "structure_number": "C033008",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C033008-1",
+    "name": "CLUB NAUTIQUE FOYEN",
+    "url": "https://www.ffaviron.fr/clubs/ste-foy-cnf/",
+    "structure_number": "C033008",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C047014",
+    "name": "CLUB NAUTIQUE MONTAYRAL-LIBOS-FUMEL",
+    "url": "https://www.ffaviron.fr/clubs/libos-fumel-cnmlf/",
+    "structure_number": "C047014",
+    "phone": [
+      "0757425020"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C001035",
+    "name": "CLUB NAUTIQUE SERRIEROIS",
+    "url": "https://www.ffaviron.fr/clubs/serrieres-cns/",
+    "structure_number": "C001035",
+    "phone": [
+      "0474367975"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C031033",
+    "name": "CLUB OLYMPIQUE CARBONNAIS – SECTION NAUTISME",
+    "url": "https://www.ffaviron.fr/clubs/carbonne-coc/",
+    "structure_number": "C031033",
+    "phone": [
+      "0627267727"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C095027",
+    "name": "CLUB OLYMPIQUE MULTISPORTS D’ARGENTEUIL",
+    "url": "https://www.ffaviron.fr/clubs/argenteuil-coma/",
+    "structure_number": "C095027",
+    "phone": [
+      "0689442096"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C045014",
+    "name": "CLUB OMNISPORT ET CULTUREL DE COMBLEUX",
+    "url": "https://www.ffaviron.fr/clubs/combleux-cocc/",
+    "structure_number": "C045014",
+    "phone": [
+      "0681391411"
+    ],
+    "management_team": [
+      ""
+    ]
+  },
+  {
+    "club_id": "C091056",
+    "name": "CLUB SPORTIF DE L’ECOLE POLYTECHNIQUE",
+    "url": "https://www.ffaviron.fr/clubs/polytechnique-csx/",
+    "structure_number": "C091056",
+    "phone": [
+      "0169332551"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C016002",
+    "name": "COGNAC YACHT ROWING CLUB",
+    "url": "https://www.ffaviron.fr/clubs/cognac-cyrc/",
+    "structure_number": "C016002",
+    "phone": [
+      "0545820266"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C085031",
+    "name": "DAMES DE NAGE DE NOIRMOUTIER",
+    "url": "https://www.ffaviron.fr/clubs/noirmoutier-dnn/",
+    "structure_number": "C085031",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C059019",
+    "name": "ELAN NAUTIQUE COUDEKERQUOIS – SECTION AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/coudekerque-enc/",
+    "structure_number": "C059019",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C033003",
+    "name": "EMULATION NAUTIQUE DE BORDEAUX",
+    "url": "https://www.ffaviron.fr/clubs/bordeaux-enb/",
+    "structure_number": "C033003",
+    "phone": [
+      "0556507060"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C031003",
+    "name": "EMULATION NAUTIQUE DE TOULOUSE",
+    "url": "https://www.ffaviron.fr/clubs/toulouse-ent/",
+    "structure_number": "C031003",
+    "phone": [
+      "0561528679"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C033043",
+    "name": "EMULATION NAUTIQUE DU PORT DES CALLONGES",
+    "url": "https://www.ffaviron.fr/clubs/st-ciers-enpc/",
+    "structure_number": "C033043",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C064027",
+    "name": "ENDAIKA ARRAUN ELKARTEA",
+    "url": "https://www.ffaviron.fr/clubs/hendaye-eae/",
+    "structure_number": "C064027",
+    "phone": [
+      "0680812376"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C973003",
+    "name": "ENTENTE NAUTIQUE DE MONTSINERY-TONNEGRANDE",
+    "url": "https://www.ffaviron.fr/clubs/montsinery-tonnegrande-enmt/",
+    "structure_number": "C973003",
+    "phone": [],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C073008",
+    "name": "ENTENTE NAUTIQUE D’AIX-LES-BAINS AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/aix-les-bains-ena-aviron/",
+    "structure_number": "C073008",
+    "phone": [
+      "0479881207"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C073008-1",
+    "name": "ENTENTE NAUTIQUE D’AIX-LES-BAINS AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/aix-les-bains-ena-aviron/",
+    "structure_number": "C073008",
+    "phone": [
+      "0479881207"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C060005",
+    "name": "ETOILE NAUTIQUE DE L’OISE",
+    "url": "https://www.ffaviron.fr/clubs/creil-eno/",
+    "structure_number": "C060005",
+    "phone": [
+      "0344246560"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C987003",
+    "name": "FARE HOE I PIRAE",
+    "url": "https://www.ffaviron.fr/clubs/pirae-fhip/",
+    "structure_number": "C987003",
+    "phone": [],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C035063",
+    "name": "FORGES L’AVI",
+    "url": "https://www.ffaviron.fr/clubs/forges-lavi/",
+    "structure_number": "C035063",
+    "phone": [
+      "0672811201"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C066028",
+    "name": "GRANYOTAREM",
+    "url": "https://www.ffaviron.fr/clubs/argeles-g/",
+    "structure_number": "C066028",
+    "phone": [
+      "0682890381"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C059006",
+    "name": "GRAVELINES AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/gravelines-ga/",
+    "structure_number": "C059006",
+    "phone": [
+      "0328233603"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C064035",
+    "name": "IBAIALDE",
+    "url": "https://www.ffaviron.fr/clubs/anglet-ibaialde/",
+    "structure_number": "C064035",
+    "phone": [
+      "0559521330"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C067020",
+    "name": "INDOOR SANTE STRASBOURG",
+    "url": "https://www.ffaviron.fr/clubs/strasbourg-iss/",
+    "structure_number": "C067020",
+    "phone": [
+      "0645969998"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C067020-1",
+    "name": "INDOOR SANTE STRASBOURG",
+    "url": "https://www.ffaviron.fr/clubs/strasbourg-iss/",
+    "structure_number": "C067020",
+    "phone": [
+      "0645969998"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C02A007",
+    "name": "KALLISTE",
+    "url": "https://www.ffaviron.fr/clubs/ajaccio-k/",
+    "structure_number": "C02A007",
+    "phone": [
+      "0613074625"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C02A007-1",
+    "name": "KALLISTE",
+    "url": "https://www.ffaviron.fr/clubs/ajaccio-k/",
+    "structure_number": "C02A007",
+    "phone": [
+      "0613074625"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C987011",
+    "name": "LA FRATERNITÉ CHRÉTIENNE DES HANDICAPÉS",
+    "url": "https://www.ffaviron.fr/clubs/la-fraternit%c3%a9-chr%c3%a9tienne-des-handicap%c3%a9s/",
+    "structure_number": "C987011",
+    "phone": [],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C057014",
+    "name": "LA YOLE HAMOISE",
+    "url": "https://www.ffaviron.fr/clubs/basse-ham-yh/",
+    "structure_number": "C057014",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C052015",
+    "name": "LANGRES AVIRON CANOE-KAYAK 52",
+    "url": "https://www.ffaviron.fr/clubs/langres-lack-52/",
+    "structure_number": "C052015",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C072030",
+    "name": "LE MANS SARTHE AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/le-mans-msa/",
+    "structure_number": "C072030",
+    "phone": [
+      "0243473099"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C074022",
+    "name": "LEMAN AVIRON CLUB",
+    "url": "https://www.ffaviron.fr/clubs/leman-lac/",
+    "structure_number": "C074022",
+    "phone": [
+      "0450941968"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C074022-1",
+    "name": "LEMAN AVIRON CLUB",
+    "url": "https://www.ffaviron.fr/clubs/leman-lac/",
+    "structure_number": "C074022",
+    "phone": [
+      "0450941968"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C051004",
+    "name": "LES PELLES CHALONNAISES",
+    "url": "https://www.ffaviron.fr/clubs/chalons-en-champagne-pc/",
+    "structure_number": "C051004",
+    "phone": [
+      "0326644637"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C987007",
+    "name": "LES PETITS PRINCES D’AIMEHO",
+    "url": "https://www.ffaviron.fr/clubs/les-petits-princes-daimeho/",
+    "structure_number": "C987007",
+    "phone": [],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C066026",
+    "name": "LLAGUT DE PORT-VENDRES",
+    "url": "https://www.ffaviron.fr/clubs/port-vendres-lpv/",
+    "structure_number": "C066026",
+    "phone": [
+      "0674433061"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C049032",
+    "name": "LOIRE AVIRON LIBRE",
+    "url": "https://www.ffaviron.fr/clubs/saumur-lal/",
+    "structure_number": "C049032",
+    "phone": [
+      "0689964099"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C029058",
+    "name": "L’AVIRON CONCARNOIS",
+    "url": "https://www.ffaviron.fr/clubs/concarneau-ac/",
+    "structure_number": "C029058",
+    "phone": [
+      "0641523346"
+    ],
+    "management_team": [
+      ""
+    ]
+  },
+  {
+    "club_id": "C029058-1",
+    "name": "L’AVIRON CONCARNOIS",
+    "url": "https://www.ffaviron.fr/clubs/concarneau-ac/",
+    "structure_number": "C029058",
+    "phone": [
+      "0641523346"
+    ],
+    "management_team": [
+      ""
+    ]
+  },
+  {
+    "club_id": "C038025",
+    "name": "L’AVIRON DU LAC BLEU",
+    "url": "https://www.ffaviron.fr/clubs/lac-bleu-alb/",
+    "structure_number": "C038025",
+    "phone": [
+      "0476354307"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C013007",
+    "name": "MARTIGUES AVIRON CLUB",
+    "url": "https://www.ffaviron.fr/clubs/martigues-mac/",
+    "structure_number": "C013007",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C987006",
+    "name": "MATINI HOE",
+    "url": "https://www.ffaviron.fr/clubs/faaa-mh/",
+    "structure_number": "C987006",
+    "phone": [],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C034004",
+    "name": "MONTPELLIER AVIRON UNIVERSITE CLUB",
+    "url": "https://www.ffaviron.fr/clubs/montpellier-mauc/",
+    "structure_number": "C034004",
+    "phone": [
+      "0616138760"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C031025",
+    "name": "MONTPITOL AVIRON CLUB DU LAC DU LARAGOU",
+    "url": "https://www.ffaviron.fr/clubs/montpitol-macll/",
+    "structure_number": "C031025",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C068023",
+    "name": "MULHOUSE AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/mulhouse-ma/",
+    "structure_number": "C068023",
+    "phone": [
+      "0645460034"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C034043",
+    "name": "MUSCAT RAMES",
+    "url": "https://www.ffaviron.fr/clubs/frontignan-mr/",
+    "structure_number": "C034043",
+    "phone": [
+      "0620972593"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C011032",
+    "name": "NARBONNE AVIRON CLUB",
+    "url": "https://www.ffaviron.fr/clubs/narbonne-nac/",
+    "structure_number": "C011032",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C057024",
+    "name": "NAUTIC CLUB BOUZONVILLE",
+    "url": "https://www.ffaviron.fr/clubs/bouzonville-ncb/",
+    "structure_number": "C057024",
+    "phone": [
+      "0387579179"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C059020",
+    "name": "NAUTIC CLUB DE RIEULAY",
+    "url": "https://www.ffaviron.fr/clubs/rieulay-ncr/",
+    "structure_number": "C059020",
+    "phone": [
+      "0661984668"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C972022",
+    "name": "NAUTISME SPORTS ECOLE YO TE DI",
+    "url": "https://www.ffaviron.fr/clubs/nautisme-sports-ecole-yo-te-di/",
+    "structure_number": "C972022",
+    "phone": [
+      "0596541196"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C079005",
+    "name": "NIORT AVIRON CLUB",
+    "url": "https://www.ffaviron.fr/clubs/niort-nac/",
+    "structure_number": "C079005",
+    "phone": [
+      "0549790193"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C987010",
+    "name": "NUKU HIVA ROWING CLUB",
+    "url": "https://www.ffaviron.fr/clubs/nuku-hiva-rowing-club/",
+    "structure_number": "C987010",
+    "phone": [],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C056030",
+    "name": "PATRONAGE LAIQUE DE LORIENT – AVIRON DU TER",
+    "url": "https://www.ffaviron.fr/clubs/lorient-pll-av-du-ter/",
+    "structure_number": "C056030",
+    "phone": [
+      "0297836964"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C008021",
+    "name": "PELLE MOSANE GIVET",
+    "url": "https://www.ffaviron.fr/clubs/givet-pmg/",
+    "structure_number": "C008021",
+    "phone": [
+      "0032497900"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C066006",
+    "name": "PERPIGNAN AVIRON 66",
+    "url": "https://www.ffaviron.fr/clubs/perpignan-pa-66/",
+    "structure_number": "C066006",
+    "phone": [
+      "0651705943"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C034036",
+    "name": "POIDS D’INTERROGATION",
+    "url": "https://www.ffaviron.fr/clubs/montpellier-pi/",
+    "structure_number": "C034036",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C034036-1",
+    "name": "POIDS D’INTERROGATION",
+    "url": "https://www.ffaviron.fr/clubs/montpellier-pi/",
+    "structure_number": "C034036",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C031021",
+    "name": "PORT SUD AVIRON RAMONVILLE",
+    "url": "https://www.ffaviron.fr/clubs/ramonville-psar/",
+    "structure_number": "C031021",
+    "phone": [
+      "0604184035"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C094032",
+    "name": "RED STAR CLUB DE CHAMPIGNY",
+    "url": "https://www.ffaviron.fr/clubs/champigny-sur-marne-rscc/",
+    "structure_number": "C094032",
+    "phone": [
+      "0149839707"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C035039",
+    "name": "RENNES ETUDIANTS CLUB AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/rennes-reca/",
+    "structure_number": "C035039",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C02A008",
+    "name": "RIVE SUD AVIRON CLUB",
+    "url": "https://www.ffaviron.fr/clubs/pietrosella-rsac/",
+    "structure_number": "C02A008",
+    "phone": [],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C006001",
+    "name": "ROWING CLUB CANNES-MANDELIEU",
+    "url": "https://www.ffaviron.fr/clubs/cannes-mandelieu-rccm/",
+    "structure_number": "C006001",
+    "phone": [
+      "0492975560"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C033004",
+    "name": "ROWING CLUB DE CASTILLON",
+    "url": "https://www.ffaviron.fr/clubs/castillon-rcc/",
+    "structure_number": "C033004",
+    "phone": [],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C068003",
+    "name": "ROWING CLUB DE MULHOUSE",
+    "url": "https://www.ffaviron.fr/clubs/mulhouse-rcm/",
+    "structure_number": "C068003",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C078024",
+    "name": "ROWING CLUB DE PORT-MARLY",
+    "url": "https://www.ffaviron.fr/clubs/port-marly-rcpm/",
+    "structure_number": "C078024",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C067001",
+    "name": "ROWING CLUB DE STRASBOURG",
+    "url": "https://www.ffaviron.fr/clubs/strasbourg-rcs/",
+    "structure_number": "C067001",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C044025",
+    "name": "ROWING CLUB DE SUCE-SUR-ERDRE",
+    "url": "https://www.ffaviron.fr/clubs/suce-sur-erdre-rcs/",
+    "structure_number": "C044025",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C013004",
+    "name": "ROWING CLUB MARSEILLE",
+    "url": "https://www.ffaviron.fr/clubs/marseille-rcm/",
+    "structure_number": "C013004",
+    "phone": [
+      "0491522715"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C013004-1",
+    "name": "ROWING CLUB MARSEILLE",
+    "url": "https://www.ffaviron.fr/clubs/marseille-rcm/",
+    "structure_number": "C013004",
+    "phone": [
+      "0491522715"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C001039",
+    "name": "ROWING CLUB VALLEE DE L’AIN",
+    "url": "https://www.ffaviron.fr/clubs/chambod-rcva/",
+    "structure_number": "C001039",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C093001",
+    "name": "ROWING CLUB – SOCIÉTÉ DES RÉGATES PARISIENNES",
+    "url": "https://www.ffaviron.fr/clubs/rowing-club-srp/",
+    "structure_number": "C093001",
+    "phone": [
+      "0142436195"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C072016",
+    "name": "SABLE NAUTIQUE AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/sable-sna/",
+    "structure_number": "C072016",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C044003",
+    "name": "SAINT NAZAIRE OLYMPIQUE SPORTIF AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/st-nazaire-snos/",
+    "structure_number": "C044003",
+    "phone": [
+      "0240706574"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C091035",
+    "name": "SCA 2000 AVIRON EVRY",
+    "url": "https://www.ffaviron.fr/clubs/evry-sca-2000/",
+    "structure_number": "C091035",
+    "phone": [
+      "0164970515"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C094017",
+    "name": "SCHELCHER AVIRON CLUB DE SAINT-MAUR",
+    "url": "https://www.ffaviron.fr/clubs/saint-maur-sacsm/",
+    "structure_number": "C094017",
+    "phone": [
+      "0148836551"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C071003",
+    "name": "SOCIETE DES REGATES MACONNAISES",
+    "url": "https://www.ffaviron.fr/clubs/macon-srm/",
+    "structure_number": "C071003",
+    "phone": [
+      "0385380067"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C057008",
+    "name": "SOCIETE DES REGATES MESSINES",
+    "url": "https://www.ffaviron.fr/clubs/metz-srm/",
+    "structure_number": "C057008",
+    "phone": [
+      "0387668603"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C035006",
+    "name": "SOCIETE DES REGATES RENNAISES",
+    "url": "https://www.ffaviron.fr/clubs/rennes-srr/",
+    "structure_number": "C035006",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C094005",
+    "name": "SOCIETE D’ENCOURAGEMENT DU SPORT NAUTIQUE",
+    "url": "https://www.ffaviron.fr/clubs/encouragement-sesn/",
+    "structure_number": "C094005",
+    "phone": [
+      "0143243806"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C094005-1",
+    "name": "SOCIETE D’ENCOURAGEMENT DU SPORT NAUTIQUE",
+    "url": "https://www.ffaviron.fr/clubs/encouragement-sesn/",
+    "structure_number": "C094005",
+    "phone": [
+      "0143243806"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C064018",
+    "name": "SOCIETE NAUTIQUE DE BAYONNE",
+    "url": "https://www.ffaviron.fr/clubs/bayonne-snb/",
+    "structure_number": "C064018",
+    "phone": [
+      "0559590239"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C084011",
+    "name": "SOCIETE NAUTIQUE DE CADEROUSSE",
+    "url": "https://www.ffaviron.fr/clubs/caderousse-snc/",
+    "structure_number": "C084011",
+    "phone": [
+      "0783014184"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C014001",
+    "name": "SOCIETE NAUTIQUE DE CAEN ET DU CALVADOS",
+    "url": "https://www.ffaviron.fr/clubs/caen-calvados-sncc/",
+    "structure_number": "C014001",
+    "phone": [
+      "0231933614"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C086004",
+    "name": "SOCIETE NAUTIQUE DE CHATELLERAULT",
+    "url": "https://www.ffaviron.fr/clubs/chatellerault-snc/",
+    "structure_number": "C086004",
+    "phone": [
+      "0549210197"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C069005",
+    "name": "SOCIETE NAUTIQUE DE CONDRIEU",
+    "url": "https://www.ffaviron.fr/clubs/condrieu-snc/",
+    "structure_number": "C069005",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C069005-1",
+    "name": "SOCIETE NAUTIQUE DE CONDRIEU",
+    "url": "https://www.ffaviron.fr/clubs/condrieu-snc/",
+    "structure_number": "C069005",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C092006",
+    "name": "SOCIETE NAUTIQUE DE LA BASSE-SEINE",
+    "url": "https://www.ffaviron.fr/clubs/basse-seine-snbs/",
+    "structure_number": "C092006",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C013022",
+    "name": "SOCIETE NAUTIQUE DE LA CIOTAT",
+    "url": "https://www.ffaviron.fr/clubs/la-ciotat-snc/",
+    "structure_number": "C013022",
+    "phone": [
+      "0442716782"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C091012",
+    "name": "SOCIETE NAUTIQUE DE LA HAUTE-SEINE",
+    "url": "https://www.ffaviron.fr/clubs/haute-seine-snhs/",
+    "structure_number": "C091012",
+    "phone": [
+      "0169423613"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C077010",
+    "name": "SOCIETE NAUTIQUE DE LAGNY",
+    "url": "https://www.ffaviron.fr/clubs/lagny-snl/",
+    "structure_number": "C077010",
+    "phone": [
+      "0164300467"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C095008",
+    "name": "SOCIETE NAUTIQUE DE L’OISE",
+    "url": "https://www.ffaviron.fr/clubs/sn-oise/",
+    "structure_number": "C095008",
+    "phone": [
+      "0134644774"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C098008",
+    "name": "SOCIETE NAUTIQUE DE MONACO",
+    "url": "https://www.ffaviron.fr/clubs/monaco-sn/",
+    "structure_number": "C098008",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C054002",
+    "name": "SOCIETE NAUTIQUE DE PONT-A-MOUSSON",
+    "url": "https://www.ffaviron.fr/clubs/pont-a-mousson-snpm/",
+    "structure_number": "C054002",
+    "phone": [
+      "0383813731"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C049006",
+    "name": "SOCIETE NAUTIQUE DE SAUMUR AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/saumur-snsa/",
+    "structure_number": "C049006",
+    "phone": [
+      "0649571027"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C049006-1",
+    "name": "SOCIETE NAUTIQUE DE SAUMUR AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/saumur-snsa/",
+    "structure_number": "C049006",
+    "phone": [
+      "0649571027"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C069020",
+    "name": "SOCIETE NAUTIQUE DE SAUVETAGE DE SAINT-FONS",
+    "url": "https://www.ffaviron.fr/clubs/st-fons-snssf/",
+    "structure_number": "C069020",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C094009",
+    "name": "SOCIETE NAUTIQUE DU PERREUX",
+    "url": "https://www.ffaviron.fr/clubs/perreux-snp/",
+    "structure_number": "C094009",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C081020",
+    "name": "SOCIETE NAUTIQUE D’ALMAYRAC",
+    "url": "https://www.ffaviron.fr/clubs/almayrac-sna/",
+    "structure_number": "C081020",
+    "phone": [
+      "0563367107"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C081020-1",
+    "name": "SOCIETE NAUTIQUE D’ALMAYRAC",
+    "url": "https://www.ffaviron.fr/clubs/almayrac-sna/",
+    "structure_number": "C081020",
+    "phone": [
+      "0563367107"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C084010",
+    "name": "SOCIETE NAUTIQUE D’AVIGNON",
+    "url": "https://www.ffaviron.fr/clubs/avignon-sna/",
+    "structure_number": "C084010",
+    "phone": [
+      "0490820254"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C095007",
+    "name": "SOCIETE NAUTIQUE D’ENGHIEN",
+    "url": "https://www.ffaviron.fr/clubs/enghien-sne/",
+    "structure_number": "C095007",
+    "phone": [
+      "0134173153"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C051011",
+    "name": "SOCIETE NAUTIQUE D’EPERNAY",
+    "url": "https://www.ffaviron.fr/clubs/epernay-sne/",
+    "structure_number": "C051011",
+    "phone": [
+      "0326549047"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C069007",
+    "name": "SOCIETE NAUTIQUE LOIRE-SUR-RHONE",
+    "url": "https://www.ffaviron.fr/clubs/loire-sur-rhone-snlr/",
+    "structure_number": "C069007",
+    "phone": [
+      "0472492121"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C069007-1",
+    "name": "SOCIETE NAUTIQUE LOIRE-SUR-RHONE",
+    "url": "https://www.ffaviron.fr/clubs/loire-sur-rhone-snlr/",
+    "structure_number": "C069007",
+    "phone": [
+      "0472492121"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C002003",
+    "name": "SOCIETE NAUTIQUE SOISSONNAISE",
+    "url": "https://www.ffaviron.fr/clubs/soissons-sns/",
+    "structure_number": "C002003",
+    "phone": [
+      "0323597275"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C010003",
+    "name": "SOCIETE NAUTIQUE TROYENNE",
+    "url": "https://www.ffaviron.fr/clubs/troyes-snt/",
+    "structure_number": "C010003",
+    "phone": [
+      "0325754916"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C025001",
+    "name": "SPORT NAUTIQUE BISONTIN",
+    "url": "https://www.ffaviron.fr/clubs/besancon-snb/",
+    "structure_number": "C025001",
+    "phone": [
+      "03 63 01 67 18"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C060004",
+    "name": "SPORT NAUTIQUE COMPIEGNOIS",
+    "url": "https://www.ffaviron.fr/clubs/compiegne-snc/",
+    "structure_number": "C060004",
+    "phone": [
+      "0344402813"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C054001",
+    "name": "SPORT NAUTIQUE DE NANCY",
+    "url": "https://www.ffaviron.fr/clubs/nancy-snn/",
+    "structure_number": "C054001",
+    "phone": [
+      "0624260694"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C080006",
+    "name": "SPORT NAUTIQUE D’ABBEVILLE",
+    "url": "https://www.ffaviron.fr/clubs/abbeville-sna/",
+    "structure_number": "C080006",
+    "phone": [
+      "0322244859"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C080007",
+    "name": "SPORT NAUTIQUE D’AMIENS",
+    "url": "https://www.ffaviron.fr/clubs/amiens-sna/",
+    "structure_number": "C080007",
+    "phone": [
+      "0322921102"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C080007-1",
+    "name": "SPORT NAUTIQUE D’AMIENS",
+    "url": "https://www.ffaviron.fr/clubs/amiens-sna/",
+    "structure_number": "C080007",
+    "phone": [
+      "0322921102"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C033006",
+    "name": "SPORT NAUTIQUE LANGONNAIS",
+    "url": "https://www.ffaviron.fr/clubs/langon-snl/",
+    "structure_number": "C033006",
+    "phone": [
+      "0680012060"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C024039",
+    "name": "SPORT NAUTIQUE TRELISSACOIS",
+    "url": "https://www.ffaviron.fr/clubs/trelissac-snt/",
+    "structure_number": "C024039",
+    "phone": [
+      "0611647503"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C006002",
+    "name": "SPORTING CLUB AVIRON DE MENTON",
+    "url": "https://www.ffaviron.fr/clubs/menton-scam/",
+    "structure_number": "C006002",
+    "phone": [
+      "0674831338"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C059004",
+    "name": "SPORTING DUNKERQUOIS",
+    "url": "https://www.ffaviron.fr/clubs/dunkerque-sd/",
+    "structure_number": "C059004",
+    "phone": [
+      "0328252669"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C026003",
+    "name": "SPORTS NAUTIQUES TAIN-TOURNON",
+    "url": "https://www.ffaviron.fr/clubs/tain-tournon-sntt/",
+    "structure_number": "C026003",
+    "phone": [
+      "0475087019"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C006011",
+    "name": "SPORTS NAUTIQUES VILLEFRANCHOIS",
+    "url": "https://www.ffaviron.fr/clubs/villefranche-snv/",
+    "structure_number": "C006011",
+    "phone": [
+      "0624743994"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C031016",
+    "name": "TOULOUSE AVIRON SPORTS ET LOISIRS",
+    "url": "https://www.ffaviron.fr/clubs/toulouse-tasl/",
+    "structure_number": "C031016",
+    "phone": [
+      "0561131937"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C031022",
+    "name": "TOULOUSE UNIVERSITE CLUB",
+    "url": "https://www.ffaviron.fr/clubs/toulouse-tuc/",
+    "structure_number": "C031022",
+    "phone": [
+      "0561534078"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C031022-1",
+    "name": "TOULOUSE UNIVERSITE CLUB",
+    "url": "https://www.ffaviron.fr/clubs/toulouse-tuc/",
+    "structure_number": "C031022",
+    "phone": [
+      "0561534078"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C029042",
+    "name": "TREGUNC CORNOUAILLE AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/tregunc-tca/",
+    "structure_number": "C029042",
+    "phone": [
+      "06.83.53.62.17"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C082014",
+    "name": "UNION NAUTIQUE MONTALBANAISE",
+    "url": "https://www.ffaviron.fr/clubs/montauban-unm/",
+    "structure_number": "C082014",
+    "phone": [
+      "0749472990"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C068007",
+    "name": "UNION REGIO AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/union-regio-ura/",
+    "structure_number": "C068007",
+    "phone": [
+      "0972527301"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C089004",
+    "name": "UNION SPORTIVE DE JOIGNY AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/joigny-usja/",
+    "structure_number": "C089004",
+    "phone": [
+      "0386914174"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C057019",
+    "name": "UNION SPORTIVE DE MITTERSHEIM",
+    "url": "https://www.ffaviron.fr/clubs/union-sportive-de-mittersheim/",
+    "structure_number": "C057019",
+    "phone": [
+      "0988668079"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C091041",
+    "name": "UNION SPORTIVE DE RIS-ORANGIS – AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/ris-orangis-usro/",
+    "structure_number": "C091041",
+    "phone": [
+      "0169063394"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C054004",
+    "name": "UNION SPORTIVE DE TOUL AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/toul-usta/",
+    "structure_number": "C054004",
+    "phone": [
+      "0383631762"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C054004-1",
+    "name": "UNION SPORTIVE DE TOUL AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/toul-usta/",
+    "structure_number": "C054004",
+    "phone": [
+      "0383631762"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C044014",
+    "name": "UNIVERSITE DE NANTES AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/nantes-una/",
+    "structure_number": "C044014",
+    "phone": [
+      "07 87 30 48 26"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C064038",
+    "name": "UR IKARA",
+    "url": "https://www.ffaviron.fr/clubs/st-jean-de-luz-ur-ikara/",
+    "structure_number": "C064038",
+    "phone": [
+      "06 37 17 43 53"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C064021",
+    "name": "UR YOKO AVIRON TRAINIERE – UR YOKO ARRAUN ELKARTEA",
+    "url": "https://www.ffaviron.fr/clubs/st-jean-de-luz-ur-yoko/",
+    "structure_number": "C064021",
+    "phone": [
+      "0695651934"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C075020",
+    "name": "US METRO AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/paris-us-metro/",
+    "structure_number": "C075020",
+    "phone": [
+      "0141879415"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C075020-1",
+    "name": "US METRO AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/paris-us-metro/",
+    "structure_number": "C075020",
+    "phone": [
+      "0141879415"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C095028",
+    "name": "VAL D’OISE AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/butry-sur-oise-voa/",
+    "structure_number": "C095028",
+    "phone": [
+      "0134731951"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C092054",
+    "name": "VAL-DE-SEINE NAUTIQUE",
+    "url": "https://www.ffaviron.fr/clubs/sevres-vsn/",
+    "structure_number": "C092054",
+    "phone": [
+      "0146290144"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C059014",
+    "name": "VALENCIENNES UNIVERSITE CLUB",
+    "url": "https://www.ffaviron.fr/clubs/valenciennes-uc/",
+    "structure_number": "C059014",
+    "phone": [
+      "0327511245"
+    ],
+    "management_team": [
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C031030",
+    "name": "VILLEFRANCHE RENNEVILLE – AVIRON CLUB DU LAURAGAIS",
+    "url": "https://www.ffaviron.fr/clubs/renneville-vracl/",
+    "structure_number": "C031030",
+    "phone": [
+      "0561121547"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C089017",
+    "name": "VILLENEUVE-SUR-YONNE AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/villeneuve-sur-yonne-aviron/",
+    "structure_number": "C089017",
+    "phone": [
+      "0386733639"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C013009",
+    "name": "VITROLLES SPORT AVIRON",
+    "url": "https://www.ffaviron.fr/clubs/vitrolles-vsa/",
+    "structure_number": "C013009",
+    "phone": [
+      "0442750548"
+    ],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C056053",
+    "name": "YACHT CLUB CARNAC",
+    "url": "https://www.ffaviron.fr/clubs/carnac-ycc/",
+    "structure_number": "C056053",
+    "phone": [
+      "02 97 52 10 98"
+    ],
+    "management_team": [
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C029020",
+    "name": "YOLE CLUB BREST-IROISE",
+    "url": "https://www.ffaviron.fr/clubs/brest-iroise-ycbi/",
+    "structure_number": "C029020",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  {
+    "club_id": "C029043",
+    "name": "YOLE CLUB SAINT-POLITAIN",
+    "url": "https://www.ffaviron.fr/clubs/st-pol-ycsp/",
+    "structure_number": "C029043",
+    "phone": [],
+    "management_team": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  }
+]
