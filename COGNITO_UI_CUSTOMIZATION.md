@@ -79,9 +79,47 @@ After deployment:
 - Check CloudWatch logs for the `CognitoUICustomization` Lambda function
 - Verify the custom resource completed successfully in CloudFormation
 
-**To manually verify/update:**
+**To manually verify UI customization status:**
 ```bash
+# Dev environment
 aws cognito-idp get-ui-customization \
-  --user-pool-id <pool-id> \
-  --client-id <client-id>
+  --user-pool-id $(aws cloudformation describe-stacks --stack-name ImpressionnistesAuth-dev --query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' --output text) \
+  --client-id $(aws cloudformation describe-stacks --stack-name ImpressionnistesAuth-dev --query 'Stacks[0].Outputs[?OutputKey==`UserPoolClientId`].OutputValue' --output text)
+
+# Prod environment
+aws cognito-idp get-ui-customization \
+  --user-pool-id $(aws cloudformation describe-stacks --stack-name ImpressionnistesAuth-prod --profile rcpm --region eu-west-3 --query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' --output text) \
+  --client-id $(aws cloudformation describe-stacks --stack-name ImpressionnistesAuth-prod --profile rcpm --region eu-west-3 --query 'Stacks[0].Outputs[?OutputKey==`UserPoolClientId`].OutputValue' --output text) \
+  --profile rcpm --region eu-west-3
+```
+
+### Manual UI Customization (Workaround)
+
+If the automatic CDK deployment doesn't apply the UI customization, you can apply it manually:
+
+**Dev environment:**
+```bash
+# Download the logo
+curl -s https://$(aws cloudformation describe-stacks --stack-name ImpressiornistesFrontend-dev --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontURL`].OutputValue' --output text | sed 's|https://||')/cognito-assets/rcpm-logo.png -o /tmp/rcpm-logo.png
+
+# Apply UI customization
+aws cognito-idp set-ui-customization \
+  --user-pool-id $(aws cloudformation describe-stacks --stack-name ImpressionnistesAuth-dev --query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' --output text) \
+  --client-id $(aws cloudformation describe-stacks --stack-name ImpressionnistesAuth-dev --query 'Stacks[0].Outputs[?OutputKey==`UserPoolClientId`].OutputValue' --output text) \
+  --css '.logo-customizable { max-width: 200px; max-height: 100px; } .banner-customizable { background-color: #1976d2; } .submitButton-customizable { background-color: #1976d2; } .submitButton-customizable:hover { background-color: #1565c0; }' \
+  --image-file fileb:///tmp/rcpm-logo.png
+```
+
+**Prod environment:**
+```bash
+# Download the logo
+curl -s https://$(aws cloudformation describe-stacks --stack-name ImpressiornistesFrontend-prod --profile rcpm --region eu-west-3 --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontURL`].OutputValue' --output text | sed 's|https://||')/cognito-assets/rcpm-logo.png -o /tmp/rcpm-logo.png
+
+# Apply UI customization
+aws cognito-idp set-ui-customization \
+  --user-pool-id $(aws cloudformation describe-stacks --stack-name ImpressionnistesAuth-prod --profile rcpm --region eu-west-3 --query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' --output text) \
+  --client-id $(aws cloudformation describe-stacks --stack-name ImpressionnistesAuth-prod --profile rcpm --region eu-west-3 --query 'Stacks[0].Outputs[?OutputKey==`UserPoolClientId`].OutputValue' --output text) \
+  --css '.logo-customizable { max-width: 200px; max-height: 100px; } .banner-customizable { background-color: #1976d2; } .submitButton-customizable { background-color: #1976d2; } .submitButton-customizable:hover { background-color: #1565c0; }' \
+  --image-file fileb:///tmp/rcpm-logo.png \
+  --profile rcpm --region eu-west-3
 ```

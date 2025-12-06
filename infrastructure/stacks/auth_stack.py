@@ -6,6 +6,7 @@ from aws_cdk import (
     Stack,
     Duration,
     RemovalPolicy,
+    CustomResource,
     aws_cognito as cognito,
     aws_iam as iam,
     aws_lambda as lambda_,
@@ -387,47 +388,22 @@ def handler(event, context):
             ]
         )
         
-        # Create custom resource to trigger the Lambda
-        cr.AwsCustomResource(
+        # Create custom resource provider
+        provider = cr.Provider(
+            self,
+            "CognitoUICustomizationProvider",
+            on_event_handler=ui_customization_lambda
+        )
+        
+        # Create custom resource
+        CustomResource(
             self,
             "CognitoUICustomizationResource",
-            on_create=cr.AwsSdkCall(
-                service="Lambda",
-                action="invoke",
-                parameters={
-                    "FunctionName": ui_customization_lambda.function_name,
-                    "Payload": json.dumps({
-                        "RequestType": "Create",
-                        "ResourceProperties": {
-                            "UserPoolId": self.user_pool.user_pool_id,
-                            "ClientId": self.user_pool_client.user_pool_client_id,
-                            "LogoUrl": logo_url,
-                            "CSS": custom_css
-                        }
-                    })
-                },
-                physical_resource_id=cr.PhysicalResourceId.of("CognitoUICustomization")
-            ),
-            on_update=cr.AwsSdkCall(
-                service="Lambda",
-                action="invoke",
-                parameters={
-                    "FunctionName": ui_customization_lambda.function_name,
-                    "Payload": json.dumps({
-                        "RequestType": "Update",
-                        "ResourceProperties": {
-                            "UserPoolId": self.user_pool.user_pool_id,
-                            "ClientId": self.user_pool_client.user_pool_client_id,
-                            "LogoUrl": logo_url,
-                            "CSS": custom_css
-                        }
-                    })
-                }
-            ),
-            policy=cr.AwsCustomResourcePolicy.from_statements([
-                iam.PolicyStatement(
-                    actions=["lambda:InvokeFunction"],
-                    resources=[ui_customization_lambda.function_arn]
-                )
-            ])
+            service_token=provider.service_token,
+            properties={
+                "UserPoolId": self.user_pool.user_pool_id,
+                "ClientId": self.user_pool_client.user_pool_client_id,
+                "LogoUrl": logo_url,
+                "CSS": custom_css
+            }
         )
