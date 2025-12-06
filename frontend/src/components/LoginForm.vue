@@ -76,20 +76,23 @@ const loginWithCognito = () => {
 
 <style scoped>
 .login-form {
-  max-width: 400px;
+  max-width: 450px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 3rem 2.5rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .form-header {
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .form-logo {
-  height: 80px;
+  height: 100px;
   width: auto;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 h2 {

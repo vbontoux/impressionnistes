@@ -81,6 +81,10 @@ api_stack = ApiStack(
 # Update frontend stack with api_stack reference
 frontend_stack.api_stack = api_stack
 
+# Configure Cognito UI customization with logo from CloudFront
+logo_url = f"https://{frontend_stack.distribution.distribution_domain_name}/cognito-assets/rcpm-logo.png"
+auth_stack.configure_ui_customization(logo_url)
+
 # Add common tags to all stacks
 for stack in [secrets_stack, database_stack, monitoring_stack, auth_stack, api_stack, frontend_stack]:
     Tags.of(stack).add("Project", "CourseDesImpressionnistes")

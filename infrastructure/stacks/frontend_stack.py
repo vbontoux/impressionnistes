@@ -98,6 +98,19 @@ class FrontendStack(Stack):
             comment=f"Impressionnistes Frontend Distribution {env_name}"
         )
         
+        # Deploy Cognito logo to a stable location
+        # This logo will be publicly accessible for Cognito Hosted UI
+        cognito_logo_path = os.path.join(os.path.dirname(__file__), "../../frontend/src/assets")
+        if os.path.exists(cognito_logo_path):
+            s3_deployment.BucketDeployment(
+                self,
+                "DeployCognitoLogo",
+                sources=[s3_deployment.Source.asset(cognito_logo_path)],
+                destination_bucket=self.website_bucket,
+                destination_key_prefix="cognito-assets",  # Stable folder for Cognito assets
+                prune=False,  # Don't delete these files
+            )
+        
         # Deploy frontend files (if dist folder exists)
         frontend_dist_path = os.path.join(os.path.dirname(__file__), "../../frontend/dist")
         if os.path.exists(frontend_dist_path):
@@ -117,6 +130,13 @@ class FrontendStack(Stack):
             "WebsiteBucketName",
             value=self.website_bucket.bucket_name,
             description="S3 bucket name for frontend"
+        )
+        
+        CfnOutput(
+            self,
+            "CognitoLogoURL",
+            value=f"https://{self.distribution.distribution_domain_name}/cognito-assets/rcpm-logo.png",
+            description="Public URL for Cognito Hosted UI logo"
         )
         
         CfnOutput(

@@ -7,9 +7,14 @@ from aws_cdk import (
     Duration,
     RemovalPolicy,
     aws_cognito as cognito,
+    aws_iam as iam,
+    aws_lambda as lambda_,
+    custom_resources as cr,
     CfnOutput,
 )
 from constructs import Construct
+import json
+import os
 
 
 class AuthStack(Stack):
@@ -129,6 +134,9 @@ class AuthStack(Stack):
                 domain_prefix=f"impressionnistes-{env_name}"
             )
         )
+        
+        # Cognito UI Customization will be configured after frontend stack is deployed
+        # The logo URL will be available from the frontend CloudFront distribution
         
         # Build callback URLs list
         callback_urls = [
@@ -276,4 +284,150 @@ class AuthStack(Stack):
             value=f"https://{self.user_pool_domain.domain_name}.auth.{self.region}.amazoncognito.com",
             description="Cognito Hosted UI Domain",
             export_name=f"ImpressionnistesUserPoolDomain-{env_name}"
+        )
+    
+    def configure_ui_customization(self, logo_url: str):
+        """
+        Configure Cognito Hosted UI customization with logo and CSS.
+        This should be called after the frontend stack is created.
+        """
+        # Custom CSS for Cognito Hosted UI
+        custom_css = """
+        .logo-customizable {
+            max-width: 200px;
+            max-height: 100px;
+        }
+        .banner-customizable {
+            background-color: #1976d2;
+        }
+        .submitButton-customizable {
+            background-color: #1976d2;
+        }
+        .submitButton-customizable:hover {
+            background-color: #1565c0;
+        }
+        """
+        
+        # Create a Lambda function to set UI customization
+        ui_customization_lambda = lambda_.Function(
+            self,
+            "CognitoUICustomization",
+            runtime=lambda_.Runtime.PYTHON_3_11,
+            handler="index.handler",
+            code=lambda_.Code.from_inline(f"""
+import boto3
+import json
+import urllib.request
+import cfnresponse
+
+cognito = boto3.client('cognito-idp')
+
+def handler(event, context):
+    try:
+        request_type = event['RequestType']
+        user_pool_id = event['ResourceProperties']['UserPoolId']
+        client_id = event['ResourceProperties']['ClientId']
+        logo_url = event['ResourceProperties']['LogoUrl']
+        css = event['ResourceProperties']['CSS']
+        
+        if request_type in ['Create', 'Update']:
+            # Try to download logo from URL
+            logo_data = None
+            try:
+                with urllib.request.urlopen(logo_url, timeout=10) as response:
+                    logo_data = response.read()
+                print(f"Successfully downloaded logo from {{logo_url}}")
+            except Exception as logo_error:
+                print(f"Warning: Could not download logo from {{logo_url}}: {{str(logo_error)}}")
+                print("Proceeding with CSS-only customization")
+            
+            # Set UI customization (with or without logo)
+            if logo_data:
+                cognito.set_ui_customization(
+                    UserPoolId=user_pool_id,
+                    ClientId=client_id,
+                    CSS=css,
+                    ImageFile=logo_data
+                )
+                print("UI customization applied with logo and CSS")
+            else:
+                cognito.set_ui_customization(
+                    UserPoolId=user_pool_id,
+                    ClientId=client_id,
+                    CSS=css
+                )
+                print("UI customization applied with CSS only (logo will be added on next update)")
+            
+            cfnresponse.send(event, context, cfnresponse.SUCCESS, {{}})
+        elif request_type == 'Delete':
+            # Remove UI customization on stack deletion
+            try:
+                cognito.set_ui_customization(
+                    UserPoolId=user_pool_id,
+                    ClientId=client_id
+                )
+            except:
+                pass  # Ignore errors on deletion
+            cfnresponse.send(event, context, cfnresponse.SUCCESS, {{}})
+    except Exception as e:
+        print(f"Error: {{str(e)}}")
+        # Don't fail the stack - just log the error
+        print("Warning: UI customization failed but not blocking stack deployment")
+        cfnresponse.send(event, context, cfnresponse.SUCCESS, {{}})
+"""),
+            timeout=Duration.seconds(60),
+            initial_policy=[
+                iam.PolicyStatement(
+                    actions=[
+                        "cognito-idp:SetUICustomization",
+                        "cognito-idp:GetUICustomization"
+                    ],
+                    resources=[self.user_pool.user_pool_arn]
+                )
+            ]
+        )
+        
+        # Create custom resource to trigger the Lambda
+        cr.AwsCustomResource(
+            self,
+            "CognitoUICustomizationResource",
+            on_create=cr.AwsSdkCall(
+                service="Lambda",
+                action="invoke",
+                parameters={
+                    "FunctionName": ui_customization_lambda.function_name,
+                    "Payload": json.dumps({
+                        "RequestType": "Create",
+                        "ResourceProperties": {
+                            "UserPoolId": self.user_pool.user_pool_id,
+                            "ClientId": self.user_pool_client.user_pool_client_id,
+                            "LogoUrl": logo_url,
+                            "CSS": custom_css
+                        }
+                    })
+                },
+                physical_resource_id=cr.PhysicalResourceId.of("CognitoUICustomization")
+            ),
+            on_update=cr.AwsSdkCall(
+                service="Lambda",
+                action="invoke",
+                parameters={
+                    "FunctionName": ui_customization_lambda.function_name,
+                    "Payload": json.dumps({
+                        "RequestType": "Update",
+                        "ResourceProperties": {
+                            "UserPoolId": self.user_pool.user_pool_id,
+                            "ClientId": self.user_pool_client.user_pool_client_id,
+                            "LogoUrl": logo_url,
+                            "CSS": custom_css
+                        }
+                    })
+                }
+            ),
+            policy=cr.AwsCustomResourcePolicy.from_statements([
+                iam.PolicyStatement(
+                    actions=["lambda:InvokeFunction"],
+                    resources=[ui_customization_lambda.function_arn]
+                )
+            ])
         )
