@@ -80,11 +80,16 @@
         </div>
       </div>
 
-      <!-- Bottom Save Button -->
+      <!-- Bottom Action Buttons -->
       <div class="bottom-actions">
-        <button @click="saveBoat" :disabled="saving || !canSave" class="btn-primary btn-large">
-          {{ saving ? $t('common.saving') : $t('common.save') }}
-        </button>
+        <div class="button-group">
+          <button @click="goBack" class="btn-secondary btn-large">
+            {{ $t('common.cancel') }}
+          </button>
+          <button @click="saveBoat" :disabled="saving || !canSave" class="btn-primary btn-large">
+            {{ saving ? $t('common.saving') : $t('common.save') }}
+          </button>
+        </div>
         <p v-if="allSeatsFilled && !boat.race_id" class="save-hint">
           {{ $t('boat.selectRaceToSave') }}
         </p>
@@ -206,9 +211,10 @@ export default {
           seats: boat.value.seats,
           race_id: boat.value.race_id
         })
-        // Reload to get updated status and refresh crew member assignments
+        // Reload crew members to refresh assignments
         await crewStore.fetchCrewMembers()
-        await loadBoat()
+        // Redirect to boats list after successful save
+        router.push('/boats')
       } catch (err) {
         // Extract detailed error message
         const errorData = err.response?.data?.error
@@ -487,6 +493,12 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
 .save-hint {
