@@ -165,6 +165,7 @@
               <li>{{ $t('home.events.semiMarathon.categories') }}</li>
               <li>{{ $t('home.events.semiMarathon.oars') }}</li>
               <li>{{ $t('home.events.semiMarathon.crews') }}</li>
+              <li>{{ $t('home.events.semiMarathon.clubCrews') }}</li>
             </ul>
             <div class="event-races">
               <strong>{{ $t('home.events.semiMarathon.racesCount') }}</strong>
@@ -250,7 +251,7 @@
             <div class="pricing-card">
               <div class="pricing-icon">🛶</div>
               <h4>{{ $t('home.pricing.seatFees.skiff.title') }}</h4>
-              <div class="price">€50</div>
+              <div class="price">€20</div>
               <p>{{ $t('home.pricing.seatFees.skiff.description') }}</p>
             </div>
           </div>

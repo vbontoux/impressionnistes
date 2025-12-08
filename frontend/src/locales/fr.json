@@ -521,16 +521,17 @@
       "semiMarathon": {
         "title": "Semi-Marathon",
         "description": "Une épreuve d'aviron de 21 kilomètres avec des quatre et des huit dans toutes les configurations.",
-        "boats": "Quatre et huit (outriggers compétitifs et yolettes récréatives)",
+        "boats": "Quatre et huit (outriggers et yolettes)",
         "categories": "Catégories d'âge : J16, J18, Senior et Master",
         "oars": "Configurations en pointe ou en couple",
-        "crews": "Équipages masculins, féminins et mixtes",
+        "crews": "Équipages masculins, féminins et mixtes H/F",
+        "clubCrews": "Équipages clubs et mixtes inter-clubs",
         "racesCount": "28 courses différentes"
       },
       "marathon": {
         "title": "Marathon",
         "description": "Une course individuelle exigeante de 42 kilomètres en skiff.",
-        "boats": "Skiffs individuels uniquement",
+        "boats": "Skiffs uniquement",
         "categories": "Hommes et femmes en catégories Senior et Master A-F",
         "format": "Format contre-la-montre individuel",
         "racesCount": "14 courses différentes"
@@ -544,16 +545,16 @@
         "description": "Créez votre compte de gestionnaire avec les détails de la fédération de votre club et vos coordonnées. Vous recevrez des identifiants sécurisés pour accéder au système d'inscription."
       },
       "step2": {
-        "title": "Constituez votre liste d'équipe",
+        "title": "Constituez votre liste d'équipes",
         "description": "Ajoutez tous les participants potentiels à la liste de votre club avec leurs informations essentielles : nom, date de naissance, genre et numéro de licence FFA."
       },
       "step3": {
         "title": "Créez vos inscriptions de bateaux",
-        "description": "Sélectionnez les courses et configurez chaque inscription de bateau en choisissant le type de bateau, la configuration des avirons et en assignant des membres d'équipage spécifiques aux positions de rameur et de barreur."
+        "description": "Sélectionnez les courses et configurez chaque inscription de bateau en choisissant le type de bateau, l'armement (pointe ou couple) et en assignant des membres d'équipage spécifiques aux positions de rameur et de barreur."
       },
       "step4": {
         "title": "Gérez vos besoins en équipement",
-        "description": "Si vous avez besoin de bateaux, soumettez des demandes de location via le système. Les bateaux du RCPM sont disponibles en priorité, les membres du RCPM ayant un accès exclusif jusqu'à deux semaines avant la clôture des inscriptions."
+        "description": "Si vous avez besoin de bateaux, soumettez des demandes de location via le système. Les bateaux RCPM disponibles à la location seront confirmés au plus tard 2 semaines avant la date de clôture des inscriptions, priorité étant donnée aux rameurs RCPM."
       },
       "step5": {
         "title": "Effectuez les paiements",
@@ -568,15 +569,15 @@
       "title": "Structure tarifaire",
       "seat": "place",
       "seatFees": {
-        "title": "Frais d'inscription par place",
+        "title": "Frais d'inscription par participant",
         "description": "Frais pour s'inscrire et participer à une course",
         "crew": {
           "title": "Bateaux d'équipage (4+, 4-, 8+)",
-          "description": "Frais d'inscription par place pour les bateaux d'équipage"
+          "description": "Frais d'inscription par participant rameur ou barreur"
         },
         "skiff": {
-          "title": "Skiff (Scull individuel)",
-          "description": "Frais d'inscription pour les bateaux individuels (2,5× prix de base)"
+          "title": "Skiff",
+          "description": "Frais d'inscription pour les bateaux individuels (tarif de base)"
         }
       },
       "boatRental": {
@@ -607,8 +608,8 @@
         },
         "skiff": {
           "title": "Skiff",
-          "calc": "1 place × 50 €",
-          "total": "Total : 50 €"
+          "calc": "1 place × 20 €",
+          "total": "Total : 20 €"
         },
         "fourWithRental": {
           "title": "Quatre + Location de bateau",

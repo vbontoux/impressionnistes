@@ -521,16 +521,17 @@
       "semiMarathon": {
         "title": "Semi-Marathon",
         "description": "A 21-kilometer rowing event featuring fours and eights in all configurations.",
-        "boats": "Fours and eights (competitive outriggers and recreational yolettes)",
+        "boats": "Fours and eights (outriggers and yolettes)",
         "categories": "Age categories: J16, J18, Senior, and Master",
         "oars": "Sweep rowing or sculling configurations",
-        "crews": "Men's, women's, and mixed-gender crews",
+        "crews": "Men's, women's, and mixed-gender M/F crews",
+        "clubCrews": "Club crews and mixed inter-club crews",
         "racesCount": "28 different races"
       },
       "marathon": {
         "title": "Marathon",
         "description": "A challenging 42-kilometer individual race in single sculls.",
-        "boats": "Individual single sculls (skiffs) only",
+        "boats": "Skiffs only",
         "categories": "Men's and women's in Senior and Master A-F divisions",
         "format": "Individual time trial format",
         "racesCount": "14 different races"
@@ -544,16 +545,16 @@
         "description": "Create your manager account using your club's federation details and contact information. You'll receive secure login credentials to access the registration system."
       },
       "step2": {
-        "title": "Build Your Team Roster",
+        "title": "Build Your Team Rosters",
         "description": "Add all potential participants to your club's roster with their essential information: name, birth date, gender, and FFA license number."
       },
       "step3": {
         "title": "Create Boat Entries",
-        "description": "Select races and configure each boat entry by choosing the boat type, oar configuration, and assigning specific crew members to rowing and coxswain positions."
+        "description": "Select races and configure each boat entry by choosing the boat type, rigging (sweep or scull), and assigning specific crew members to rowing and coxswain positions."
       },
       "step4": {
         "title": "Handle Equipment Needs",
-        "description": "If you need boats, submit rental requests through the system. RCPM boats are available on a priority basis, with RCPM members having exclusive access until two weeks before registration closes."
+        "description": "If you need boats, submit rental requests through the system. Available RCPM rental boats will be confirmed no later than 2 weeks before registration closing date, with priority given to RCPM rowers."
       },
       "step5": {
         "title": "Process Payments",
@@ -568,15 +569,15 @@
       "title": "Pricing Structure",
       "seat": "seat",
       "seatFees": {
-        "title": "Seat Registration Fees",
+        "title": "Registration Fees per Participant",
         "description": "Fees to register and participate in a race",
         "crew": {
           "title": "Crew Boats (4+, 4-, 8+)",
-          "description": "Registration fee per seat for crew boats"
+          "description": "Registration fee per participant rower or coxswain"
         },
         "skiff": {
           "title": "Skiff (Single Scull)",
-          "description": "Registration fee for individual boats (2.5× base price)"
+          "description": "Registration fee for individual boats (base rate)"
         }
       },
       "boatRental": {
@@ -607,8 +608,8 @@
         },
         "skiff": {
           "title": "Skiff",
-          "calc": "1 seat × €50",
-          "total": "Total: €50"
+          "calc": "1 seat × €20",
+          "total": "Total: €20"
         },
         "fourWithRental": {
           "title": "Four + Boat Rental",
