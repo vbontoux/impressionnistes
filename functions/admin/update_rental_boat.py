@@ -37,7 +37,7 @@ def validate_update_data(data):
         tuple: (is_valid, error_message)
     """
     # At least one field must be provided
-    allowed_fields = ['boat_name', 'status', 'requester']
+    allowed_fields = ['boat_name', 'status', 'requester', 'rower_weight_range']
     if not any(field in data for field in allowed_fields):
         return False, "At least one field must be provided for update"
     
@@ -66,6 +66,13 @@ def validate_update_data(data):
         if data['requester'] is not None and not isinstance(data['requester'], str):
             return False, "requester must be a string or null"
     
+    # Validate rower_weight_range if provided
+    if 'rower_weight_range' in data:
+        if data['rower_weight_range'] is not None:
+            weight_range = str(data['rower_weight_range']).strip()
+            if len(weight_range) > 50:
+                return False, "rower_weight_range must be 50 characters or less"
+    
     return True, None
 
 
@@ -82,7 +89,8 @@ def lambda_handler(event, context):
     {
         "boat_name": "New Name",  // optional
         "status": "available",     // optional
-        "requester": "user@example.com"  // optional
+        "requester": "user@example.com",  // optional
+        "rower_weight_range": "70-90kg"  // optional
     }
     
     Returns:
@@ -142,13 +150,23 @@ def lambda_handler(event, context):
             return validation_error('Cannot change status of a paid rental boat')
         
         rental_boat['status'] = new_status
+        
+        # Set paid_at timestamp when status changes to 'paid'
+        if new_status == 'paid' and not rental_boat.get('paid_at'):
+            rental_boat['paid_at'] = current_time
+            logger.info(f"Set paid_at timestamp for rental boat {rental_boat_id}")
+        
         # Clear requester if status is set to 'new' or 'available' (rejecting/cancelling)
         if new_status in ['new', 'available']:
             rental_boat['requester'] = None
-            logger.info(f"Cleared requester when changing status to {new_status}")
+            rental_boat['paid_at'] = None  # Clear paid_at if reverting to available
+            logger.info(f"Cleared requester and paid_at when changing status to {new_status}")
     
     if 'requester' in body:
         rental_boat['requester'] = body['requester']
+    
+    if 'rower_weight_range' in body:
+        rental_boat['rower_weight_range'] = body['rower_weight_range'].strip() if body['rower_weight_range'] else None
     
     rental_boat['updated_at'] = current_time
     rental_boat['updated_by'] = admin_user_id

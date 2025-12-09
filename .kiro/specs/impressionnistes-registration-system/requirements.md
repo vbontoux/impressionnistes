@@ -152,6 +152,7 @@ These requirements define what the system does from a business and user perspect
 10. WHEN an Admin_User manages boat rentals, THE Registration_System SHALL provide tools to manually assign boats to rental requests, confirm or reject requests, and override automatic allocation
 11. THE Registration_System SHALL track all Boat_Rental transactions and include rental fees in the team's total payment calculation
 12. WHEN an Admin_User creates or updates a rental boat, THE Registration_System SHALL allow entry of recommended rower weight range in kilograms as a text field for informational purposes to help team managers select appropriate boats for their crew
+13. WHEN a rental boat status changes to "paid", THE Registration_System SHALL record the payment timestamp in the paid_at field to track when the rental was paid
 
 ### FR-9: Seat Rental for Multi_Club_Crews
 

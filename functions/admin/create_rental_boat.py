@@ -55,6 +55,12 @@ def validate_rental_boat_data(data):
         if data['status'] not in VALID_STATUSES:
             return False, f"status must be one of: {', '.join(VALID_STATUSES)}"
     
+    # Validate rower_weight_range (optional)
+    if 'rower_weight_range' in data and data['rower_weight_range']:
+        weight_range = data['rower_weight_range'].strip()
+        if len(weight_range) > 50:
+            return False, "rower_weight_range must be 50 characters or less"
+    
     return True, None
 
 
@@ -103,7 +109,9 @@ def lambda_handler(event, context):
         'boat_type': body['boat_type'],
         'boat_name': body['boat_name'].strip(),
         'status': body.get('status', 'new'),
+        'rower_weight_range': body.get('rower_weight_range', '').strip() if body.get('rower_weight_range') else None,
         'requester': None,  # No requester initially
+        'paid_at': None,  # Will be set when payment is completed
         'created_by': admin_user_id,
         'created_at': current_time,
         'updated_at': current_time

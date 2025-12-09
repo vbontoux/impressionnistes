@@ -123,6 +123,9 @@
       "boats": "bateaux",
       "boatType": "Type de bateau",
       "boatName": "Nom du bateau",
+      "weightCapacity": "Portance",
+      "weightPlaceholder": "Ex: 70-90kg",
+      "weightHelp": "Poids moyen recommandé des rameurs pour ce bateau",
       "statusLabel": "Statut",
       "status": {
         "new": "Nouveau",

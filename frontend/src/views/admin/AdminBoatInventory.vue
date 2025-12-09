@@ -62,6 +62,7 @@
             <tr>
               <th>{{ $t('admin.boatInventory.boatType') }}</th>
               <th>{{ $t('admin.boatInventory.boatName') }}</th>
+              <th>{{ $t('admin.boatInventory.weightCapacity') }}</th>
               <th>{{ $t('admin.boatInventory.statusLabel') }}</th>
               <th>{{ $t('admin.boatInventory.requester') }}</th>
               <th>{{ $t('admin.boatInventory.actions') }}</th>
@@ -69,7 +70,7 @@
           </thead>
           <tbody>
             <tr v-if="filteredBoats.length === 0">
-              <td colspan="5" class="no-data">{{ $t('admin.boatInventory.noBoats') }}</td>
+              <td colspan="6" class="no-data">{{ $t('admin.boatInventory.noBoats') }}</td>
             </tr>
             <tr v-for="boat in filteredBoats" :key="boat.rental_boat_id || boat.PK" class="boat-row">
               <td>
@@ -86,6 +87,24 @@
                 />
                 <span v-else class="boat-name" :class="{ 'no-edit': boat.status === 'paid' }" @click="boat.status !== 'paid' && startEdit(boat)">
                   {{ boat.boat_name }}
+                  <svg v-if="boat.status !== 'paid'" class="edit-hint" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </td>
+              <td>
+                <input
+                  v-if="editingBoat === (boat.rental_boat_id || boat.PK)"
+                  v-model="editForm.rower_weight_range"
+                  type="text"
+                  class="inline-edit-input"
+                  :placeholder="$t('admin.boatInventory.weightPlaceholder')"
+                  @keyup.enter="saveEdit(boat)"
+                  @keyup.esc="cancelEdit"
+                />
+                <span v-else class="weight-range" :class="{ 'no-edit': boat.status === 'paid' }" @click="boat.status !== 'paid' && startEdit(boat)">
+                  {{ boat.rower_weight_range || '-' }}
                   <svg v-if="boat.status !== 'paid'" class="edit-hint" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -192,6 +211,18 @@
             </span>
           </div>
 
+          <div class="form-group">
+            <label for="rower_weight_range">{{ $t('admin.boatInventory.weightCapacity') }}</label>
+            <input
+              id="rower_weight_range"
+              v-model="newBoat.rower_weight_range"
+              type="text"
+              class="form-control"
+              :placeholder="$t('admin.boatInventory.weightPlaceholder')"
+            />
+            <small class="form-help">{{ $t('admin.boatInventory.weightHelp') }}</small>
+          </div>
+
           <div v-if="createError" class="error-message">
             {{ createError }}
           </div>
@@ -257,6 +288,7 @@ const createError = ref(null);
 const newBoat = ref({
   boat_type: '',
   boat_name: '',
+  rower_weight_range: '',
   status: 'new'
 });
 const validationErrors = ref({});
@@ -265,6 +297,7 @@ const validationErrors = ref({});
 const editingBoat = ref(null);
 const editForm = ref({
   boat_name: '',
+  rower_weight_range: '',
   status: ''
 });
 
@@ -306,6 +339,7 @@ const closeAddBoatModal = () => {
   newBoat.value = {
     boat_type: '',
     boat_name: '',
+    rower_weight_range: '',
     status: 'new'
   };
   validationErrors.value = {};
@@ -357,6 +391,7 @@ const startEdit = (boat) => {
   editingBoat.value = boatId;
   editForm.value = {
     boat_name: boat.boat_name,
+    rower_weight_range: boat.rower_weight_range || '',
     status: boat.status
   };
 };
@@ -365,6 +400,7 @@ const cancelEdit = () => {
   editingBoat.value = null;
   editForm.value = {
     boat_name: '',
+    rower_weight_range: '',
     status: ''
   };
 };
@@ -375,6 +411,10 @@ const saveEdit = async (boat) => {
 
     if (editForm.value.boat_name !== boat.boat_name) {
       updates.boat_name = editForm.value.boat_name;
+    }
+
+    if (editForm.value.rower_weight_range !== (boat.rower_weight_range || '')) {
+      updates.rower_weight_range = editForm.value.rower_weight_range;
     }
 
     if (editForm.value.status !== boat.status) {
@@ -607,7 +647,8 @@ onMounted(() => {
   background-color: #9b59b6; /* Purple for eights */
 }
 
-.boat-name {
+.boat-name,
+.weight-range {
   cursor: pointer;
   display: inline-block;
   padding: 0.25rem 0.5rem;
@@ -616,21 +657,29 @@ onMounted(() => {
   transition: all 0.2s;
 }
 
-.boat-name:hover {
+.boat-name:hover,
+.weight-range:hover {
   background-color: #f0f0f0;
   border-color: #3498db;
 }
 
 .boat-name.no-edit,
+.weight-range.no-edit,
 .status-badge.no-edit {
   cursor: not-allowed;
   opacity: 0.7;
 }
 
 .boat-name.no-edit:hover,
+.weight-range.no-edit:hover,
 .status-badge.no-edit:hover {
   background-color: transparent;
   border-color: transparent;
+}
+
+.weight-range {
+  color: #7f8c8d;
+  font-size: 0.9rem;
 }
 
 .edit-hint {
@@ -868,11 +917,27 @@ onMounted(() => {
   border-color: #e74c3c;
 }
 
+.form-help {
+  display: block;
+  color: #7f8c8d;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
 .error-text {
   display: block;
   color: #e74c3c;
   font-size: 0.85rem;
   margin-top: 0.25rem;
+}
+
+.form-help {
+  display: block;
+  color: #7f8c8d;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  font-style: italic;
 }
 
 .error-message {

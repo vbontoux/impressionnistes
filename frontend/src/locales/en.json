@@ -123,6 +123,9 @@
       "boats": "boats",
       "boatType": "Boat Type",
       "boatName": "Boat Name",
+      "weightCapacity": "Weight Capacity",
+      "weightPlaceholder": "e.g., 70-90kg",
+      "weightHelp": "Recommended average rower weight for this boat",
       "statusLabel": "Status",
       "status": {
         "new": "New",
