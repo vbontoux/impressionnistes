@@ -280,30 +280,112 @@
 
 ### 11. Boat Rental Management
 
-- [ ] 11.1 Implement boat rental data model and availability tracking
-  - Create rental request tracking in DynamoDB (pending, confirmed, rejected)
-  - Add rental priority period logic (15 days before closure)
-  - Create RCPM member priority validation
-  - Implement automatic confirmation after priority period
-  - Link rental requests to boat inventory from admin section
+- [ ] 11.1 Add recommended rower weight field to rental boat data model
+  - Update create_rental_boat Lambda to accept rower_weight_range (text field, optional)
+  - Update update_rental_boat Lambda to allow editing rower_weight_range
+  - Add rower_weight_range to rental boat database schema (e.g., "70-90kg", "60-75kg")
+  - Update list_rental_boats Lambda to include rower_weight_range in response
+  - Add validation for rower_weight_range format (text, max 50 characters)
+  - _Requirements: FR-8.12_
+
+- [ ] 11.2 Update admin boat inventory UI to include rower weight range
+  - Add rower_weight_range field to AdminBoatInventory.vue create form
+  - Display rower_weight_range in boat list table
+  - Add inline editing for rower_weight_range
+  - Add translations for rower weight field (French: "Portance", English: "Weight capacity")
+  - Add placeholder text examples (e.g., "70-90kg", "60-75kg")
+  - Add help text (French: "Poids moyen recommandé des rameurs", English: "Recommended average rower weight")
+  - _Requirements: FR-8.12_
+
+- [ ] 11.3 Implement boat rental request data model
+  - Create rental_request entity in DynamoDB
+  - Store: rental_request_id, rental_boat_id, team_manager_id, requested_at
+  - Store: status (pending, confirmed, rejected), confirmed_by, confirmed_at
+  - Store: boat_type, boat_name, races (array), contact_info
+  - Add GSI for querying by team_manager_id
+  - Add GSI for querying by rental_boat_id
+  - _Requirements: FR-8.3, FR-8.4, FR-8.10_
+
+- [ ] 11.4 Create team manager boat rental Lambda functions
+  - Implement list_available_rental_boats Lambda (team manager accessible)
+    - Return boats with status "available" or "new"
+    - Exclude boats already requested by other team managers
+    - Include boat_type, boat_name, rower_weight_range, status
+  - Implement request_rental_boat Lambda (team manager accessible)
+    - Validate boat is available (not requested by others)
+    - Create rental_request record with status "pending"
+    - Update rental_boat status to "requested"
+    - Store requester team_manager_id on rental_boat
+    - Return confirmation with rental_request_id
+  - Implement get_my_rental_requests Lambda (team manager accessible)
+    - List all rental requests for authenticated team manager
+    - Include boat details and request status
   - _Requirements: FR-8.1, FR-8.2, FR-8.3, FR-8.4_
 
-- [ ] 11.2 Create boat rental Lambda functions
-  - Implement request_boat_rental Lambda with availability check
-  - Create confirm_boat_rental Lambda for admin approval
-  - Implement list_boat_rentals Lambda for admin management
-  - Add automatic rental confirmation scheduler
-  - Create rental fee calculation and integration with payment
-  - Update boat inventory status when rental confirmed
-  - _Requirements: FR-8.2, FR-8.4, FR-8.5, FR-8.6, FR-8.7, FR-8.8_
+- [ ] 11.5 Create admin boat rental management Lambda functions
+  - Implement list_all_rental_requests Lambda (admin only)
+    - List all rental requests with filters (status, team_manager)
+    - Include boat details and requester information
+  - Implement confirm_rental_request Lambda (admin only)
+    - Update rental_request status to "confirmed"
+    - Update rental_boat status to "confirmed"
+    - Store confirmed_by admin_user_id and confirmed_at timestamp
+    - Trigger notification to team manager
+  - Implement reject_rental_request Lambda (admin only)
+    - Update rental_request status to "rejected"
+    - Update rental_boat status back to "available"
+    - Clear requester from rental_boat
+    - Trigger notification to team manager
+  - _Requirements: FR-8.7, FR-8.10_
 
-- [ ] 11.3 Build boat rental frontend components
-  - Create BoatRentalRequest.vue for external clubs
-  - Add boat availability display with real-time updates (from inventory)
-  - Create admin boat rental management interface
-  - Implement rental status tracking and notifications
-  - Add rental fee display in payment summary
-  - _Requirements: FR-8.1, FR-8.5, FR-8.7_
+- [ ] 11.6 Add API Gateway routes for boat rental
+  - Add GET /rental-boats (team manager) - list available boats
+  - Add POST /rental-requests (team manager) - request a boat
+  - Add GET /rental-requests (team manager) - get my requests
+  - Add GET /admin/rental-requests (admin) - list all requests
+  - Add PUT /admin/rental-requests/{id}/confirm (admin) - confirm request
+  - Add PUT /admin/rental-requests/{id}/reject (admin) - reject request
+  - Configure Cognito authorization for all routes
+  - _Requirements: FR-8.1, FR-8.2, FR-8.7, FR-8.10_
+
+- [ ] 11.7 Build team manager boat rental frontend
+  - Create BoatRentalPage.vue for team managers
+  - Display list of available rental boats with filters (boat type)
+  - Show boat details: type, name, weight capacity (portance), status
+  - Add "Request Boat" button for each available boat
+  - Create request confirmation dialog
+  - Display "My Rental Requests" section with status
+  - Show visual indicators for request status (pending, confirmed, rejected)
+  - Add route /boat-rentals with authentication guard
+  - Add translations (French: "Portance", English: "Weight capacity")
+  - _Requirements: FR-8.1, FR-8.2, FR-8.3, FR-8.4_
+
+- [ ] 11.8 Build admin boat rental management interface
+  - Create AdminRentalRequests.vue component
+  - Display list of all rental requests with filters
+  - Show requester name, boat details, request date, status
+  - Add "Confirm" and "Reject" buttons for pending requests
+  - Add confirmation dialogs for admin actions
+  - Display request history and status changes
+  - Add route /admin/rental-requests with admin guard
+  - Add translations (French/English)
+  - _Requirements: FR-8.7, FR-8.10_
+
+- [ ] 11.9 Integrate rental fees with payment system
+  - Update pricing calculation to include rental fees
+  - Add is_boat_rental flag to boat_registration when linked to rental
+  - Calculate rental fee: 2.5x Base_Seat_Price for skiffs, Base_Seat_Price per seat for crew boats
+  - Display rental fees separately in payment breakdown
+  - Include rental fees in total payment calculation
+  - Update payment confirmation to mark rental as "paid"
+  - _Requirements: FR-8.9, FR-8.11_
+
+- [ ] 11.10 Implement rental priority period logic (V2 - Optional)
+  - Add rental priority period validation (15 days before closure)
+  - Implement RCPM member priority checking
+  - Create automatic confirmation scheduler for external requests
+  - Add priority period indicators in UI
+  - _Requirements: FR-8.5, FR-8.6_
 
 ### 12. Home Page and Public Information ✅ COMPLETED
 

@@ -140,14 +140,18 @@ These requirements define what the system does from a business and user perspect
 
 #### Acceptance Criteria
 
-1. WHEN a Team_Manager from an External_Club accesses boat rental options, THE Registration_System SHALL display available RCPM boats for rental based on current availability
-2. WHEN a Team_Manager requests a Boat_Rental, THE Registration_System SHALL record the request with boat type, races, and team manager contact information
-3. WHILE the Rental_Priority_Period is active, THE Registration_System SHALL reserve requested boats for RCPM_Members and mark external rental requests as pending
-4. WHEN the Rental_Priority_Period expires, THE Registration_System SHALL automatically confirm pending External_Club rental requests for unreserved boats
-5. WHEN a Boat_Rental is confirmed, THE Registration_System SHALL notify the Team_Manager immediately via the defined channels and update the boat availability status
-6. THE Registration_System SHALL calculate rental fees at 2.5 times the Base_Seat_Price for individual boats (skiffs) and Base_Seat_Price per seat for crew boats
-7. WHEN an Admin_User manages boat rentals, THE Registration_System SHALL provide tools to manually assign boats to rental requests and override automatic allocation
-8. THE Registration_System SHALL track all Boat_Rental transactions and include rental fees in the team's total payment calculation
+1. WHEN a Team_Manager accesses boat rental options, THE Registration_System SHALL display all RCPM rental boats with boat type, name, recommended rower weight range in kilograms, and current availability status
+2. WHEN a Team_Manager views available boats, THE Registration_System SHALL show only boats with status "available" or "new" that are not currently requested by another team manager
+3. WHEN a Team_Manager requests a Boat_Rental, THE Registration_System SHALL record the request with selected boat, boat type, races, team manager contact information, and set the boat status to "requested"
+4. WHEN a boat status is "requested" by one Team_Manager, THE Registration_System SHALL prevent other team managers from requesting the same boat
+5. WHILE the Rental_Priority_Period is active, THE Registration_System SHALL reserve requested boats for RCPM_Members and mark external rental requests as pending
+6. WHEN the Rental_Priority_Period expires, THE Registration_System SHALL automatically confirm pending External_Club rental requests for unreserved boats
+7. WHEN an Admin_User confirms a Boat_Rental request, THE Registration_System SHALL update the boat status to "confirmed" and notify the Team_Manager immediately via the defined channels
+8. WHEN a Boat_Rental is confirmed, THE Registration_System SHALL update the boat availability status to prevent additional requests
+9. THE Registration_System SHALL calculate rental fees at 2.5 times the Base_Seat_Price for individual boats (skiffs) and Base_Seat_Price per seat for crew boats
+10. WHEN an Admin_User manages boat rentals, THE Registration_System SHALL provide tools to manually assign boats to rental requests, confirm or reject requests, and override automatic allocation
+11. THE Registration_System SHALL track all Boat_Rental transactions and include rental fees in the team's total payment calculation
+12. WHEN an Admin_User creates or updates a rental boat, THE Registration_System SHALL allow entry of recommended rower weight range in kilograms as a text field for informational purposes to help team managers select appropriate boats for their crew
 
 ### FR-9: Seat Rental for Multi_Club_Crews
 
