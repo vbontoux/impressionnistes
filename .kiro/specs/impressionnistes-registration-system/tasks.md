@@ -358,14 +358,15 @@
   - Note: No separate Confirm/Reject buttons needed - admin uses status dropdown
   - _Requirements: FR-8.7, FR-8.10_
 
-- [ ] 11.8 Integrate rental fees with payment system
-  - Update pricing calculation to include rental fees
-  - Add is_boat_rental flag to boat_registration when linked to rental
+- [ ] 11.8 Add boat rental payment to payment page
+  - Display confirmed rental boats in payment page alongside boat registrations
   - Calculate rental fee: 2.5x Base_Seat_Price for skiffs, Base_Seat_Price per seat for crew boats
+  - Allow team managers to select confirmed rentals for payment
   - Display rental fees separately in payment breakdown
   - Include rental fees in total payment calculation
-  - Update payment confirmation to mark rental as "paid"
-  - _Requirements: FR-8.9, FR-8.11_
+  - Update payment confirmation to mark rental boat status as "paid" and set paid_at timestamp
+  - Prevent admin from changing status or deleting paid rental boats
+  - _Requirements: FR-8.9, FR-8.11, FR-8.13_
 
 ### 12. Home Page and Public Information ✅ COMPLETED
 

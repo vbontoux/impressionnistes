@@ -150,7 +150,7 @@ These requirements define what the system does from a business and user perspect
 8. WHEN a Boat_Rental is confirmed, THE Registration_System SHALL update the boat availability status to prevent additional requests
 9. THE Registration_System SHALL calculate rental fees at 2.5 times the Base_Seat_Price for individual boats (skiffs) and Base_Seat_Price per seat for crew boats
 10. WHEN an Admin_User manages boat rentals, THE Registration_System SHALL allow the admin to change boat status (to confirm requests by changing status to "confirmed", or to reject by changing status back to "available") and view requester information
-11. THE Registration_System SHALL track all Boat_Rental transactions and include rental fees in the team's total payment calculation
+11. THE Registration_System SHALL display confirmed boat rentals in the payment page alongside boat registrations, allowing team managers to pay for rentals separately from boat registrations
 12. WHEN an Admin_User creates or updates a rental boat, THE Registration_System SHALL allow entry of recommended rower weight range in kilograms as a text field for informational purposes to help team managers select appropriate boats for their crew
 13. WHEN a rental boat status changes to "paid", THE Registration_System SHALL record the payment timestamp in the paid_at field to track when the rental was paid
 
