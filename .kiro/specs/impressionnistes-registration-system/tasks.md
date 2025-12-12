@@ -367,13 +367,6 @@
   - Update payment confirmation to mark rental as "paid"
   - _Requirements: FR-8.9, FR-8.11_
 
-- [ ] 11.9 Implement rental priority period logic (V2 - Optional)
-  - Add rental priority period validation (15 days before closure)
-  - Implement RCPM member priority checking
-  - Create automatic confirmation scheduler for external requests
-  - Add priority period indicators in UI
-  - _Requirements: FR-8.5, FR-8.6_
-
 ### 12. Home Page and Public Information ✅ COMPLETED
 
 - [x] 12.1 Create home page with competition information ✅ COMPLETED
