@@ -9,7 +9,7 @@
     <div class="section">
       <div class="section-header">
         <h2>{{ $t('boatRental.availableBoats') }}</h2>
-        <div class="filters">
+        <div class="header-actions">
           <select v-model="boatTypeFilter" class="filter-select">
             <option value="">{{ $t('boatRental.allTypes') }}</option>
             <option value="skiff">{{ $t('boat.types.skiff') }}</option>
@@ -20,6 +20,24 @@
             <option value="8+">{{ $t('boat.types.eightWithCox') }}</option>
             <option value="8x+">{{ $t('boat.types.octaWithCox') }}</option>
           </select>
+          <div class="view-toggle">
+            <button 
+              @click="viewMode = 'table'" 
+              :class="{ active: viewMode === 'table' }"
+              class="btn-view"
+              :title="$t('common.tableView')"
+            >
+              ☰
+            </button>
+            <button 
+              @click="viewMode = 'cards'" 
+              :class="{ active: viewMode === 'cards' }"
+              class="btn-view"
+              :title="$t('common.cardView')"
+            >
+              ⊞
+            </button>
+          </div>
         </div>
       </div>
 
@@ -37,40 +55,77 @@
       </div>
 
       <!-- Available Boats List -->
-      <div v-if="!loading && !error" class="boats-grid">
+      <div v-if="!loading && !error">
         <div v-if="filteredAvailableBoats.length === 0" class="empty-state">
           <p>{{ $t('boatRental.noAvailableBoats') }}</p>
         </div>
 
-        <div
-          v-for="boat in filteredAvailableBoats"
-          :key="boat.rental_boat_id"
-          class="boat-card available"
-        >
-          <div class="boat-header">
-            <h3>{{ boat.boat_name }}</h3>
-            <span class="boat-type">{{ $t(`boat.types.${boat.boat_type}`) }}</span>
-          </div>
+        <!-- Table View -->
+        <div v-else-if="viewMode === 'table'" class="boats-table">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ $t('admin.boatInventory.boatName') }}</th>
+                <th>{{ $t('admin.boatInventory.boatType') }}</th>
+                <th>{{ $t('boatRental.weightCapacity') }}</th>
+                <th>{{ $t('boatRental.status') }}</th>
+                <th>{{ $t('common.actions') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="boat in filteredAvailableBoats" :key="boat.rental_boat_id">
+                <td class="boat-name">{{ boat.boat_name }}</td>
+                <td>{{ $t(`boat.types.${boat.boat_type}`) }}</td>
+                <td>{{ boat.rower_weight_range || $t('boatRental.notSpecified') }}</td>
+                <td>
+                  <span class="status-badge available">{{ $t('boatRental.statusAvailable') }}</span>
+                </td>
+                <td>
+                  <button 
+                    @click="requestBoat(boat)" 
+                    class="btn-primary btn-sm"
+                    :disabled="requesting"
+                  >
+                    {{ requesting ? $t('boatRental.requesting') : $t('boatRental.requestBoat') }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-          <div class="boat-details">
-            <div class="detail-row">
-              <span class="label">{{ $t('boatRental.weightCapacity') }}:</span>
-              <span>{{ boat.rower_weight_range || $t('boatRental.notSpecified') }}</span>
+        <!-- Card View -->
+        <div v-else class="boats-grid">
+          <div
+            v-for="boat in filteredAvailableBoats"
+            :key="boat.rental_boat_id"
+            class="boat-card available"
+          >
+            <div class="boat-header">
+              <h3>{{ boat.boat_name }}</h3>
+              <span class="boat-type">{{ $t(`boat.types.${boat.boat_type}`) }}</span>
             </div>
-            <div class="detail-row">
-              <span class="label">{{ $t('boatRental.status') }}:</span>
-              <span class="status-badge available">{{ $t('boatRental.statusAvailable') }}</span>
-            </div>
-          </div>
 
-          <div class="boat-actions">
-            <button 
-              @click="requestBoat(boat)" 
-              class="btn-primary"
-              :disabled="requesting"
-            >
-              {{ requesting ? $t('boatRental.requesting') : $t('boatRental.requestBoat') }}
-            </button>
+            <div class="boat-details">
+              <div class="detail-row">
+                <span class="label">{{ $t('boatRental.weightCapacity') }}:</span>
+                <span>{{ boat.rower_weight_range || $t('boatRental.notSpecified') }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">{{ $t('boatRental.status') }}:</span>
+                <span class="status-badge available">{{ $t('boatRental.statusAvailable') }}</span>
+              </div>
+            </div>
+
+            <div class="boat-actions">
+              <button 
+                @click="requestBoat(boat)" 
+                class="btn-primary"
+                :disabled="requesting"
+              >
+                {{ requesting ? $t('boatRental.requesting') : $t('boatRental.requestBoat') }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -80,9 +135,29 @@
     <div class="section">
       <div class="section-header">
         <h2>{{ $t('boatRental.myRequests') }}</h2>
-        <button @click="loadMyRequests" class="btn-secondary">
-          {{ $t('boatRental.refresh') }}
-        </button>
+        <div class="header-actions">
+          <button @click="loadMyRequests" class="btn-secondary">
+            {{ $t('boatRental.refresh') }}
+          </button>
+          <div class="view-toggle">
+            <button 
+              @click="viewMode = 'table'" 
+              :class="{ active: viewMode === 'table' }"
+              class="btn-view"
+              :title="$t('common.tableView')"
+            >
+              ☰
+            </button>
+            <button 
+              @click="viewMode = 'cards'" 
+              :class="{ active: viewMode === 'cards' }"
+              class="btn-view"
+              :title="$t('common.cardView')"
+            >
+              ⊞
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Loading State for Requests -->
@@ -91,47 +166,80 @@
       </div>
 
       <!-- My Requests List -->
-      <div v-if="!requestsLoading" class="boats-grid">
+      <div v-if="!requestsLoading">
         <div v-if="myRequests.length === 0" class="empty-state">
           <p>{{ $t('boatRental.noRequests') }}</p>
         </div>
 
-        <div
-          v-for="request in myRequests"
-          :key="request.rental_boat_id"
-          class="boat-card"
-          :class="`status-${request.status}`"
-        >
-          <div class="boat-header">
-            <h3>{{ request.boat_name }}</h3>
-            <span class="boat-type">{{ $t(`boat.types.${request.boat_type}`) }}</span>
-          </div>
+        <!-- Table View -->
+        <div v-else-if="viewMode === 'table'" class="boats-table">
+          <table>
+            <thead>
+              <tr>
+                <th>{{ $t('admin.boatInventory.boatName') }}</th>
+                <th>{{ $t('admin.boatInventory.boatType') }}</th>
+                <th>{{ $t('boatRental.weightCapacity') }}</th>
+                <th>{{ $t('boatRental.status') }}</th>
+                <th>{{ $t('boatRental.requestedAt') }}</th>
+                <th>{{ $t('boatRental.confirmedAt') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="request in myRequests" :key="request.rental_boat_id">
+                <td class="boat-name">{{ request.boat_name }}</td>
+                <td>{{ $t(`boat.types.${request.boat_type}`) }}</td>
+                <td>{{ request.rower_weight_range || $t('boatRental.notSpecified') }}</td>
+                <td>
+                  <span class="status-badge" :class="request.status">
+                    {{ $t(`boatRental.status.${request.status}`) }}
+                  </span>
+                </td>
+                <td>{{ request.requested_at ? formatDate(request.requested_at) : '-' }}</td>
+                <td>{{ request.confirmed_at ? formatDate(request.confirmed_at) : '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-          <div class="boat-details">
-            <div class="detail-row">
-              <span class="label">{{ $t('boatRental.weightCapacity') }}:</span>
-              <span>{{ request.rower_weight_range || $t('boatRental.notSpecified') }}</span>
+        <!-- Card View -->
+        <div v-else class="boats-grid">
+          <div
+            v-for="request in myRequests"
+            :key="request.rental_boat_id"
+            class="boat-card"
+            :class="`status-${request.status}`"
+          >
+            <div class="boat-header">
+              <h3>{{ request.boat_name }}</h3>
+              <span class="boat-type">{{ $t(`boat.types.${request.boat_type}`) }}</span>
             </div>
-            <div class="detail-row">
-              <span class="label">{{ $t('boatRental.status') }}:</span>
-              <span class="status-badge" :class="request.status">
-                {{ $t(`boatRental.status.${request.status}`) }}
-              </span>
-            </div>
-            <div v-if="request.requested_at" class="detail-row">
-              <span class="label">{{ $t('boatRental.requestedAt') }}:</span>
-              <span>{{ formatDate(request.requested_at) }}</span>
-            </div>
-            <div v-if="request.confirmed_at" class="detail-row">
-              <span class="label">{{ $t('boatRental.confirmedAt') }}:</span>
-              <span>{{ formatDate(request.confirmed_at) }}</span>
-            </div>
-          </div>
 
-          <div class="status-indicator">
-            <div v-if="request.status === 'requested'" class="status-icon pending">⏳</div>
-            <div v-else-if="request.status === 'confirmed'" class="status-icon confirmed">✅</div>
-            <div v-else-if="request.status === 'available'" class="status-icon rejected">❌</div>
+            <div class="boat-details">
+              <div class="detail-row">
+                <span class="label">{{ $t('boatRental.weightCapacity') }}:</span>
+                <span>{{ request.rower_weight_range || $t('boatRental.notSpecified') }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">{{ $t('boatRental.status') }}:</span>
+                <span class="status-badge" :class="request.status">
+                  {{ $t(`boatRental.status.${request.status}`) }}
+                </span>
+              </div>
+              <div v-if="request.requested_at" class="detail-row">
+                <span class="label">{{ $t('boatRental.requestedAt') }}:</span>
+                <span>{{ formatDate(request.requested_at) }}</span>
+              </div>
+              <div v-if="request.confirmed_at" class="detail-row">
+                <span class="label">{{ $t('boatRental.confirmedAt') }}:</span>
+                <span>{{ formatDate(request.confirmed_at) }}</span>
+              </div>
+            </div>
+
+            <div class="status-indicator">
+              <div v-if="request.status === 'requested'" class="status-icon pending">⏳</div>
+              <div v-else-if="request.status === 'confirmed'" class="status-icon confirmed">✅</div>
+              <div v-else-if="request.status === 'available'" class="status-icon rejected">❌</div>
+            </div>
           </div>
         </div>
       </div>
@@ -177,6 +285,7 @@ export default {
     const availableBoats = ref([])
     const myRequests = ref([])
     const boatTypeFilter = ref('')
+    const viewMode = ref('table') // 'table' or 'cards'
     const loading = ref(false)
     const requestsLoading = ref(false)
     const requesting = ref(false)
@@ -269,6 +378,7 @@ export default {
       availableBoats,
       myRequests,
       boatTypeFilter,
+      viewMode,
       loading,
       requestsLoading,
       requesting,
@@ -323,9 +433,36 @@ export default {
   color: #34495e;
 }
 
-.filters {
+.header-actions {
   display: flex;
   gap: 1rem;
+  align-items: center;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 0.25rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.btn-view {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background: white;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+}
+
+.btn-view:hover {
+  background: #f8f9fa;
+}
+
+.btn-view.active {
+  background: #3498db;
+  color: white;
 }
 
 .filter-select {
@@ -333,6 +470,46 @@ export default {
   border: 1px solid #ddd;
   border-radius: 4px;
   background: white;
+}
+
+.boats-table {
+  overflow-x: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.boats-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.boats-table th {
+  background: #f8f9fa;
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #2c3e50;
+  border-bottom: 2px solid #e1e8ed;
+}
+
+.boats-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #e1e8ed;
+}
+
+.boats-table tr:hover {
+  background: #f8f9fa;
+}
+
+.boats-table .boat-name {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
 }
 
 .boats-grid {
