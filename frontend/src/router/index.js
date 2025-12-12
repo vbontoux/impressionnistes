@@ -11,6 +11,7 @@ const Dashboard = () => import('../views/Dashboard.vue');
 const CrewMembers = () => import('../views/CrewMembers.vue');
 const Boats = () => import('../views/Boats.vue');
 const BoatDetail = () => import('../views/BoatDetail.vue');
+const BoatRentalPage = () => import('../views/BoatRentalPage.vue');
 const Payment = () => import('../views/Payment.vue');
 const PaymentCheckout = () => import('../views/PaymentCheckout.vue');
 const PaymentSuccess = () => import('../views/PaymentSuccess.vue');
@@ -71,6 +72,12 @@ const routes = [
     path: '/boats/:id',
     name: 'BoatDetail',
     component: BoatDetail,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/boat-rentals',
+    name: 'BoatRentals',
+    component: BoatRentalPage,
     meta: { requiresAuth: true },
   },
   {

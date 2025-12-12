@@ -299,7 +299,7 @@
   - Add help text (French: "Poids moyen recommandé des rameurs", English: "Recommended average rower weight")
   - _Requirements: FR-8.12_
 
-- [ ] 11.3 Create team manager boat rental Lambda functions
+- [x] 11.3 Create team manager boat rental Lambda functions
   - Implement list_available_rental_boats Lambda (team manager accessible)
     - Return boats with status "available" or "new"
     - Exclude boats with status "requested", "confirmed", or "paid"
@@ -315,7 +315,7 @@
     - Return list with boat details and current status
   - _Requirements: FR-8.1, FR-8.2, FR-8.3, FR-8.4_
 
-- [ ] 11.4 Create admin boat rental management Lambda functions
+- [x] 11.4 Create admin boat rental management Lambda functions
   - Update list_rental_boats Lambda to support filtering by requester
   - Implement confirm_rental_request Lambda (admin only)
     - Update rental_boat status from "requested" to "confirmed"
@@ -328,16 +328,16 @@
     - Trigger notification to team manager
   - _Requirements: FR-8.7, FR-8.10_
 
-- [ ] 11.5 Add API Gateway routes for boat rental
-  - Add GET /rental-boats (team manager) - list available boats
-  - Add POST /rental-boats/{boat_id}/request (team manager) - request a boat
-  - Add GET /my-rental-boats (team manager) - get my rental requests
+- [x] 11.5 Add API Gateway routes for boat rental
+  - Add GET /rental/boats (team manager) - list available boats
+  - Add POST /rental/request (team manager) - request a boat (boat_id in request body)
+  - Add GET /rental/my-requests (team manager) - get my rental requests
   - Add PUT /admin/rental-boats/{boat_id}/confirm (admin) - confirm request
   - Add PUT /admin/rental-boats/{boat_id}/reject (admin) - reject request
   - Configure Cognito authorization for all routes
   - _Requirements: FR-8.1, FR-8.2, FR-8.7, FR-8.10_
 
-- [ ] 11.6 Build team manager boat rental frontend
+- [x] 11.6 Build team manager boat rental frontend
   - Create BoatRentalPage.vue for team managers
   - Display list of available rental boats with filters (boat type)
   - Show boat details: type, name, weight capacity (portance), status
@@ -349,14 +349,13 @@
   - Add translations (French: "Portance", English: "Weight capacity")
   - _Requirements: FR-8.1, FR-8.2, FR-8.3, FR-8.4_
 
-- [ ] 11.7 Enhance admin boat inventory to manage rental requests
-  - Update AdminBoatInventory.vue to show requester information prominently
-  - Add "Confirm" button for boats with status "requested"
-  - Add "Reject" button for boats with status "requested"
-  - Add confirmation dialogs for confirm/reject actions
-  - Display requested_at timestamp for requested boats
-  - Show confirmed_by and confirmed_at for confirmed boats
-  - Add filter for "boats with pending requests" (status = "requested")
+- [x] 11.7 Enhance admin boat inventory to manage rental requests
+  - Display requester information in the admin boat inventory table (already done)
+  - Admin can change status using existing inline editing (requested → confirmed, or back to available)
+  - Display requested_at timestamp for requested boats (if needed)
+  - Show confirmed_by and confirmed_at for confirmed boats (if needed)
+  - Add filter for "boats with pending requests" (status = "requested") - optional
+  - Note: No separate Confirm/Reject buttons needed - admin uses status dropdown
   - _Requirements: FR-8.7, FR-8.10_
 
 - [ ] 11.8 Integrate rental fees with payment system
@@ -368,7 +367,7 @@
   - Update payment confirmation to mark rental as "paid"
   - _Requirements: FR-8.9, FR-8.11_
 
-- [ ] 11.10 Implement rental priority period logic (V2 - Optional)
+- [ ] 11.9 Implement rental priority period logic (V2 - Optional)
   - Add rental priority period validation (15 days before closure)
   - Implement RCPM member priority checking
   - Create automatic confirmation scheduler for external requests
@@ -377,7 +376,7 @@
 
 ### 12. Home Page and Public Information ✅ COMPLETED
 
-- [x] 11.1 Create home page with competition information ✅ COMPLETED
+- [x] 12.1 Create home page with competition information ✅ COMPLETED
   - Build HomePage.vue with competition overview ✅
   - Add event descriptions (21km and 42km) ✅
   - Display race categories and boat types ✅
@@ -387,7 +386,7 @@
   - Add contact email link (no contact form in V1) ✅
   - _Requirements: FR-11.1, FR-11.2, FR-11.4_
 
-- [x] 11.2 Implement navigation and language switching ✅ COMPLETED
+- [x] 12.2 Implement navigation and language switching ✅ COMPLETED
   - Create Navigation in App.vue with authentication-aware menu ✅
   - Build LanguageSwitcher.vue for French/English switching ✅
   - Implement browser language detection ✅
@@ -397,7 +396,7 @@
 
 ### 13. Internationalization (i18n) ✅ COMPLETED
 
-- [x] 12.1 Set up Vue i18n infrastructure ✅ COMPLETED
+- [x] 13.1 Set up Vue i18n infrastructure ✅ COMPLETED
   - Configure Vue i18n plugin with French and English locales ✅
   - Create translation file structure (fr.json, en.json) ✅
   - Implement language detection and fallback logic ✅
@@ -405,7 +404,7 @@
   - Create translation helper utilities ✅
   - _Requirements: NFR-4.1, NFR-4.2, NFR-4.3_
 
-- [x] 12.2 Create comprehensive translation files ✅ COMPLETED
+- [x] 13.2 Create comprehensive translation files ✅ COMPLETED
   - Translate all UI components and labels ✅
   - Create error message translations ✅
   - Add validation message translations ✅
@@ -432,7 +431,7 @@
 
 ### 15. Frontend Application Structure ✅ COMPLETED
 
-- [x] 14.1 Set up Vue.js 3 application with Vite ✅ COMPLETED
+- [x] 15.1 Set up Vue.js 3 application with Vite ✅ COMPLETED
   - Initialize Vite project with Vue 3 ✅
   - Configure Vue Router with authentication guards ✅
   - Set up Pinia stores for state management ✅

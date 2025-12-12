@@ -29,6 +29,7 @@
     "dashboard": "Dashboard",
     "crew": "Crew Members",
     "boats": "Boats",
+    "boatRentals": "Boat Rentals",
     "payment": "Payment",
     "profile": "Profile",
     "logout": "Logout",
@@ -365,6 +366,51 @@
     "selectRaceRequired": "A race must be selected when all seats are filled",
     "filter": {
       "all": "All Boats"
+    },
+    "types": {
+      "skiff": "Skiff",
+      "4-": "Four without coxswain",
+      "4+": "Four with coxswain", 
+      "4x-": "Quad scull without coxswain",
+      "4x+": "Quad scull with coxswain",
+      "8+": "Eight with coxswain",
+      "8x+": "Octuple scull with coxswain",
+      "fourWithoutCox": "Four without coxswain",
+      "fourWithCox": "Four with coxswain",
+      "quadWithoutCox": "Quad scull without coxswain",
+      "quadWithCox": "Quad scull with coxswain",
+      "eightWithCox": "Eight with coxswain",
+      "octaWithCox": "Octuple scull with coxswain"
+    }
+  },
+  "boatRental": {
+    "title": "Boat Rental",
+    "subtitle": "Request RCPM boat rentals for your registrations",
+    "availableBoats": "Available Boats",
+    "myRequests": "My Rental Requests",
+    "allTypes": "All Types",
+    "weightCapacity": "Weight Capacity",
+    "status": "Status",
+    "statusAvailable": "Available",
+    "requestBoat": "Request This Boat",
+    "requesting": "Requesting...",
+    "refresh": "Refresh",
+    "noAvailableBoats": "No boats available at the moment",
+    "noRequests": "No rental requests",
+    "notSpecified": "Not specified",
+    "requestedAt": "Requested on",
+    "confirmedAt": "Confirmed on",
+    "confirmRequest": "Confirm Request",
+    "confirmRequestMessage": "Are you sure you want to request the rental of boat '{boatName}'?",
+    "boatType": "Boat Type",
+    "confirmRequestButton": "Confirm Request",
+    "requestSuccess": "Rental request sent successfully!",
+    "requestError": "Error sending rental request",
+    "loadError": "Error loading available boats",
+    "status": {
+      "available": "Available",
+      "requested": "Requested",
+      "confirmed": "Confirmed"
     }
   },
   "payment": {

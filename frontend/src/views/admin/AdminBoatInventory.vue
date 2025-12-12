@@ -728,13 +728,13 @@ onMounted(() => {
 }
 
 .status-confirmed {
-  background-color: #d1ecf1;
-  color: #0c5460;
+  background-color: #f8d7da;
+  color: #721c24;
 }
 
 .status-paid {
-  background-color: #c3e6cb;
-  color: #155724;
+  background-color: #cce5ff;
+  color: #004085;
   font-weight: 600;
 }
 

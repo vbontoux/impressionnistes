@@ -413,6 +413,25 @@ class ApiStack(Stack):
             'admin/get_stats',
             'Get admin dashboard statistics'
         )
+        
+        # Team manager rental functions
+        self.lambda_functions['list_available_rental_boats'] = self._create_lambda_function(
+            'ListAvailableRentalBoatsFunction',
+            'rental/list_available_rental_boats',
+            'List available rental boats for team managers'
+        )
+        
+        self.lambda_functions['request_rental_boat'] = self._create_lambda_function(
+            'RequestRentalBoatFunction',
+            'rental/request_rental_boat',
+            'Request a rental boat for team manager'
+        )
+        
+        self.lambda_functions['get_my_rental_requests'] = self._create_lambda_function(
+            'GetMyRentalRequestsFunction',
+            'rental/get_my_rental_requests',
+            'Get rental requests for authenticated team manager'
+        )
 
     def _create_api_gateway(self):
         """Create API Gateway REST API with Cognito authorizer"""
@@ -914,6 +933,48 @@ class ApiStack(Stack):
         stats_resource.add_method(
             'GET',
             get_stats_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Create /rental resource (team manager accessible)
+        rental_resource = self.api.root.add_resource('rental')
+        
+        # GET /rental/boats - List available rental boats (team manager accessible)
+        rental_boats_resource = rental_resource.add_resource('boats')
+        list_available_rental_boats_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['list_available_rental_boats'],
+            proxy=True
+        )
+        rental_boats_resource.add_method(
+            'GET',
+            list_available_rental_boats_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # POST /rental/request - Request a rental boat (team manager accessible)
+        rental_request_resource = rental_resource.add_resource('request')
+        request_rental_boat_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['request_rental_boat'],
+            proxy=True
+        )
+        rental_request_resource.add_method(
+            'POST',
+            request_rental_boat_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # GET /rental/my-requests - Get my rental requests (team manager accessible)
+        my_requests_resource = rental_resource.add_resource('my-requests')
+        get_my_rental_requests_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['get_my_rental_requests'],
+            proxy=True
+        )
+        my_requests_resource.add_method(
+            'GET',
+            get_my_rental_requests_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )

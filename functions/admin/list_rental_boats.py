@@ -29,6 +29,7 @@ def lambda_handler(event, context):
     Query parameters:
         boat_type: Filter by boat type (optional)
         status: Filter by status (optional)
+        requester: Filter by requester email (optional)
     
     Returns:
         List of rental boats
@@ -39,6 +40,7 @@ def lambda_handler(event, context):
     query_params = event.get('queryStringParameters') or {}
     filter_boat_type = query_params.get('boat_type')
     filter_status = query_params.get('status')
+    filter_requester = query_params.get('requester')
     
     # Validate filters
     if filter_boat_type and filter_boat_type not in VALID_BOAT_TYPES:
@@ -83,6 +85,9 @@ def lambda_handler(event, context):
         
         if filter_status:
             rental_boats = [b for b in rental_boats if b.get('status') == filter_status]
+        
+        if filter_requester:
+            rental_boats = [b for b in rental_boats if b.get('requester') == filter_requester]
         
         # Add rental_boat_id field if not present (for consistency with create response)
         for boat in rental_boats:

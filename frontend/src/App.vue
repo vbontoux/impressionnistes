@@ -121,6 +121,21 @@
           </span>
           <span class="nav-text">{{ $t('nav.boats') }}</span>
         </router-link>
+
+        <router-link to="/boat-rentals" class="nav-item" @click="closeSidebarOnMobile">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Rental boat icon with key -->
+              <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="6" cy="8" r="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M6 6V4" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M8 4H7" stroke="currentColor" stroke-width="1.5"/>
+              <!-- Wave -->
+              <path d="M2 16C2 16 4 14.5 7 14.5C10 14.5 12 16 15 16C18 16 20 14.5 22 14.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="nav-text">{{ $t('nav.boatRentals') }}</span>
+        </router-link>
         
         <router-link to="/payment" class="nav-item" @click="closeSidebarOnMobile">
           <span class="nav-icon">

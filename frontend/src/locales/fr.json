@@ -29,6 +29,7 @@
     "dashboard": "Tableau de bord",
     "crew": "Équipiers",
     "boats": "Bateaux",
+    "boatRentals": "Location de bateaux",
     "payment": "Paiement",
     "profile": "Profil",
     "logout": "Déconnexion",
@@ -365,6 +366,51 @@
     "selectRaceRequired": "Une course doit être sélectionnée lorsque toutes les places sont remplies",
     "filter": {
       "all": "Tous les bateaux"
+    },
+    "types": {
+      "skiff": "Skiff",
+      "4-": "Quatre sans barreur",
+      "4+": "Quatre avec barreur", 
+      "4x-": "Quatre de couple sans barreur",
+      "4x+": "Quatre de couple avec barreur",
+      "8+": "Huit avec barreur",
+      "8x+": "Huit de couple avec barreur",
+      "fourWithoutCox": "Quatre sans barreur",
+      "fourWithCox": "Quatre avec barreur",
+      "quadWithoutCox": "Quatre de couple sans barreur",
+      "quadWithCox": "Quatre de couple avec barreur",
+      "eightWithCox": "Huit avec barreur",
+      "octaWithCox": "Huit de couple avec barreur"
+    }
+  },
+  "boatRental": {
+    "title": "Location de bateaux",
+    "subtitle": "Demandez la location de bateaux RCPM pour vos inscriptions",
+    "availableBoats": "Bateaux disponibles",
+    "myRequests": "Mes demandes de location",
+    "allTypes": "Tous les types",
+    "weightCapacity": "Portance",
+    "status": "Statut",
+    "statusAvailable": "Disponible",
+    "requestBoat": "Demander ce bateau",
+    "requesting": "Demande en cours...",
+    "refresh": "Actualiser",
+    "noAvailableBoats": "Aucun bateau disponible pour le moment",
+    "noRequests": "Aucune demande de location",
+    "notSpecified": "Non spécifié",
+    "requestedAt": "Demandé le",
+    "confirmedAt": "Confirmé le",
+    "confirmRequest": "Confirmer la demande",
+    "confirmRequestMessage": "Êtes-vous sûr de vouloir demander la location du bateau '{boatName}' ?",
+    "boatType": "Type de bateau",
+    "confirmRequestButton": "Confirmer la demande",
+    "requestSuccess": "Demande de location envoyée avec succès !",
+    "requestError": "Erreur lors de l'envoi de la demande",
+    "loadError": "Erreur lors du chargement des bateaux disponibles",
+    "status": {
+      "available": "Disponible",
+      "requested": "Demandé",
+      "confirmed": "Confirmé"
     }
   },
   "payment": {
