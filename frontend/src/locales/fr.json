@@ -37,7 +37,7 @@
     "admin": "Administration",
     "eventConfig": "Configuration Événement",
     "pricingConfig": "Configuration Tarifs",
-    "boatInventory": "Inventaire Bateaux",
+    "boatInventory": "Bateaux à louer",
     "dataExports": "Exports de Données"
   },
   "admin": {
@@ -52,7 +52,7 @@
       "eventDatesDesc": "Configurer les dates d'ouverture et de clôture des inscriptions",
       "pricing": "Tarification",
       "pricingDesc": "Gérer les prix des sièges et les frais de location",
-      "boatInventory": "Inventaire des bateaux",
+      "boatInventory": "Bateaux à louer",
       "boatInventoryDesc": "Gérer les bateaux disponibles à la location",
       "dataExports": "Exports de données",
       "dataExportsDesc": "Exporter les équipiers et les inscriptions de bateaux"
@@ -113,7 +113,7 @@
       }
     },
     "boatInventory": {
-      "title": "Inventaire des bateaux",
+      "title": "Bateaux à louer",
       "subtitle": "Gérer les bateaux disponibles à la location",
       "addBoat": "Ajouter un bateau",
       "filterByType": "Filtrer par type",

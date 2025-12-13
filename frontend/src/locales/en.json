@@ -37,7 +37,7 @@
     "admin": "Administration",
     "eventConfig": "Event Configuration",
     "pricingConfig": "Pricing Configuration",
-    "boatInventory": "Boat Inventory",
+    "boatInventory": "Rental Boats",
     "dataExports": "Data Exports"
   },
   "admin": {
@@ -52,7 +52,7 @@
       "eventDatesDesc": "Configure registration opening and closing dates",
       "pricing": "Pricing",
       "pricingDesc": "Manage seat prices and rental fees",
-      "boatInventory": "Boat Inventory",
+      "boatInventory": "Rental Boats",
       "boatInventoryDesc": "Manage boats available for rental",
       "dataExports": "Data Exports",
       "dataExportsDesc": "Export crew members and boat registrations"
@@ -113,7 +113,7 @@
       }
     },
     "boatInventory": {
-      "title": "Boat Inventory",
+      "title": "Rental Boats",
       "subtitle": "Manage boats available for rental",
       "addBoat": "Add Boat",
       "filterByType": "Filter by type",
