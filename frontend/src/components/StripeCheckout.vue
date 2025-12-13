@@ -13,6 +13,10 @@
           <span class="item-name">{{ boat.event_type }} - {{ boat.boat_type }}</span>
           <span class="item-price">{{ formatPrice(boat.pricing?.total) }}</span>
         </div>
+        <div v-for="rental in selectedRentals" :key="rental.rental_boat_id" class="summary-item">
+          <span class="item-name">{{ $t('payment.rental') }}: {{ rental.boat_name }} ({{ $t(`boat.types.${rental.boat_type}`) }})</span>
+          <span class="item-price">{{ formatPrice(rental.pricing?.total) }}</span>
+        </div>
       </div>
       <div class="summary-total">
         <span class="total-label">{{ $t('payment.checkout.total') }}</span>
@@ -72,6 +76,10 @@ const props = defineProps({
     type: Array,
     required: true
   },
+  selectedRentals: {
+    type: Array,
+    default: () => []
+  },
   totalAmount: {
     type: Number,
     required: true
@@ -96,6 +104,10 @@ const paymentError = ref('')
 // Computed
 const boatRegistrationIds = computed(() => 
   props.selectedBoats.map(boat => boat.boat_registration_id)
+)
+
+const rentalBoatIds = computed(() => 
+  props.selectedRentals.map(rental => rental.rental_boat_id)
 )
 
 // Methods
@@ -163,8 +175,13 @@ const handleSubmit = async () => {
   try {
     // Step 1: Create payment intent on backend
     console.log('Creating payment intent for boats:', boatRegistrationIds.value)
+    console.log('Creating payment intent for rentals:', rentalBoatIds.value)
+    console.log('Selected rentals data:', props.selectedRentals)
     
-    const response = await paymentService.createPaymentIntent(boatRegistrationIds.value)
+    const response = await paymentService.createPaymentIntent(
+      boatRegistrationIds.value,
+      rentalBoatIds.value
+    )
     
     console.log('Payment intent response:', response)
     

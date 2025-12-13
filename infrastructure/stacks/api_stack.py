@@ -432,6 +432,18 @@ class ApiStack(Stack):
             'rental/get_my_rental_requests',
             'Get rental requests for authenticated team manager'
         )
+        
+        self.lambda_functions['cancel_rental_request'] = self._create_lambda_function(
+            'CancelRentalRequestFunction',
+            'rental/cancel_rental_request',
+            'Cancel a rental request for team manager'
+        )
+        
+        self.lambda_functions['get_rentals_for_payment'] = self._create_lambda_function(
+            'GetRentalsForPaymentFunction',
+            'rental/get_rentals_for_payment',
+            'Get confirmed rental boats ready for payment'
+        )
 
     def _create_api_gateway(self):
         """Create API Gateway REST API with Cognito authorizer"""
@@ -975,6 +987,33 @@ class ApiStack(Stack):
         my_requests_resource.add_method(
             'GET',
             get_my_rental_requests_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # DELETE /rental/cancel/{rental_boat_id} - Cancel a rental request (team manager accessible)
+        cancel_resource = rental_resource.add_resource('cancel')
+        cancel_rental_id_resource = cancel_resource.add_resource('{rental_boat_id}')
+        cancel_rental_request_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['cancel_rental_request'],
+            proxy=True
+        )
+        cancel_rental_id_resource.add_method(
+            'DELETE',
+            cancel_rental_request_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # GET /rental/for-payment - Get confirmed rentals ready for payment (team manager accessible)
+        for_payment_resource = rental_resource.add_resource('for-payment')
+        get_rentals_for_payment_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['get_rentals_for_payment'],
+            proxy=True
+        )
+        for_payment_resource.add_method(
+            'GET',
+            get_rentals_for_payment_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )

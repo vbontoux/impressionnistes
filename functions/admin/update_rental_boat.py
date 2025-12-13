@@ -151,16 +151,22 @@ def lambda_handler(event, context):
         
         rental_boat['status'] = new_status
         
+        # Set confirmed_at timestamp when status changes to 'confirmed'
+        if new_status == 'confirmed' and not rental_boat.get('confirmed_at'):
+            rental_boat['confirmed_at'] = current_time
+            logger.info(f"Set confirmed_at timestamp for rental boat {rental_boat_id}")
+        
         # Set paid_at timestamp when status changes to 'paid'
         if new_status == 'paid' and not rental_boat.get('paid_at'):
             rental_boat['paid_at'] = current_time
             logger.info(f"Set paid_at timestamp for rental boat {rental_boat_id}")
         
-        # Clear requester if status is set to 'new' or 'available' (rejecting/cancelling)
+        # Clear requester and timestamps if status is set to 'new' or 'available' (rejecting/cancelling)
         if new_status in ['new', 'available']:
             rental_boat['requester'] = None
-            rental_boat['paid_at'] = None  # Clear paid_at if reverting to available
-            logger.info(f"Cleared requester and paid_at when changing status to {new_status}")
+            rental_boat['confirmed_at'] = None
+            rental_boat['paid_at'] = None
+            logger.info(f"Cleared requester and timestamps when changing status to {new_status}")
     
     if 'requester' in body:
         rental_boat['requester'] = body['requester']

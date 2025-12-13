@@ -39,6 +39,22 @@ const boatService = {
   async deleteBoatRegistration(boatRegistrationId) {
     const response = await apiClient.delete(`/boat/${boatRegistrationId}`)
     return response.data
+  },
+
+  /**
+   * Get confirmed rental boats ready for payment
+   */
+  async getRentalsForPayment() {
+    const response = await apiClient.get('/rental/for-payment')
+    return response.data
+  },
+
+  /**
+   * Cancel a rental request
+   */
+  async cancelRentalRequest(rentalBoatId) {
+    const response = await apiClient.delete(`/rental/cancel/${rentalBoatId}`)
+    return response.data
   }
 }
 

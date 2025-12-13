@@ -23,9 +23,10 @@
     </div>
 
     <!-- Checkout Form -->
-    <div v-else-if="selectedBoats.length > 0">
+    <div v-else-if="hasSelection">
       <StripeCheckout
         :selected-boats="selectedBoats"
+        :selected-rentals="selectedRentals"
         :total-amount="totalAmount"
         @payment-success="handlePaymentSuccess"
         @payment-error="handlePaymentError"
@@ -60,7 +61,9 @@ const error = ref(null)
 
 // Computed
 const selectedBoats = computed(() => paymentStore.selectedBoats)
+const selectedRentals = computed(() => paymentStore.selectedRentals)
 const totalAmount = computed(() => paymentStore.totalAmount)
+const hasSelection = computed(() => selectedBoats.value.length > 0 || selectedRentals.value.length > 0)
 
 // Methods
 const goBack = () => {
@@ -81,13 +84,13 @@ const handlePaymentError = (error) => {
 // Lifecycle
 onMounted(async () => {
   try {
-    // Ensure we have boats data
-    if (paymentStore.boatsReadyForPayment.length === 0) {
-      await paymentStore.fetchBoatsReadyForPayment()
+    // Ensure we have boats and rentals data
+    if (paymentStore.boatsReadyForPayment.length === 0 && paymentStore.rentalsReadyForPayment.length === 0) {
+      await paymentStore.fetchAllForPayment()
     }
     
-    // Check if user has selected boats
-    if (selectedBoats.value.length === 0) {
+    // Check if user has selected boats or rentals
+    if (!hasSelection.value) {
       error.value = t('payment.checkout.noSelection')
     }
   } catch (err) {

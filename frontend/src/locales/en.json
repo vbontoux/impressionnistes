@@ -407,10 +407,17 @@
     "requestSuccess": "Rental request sent successfully!",
     "requestError": "Error sending rental request",
     "loadError": "Error loading available boats",
+    "cancelRequest": "Cancel Request",
+    "confirmCancel": "Confirm Cancellation",
+    "confirmCancelMessage": "Are you sure you want to cancel your rental request for '{boatName}'?",
+    "cancelSuccess": "Rental request cancelled successfully!",
+    "cancelError": "Error cancelling rental request",
+    "cancelling": "Cancelling...",
     "status": {
       "available": "Available",
       "requested": "Requested",
-      "confirmed": "Confirmed"
+      "confirmed": "Confirmed",
+      "paid": "Paid"
     }
   },
   "payment": {
@@ -426,6 +433,10 @@
     "noBoatsReady": "No boats ready for payment",
     "noBoatsReadyDescription": "Complete your boat registrations to proceed with payment",
     "goToBoats": "Go to Boats",
+    "rentalBoats": "Rental Boats",
+    "boatRegistrations": "Boat Registrations",
+    "rentalBoatsAvailable": "{count} rental available | {count} rentals available",
+    "rentalBoatsSelected": "{count} rental selected | {count} rentals selected",
     "selectAll": "Select All",
     "deselectAll": "Deselect All",
     "boatsAvailable": "{count} boat(s) available | {count} boats available",

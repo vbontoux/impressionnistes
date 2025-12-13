@@ -182,6 +182,7 @@
                 <th>{{ $t('boatRental.status') }}</th>
                 <th>{{ $t('boatRental.requestedAt') }}</th>
                 <th>{{ $t('boatRental.confirmedAt') }}</th>
+                <th>{{ $t('common.actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -196,6 +197,16 @@
                 </td>
                 <td>{{ request.requested_at ? formatDate(request.requested_at) : '-' }}</td>
                 <td>{{ request.confirmed_at ? formatDate(request.confirmed_at) : '-' }}</td>
+                <td>
+                  <button 
+                    v-if="canCancelRequest(request)"
+                    @click="showCancelDialog(request)" 
+                    class="btn-danger btn-sm"
+                    :disabled="cancelling"
+                  >
+                    {{ $t('boatRental.cancelRequest') }}
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -235,10 +246,21 @@
               </div>
             </div>
 
+            <div class="boat-actions" v-if="canCancelRequest(request)">
+              <button 
+                @click="showCancelDialog(request)" 
+                class="btn-danger"
+                :disabled="cancelling"
+              >
+                {{ $t('boatRental.cancelRequest') }}
+              </button>
+            </div>
+
             <div class="status-indicator">
               <div v-if="request.status === 'requested'" class="status-icon pending">⏳</div>
               <div v-else-if="request.status === 'confirmed'" class="status-icon confirmed">✅</div>
               <div v-else-if="request.status === 'available'" class="status-icon rejected">❌</div>
+              <div v-else-if="request.status === 'paid'" class="status-icon paid">💳</div>
             </div>
           </div>
         </div>
@@ -268,6 +290,30 @@
         </div>
       </div>
     </div>
+
+    <!-- Cancel Confirmation Dialog -->
+    <div v-if="showCancelConfirmDialog" class="modal-overlay" @click.self="showCancelConfirmDialog = false">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>{{ $t('boatRental.confirmCancel') }}</h3>
+        </div>
+        <div class="modal-body">
+          <p>{{ $t('boatRental.confirmCancelMessage', { boatName: selectedBoatToCancel?.boat_name }) }}</p>
+          <div class="boat-summary">
+            <div><strong>{{ $t('boatRental.boatType') }}:</strong> {{ $t(`boat.types.${selectedBoatToCancel?.boat_type}`) }}</div>
+            <div><strong>{{ $t('boatRental.status') }}:</strong> {{ $t(`boatRental.status.${selectedBoatToCancel?.status}`) }}</div>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button @click="showCancelConfirmDialog = false" class="btn-secondary">
+            {{ $t('common.cancel') }}
+          </button>
+          <button @click="confirmCancel" class="btn-danger" :disabled="cancelling">
+            {{ cancelling ? $t('boatRental.cancelling') : $t('boatRental.confirmCancel') }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -289,9 +335,12 @@ export default {
     const loading = ref(false)
     const requestsLoading = ref(false)
     const requesting = ref(false)
+    const cancelling = ref(false)
     const error = ref('')
     const showConfirmDialog = ref(false)
+    const showCancelConfirmDialog = ref(false)
     const selectedBoat = ref(null)
+    const selectedBoatToCancel = ref(null)
 
     // Computed properties
     const filteredAvailableBoats = computed(() => {
@@ -363,6 +412,44 @@ export default {
       }
     }
 
+    const canCancelRequest = (request) => {
+      // Can cancel if status is 'requested' or 'confirmed', but not 'paid'
+      return request.status === 'requested' || request.status === 'confirmed'
+    }
+
+    const showCancelDialog = (request) => {
+      selectedBoatToCancel.value = request
+      showCancelConfirmDialog.value = true
+    }
+
+    const confirmCancel = async () => {
+      if (!selectedBoatToCancel.value) return
+      
+      cancelling.value = true
+      
+      try {
+        const rentalId = selectedBoatToCancel.value.rental_boat_id
+        console.log('Cancelling rental with ID:', rentalId)
+        
+        await apiClient.delete(`/rental/cancel/${encodeURIComponent(rentalId)}`)
+        
+        showCancelConfirmDialog.value = false
+        selectedBoatToCancel.value = null
+        
+        // Refresh both lists
+        await Promise.all([loadAvailableBoats(), loadMyRequests()])
+        
+        // Show success message
+        alert(t('boatRental.cancelSuccess'))
+        
+      } catch (err) {
+        console.error('Failed to cancel rental request:', err)
+        alert(err.response?.data?.message || t('boatRental.cancelError'))
+      } finally {
+        cancelling.value = false
+      }
+    }
+
     const formatDate = (dateString) => {
       if (!dateString) return ''
       return new Date(dateString).toLocaleDateString()
@@ -382,14 +469,20 @@ export default {
       loading,
       requestsLoading,
       requesting,
+      cancelling,
       error,
       showConfirmDialog,
+      showCancelConfirmDialog,
       selectedBoat,
+      selectedBoatToCancel,
       filteredAvailableBoats,
       loadAvailableBoats,
       loadMyRequests,
       requestBoat,
       confirmRequest,
+      canCancelRequest,
+      showCancelDialog,
+      confirmCancel,
       formatDate
     }
   }
@@ -547,6 +640,10 @@ export default {
   border-left: 4px solid #e74c3c;
 }
 
+.boat-card.status-paid {
+  border-left: 4px solid #2874a6;
+}
+
 .boat-header {
   display: flex;
   justify-content: space-between;
@@ -600,6 +697,11 @@ export default {
 .status-badge.confirmed {
   background: #d5f4e6;
   color: #27ae60;
+}
+
+.status-badge.paid {
+  background: #d6eaf8;
+  color: #2874a6;
 }
 
 .boat-actions {
@@ -682,7 +784,7 @@ export default {
 }
 
 /* Button styles */
-.btn-primary, .btn-secondary {
+.btn-primary, .btn-secondary, .btn-danger {
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
@@ -712,6 +814,20 @@ export default {
 
 .btn-secondary:hover {
   background: #d5dbdb;
+}
+
+.btn-danger {
+  background: #e74c3c;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #c0392b;
+}
+
+.btn-danger:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
 }
 
 /* Responsive design */

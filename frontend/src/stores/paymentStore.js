@@ -9,7 +9,9 @@ import { getErrorMessage } from '../services/apiClient'
 export const usePaymentStore = defineStore('payment', {
   state: () => ({
     boatsReadyForPayment: [],
+    rentalsReadyForPayment: [],
     selectedBoatIds: [],
+    selectedRentalIds: [],
     loading: false,
     error: null,
     paymentIntent: null,
@@ -27,10 +29,20 @@ export const usePaymentStore = defineStore('payment', {
     },
 
     /**
-     * Calculate total amount for selected boats
+     * Get rentals that are selected for payment
+     */
+    selectedRentals: (state) => {
+      return state.rentalsReadyForPayment.filter(rental =>
+        state.selectedRentalIds.includes(rental.rental_boat_id)
+      )
+    },
+
+    /**
+     * Calculate total amount for selected boats and rentals
      */
     totalAmount: (state) => {
-      return state.boatsReadyForPayment
+      // Calculate boat registration fees
+      const boatTotal = state.boatsReadyForPayment
         .filter(boat => state.selectedBoatIds.includes(boat.boat_registration_id))
         .reduce((sum, boat) => {
           const pricing = boat.pricing
@@ -39,13 +51,26 @@ export const usePaymentStore = defineStore('payment', {
           }
           return sum
         }, 0)
+      
+      // Calculate rental fees
+      const rentalTotal = state.rentalsReadyForPayment
+        .filter(rental => state.selectedRentalIds.includes(rental.rental_boat_id))
+        .reduce((sum, rental) => {
+          const pricing = rental.pricing
+          if (pricing && pricing.total) {
+            return sum + parseFloat(pricing.total)
+          }
+          return sum
+        }, 0)
+      
+      return boatTotal + rentalTotal
     },
 
     /**
-     * Check if any boats are selected
+     * Check if any boats or rentals are selected
      */
     hasSelection: (state) => {
-      return state.selectedBoatIds.length > 0
+      return state.selectedBoatIds.length > 0 || state.selectedRentalIds.length > 0
     }
   },
 
@@ -78,6 +103,49 @@ export const usePaymentStore = defineStore('payment', {
     },
 
     /**
+     * Fetch confirmed rental boats ready for payment
+     */
+    async fetchRentalsReadyForPayment() {
+      this.loading = true
+      this.error = null
+
+      try {
+        const response = await boatService.getRentalsForPayment()
+        console.log('Rentals API response:', response)
+        this.rentalsReadyForPayment = response.data.rental_boats || []
+
+        console.log(`Found ${this.rentalsReadyForPayment.length} rentals ready for payment`)
+        console.log('Rentals data:', this.rentalsReadyForPayment)
+      } catch (error) {
+        this.error = getErrorMessage(error)
+        console.error('Failed to fetch rentals for payment:', error)
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    /**
+     * Fetch both boats and rentals ready for payment
+     */
+    async fetchAllForPayment() {
+      this.loading = true
+      this.error = null
+
+      try {
+        await Promise.all([
+          this.fetchBoatsReadyForPayment(),
+          this.fetchRentalsReadyForPayment()
+        ])
+      } catch (error) {
+        // Errors are already handled in individual fetch methods
+        throw error
+      } finally {
+        this.loading = false
+      }
+    },
+
+    /**
      * Set selected boat IDs
      */
     setSelectedBoats(boatIds) {
@@ -85,10 +153,18 @@ export const usePaymentStore = defineStore('payment', {
     },
 
     /**
+     * Set selected rental IDs
+     */
+    setSelectedRentals(rentalIds) {
+      this.selectedRentalIds = rentalIds
+    },
+
+    /**
      * Clear selection
      */
     clearSelection() {
       this.selectedBoatIds = []
+      this.selectedRentalIds = []
     },
 
     /**

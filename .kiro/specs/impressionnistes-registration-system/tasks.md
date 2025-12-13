@@ -358,7 +358,7 @@
   - Note: No separate Confirm/Reject buttons needed - admin uses status dropdown
   - _Requirements: FR-8.7, FR-8.10_
 
-- [ ] 11.8 Add boat rental payment to payment page
+- [x] 11.8 Add boat rental payment to payment page
   - Display confirmed rental boats in payment page alongside boat registrations
   - Calculate rental fee: 2.5x Base_Seat_Price for skiffs, Base_Seat_Price per seat for crew boats
   - Allow team managers to select confirmed rentals for payment

@@ -21,6 +21,7 @@ def create_payment_record(
     payment_intent_id: str,
     team_manager_id: str,
     boat_registration_ids: list,
+    rental_boat_ids: list,
     amount: Decimal,
     currency: str,
     receipt_url: str,
@@ -42,6 +43,7 @@ def create_payment_record(
         'stripe_payment_intent_id': payment_intent_id,
         'team_manager_id': team_manager_id,
         'boat_registration_ids': boat_registration_ids,
+        'rental_boat_ids': rental_boat_ids,
         'amount': amount,
         'currency': currency,
         'status': 'succeeded',
@@ -52,7 +54,7 @@ def create_payment_record(
     }
     
     db.put_item(payment_record)
-    logger.info(f"Created payment record: {payment_id}")
+    logger.info(f"Created payment record: {payment_id} ({len(boat_registration_ids)} boats, {len(rental_boat_ids)} rentals)")
     
     return payment_id
 
@@ -96,6 +98,40 @@ def update_boat_status_to_paid(
             logger.warning(f"Boat {boat_id} not found when updating to paid status")
 
 
+def update_rental_status_to_paid(
+    rental_boat_ids: list,
+    payment_id: str,
+    db
+):
+    """
+    Update rental boat status to 'paid'
+    """
+    timestamp = datetime.utcnow().isoformat()
+    
+    for rental_id in rental_boat_ids:
+        # Get current rental boat - rental_id already includes 'RENTAL_BOAT#' prefix
+        pk = rental_id
+        sk = 'METADATA'
+        
+        rental = db.get_item(pk=pk, sk=sk)
+        
+        if rental:
+            # Ensure PK and SK are present
+            rental['PK'] = pk
+            rental['SK'] = sk
+            
+            # Update status to paid
+            rental['status'] = 'paid'
+            rental['payment_id'] = payment_id
+            rental['paid_at'] = timestamp
+            rental['updated_at'] = timestamp
+            
+            db.put_item(rental)
+            logger.info(f"Updated rental {rental_id} status to 'paid'")
+        else:
+            logger.warning(f"Rental {rental_id} not found when updating to paid status")
+
+
 def handle_payment_succeeded(event_data: dict, db):
     """
     Handle payment_intent.succeeded event
@@ -109,9 +145,11 @@ def handle_payment_succeeded(event_data: dict, db):
     # Extract metadata
     team_manager_id = metadata.get('team_manager_id')
     boat_registration_ids_str = metadata.get('boat_registration_ids', '')
-    boat_registration_ids = boat_registration_ids_str.split(',') if boat_registration_ids_str else []
+    boat_registration_ids = [bid for bid in boat_registration_ids_str.split(',') if bid] if boat_registration_ids_str else []
+    rental_boat_ids_str = metadata.get('rental_boat_ids', '')
+    rental_boat_ids = [rid for rid in rental_boat_ids_str.split(',') if rid] if rental_boat_ids_str else []
     
-    if not team_manager_id or not boat_registration_ids:
+    if not team_manager_id or (not boat_registration_ids and not rental_boat_ids):
         logger.error(f"Missing metadata in payment intent {payment_intent_id}")
         return
     
@@ -128,6 +166,7 @@ def handle_payment_succeeded(event_data: dict, db):
         payment_intent_id=payment_intent_id,
         team_manager_id=team_manager_id,
         boat_registration_ids=boat_registration_ids,
+        rental_boat_ids=rental_boat_ids,
         amount=amount,
         currency=currency.upper(),
         receipt_url=receipt_url or '',
@@ -135,14 +174,23 @@ def handle_payment_succeeded(event_data: dict, db):
     )
     
     # Update boat registrations to 'paid' status
-    update_boat_status_to_paid(
-        team_manager_id=team_manager_id,
-        boat_registration_ids=boat_registration_ids,
-        payment_id=payment_id,
-        db=db
-    )
+    if boat_registration_ids:
+        update_boat_status_to_paid(
+            team_manager_id=team_manager_id,
+            boat_registration_ids=boat_registration_ids,
+            payment_id=payment_id,
+            db=db
+        )
     
-    logger.info(f"Successfully processed payment {payment_id} for {len(boat_registration_ids)} boats")
+    # Update rental boats to 'paid' status
+    if rental_boat_ids:
+        update_rental_status_to_paid(
+            rental_boat_ids=rental_boat_ids,
+            payment_id=payment_id,
+            db=db
+        )
+    
+    logger.info(f"Successfully processed payment {payment_id} for {len(boat_registration_ids)} boats and {len(rental_boat_ids)} rentals")
 
 
 def handle_payment_failed(event_data: dict, db):

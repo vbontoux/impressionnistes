@@ -16,7 +16,7 @@
     </div>
 
     <!-- Empty State -->
-    <div v-if="!paymentStore.loading && boatsReadyForPayment.length === 0" class="empty-state">
+    <div v-if="!paymentStore.loading && boatsReadyForPayment.length === 0 && rentalsReadyForPayment.length === 0" class="empty-state">
       <div class="empty-icon">💳</div>
       <h2>{{ $t('payment.noBoatsReady') }}</h2>
       <p>{{ $t('payment.noBoatsReadyDescription') }}</p>
@@ -44,25 +44,43 @@
           {{ $t('payment.deselectAll') }}
         </button>
         <span class="selection-count">
-          {{ $t('payment.selectedCount', { count: selectedCount, total: boatsReadyForPayment.length }) }}
+          {{ $t('payment.selectedCount', { count: totalSelectedCount, total: totalItemsCount }) }}
         </span>
       </div>
 
-      <!-- Boats List -->
-      <div class="boats-list">
-        <BoatPaymentCard
-          v-for="boat in boatsReadyForPayment"
-          :key="boat.boat_registration_id"
-          :boat="boat"
-          :selected="isSelected(boat.boat_registration_id)"
-          @toggle="toggleSelection(boat.boat_registration_id)"
-        />
+      <!-- Boat Registrations Section -->
+      <div v-if="boatsReadyForPayment.length > 0" class="payment-section">
+        <h2 class="section-title">{{ $t('payment.boatRegistrations') }}</h2>
+        <div class="boats-list">
+          <BoatPaymentCard
+            v-for="boat in boatsReadyForPayment"
+            :key="boat.boat_registration_id"
+            :boat="boat"
+            :selected="isBoatSelected(boat.boat_registration_id)"
+            @toggle="toggleBoatSelection(boat.boat_registration_id)"
+          />
+        </div>
+      </div>
+
+      <!-- Rental Boats Section -->
+      <div v-if="rentalsReadyForPayment.length > 0" class="payment-section">
+        <h2 class="section-title">{{ $t('payment.rentalBoats') }}</h2>
+        <div class="boats-list">
+          <RentalPaymentCard
+            v-for="rental in rentalsReadyForPayment"
+            :key="rental.rental_boat_id"
+            :rental="rental"
+            :selected="isRentalSelected(rental.rental_boat_id)"
+            @toggle="toggleRentalSelection(rental.rental_boat_id)"
+          />
+        </div>
       </div>
 
       <!-- Payment Summary (Sticky) -->
-      <div class="payment-summary-container" v-if="selectedCount > 0">
+      <div class="payment-summary-container" v-if="totalSelectedCount > 0">
         <PaymentSummary
           :selected-boats="selectedBoats"
+          :selected-rentals="selectedRentals"
           :total="totalAmount"
           @proceed="proceedToCheckout"
         />
@@ -78,6 +96,7 @@ import { usePaymentStore } from '../stores/paymentStore'
 import { useRaceStore } from '../stores/raceStore'
 import { useI18n } from 'vue-i18n'
 import BoatPaymentCard from '../components/BoatPaymentCard.vue'
+import RentalPaymentCard from '../components/RentalPaymentCard.vue'
 import PaymentSummary from '../components/PaymentSummary.vue'
 
 const router = useRouter()
@@ -85,9 +104,11 @@ const paymentStore = usePaymentStore()
 const raceStore = useRaceStore()
 
 const selectedBoatIds = ref(new Set())
+const selectedRentalIds = ref(new Set())
 
 // Computed properties
 const boatsReadyForPayment = computed(() => paymentStore.boatsReadyForPayment)
+const rentalsReadyForPayment = computed(() => paymentStore.rentalsReadyForPayment)
 
 const selectedBoats = computed(() => 
   boatsReadyForPayment.value.filter(boat => 
@@ -95,63 +116,91 @@ const selectedBoats = computed(() =>
   )
 )
 
-const selectedCount = computed(() => selectedBoatIds.value.size)
-
-const allSelected = computed(() => 
-  selectedCount.value === boatsReadyForPayment.value.length && boatsReadyForPayment.value.length > 0
+const selectedRentals = computed(() => 
+  rentalsReadyForPayment.value.filter(rental => 
+    selectedRentalIds.value.has(rental.rental_boat_id)
+  )
 )
 
-const noneSelected = computed(() => selectedCount.value === 0)
+const totalSelectedCount = computed(() => selectedBoatIds.value.size + selectedRentalIds.value.size)
 
-const totalAmount = computed(() => {
-  return selectedBoats.value.reduce((sum, boat) => {
-    const pricing = boat.pricing
-    if (pricing && pricing.total) {
-      return sum + parseFloat(pricing.total)
-    }
-    return sum
-  }, 0)
-})
+const totalItemsCount = computed(() => boatsReadyForPayment.value.length + rentalsReadyForPayment.value.length)
+
+const allSelected = computed(() => 
+  totalSelectedCount.value === totalItemsCount.value && totalItemsCount.value > 0
+)
+
+const noneSelected = computed(() => totalSelectedCount.value === 0)
+
+const totalAmount = computed(() => paymentStore.totalAmount)
 
 // Methods
-const isSelected = (boatId) => {
+const isBoatSelected = (boatId) => {
   return selectedBoatIds.value.has(boatId)
 }
 
-const toggleSelection = (boatId) => {
+const isRentalSelected = (rentalId) => {
+  return selectedRentalIds.value.has(rentalId)
+}
+
+const toggleBoatSelection = (boatId) => {
   if (selectedBoatIds.value.has(boatId)) {
     selectedBoatIds.value.delete(boatId)
   } else {
     selectedBoatIds.value.add(boatId)
   }
-  // Trigger reactivity
   selectedBoatIds.value = new Set(selectedBoatIds.value)
+  paymentStore.setSelectedBoats(Array.from(selectedBoatIds.value))
+}
+
+const toggleRentalSelection = (rentalId) => {
+  if (selectedRentalIds.value.has(rentalId)) {
+    selectedRentalIds.value.delete(rentalId)
+  } else {
+    selectedRentalIds.value.add(rentalId)
+  }
+  selectedRentalIds.value = new Set(selectedRentalIds.value)
+  paymentStore.setSelectedRentals(Array.from(selectedRentalIds.value))
 }
 
 const selectAll = () => {
   selectedBoatIds.value = new Set(
     boatsReadyForPayment.value.map(boat => boat.boat_registration_id)
   )
+  selectedRentalIds.value = new Set(
+    rentalsReadyForPayment.value.map(rental => rental.rental_boat_id)
+  )
+  paymentStore.setSelectedBoats(Array.from(selectedBoatIds.value))
+  paymentStore.setSelectedRentals(Array.from(selectedRentalIds.value))
 }
 
 const deselectAll = () => {
   selectedBoatIds.value = new Set()
+  selectedRentalIds.value = new Set()
+  paymentStore.setSelectedBoats([])
+  paymentStore.setSelectedRentals([])
 }
 
 const proceedToCheckout = () => {
-  // Store selected boats in payment store
+  // Store selected boats and rentals in payment store
   paymentStore.setSelectedBoats(Array.from(selectedBoatIds.value))
+  paymentStore.setSelectedRentals(Array.from(selectedRentalIds.value))
   // Navigate to checkout
   router.push('/payment/checkout')
 }
 
-// Load boats and races on mount
+// Load boats, rentals, and races on mount
 onMounted(async () => {
   // Load races first so they're available for display
   if (raceStore.races.length === 0) {
     await raceStore.fetchRaces()
   }
-  await paymentStore.fetchBoatsReadyForPayment()
+  await paymentStore.fetchAllForPayment()
+  
+  console.log('Payment page loaded')
+  console.log('Boats ready for payment:', boatsReadyForPayment.value.length)
+  console.log('Rentals ready for payment:', rentalsReadyForPayment.value.length)
+  console.log('Rentals data:', rentalsReadyForPayment.value)
 })
 </script>
 
@@ -219,6 +268,18 @@ onMounted(async () => {
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
+}
+
+.payment-section {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #e1e8ed;
 }
 
 .selection-controls {

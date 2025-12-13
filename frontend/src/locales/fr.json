@@ -407,10 +407,17 @@
     "requestSuccess": "Demande de location envoyée avec succès !",
     "requestError": "Erreur lors de l'envoi de la demande",
     "loadError": "Erreur lors du chargement des bateaux disponibles",
+    "cancelRequest": "Annuler la demande",
+    "confirmCancel": "Confirmer l'annulation",
+    "confirmCancelMessage": "Êtes-vous sûr de vouloir annuler votre demande de location pour '{boatName}' ?",
+    "cancelSuccess": "Demande de location annulée avec succès !",
+    "cancelError": "Erreur lors de l'annulation de la demande",
+    "cancelling": "Annulation...",
     "status": {
       "available": "Disponible",
       "requested": "Demandé",
-      "confirmed": "Confirmé"
+      "confirmed": "Confirmé",
+      "paid": "Payé"
     }
   },
   "payment": {
@@ -426,6 +433,10 @@
     "noBoatsReady": "Aucun bateau prêt pour le paiement",
     "noBoatsReadyDescription": "Complétez vos inscriptions de bateaux pour procéder au paiement",
     "goToBoats": "Aller aux bateaux",
+    "rentalBoats": "Bateaux de location",
+    "boatRegistrations": "Inscriptions de bateaux",
+    "rentalBoatsAvailable": "{count} location disponible | {count} locations disponibles",
+    "rentalBoatsSelected": "{count} location sélectionnée | {count} locations sélectionnées",
     "selectAll": "Tout sélectionner",
     "deselectAll": "Tout désélectionner",
     "boatsAvailable": "{count} bateau disponible | {count} bateaux disponibles",
