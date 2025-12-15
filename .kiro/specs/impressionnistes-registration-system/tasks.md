@@ -1,6 +1,6 @@
 # Implementation Plan - Course des Impressionnistes Registration System
 
-## VERSION 1 (MVP) - Core Registration System
+## COMPLETED TASKS ✅
 
 ### 0. Prerequisites and Local Development Setup ✅ COMPLETED
 
@@ -22,12 +22,11 @@
 - [x] 2.2 Create team manager registration and profile management
 - [x] 2.3 Build frontend authentication components
 
-### 3. Crew Member Management
+### 3. Crew Member Management ✅ PARTIALLY COMPLETED
 
 - [x] 3.1 Implement crew member data model and validation
 - [x] 3.2 Create crew member CRUD Lambda functions
 - [x] 3.3 Build crew member management frontend components
-
 - [x] 3.4 Implement license number uniqueness validation
   - Add GSI3 (License Number Uniqueness Index) to DynamoDB table in CDK
   - Update crew member creation Lambda to check for duplicate license numbers using GSI3
@@ -36,14 +35,6 @@
   - Update crew member update Lambda to check for duplicates when license number changes
   - _Requirements: FR-2.4, FR-2.5_
   - _Validates: Property 1 - License Number Uniqueness_
-
-- [ ] 3.5 Write property test for license number uniqueness
-  - **Feature: impressionnistes-registration-system, Property 1: License Number Uniqueness**
-  - Generate random crew members with random license numbers
-  - Attempt to add a second crew member with the same license number
-  - Verify the system rejects the duplicate and returns 409 Conflict error
-  - Test across different team managers to ensure competition-wide uniqueness
-  - **Validates: Requirements FR-2.4, FR-2.5**
 
 ### 4. Race Configuration and Management ✅ COMPLETED
 
@@ -158,7 +149,7 @@
   - Test receipt email delivery
   - _Requirements: FR-4.7_
 
-### 9. Post-Payment Boat Management
+### 9. Post-Payment Boat Management ✅ COMPLETED
 
 - [x] 9.1 Implement paid boat editing rules ✅ COMPLETED
   - ✅ Prevent deletion of paid boats (already implemented)
@@ -177,7 +168,7 @@
   - ✅ Update boat status filter to include "paid" (added dropdown filter)
   - _Requirements: FR-4.3_
 
-### 10. Admin Mode - Configuration Management (PRIORITY)
+### 10. Admin Mode - Configuration Management ✅ COMPLETED
 
 - [x] 10.1 Implement admin data model and access control ✅ COMPLETED
   - Add admin role to Cognito user groups (already exists)
@@ -253,32 +244,7 @@
   - Connected to backend API ✅
   - _Requirements: FR-8.1, FR-10.4_
 
-- [ ] 10.8 Backend: Data export for admin
-  - Create export_crew_members Lambda (admin only) - CSV with all crew details
-  - Create export_boat_registrations Lambda (admin only) - CSV with boat and race details
-  - Add filtering options (by event, by race, by payment status)
-  - Implement CSV generation with proper formatting
-  - Return downloadable file or S3 URL
-  - _Requirements: FR-7.2, FR-10.5_
-
-- [ ] 10.9 Frontend: Data export interface
-  - Create AdminDataExport.vue component
-  - Add export type selector (crew members, boat registrations)
-  - Implement filter options (event, race, payment status)
-  - Add "Export" button that triggers download
-  - Show export progress/loading state
-  - Display success message with download link
-  - _Requirements: FR-7.2, FR-10.5_
-
-- [ ] 10.10 Create admin dashboard landing page
-  - Create AdminDashboard.vue as main admin page
-  - Add navigation to all admin sections (events, pricing, boats, exports)
-  - Display quick stats (total registrations, total payments, boats available)
-  - Add links to configuration sections
-  - Show recent activity or alerts
-  - _Requirements: FR-10.1_
-
-### 11. Boat Rental Management
+### 11. Boat Rental Management ✅ COMPLETED
 
 - [x] 11.1 Add recommended rower weight field to rental boat data model
   - Update create_rental_boat Lambda to accept rower_weight_range (text field, optional)
@@ -407,6 +373,140 @@
   - Add home page content translations ✅
   - _Requirements: NFR-4.1, NFR-4.5, FR-11.5_
 
+### 15. Frontend Application Structure ✅ COMPLETED
+
+- [x] 15.1 Set up Vue.js 3 application with Vite ✅ COMPLETED
+  - Initialize Vite project with Vue 3 ✅
+  - Configure Vue Router with authentication guards ✅
+  - Set up Pinia stores for state management ✅
+  - Configure Axios for API communication ✅
+  - Add environment variable configuration ✅
+  - Set up development and production builds ✅
+  - _Requirements: TC-1.4, NFR-1.1, NFR-1.2_
+
+- [x] 15.2 Create main application views ✅ COMPLETED
+  - Build HomePage.vue for public landing page ✅
+  - Create DashboardView.vue for team managers ✅
+  - Build boat registration workflow (BoatDetail.vue) ✅
+  - Implement responsive layouts for mobile/tablet/desktop ✅
+  - Add loading states and error boundaries ✅
+  - _Requirements: NFR-4.4, NFR-4.5_
+
+- [x] 15.3 Implement common UI components ✅ COMPLETED
+  - Create reusable form components (CrewMemberForm, BoatRegistrationForm) ✅
+  - Build button components with loading states ✅
+  - Create modal/dialog components ✅
+  - Implement toast notification component (error messages) ✅
+  - Add loading spinner and skeleton screens ✅
+  - Create error message display components ✅
+  - _Requirements: NFR-5.2_
+
+### 16. API Gateway Integration ✅ COMPLETED
+
+- [x] 16.1 Set up API Gateway REST API ✅ COMPLETED
+  - Create API Gateway REST API with CORS configuration
+  - Configure API Gateway stages (dev, prod)
+  - Set up API Gateway authorizers with Cognito
+  - Implement request/response transformations
+  - Add API Gateway logging and monitoring
+  - _Requirements: TC-1.1, NFR-3.2_
+
+- [x] 16.2 Implement API Gateway routes ✅ PARTIALLY COMPLETED
+  - Create authentication endpoints (/auth/*) ✅
+  - Add crew member endpoints (/crew/*) ✅
+  - Create boat registration endpoints (/boat/*) ✅
+  - Create race endpoints (/races) ✅
+  - Implement payment endpoints (/payment/*) ✅
+  - Add boat rental endpoints (/rentals/*) ✅
+  - _Requirements: TC-1.5_
+
+### 17. Frontend Deployment and CDN ✅ COMPLETED
+
+- [x] 17.1 Set up S3 bucket for static website hosting ✅ COMPLETED
+  - Create S3 bucket with static website configuration ✅
+  - Configure bucket policies via Origin Access Identity (more secure than public) ✅
+  - Set up bucket versioning for rollback capability ✅
+  - Implement lifecycle policies for old versions ✅
+  - Add bucket encryption (S3_MANAGED) ✅
+  - _Requirements: TC-1.4_
+  - _Implementation: infrastructure/stacks/frontend_stack.py_
+
+- [x] 17.2 Configure CloudFront distribution ✅ COMPLETED
+  - Create CloudFront distribution with S3 origin ✅
+  - Configure Origin Access Identity for secure S3 access ✅
+  - Set up cache behaviors and TTLs (CACHING_OPTIMIZED policy) ✅
+  - Add HTTPS enforcement (REDIRECT_TO_HTTPS) ✅
+  - Configure error pages and redirects (404/403 → index.html for SPA) ✅
+  - Note: Custom domain and SSL certificate deferred to production setup
+  - _Requirements: TC-1.4, NFR-1.1, NFR-3.2_
+  - _Implementation: infrastructure/stacks/frontend_stack.py_
+
+- [x] 17.3 Implement frontend build and deployment pipeline ✅ COMPLETED
+  - Create build script for production optimization (Makefile: build-frontend) ✅
+  - Implement asset minification and compression (Vite handles automatically) ✅
+  - Add cache busting for static assets (Vite hashed filenames) ✅
+  - Create deployment in CDK with BucketDeployment ✅
+  - Implement CloudFront cache invalidation (distribution_paths=["/*"]) ✅
+  - Added environment variable handling (.env.production with CloudFront URL) ✅
+  - Updated Cognito callback URLs to include CloudFront domain ✅
+  - _Requirements: TC-2.1, NFR-1.1_
+  - _Implementation: infrastructure/Makefile (build-frontend, deploy-frontend), infrastructure/stacks/frontend_stack.py, infrastructure/stacks/auth_stack.py, infrastructure/app.py_
+
+---
+
+## PENDING TASKS
+
+### 3. Crew Member Management (Remaining)
+
+- [x] 3.5 Write property test for license number uniqueness
+  - **Feature: impressionnistes-registration-system, Property 1: License Number Uniqueness**
+  - Generate random crew members with random license numbers
+  - Attempt to add a second crew member with the same license number
+  - Verify the system rejects the duplicate and returns 409 Conflict error
+  - Test across different team managers to ensure competition-wide uniqueness
+  - **Validates: Requirements FR-2.4, FR-2.5**
+
+### 10. Admin Mode - Configuration Management (Remaining)
+
+- [ ] 10.8 Backend: Data export for admin
+  - Create export_crew_members Lambda (admin only) - CSV with all crew details
+  - Create export_boat_registrations Lambda (admin only) - CSV with boat and race details
+  - Add filtering options (by event, by race, by payment status)
+  - Implement CSV generation with proper formatting
+  - Return downloadable file or S3 URL
+  - _Requirements: FR-7.2, FR-10.5_
+
+- [ ] 10.9 Frontend: Data export interface
+  - Create AdminDataExport.vue component
+  - Add export type selector (crew members, boat registrations)
+  - Implement filter options (event, race, payment status)
+  - Add "Export" button that triggers download
+  - Show export progress/loading state
+  - Display success message with download link
+  - _Requirements: FR-7.2, FR-10.5_
+
+- [x] 10.10 Create admin dashboard landing page
+  - Create AdminDashboard.vue as main admin page
+  - Add navigation to all admin sections (events, pricing, boats, exports)
+  - Display quick stats (total registrations, total payments, boats available)
+  - Add links to configuration sections
+  - Show recent activity or alerts
+  - _Requirements: FR-10.1_
+
+- [ ] 10.11
+  - Add an Admin page to view all the crew members for all teams managers
+  - In filter zone, allow to sort or filter by team manager or club
+  - allow the admin to delete / modify / add any crew member at any time regardless or the date limits (registration end date or payment end date) that apply to team managers.
+- [ ] 10.12
+  - add an admin page to view all the boats registered for all teams managers
+  - In filter zone, allow to sort or filter by team manager or club
+  - allow the admin to delete / modify / add any boat at any time regardless or the date limits (registration end date or payment end date) that apply to team managers
+  - Add an attribute to the boat that allows the admin to set the boat to "out" (forfait in french)
+
+- [ ] 10.13
+  - add an admin page to view all the races with all boats
+  - allow to apply filters by club or race or boat type
+
 ### 14. Additional Data Export Features (Beyond Admin Exports)
 
 - [ ] 14.1 Implement advanced export formats
@@ -423,88 +523,9 @@
   - Implement export notifications
   - _Requirements: FR-7.2_
 
-### 15. Frontend Application Structure ✅ COMPLETED
-
-- [x] 15.1 Set up Vue.js 3 application with Vite ✅ COMPLETED
-  - Initialize Vite project with Vue 3 ✅
-  - Configure Vue Router with authentication guards ✅
-  - Set up Pinia stores for state management ✅
-  - Configure Axios for API communication ✅
-  - Add environment variable configuration ✅
-  - Set up development and production builds ✅
-  - _Requirements: TC-1.4, NFR-1.1, NFR-1.2_
-
-- [x] 14.2 Create main application views ✅ COMPLETED
-  - Build HomePage.vue for public landing page ✅
-  - Create DashboardView.vue for team managers ✅
-  - Build boat registration workflow (BoatDetail.vue) ✅
-  - Implement responsive layouts for mobile/tablet/desktop ✅
-  - Add loading states and error boundaries ✅
-  - _Requirements: NFR-4.4, NFR-4.5_
-
-- [x] 14.3 Implement common UI components ✅ COMPLETED
-  - Create reusable form components (CrewMemberForm, BoatRegistrationForm) ✅
-  - Build button components with loading states ✅
-  - Create modal/dialog components ✅
-  - Implement toast notification component (error messages) ✅
-  - Add loading spinner and skeleton screens ✅
-  - Create error message display components ✅
-  - _Requirements: NFR-5.2_
-
-### 16. API Gateway Integration
-
-- [x] 15.1 Set up API Gateway REST API ✅ COMPLETED
-  - Create API Gateway REST API with CORS configuration
-  - Configure API Gateway stages (dev, prod)
-  - Set up API Gateway authorizers with Cognito
-  - Implement request/response transformations
-  - Add API Gateway logging and monitoring
-  - _Requirements: TC-1.1, NFR-3.2_
-
-- [x] 15.2 Implement API Gateway routes ✅ PARTIALLY COMPLETED
-  - Create authentication endpoints (/auth/*) ✅
-  - Add crew member endpoints (/crew/*) ✅
-  - Create boat registration endpoints (/boat/*) ✅
-  - Create race endpoints (/races) ✅
-  - Implement payment endpoints (/payment/*) - TODO
-  - Add boat rental endpoints (/rentals/*) - TODO
-  - _Requirements: TC-1.5_
-
-### 17. Frontend Deployment and CDN ✅ COMPLETED
-
-- [x] 16.1 Set up S3 bucket for static website hosting ✅ COMPLETED
-  - Create S3 bucket with static website configuration ✅
-  - Configure bucket policies via Origin Access Identity (more secure than public) ✅
-  - Set up bucket versioning for rollback capability ✅
-  - Implement lifecycle policies for old versions ✅
-  - Add bucket encryption (S3_MANAGED) ✅
-  - _Requirements: TC-1.4_
-  - _Implementation: infrastructure/stacks/frontend_stack.py_
-
-- [x] 16.2 Configure CloudFront distribution ✅ COMPLETED
-  - Create CloudFront distribution with S3 origin ✅
-  - Configure Origin Access Identity for secure S3 access ✅
-  - Set up cache behaviors and TTLs (CACHING_OPTIMIZED policy) ✅
-  - Add HTTPS enforcement (REDIRECT_TO_HTTPS) ✅
-  - Configure error pages and redirects (404/403 → index.html for SPA) ✅
-  - Note: Custom domain and SSL certificate deferred to production setup
-  - _Requirements: TC-1.4, NFR-1.1, NFR-3.2_
-  - _Implementation: infrastructure/stacks/frontend_stack.py_
-
-- [x] 16.3 Implement frontend build and deployment pipeline ✅ COMPLETED
-  - Create build script for production optimization (Makefile: build-frontend) ✅
-  - Implement asset minification and compression (Vite handles automatically) ✅
-  - Add cache busting for static assets (Vite hashed filenames) ✅
-  - Create deployment in CDK with BucketDeployment ✅
-  - Implement CloudFront cache invalidation (distribution_paths=["/*"]) ✅
-  - Added environment variable handling (.env.production with CloudFront URL) ✅
-  - Updated Cognito callback URLs to include CloudFront domain ✅
-  - _Requirements: TC-2.1, NFR-1.1_
-  - _Implementation: infrastructure/Makefile (build-frontend, deploy-frontend), infrastructure/stacks/frontend_stack.py, infrastructure/stacks/auth_stack.py, infrastructure/app.py_
-
 ### 18. Basic Email Notifications (Essential Only)
 
-- [ ] 17.1 Set up AWS SES for email delivery
+- [ ] 18.1 Set up AWS SES for email delivery
   - Configure SES domain verification
   - Create essential email templates (registration confirmation, payment confirmation)
   - Implement multilingual email templates (French/English)
@@ -512,7 +533,7 @@
   - Configure bounce and complaint handling
   - _Requirements: NFR-6.1, NFR-6.5_
 
-- [ ] 17.2 Implement essential notification Lambda functions
+- [ ] 18.2 Implement essential notification Lambda functions
   - Create send_notification Lambda for immediate notifications
   - Implement payment confirmation emails
   - Add registration confirmation emails
@@ -521,7 +542,7 @@
 
 ### 19. Error Handling and Resilience
 
-- [ ] 18.1 Implement comprehensive error handling
+- [ ] 19.1 Implement comprehensive error handling
   - Create standardized error response format
   - Implement frontend global error handler
   - Add backend Lambda error handling wrappers
@@ -529,7 +550,7 @@
   - Implement error logging and tracking
   - _Requirements: NFR-5.2_
 
-- [ ] 18.2 Add retry logic and circuit breakers
+- [ ] 19.2 Add retry logic and circuit breakers
   - Implement exponential backoff for API retries
   - Add circuit breaker for external service calls (Stripe)
   - Create fallback mechanisms for service failures
@@ -539,14 +560,14 @@
 
 ### 20. Security Implementation
 
-- [ ] 19.1 Implement input sanitization and validation
+- [ ] 20.1 Implement input sanitization and validation
   - Create input sanitization utilities to prevent XSS
   - Add CSRF protection for state-changing operations
   - Create rate limiting for API endpoints
   - Implement request size limits
   - _Requirements: NFR-3.1, NFR-3.2_
 
-- [ ] 19.2 Configure encryption and secure communication
+- [ ] 20.2 Configure encryption and secure communication
   - Verify DynamoDB encryption at rest
   - Ensure all API Gateway endpoints use HTTPS
   - Implement secure environment variable management
@@ -555,13 +576,13 @@
 
 ### 21. Testing and Quality Assurance
 
-- [ ] 20.1 Create integration test suite
+- [ ] 21.1 Create integration test suite
   - Write integration tests for complete registration flow
   - Create payment processing integration tests
   - Add boat rental workflow integration tests
   - _Requirements: General quality assurance_
 
-- [ ] 20.2 Perform load and performance testing
+- [ ] 21.2 Perform load and performance testing
   - Create load testing scenarios
   - Test concurrent user scenarios (100-200 users)
   - Validate payment processing under load
@@ -569,8 +590,7 @@
   - _Requirements: NFR-1.1, NFR-1.3, NFR-2.1_
 
 ### 22. Production Deployment (V1)
-
-- [ ] 21.1 Production environment setup
+- [x] 22.1 Production environment setup
   - Create production AWS environment
   - Configure production domain and SSL certificates
   - Set up production Stripe account
@@ -578,14 +598,14 @@
   - Deploy production infrastructure with CDK
   - _Requirements: TC-1.1, TC-2.1_
 
-- [ ] 21.2 Production monitoring and backup
+- [ ] 22.2 Production monitoring and backup
   - Configure production CloudWatch dashboards
   - Set up critical alarms for Lambda errors, DynamoDB throttling
   - Verify DynamoDB point-in-time recovery is enabled
   - Test backup restoration procedures
   - _Requirements: TC-3.1, TC-3.2, TC-2.2_
 
-- [ ] 21.3 Production launch
+- [ ] 22.3 Production launch
   - Conduct UAT with RCPM stakeholders
   - Create user training materials
   - Perform production smoke tests
@@ -599,7 +619,7 @@
 
 ### 23. Payment History and Advanced Features
 
-- [ ] 22.1 Implement payment history page
+- [ ] 23.1 Implement payment history page
   - Create PaymentHistory.vue to display all payments
   - Show payment date, amount, boats included
   - Add download receipt functionality
@@ -607,7 +627,7 @@
   - Implement filtering by date range
   - _Requirements: FR-4.3, FR-4.7_
 
-- [ ] 22.2 Add payment receipt generation
+- [ ] 23.2 Add payment receipt generation
   - Create receipt PDF generation Lambda
   - Include itemized breakdown in receipt
   - Add RCPM branding to receipts
@@ -617,7 +637,7 @@
 
 ### 24. Advanced Admin Configuration (V2)
 
-- [ ] 23.1 Implement admin configuration Lambda functions
+- [ ] 24.1 Implement admin configuration Lambda functions
   - Create get_configuration Lambda for retrieving all config types
   - Implement update_configuration Lambda with validation
   - Add configuration change audit logging
@@ -625,18 +645,17 @@
   - Implement admin confirmation for impactful changes
   - _Requirements: FR-5.1, FR-5.2, FR-5.4, FR-5.5, FR-10.1-FR-10.8_
 
-- [ ] 23.2 Build admin configuration frontend interface
+- [ ] 24.2 Build admin configuration frontend interface
   - Create ConfigurationPanel.vue with tabbed sections
   - Add system configuration editor (dates, periods)
   - Create pricing configuration editor
-  - Implement notification settings editor
   - Add race configuration management
   - Display configuration change history
   - _Requirements: FR-5.1, FR-5.2, FR-10.1, FR-10.2, FR-10.3_
 
 ### 25. Registration Validation and Admin Management
 
-- [ ] 24.1 Implement registration validation Lambda functions
+- [ ] 25.1 Implement registration validation Lambda functions
   - Create get_all_registrations Lambda for admin review
   - Implement flag_registration_issue Lambda with notification trigger
   - Create resolve_flagged_issue Lambda for team manager actions
@@ -644,7 +663,7 @@
   - Add manual registration editing for admins
   - _Requirements: FR-6.1, FR-6.2, FR-6.3, FR-6.4, FR-6.5, FR-6.6_
 
-- [ ] 24.2 Build admin validation frontend interface
+- [ ] 25.2 Build admin validation frontend interface
   - Create RegistrationValidation.vue with filterable list
   - Add issue flagging interface with notification preview
   - Create editing access grant interface with time limits
@@ -653,7 +672,7 @@
   - Add bulk operations for common admin tasks
   - _Requirements: FR-6.1, FR-6.2, FR-6.5, FR-6.6_
 
-- [ ] 24.3 Create admin dashboard with real-time statistics
+- [ ] 25.3 Create admin dashboard with real-time statistics
   - Implement get_dashboard_stats Lambda with aggregations
   - Create Dashboard.vue with key metrics display
   - Add participant counts by category
@@ -664,14 +683,14 @@
 
 ### 26. Advanced Reporting and Analytics
 
-- [ ] 25.1 Implement advanced reporting Lambda functions
+- [ ] 26.1 Implement advanced reporting Lambda functions
   - Create export_payments Lambda for financial reports
   - Implement multi_club_crew revenue reporting
   - Add financial reports with revenue breakdown
   - Create audit log export functionality
   - _Requirements: FR-7.2, FR-9.7_
 
-- [ ] 25.2 Build advanced reporting frontend interface
+- [ ] 26.2 Build advanced reporting frontend interface
   - Create AdvancedReports.vue with multiple report types
   - Add date range filtering for reports
   - Display multi_club_crew statistics
@@ -681,14 +700,14 @@
 
 ### 27. Enhanced Notification System
 
-- [ ] 26.1 Implement advanced notification features
+- [ ] 27.1 Implement advanced notification features
   - Create schedule_notifications Lambda for recurring alerts
   - Implement process_notification_queue Lambda for batch processing
   - Add notification frequency management
   - Create notification preferences interface
   - _Requirements: NFR-6.2, NFR-6.3, NFR-6.4_
 
-- [ ] 26.2 Set up EventBridge schedulers for automated notifications
+- [ ] 27.2 Set up EventBridge schedulers for automated notifications
   - Create daily notification check scheduler
   - Implement payment reminder scheduler
   - Add deadline warning scheduler
@@ -696,7 +715,7 @@
   - Implement daily summary scheduler
   - _Requirements: NFR-6.2, NFR-6.3_
 
-- [ ] 26.3 Build notification center frontend component
+- [ ] 27.3 Build notification center frontend component
   - Create NotificationCenter.vue with message history
   - Add unread notification counter in navigation
   - Implement notification filtering and search
@@ -705,14 +724,14 @@
 
 ### 28. Slack Integration for Admin and DevOps
 
-- [ ] 27.1 Implement Slack webhook configuration
+- [ ] 28.1 Implement Slack webhook configuration
   - Add Slack webhook URL fields to notification config
   - Create webhook validation and testing functionality
   - Implement secure storage of webhook URLs
   - Add test notification sending capability
   - _Requirements: NFR-6.6, NFR-6.7_
 
-- [ ] 27.2 Implement Slack notification Lambda function
+- [ ] 28.2 Implement Slack notification Lambda function
   - Create send_slack_notification function with webhook integration
   - Implement Slack message block builders for different event types
   - Add rate limiting to prevent API abuse
@@ -720,7 +739,7 @@
   - Implement error handling and fallback mechanisms
   - _Requirements: NFR-6.6, NFR-6.7_
 
-- [ ] 27.3 Integrate Slack notifications into event handlers
+- [ ] 28.3 Integrate Slack notifications into event handlers
   - Add Slack notifications to boat registration events
   - Implement payment completion Slack alerts
   - Create boat rental request notifications
@@ -730,7 +749,7 @@
 
 ### 29. Contact Us Feature
 
-- [ ] 28.1 Implement contact form Lambda function
+- [ ] 29.1 Implement contact form Lambda function
   - Create submit_contact_form Lambda with validation
   - Implement email sending to admin contact address
   - Add auto-reply email to user
@@ -738,7 +757,7 @@
   - Implement contact form logging in DynamoDB
   - _Requirements: FR-12.1, FR-12.2, FR-12.3, FR-12.4, FR-12.5, FR-12.6_
 
-- [ ] 28.2 Build contact form frontend component
+- [ ] 29.2 Build contact form frontend component
   - Create ContactForm.vue with all required fields
   - Add subject selection dropdown
   - Implement form validation and error handling
@@ -749,7 +768,7 @@
 
 ### 30. GDPR Compliance Features
 
-- [ ] 29.1 Implement GDPR compliance features
+- [ ] 30.1 Implement GDPR compliance features
   - Create data deletion request handler
   - Implement user data anonymization
   - Add data export functionality for user requests
@@ -757,7 +776,7 @@
   - Implement audit logging for data access
   - _Requirements: NFR-3.4_
 
-- [ ] 29.2 Create privacy and legal pages
+- [ ] 30.2 Create privacy and legal pages
   - Create privacy policy and terms of service
   - Set up cookie consent management
   - Implement data retention policies
@@ -766,7 +785,7 @@
 
 ### 31. Performance Optimization
 
-- [ ] 30.1 Implement frontend performance optimizations
+- [ ] 31.1 Implement frontend performance optimizations
   - Add code splitting for route-based lazy loading
   - Implement component lazy loading
   - Create service worker for offline support
@@ -775,7 +794,7 @@
   - Optimize images and assets
   - _Requirements: NFR-1.1, NFR-1.2_
 
-- [ ] 30.2 Optimize backend Lambda functions
+- [ ] 31.2 Optimize backend Lambda functions
   - Implement connection pooling for DynamoDB
   - Add Lambda function warming to reduce cold starts
   - Optimize Lambda memory allocation
@@ -783,7 +802,7 @@
   - Add batch operations for bulk updates
   - _Requirements: NFR-1.2, NFR-1.3, NFR-2.1_
 
-- [ ] 30.3 Implement DynamoDB query optimization
+- [ ] 31.3 Implement DynamoDB query optimization
   - Use GSI indexes for efficient queries
   - Implement pagination for large result sets
   - Add DynamoDB query result caching
@@ -793,7 +812,7 @@
 
 ### 32. Advanced Testing
 
-- [ ] 31.1 Implement end-to-end testing
+- [ ] 32.1 Implement end-to-end testing
   - Set up Cypress for E2E testing
   - Create E2E tests for user registration and login
   - Write E2E tests for crew member and boat registration
@@ -801,7 +820,7 @@
   - Create E2E tests for admin workflows
   - _Requirements: General quality assurance_
 
-- [ ] 31.2 Advanced load testing
+- [ ] 32.2 Advanced load testing
   - Test concurrent user scenarios (1000+ users)
   - Validate system under peak load
   - Measure and optimize page load times
@@ -810,7 +829,7 @@
 
 ### 33. DevOps Utilities and Tools
 
-- [ ] 32.1 Create DevOps configuration access tools
+- [ ] 33.1 Create DevOps configuration access tools
   - Build CLI tool for emergency configuration updates
   - Implement configuration backup and restore scripts
   - Create database query utilities for DevOps
@@ -818,7 +837,7 @@
   - Implement log analysis tools
   - _Requirements: TC-4.5, TC-4.6_
 
-- [ ] 32.2 Set up advanced deployment automation
+- [ ] 33.2 Set up advanced deployment automation
   - Implement blue-green deployment strategy
   - Add rollback procedures and scripts
   - Create deployment validation tests
@@ -827,7 +846,7 @@
 
 ### 34. Documentation
 
-- [ ] 33.1 Create comprehensive API documentation
+- [ ] 34.1 Create comprehensive API documentation
   - Document all API endpoints with request/response examples
   - Create authentication flow documentation
   - Add error code reference guide
@@ -835,7 +854,7 @@
   - Create integration examples
   - _Requirements: General best practice_
 
-- [ ] 33.2 Write deployment and operations guides
+- [ ] 34.2 Write deployment and operations guides
   - Create infrastructure deployment guide
   - Write configuration management guide
   - Document backup and restore procedures
@@ -879,7 +898,7 @@ V2 adds advanced features and optimizations:
 
 ### Migration Notes
 - All completed tasks remain marked as completed
-- API Gateway routes partially completed (auth, crew, boat, races done; payment and rentals pending)
-- Frontend structure partially completed (Vite setup done; main views pending)
-- Tasks reorganized by priority for V1 launch
+- API Gateway routes fully completed (auth, crew, boat, races, payment, and rentals all done)
+- Frontend structure fully completed (Vite setup, main views, and components all done)
+- Tasks reorganized with completed tasks at top, pending tasks at bottom
 - V2 tasks can be implemented incrementally after V1 launch
