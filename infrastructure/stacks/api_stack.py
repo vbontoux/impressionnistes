@@ -414,6 +414,31 @@ class ApiStack(Stack):
             'Get admin dashboard statistics'
         )
         
+        # Admin crew member management functions (bypass date restrictions)
+        self.lambda_functions['admin_list_all_crew_members'] = self._create_lambda_function(
+            'AdminListAllCrewMembersFunction',
+            'admin/admin_list_all_crew_members',
+            'Admin list all crew members across all team managers'
+        )
+        
+        self.lambda_functions['admin_create_crew_member'] = self._create_lambda_function(
+            'AdminCreateCrewMemberFunction',
+            'admin/admin_create_crew_member',
+            'Admin create crew member for any team manager'
+        )
+        
+        self.lambda_functions['admin_update_crew_member'] = self._create_lambda_function(
+            'AdminUpdateCrewMemberFunction',
+            'admin/admin_update_crew_member',
+            'Admin update crew member for any team manager'
+        )
+        
+        self.lambda_functions['admin_delete_crew_member'] = self._create_lambda_function(
+            'AdminDeleteCrewMemberFunction',
+            'admin/admin_delete_crew_member',
+            'Admin delete crew member for any team manager'
+        )
+        
         # Team manager rental functions
         self.lambda_functions['list_available_rental_boats'] = self._create_lambda_function(
             'ListAvailableRentalBoatsFunction',
@@ -945,6 +970,60 @@ class ApiStack(Stack):
         stats_resource.add_method(
             'GET',
             get_stats_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Admin crew member management routes (bypass date restrictions)
+        # GET /admin/crew - List all crew members across all team managers (admin only)
+        admin_crew_resource = admin_resource.add_resource('crew')
+        admin_list_crew_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['admin_list_all_crew_members'],
+            proxy=True
+        )
+        admin_crew_resource.add_method(
+            'GET',
+            admin_list_crew_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # POST /admin/crew - Create crew member for any team manager (admin only)
+        admin_create_crew_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['admin_create_crew_member'],
+            proxy=True
+        )
+        admin_crew_resource.add_method(
+            'POST',
+            admin_create_crew_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # /admin/crew/{team_manager_id}/{crew_member_id} resource
+        admin_crew_tm_resource = admin_crew_resource.add_resource('{team_manager_id}')
+        admin_crew_member_resource = admin_crew_tm_resource.add_resource('{crew_member_id}')
+        
+        # PUT /admin/crew/{team_manager_id}/{crew_member_id} - Update crew member (admin only)
+        admin_update_crew_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['admin_update_crew_member'],
+            proxy=True
+        )
+        admin_crew_member_resource.add_method(
+            'PUT',
+            admin_update_crew_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # DELETE /admin/crew/{team_manager_id}/{crew_member_id} - Delete crew member (admin only)
+        admin_delete_crew_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['admin_delete_crew_member'],
+            proxy=True
+        )
+        admin_crew_member_resource.add_method(
+            'DELETE',
+            admin_delete_crew_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )

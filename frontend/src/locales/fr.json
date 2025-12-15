@@ -17,7 +17,11 @@
     "actions": "Actions",
     "cardView": "Vue en cartes",
     "tableView": "Vue en tableau",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "deleting": "Suppression...",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "pageInfo": "Page {current} sur {total}"
   },
   "footer": {
     "contactUs": "Nous contacter"
@@ -54,6 +58,8 @@
       "pricingDesc": "Gérer les prix des sièges et les frais de location",
       "boatInventory": "Bateaux à louer",
       "boatInventoryDesc": "Gérer les bateaux disponibles à la location",
+      "crewMembers": "Équipiers",
+      "crewMembersDesc": "Voir et gérer tous les équipiers",
       "dataExports": "Exports de données",
       "dataExportsDesc": "Exporter les équipiers et les inscriptions de bateaux"
     },
@@ -154,6 +160,28 @@
         "nameRequired": "Le nom du bateau est requis",
         "nameTooLong": "Le nom du bateau doit faire 100 caractères maximum"
       }
+    },
+    "crewMembers": {
+      "title": "Tous les équipiers",
+      "subtitle": "Voir et gérer les équipiers de tous les gestionnaires d'équipe",
+      "searchLabel": "Rechercher",
+      "searchPlaceholder": "Rechercher par nom, licence ou gestionnaire...",
+      "filterByClub": "Filtrer par club",
+      "clubPlaceholder": "Entrez le nom du club...",
+      "filterByTeamManager": "Filtrer par gestionnaire",
+      "allTeamManagers": "Tous les gestionnaires",
+      "clearFilters": "Effacer les filtres",
+      "addCrewMember": "Ajouter un équipier",
+      "totalCount": "{count} équipiers",
+      "teamManager": "Gestionnaire d'équipe",
+      "selectTeamManager": "Gestionnaire d'équipe",
+      "selectTeamManagerPlaceholder": "Sélectionner un gestionnaire...",
+      "editCrewMember": "Modifier l'équipier",
+      "confirmDelete": "Confirmer la suppression",
+      "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {name} ? Cette action est irréversible.",
+      "fetchError": "Échec du chargement des équipiers. Veuillez réessayer.",
+      "saveError": "Échec de l'enregistrement de l'équipier. Veuillez réessayer.",
+      "deleteError": "Échec de la suppression de l'équipier. Veuillez réessayer."
     }
   },
   "session": {
@@ -390,7 +418,7 @@
     "myRequests": "Mes demandes de location",
     "allTypes": "Tous les types",
     "weightCapacity": "Portance",
-    "status": "Statut",
+    "statusLabel": "Statut",
     "statusAvailable": "Disponible",
     "requestBoat": "Demander ce bateau",
     "requesting": "Demande en cours...",
@@ -418,6 +446,78 @@
       "requested": "Demandé",
       "confirmed": "Confirmé",
       "paid": "Payé"
+    }
+  },
+  "crew": {
+    "form": {
+      "createTitle": "Ajouter un membre d'équipage",
+      "editTitle": "Modifier un membre d'équipage",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "dateOfBirth": "Date de naissance",
+      "gender": "Genre",
+      "selectGender": "Sélectionner le genre",
+      "male": "Homme",
+      "female": "Femme",
+      "licenseNumber": "Numéro de licence",
+      "licenseHint": "Alphanumérique, 6-12 caractères",
+      "licenseWarningTitle": "AVERTISSEMENT IMPORTANT",
+      "licenseWarningText": "Si le numéro de licence n'est pas valide, vous assumez l'entière responsabilité de toute conséquence. Le rameur ET tous les autres membres de l'équipage ne seront PAS autorisés à participer à la course.",
+      "clubAffiliation": "Club d'affiliation",
+      "clubPlaceholder": "Laissez vide pour utiliser votre club",
+      "clubHint": "Laissez vide pour utiliser le club du gestionnaire d'équipe",
+      "foreignClub": "Club étranger ou non affilié à la",
+      "clubSearchPlaceholder": "Rechercher un club par nom ou URL...",
+      "noClubsFound": "Aucun club trouvé correspondant à votre recherche",
+      "create": "Créer",
+      "update": "Mettre à jour",
+      "createSuccess": "Membre d'équipage créé avec succès !",
+      "updateSuccess": "Membre d'équipage mis à jour avec succès !",
+      "error": "Une erreur s'est produite. Veuillez réessayer."
+    },
+    "validation": {
+      "firstNameRequired": "Le prénom est requis",
+      "lastNameRequired": "Le nom est requis",
+      "dateOfBirthRequired": "La date de naissance est requise",
+      "dateInFuture": "La date de naissance ne peut pas être dans le futur",
+      "dateTooOld": "Le rameur doit être né en {year} ou avant (âge minimum J14)",
+      "licenseInvalid": "Le numéro de licence doit être alphanumérique et contenir 6-12 caractères",
+      "licenseDuplicate": "Ce numéro de licence est déjà utilisé par un autre rameur"
+    },
+    "card": {
+      "assigned": "Assigné",
+      "dateOfBirth": "Né(e) le",
+      "age": "Âge",
+      "years": "ans",
+      "category": "Catégorie",
+      "gender": "Genre",
+      "club": "Club",
+      "boatId": "Bateau",
+      "flaggedIssues": "Problèmes signalés",
+      "cannotDeleteAssigned": "Impossible de supprimer un membre assigné à un bateau"
+    },
+    "list": {
+      "title": "Membres d'équipage",
+      "addNew": "Ajouter un membre",
+      "addFirst": "Ajouter votre premier membre",
+      "search": "Rechercher par nom ou numéro de licence...",
+      "all": "Tous",
+      "assigned": "Assignés",
+      "flagged": "Signalés",
+      "gender": "Genre",
+      "allGenders": "Tous",
+      "category": "Catégorie",
+      "allCategories": "Toutes",
+      "junior": "Junior",
+      "sortBy": "Trier par",
+      "lastName": "Nom",
+      "firstName": "Prénom",
+      "age": "Âge",
+      "dateAdded": "Date d'ajout",
+      "noMembers": "Aucun membre d'équipage trouvé",
+      "confirmDelete": "Confirmer la suppression",
+      "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {name} ?",
+      "deleteError": "Impossible de supprimer le membre d'équipage"
     }
   },
   "payment": {

@@ -5,6 +5,7 @@
     "cancel": "Cancel",
     "edit": "Edit",
     "delete": "Delete",
+    "deleting": "Deleting...",
     "view": "View",
     "create": "Create",
     "creating": "Creating...",
@@ -17,7 +18,10 @@
     "actions": "Actions",
     "cardView": "Card view",
     "tableView": "Table view",
-    "retry": "Retry"
+    "retry": "Retry",
+    "previous": "Previous",
+    "next": "Next",
+    "pageInfo": "Page {current} of {total}"
   },
   "footer": {
     "contactUs": "Contact Us"
@@ -54,6 +58,8 @@
       "pricingDesc": "Manage seat prices and rental fees",
       "boatInventory": "Rental Boats",
       "boatInventoryDesc": "Manage boats available for rental",
+      "crewMembers": "Crew Members",
+      "crewMembersDesc": "View and manage all crew members",
       "dataExports": "Data Exports",
       "dataExportsDesc": "Export crew members and boat registrations"
     },
@@ -154,6 +160,28 @@
         "nameRequired": "Boat name is required",
         "nameTooLong": "Boat name must be 100 characters or less"
       }
+    },
+    "crewMembers": {
+      "title": "All Crew Members",
+      "subtitle": "View and manage crew members for all team managers",
+      "searchLabel": "Search",
+      "searchPlaceholder": "Search by name, license, or team manager...",
+      "filterByClub": "Filter by Club",
+      "clubPlaceholder": "Enter club name...",
+      "filterByTeamManager": "Filter by Team Manager",
+      "allTeamManagers": "All team managers",
+      "clearFilters": "Clear Filters",
+      "addCrewMember": "Add Crew Member",
+      "totalCount": "{count} crew members",
+      "teamManager": "Team Manager",
+      "selectTeamManager": "Team Manager",
+      "selectTeamManagerPlaceholder": "Select a team manager...",
+      "editCrewMember": "Edit Crew Member",
+      "confirmDelete": "Confirm Delete",
+      "confirmDeleteMessage": "Are you sure you want to delete {name}? This action cannot be undone.",
+      "fetchError": "Failed to load crew members. Please try again.",
+      "saveError": "Failed to save crew member. Please try again.",
+      "deleteError": "Failed to delete crew member. Please try again."
     }
   },
   "session": {
@@ -390,7 +418,7 @@
     "myRequests": "My Rental Requests",
     "allTypes": "All Types",
     "weightCapacity": "Weight Capacity",
-    "status": "Status",
+    "statusLabel": "Status",
     "statusAvailable": "Available",
     "requestBoat": "Request This Boat",
     "requesting": "Requesting...",
@@ -418,6 +446,78 @@
       "requested": "Requested",
       "confirmed": "Confirmed",
       "paid": "Paid"
+    }
+  },
+  "crew": {
+    "form": {
+      "createTitle": "Add Crew Member",
+      "editTitle": "Edit Crew Member",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "dateOfBirth": "Date of Birth",
+      "gender": "Gender",
+      "selectGender": "Select gender",
+      "male": "Male",
+      "female": "Female",
+      "licenseNumber": "License Number",
+      "licenseHint": "Alphanumeric, 6-12 characters",
+      "licenseWarningTitle": "IMPORTANT WARNING",
+      "licenseWarningText": "If the license number is not valid, you assume full responsibility for any consequences. The rower AND all other crew members in the same boat will NOT be allowed to race.",
+      "clubAffiliation": "Club Affiliation",
+      "clubPlaceholder": "Leave empty to use your club",
+      "clubHint": "Leave empty to use team manager's club",
+      "foreignClub": "Foreign club or not affiliated with",
+      "clubSearchPlaceholder": "Search for a club by name or URL...",
+      "noClubsFound": "No clubs found matching your search",
+      "create": "Create",
+      "update": "Update",
+      "createSuccess": "Crew member created successfully!",
+      "updateSuccess": "Crew member updated successfully!",
+      "error": "An error occurred. Please try again."
+    },
+    "validation": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "dateOfBirthRequired": "Date of birth is required",
+      "dateInFuture": "Date of birth cannot be in the future",
+      "dateTooOld": "Rower must be born in {year} or earlier (minimum age J14)",
+      "licenseInvalid": "License number must be alphanumeric and 6-12 characters",
+      "licenseDuplicate": "This license number is already in use by another rower"
+    },
+    "card": {
+      "assigned": "Assigned",
+      "dateOfBirth": "Date of Birth",
+      "age": "Age",
+      "years": "years",
+      "category": "Category",
+      "gender": "Gender",
+      "club": "Club",
+      "boatId": "Boat",
+      "flaggedIssues": "Flagged Issues",
+      "cannotDeleteAssigned": "Cannot delete a member assigned to a boat"
+    },
+    "list": {
+      "title": "Crew Members",
+      "addNew": "Add Member",
+      "addFirst": "Add your first member",
+      "search": "Search by name or license number...",
+      "all": "All",
+      "assigned": "Assigned",
+      "flagged": "Flagged",
+      "gender": "Gender",
+      "allGenders": "All",
+      "category": "Category",
+      "allCategories": "All",
+      "junior": "Junior",
+      "sortBy": "Sort by",
+      "lastName": "Last Name",
+      "firstName": "First Name",
+      "age": "Age",
+      "dateAdded": "Date Added",
+      "noMembers": "No crew members found",
+      "confirmDelete": "Confirm Delete",
+      "confirmDeleteMessage": "Are you sure you want to delete {name}?",
+      "deleteError": "Failed to delete crew member"
     }
   },
   "payment": {
