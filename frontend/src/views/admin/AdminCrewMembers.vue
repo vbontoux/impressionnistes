@@ -24,7 +24,7 @@
           <select v-model="filterTeamManager" class="filter-select">
             <option value="">{{ $t('admin.crewMembers.allTeamManagers') }}</option>
             <option v-for="tm in teamManagers" :key="tm.id" :value="tm.id">
-              {{ tm.name }} ({{ tm.email }})
+              {{ tm.name }}
             </option>
           </select>
         </div>
@@ -74,7 +74,7 @@
         <thead>
           <tr>
             <th @click="sortBy('last_name')">
-              {{ $t('crew.list.name') }}
+              Nom
               <span v-if="sortField === 'last_name'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
             </th>
             <th>{{ $t('crew.list.age') }} / {{ $t('crew.card.category') }}</th>
@@ -122,9 +122,10 @@
               <button @click="editCrewMember(crew)" class="btn-table btn-edit-table">
                 {{ $t('common.edit') }}
               </button>
-              <button @click="confirmDelete(crew)" class="btn-table btn-delete-table">
+              <!-- Delete button hidden to prevent accidental deletions -->
+              <!-- <button @click="confirmDelete(crew)" class="btn-table btn-delete-table">
                 {{ $t('common.delete') }}
-              </button>
+              </button> -->
             </td>
           </tr>
         </tbody>
