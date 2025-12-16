@@ -46,22 +46,20 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="boatStore.loading && boatRegistrations.length === 0" class="loading">
-      {{ $t('common.loading') }}
+    <div v-if="boatStore.loading" class="loading">
+      <div class="spinner"></div>
+      <p>{{ $t('common.loading') }}</p>
     </div>
 
     <!-- Error State -->
-    <div v-if="boatStore.error" class="error-message">
+    <div v-else-if="boatStore.error" class="error-message">
       {{ boatStore.error }}
     </div>
 
     <!-- Boat Registrations List -->
-    <div v-if="!boatStore.loading || boatRegistrations.length > 0" class="boats-list">
+    <div v-else class="boats-list">
       <div v-if="boatRegistrations.length === 0" class="empty-state">
         <p>{{ $t('boat.noBoats') }}</p>
-        <button @click="showCreateForm = true" class="btn-primary">
-          {{ $t('boat.createFirst') }}
-        </button>
       </div>
 
       <!-- Card View -->
@@ -326,6 +324,26 @@ export default {
   padding: 0;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #4CAF50;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .header {
