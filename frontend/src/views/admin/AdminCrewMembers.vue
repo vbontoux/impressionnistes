@@ -92,7 +92,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="crew in paginatedCrewMembers" :key="crew.crew_id">
+          <tr v-for="crew in paginatedCrewMembers" :key="crew.crew_member_id">
             <td>
               <div class="name-cell">
                 <strong>{{ crew.first_name }} {{ crew.last_name }}</strong>
@@ -472,7 +472,7 @@ export default {
       try {
         // Update existing crew member
         await apiClient.put(
-          `/admin/crew/${crewToEdit.value.team_manager_id}/${crewToEdit.value.crew_id}`,
+          `/admin/crew/${crewToEdit.value.team_manager_id}/${crewToEdit.value.crew_member_id}`,
           crewForm.value
         );
 
@@ -492,7 +492,7 @@ export default {
 
       try {
         await apiClient.delete(
-          `/admin/crew/${crewToDelete.value.team_manager_id}/${crewToDelete.value.crew_id}`
+          `/admin/crew/${crewToDelete.value.team_manager_id}/${crewToDelete.value.crew_member_id}`
         );
         closeModals();
         await fetchCrewMembers();
