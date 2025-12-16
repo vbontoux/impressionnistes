@@ -100,11 +100,11 @@
             </td>
             <td>
               <div class="age-category-cell">
-                <span class="age">{{ calculateAge(crew.date_of_birth) }} ans</span>
-                <span class="category-badge" :class="`category-${getAgeCategoryForMember(crew.date_of_birth)}`">
-                  {{ $t(`boat.${getAgeCategoryForMember(crew.date_of_birth)}`) }}
-                  <span v-if="getAgeCategoryForMember(crew.date_of_birth) === 'master'" class="master-letter">
-                    {{ getMasterCategoryLetter(crew.date_of_birth) }}
+                <span class="age">{{ crew._age }} ans</span>
+                <span class="category-badge" :class="`category-${crew._category}`">
+                  {{ $t(`boat.${crew._category}`) }}
+                  <span v-if="crew._category === 'master'" class="master-letter">
+                    {{ crew._masterLetter }}
                   </span>
                 </span>
               </div>
@@ -326,8 +326,8 @@ export default {
         });
       }
 
-      // Apply sorting
-      filtered.sort((a, b) => {
+      // Apply sorting - create a copy to avoid mutating the original array
+      const sorted = [...filtered].sort((a, b) => {
         let aVal = a[sortField.value] || '';
         let bVal = b[sortField.value] || '';
         
@@ -343,7 +343,7 @@ export default {
         }
       });
 
-      return filtered;
+      return sorted;
     });
 
     const totalPages = computed(() => {
@@ -353,7 +353,15 @@ export default {
     const paginatedCrewMembers = computed(() => {
       const start = (currentPage.value - 1) * itemsPerPage;
       const end = start + itemsPerPage;
-      return filteredCrewMembers.value.slice(start, end);
+      const paginated = filteredCrewMembers.value.slice(start, end);
+      
+      // Pre-calculate age and category for each crew member to avoid repeated calculations in template
+      return paginated.map(crew => ({
+        ...crew,
+        _age: calculateAge(crew.date_of_birth),
+        _category: getAgeCategory(calculateAge(crew.date_of_birth)),
+        _masterLetter: getMasterCategory(calculateAge(crew.date_of_birth))
+      }));
     });
 
     // Methods
