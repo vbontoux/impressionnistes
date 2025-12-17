@@ -72,8 +72,8 @@
         >
           <div class="boat-header">
             <h3>{{ boat.event_type }} - {{ boat.boat_type }}</h3>
-            <span class="status-badge" :class="`status-${boat.registration_status}`">
-              {{ $t(`boat.status.${boat.registration_status}`) }}
+            <span class="status-badge" :class="`status-${getBoatStatus(boat)}`">
+              {{ getBoatStatusLabel(boat) }}
             </span>
           </div>
 
@@ -141,7 +141,7 @@
           <tbody>
             <template v-for="boat in boatRegistrations" :key="boat.boat_registration_id">
               <tr 
-                :class="`row-status-${boat.registration_status}`"
+                :class="getRowClass(boat)"
               >
                 <td>{{ boat.event_type }}</td>
                 <td>{{ boat.boat_type }}</td>
@@ -149,8 +149,8 @@
                 <td>{{ getCrewGenderCategory(boat) }}</td>
                 <td>{{ getCrewAverageAge(boat) }}</td>
                 <td>
-                  <span class="status-badge" :class="`status-${boat.registration_status}`">
-                    {{ $t(`boat.status.${boat.registration_status}`) }}
+                  <span class="status-badge" :class="`status-${getBoatStatus(boat)}`">
+                    {{ getBoatStatusLabel(boat) }}
                   </span>
                 </td>
                 <td>
@@ -235,6 +235,21 @@ export default {
       return strokeSeat?.crew_member_last_name || '-'
     }
 
+    const getBoatStatus = (boat) => {
+      if (boat.forfait) return 'forfait'
+      return boat.registration_status || 'incomplete'
+    }
+
+    const getBoatStatusLabel = (boat) => {
+      if (boat.forfait) return t('boat.status.forfait')
+      return t(`boat.status.${boat.registration_status || 'incomplete'}`)
+    }
+
+    const getRowClass = (boat) => {
+      if (boat.forfait) return 'row-forfait'
+      return `row-status-${boat.registration_status || 'incomplete'}`
+    }
+
     const getCrewGenderCategory = (boat) => {
       if (!boat.crew_composition) return '-'
       const gender = boat.crew_composition.gender_category
@@ -307,6 +322,9 @@ export default {
       boatRegistrations,
       getFilledSeatsCount,
       getFirstRowerLastName,
+      getBoatStatus,
+      getBoatStatusLabel,
+      getRowClass,
       getCrewGenderCategory,
       getCrewAverageAge,
       formatDate,
@@ -538,6 +556,11 @@ export default {
   color: white;
 }
 
+.status-badge.status-forfait {
+  background-color: #dc3545;
+  color: white;
+}
+
 .boat-details {
   margin-bottom: 1rem;
 }
@@ -702,6 +725,11 @@ export default {
 
 .boat-table tbody tr.row-status-incomplete {
   border-left: 4px solid #ffc107;
+}
+
+.boat-table tbody tr.row-forfait {
+  border-left: 4px solid #dc3545;
+  background-color: #fff5f5;
 }
 
 .boat-table .race-row {

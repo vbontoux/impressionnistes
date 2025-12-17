@@ -368,7 +368,8 @@
       "incomplete": "Incomplet",
       "complete": "Complet",
       "free": "Gratuit",
-      "paid": "Payé"
+      "paid": "Payé",
+      "forfait": "Forfait"
     },
     "createRegistration": "Créer une inscription de bateau",
     "eventType": "Type d'événement",

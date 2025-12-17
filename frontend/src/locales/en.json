@@ -368,7 +368,8 @@
       "incomplete": "Incomplete",
       "complete": "Complete",
       "free": "Free",
-      "paid": "Paid"
+      "paid": "Paid",
+      "forfait": "Forfait"
     },
     "createRegistration": "Create Boat Registration",
     "eventType": "Event Type",
