@@ -46,7 +46,7 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="boatStore.loading" class="loading">
+    <div v-if="boatStore.loading && boatRegistrations.length === 0" class="loading">
       <div class="spinner"></div>
       <p>{{ $t('common.loading') }}</p>
     </div>
@@ -57,8 +57,8 @@
     </div>
 
     <!-- Boat Registrations List -->
-    <div v-else class="boats-list">
-      <div v-if="boatRegistrations.length === 0" class="empty-state">
+    <div v-else-if="boatRegistrations.length > 0 || !boatStore.loading" class="boats-list">
+      <div v-if="boatRegistrations.length === 0 && !boatStore.loading" class="empty-state">
         <p>{{ $t('boat.noBoats') }}</p>
       </div>
 
