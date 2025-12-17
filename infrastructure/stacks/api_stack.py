@@ -439,6 +439,31 @@ class ApiStack(Stack):
             'Admin delete crew member for any team manager'
         )
         
+        # Admin boat management functions (bypass date restrictions)
+        self.lambda_functions['admin_list_all_boats'] = self._create_lambda_function(
+            'AdminListAllBoatsFunction',
+            'admin/admin_list_all_boats',
+            'Admin list all boat registrations across all team managers'
+        )
+        
+        self.lambda_functions['admin_create_boat'] = self._create_lambda_function(
+            'AdminCreateBoatFunction',
+            'admin/admin_create_boat',
+            'Admin create boat registration for any team manager'
+        )
+        
+        self.lambda_functions['admin_update_boat'] = self._create_lambda_function(
+            'AdminUpdateBoatFunction',
+            'admin/admin_update_boat',
+            'Admin update boat registration for any team manager'
+        )
+        
+        self.lambda_functions['admin_delete_boat'] = self._create_lambda_function(
+            'AdminDeleteBoatFunction',
+            'admin/admin_delete_boat',
+            'Admin delete boat registration for any team manager'
+        )
+        
         # Team manager rental functions
         self.lambda_functions['list_available_rental_boats'] = self._create_lambda_function(
             'ListAvailableRentalBoatsFunction',
@@ -1024,6 +1049,60 @@ class ApiStack(Stack):
         admin_crew_member_resource.add_method(
             'DELETE',
             admin_delete_crew_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Admin boat management routes (bypass date restrictions)
+        # GET /admin/boats - List all boat registrations across all team managers (admin only)
+        admin_boats_resource = admin_resource.add_resource('boats')
+        admin_list_boats_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['admin_list_all_boats'],
+            proxy=True
+        )
+        admin_boats_resource.add_method(
+            'GET',
+            admin_list_boats_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # POST /admin/boats - Create boat registration for any team manager (admin only)
+        admin_create_boat_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['admin_create_boat'],
+            proxy=True
+        )
+        admin_boats_resource.add_method(
+            'POST',
+            admin_create_boat_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # /admin/boats/{team_manager_id}/{boat_registration_id} resource
+        admin_boats_tm_resource = admin_boats_resource.add_resource('{team_manager_id}')
+        admin_boat_resource = admin_boats_tm_resource.add_resource('{boat_registration_id}')
+        
+        # PUT /admin/boats/{team_manager_id}/{boat_registration_id} - Update boat (admin only)
+        admin_update_boat_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['admin_update_boat'],
+            proxy=True
+        )
+        admin_boat_resource.add_method(
+            'PUT',
+            admin_update_boat_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # DELETE /admin/boats/{team_manager_id}/{boat_registration_id} - Delete boat (admin only)
+        admin_delete_boat_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['admin_delete_boat'],
+            proxy=True
+        )
+        admin_boat_resource.add_method(
+            'DELETE',
+            admin_delete_boat_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )

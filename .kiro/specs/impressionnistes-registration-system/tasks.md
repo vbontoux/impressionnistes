@@ -493,19 +493,21 @@
   - Show recent activity or alerts
   - _Requirements: FR-10.1_
 
-- [ ] 10.11
+- [x] 10.11
   - Add an Admin page to view all the crew members for all teams managers
   - In filter zone, allow to sort or filter by team manager or club
-  - allow the admin to delete / modify / add any crew member at any time regardless or the date limits (registration end date or payment end date) that apply to team managers.
-- [ ] 10.12
+  - allow the admin to modify / add any crew member at any time regardless or the date limits (registration end date or payment end date) that apply to team managers.
+
+- [x] 10.12
   - add an admin page to view all the boats registered for all teams managers
-  - In filter zone, allow to sort or filter by team manager or club
+  - Make the page similar to the boats page 
+  - add the search and filter zone to allow to sort or filter by team manager or club
   - allow the admin to delete / modify / add any boat at any time regardless or the date limits (registration end date or payment end date) that apply to team managers
   - Add an attribute to the boat that allows the admin to set the boat to "out" (forfait in french)
 
-- [ ] 10.13
+<!-- - [ ] 10.13
   - add an admin page to view all the races with all boats
-  - allow to apply filters by club or race or boat type
+  - allow to apply filters by club or race or boat type -->
 
 ### 14. Additional Data Export Features (Beyond Admin Exports)
 
