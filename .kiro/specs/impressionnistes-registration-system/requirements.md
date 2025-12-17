@@ -212,6 +212,39 @@ These requirements define what the system does from a business and user perspect
 7. THE Registration_System SHALL display the contact form in the user's selected language (French or English)
 8. THE Registration_System SHALL include the user's registration information (if authenticated) in the contact form submission for context
 
+### FR-13: Admin Crew Member Management
+
+**User Story:** As an admin user, I want to view and manage all crew members across all team managers, so that I can oversee registrations and make corrections regardless of date restrictions.
+
+#### Acceptance Criteria
+
+1. WHEN an Admin_User accesses the crew member management interface, THE Registration_System SHALL display all crew members from all team managers with their associated team manager information
+2. THE Registration_System SHALL allow Admin_Users to filter crew members by team manager, club affiliation, or search by name and license number
+3. WHEN an Admin_User creates a crew member, THE Registration_System SHALL allow selection of any team manager and bypass registration period date restrictions
+4. WHEN an Admin_User updates a crew member, THE Registration_System SHALL allow modifications regardless of registration period or payment deadline restrictions
+5. WHEN an Admin_User deletes a crew member, THE Registration_System SHALL allow deletion regardless of date restrictions, provided the crew member is not assigned to a boat
+6. THE Registration_System SHALL display crew member details including first name, last name, age, gender, license number, club affiliation, and associated team manager
+7. THE Registration_System SHALL provide sorting capabilities by name, club, team manager, and other relevant fields
+8. THE Registration_System SHALL log all Admin_User actions on crew members with timestamps and user identification for audit purposes
+
+### FR-14: Admin Boat Registration Management
+
+**User Story:** As an admin user, I want to view and manage all boat registrations across all team managers, so that I can oversee the competition and handle special cases like forfaits.
+
+#### Acceptance Criteria
+
+1. WHEN an Admin_User accesses the boat registration management interface, THE Registration_System SHALL display all boat registrations from all team managers with their associated team manager information
+2. THE Registration_System SHALL allow Admin_Users to filter boats by team manager, club affiliation, registration status, or search by event type and boat type
+3. WHEN an Admin_User views boat registrations, THE Registration_System SHALL display event type, boat type, crew composition, registration status, team manager name, and club affiliation
+4. WHEN an Admin_User marks a boat as forfait, THE Registration_System SHALL update the boat status to indicate withdrawal from the competition
+5. WHEN an Admin_User removes forfait status from a boat, THE Registration_System SHALL restore the boat to its previous registration status
+6. THE Registration_System SHALL visually distinguish forfait boats from active registrations in the admin interface
+7. WHEN an Admin_User deletes a boat registration, THE Registration_System SHALL allow deletion regardless of date restrictions, except for boats with paid status
+8. THE Registration_System SHALL prevent deletion of paid boat registrations to maintain payment integrity
+9. THE Registration_System SHALL display paid and complete boat registrations with consistent visual styling to indicate finalized status
+10. THE Registration_System SHALL provide sorting capabilities by event type, boat type, team manager, club, and registration status
+11. THE Registration_System SHALL log all Admin_User actions on boat registrations with timestamps and user identification for audit purposes
+
 ---
 
 ## 2. Non-Functional Requirements
