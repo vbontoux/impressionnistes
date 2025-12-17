@@ -93,6 +93,9 @@ class ApiStack(Stack):
         # Create admin Lambda functions
         self._create_admin_functions()
         
+        # Create public Lambda functions (no auth required)
+        self._create_public_functions()
+        
         # Create API Gateway REST API
         self._create_api_gateway()
         
@@ -494,6 +497,16 @@ class ApiStack(Stack):
             'rental/get_rentals_for_payment',
             'Get confirmed rental boats ready for payment'
         )
+    
+    def _create_public_functions(self):
+        """Create public Lambda functions (no authentication required)"""
+        
+        # Get public event info function
+        self.lambda_functions['get_public_event_info'] = self._create_lambda_function(
+            'GetPublicEventInfoFunction',
+            'health/get_public_event_info',
+            'Get public event information including dates for home page'
+        )
 
     def _create_api_gateway(self):
         """Create API Gateway REST API with Cognito authorizer"""
@@ -717,6 +730,20 @@ class ApiStack(Stack):
             delete_crew_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Create /public resource (public endpoints - no auth required)
+        public_resource = self.api.root.add_resource('public')
+        
+        # GET /public/event-info - Get public event information (no auth required)
+        event_info_resource = public_resource.add_resource('event-info')
+        get_public_event_info_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['get_public_event_info'],
+            proxy=True
+        )
+        event_info_resource.add_method(
+            'GET',
+            get_public_event_info_integration
         )
         
         # Create /clubs resource

@@ -35,7 +35,7 @@
           <div class="date-card">
             <div class="date-icon">📅</div>
             <h3>{{ $t('home.dates.registrationOpen') }}</h3>
-            <p class="date-value">{{ $t('home.dates.registrationOpenDate') }}</p>
+            <p class="date-value">{{ formattedRegistrationStartDate }}</p>
             <div class="date-rules">
               <p class="rule-text">
                 <svg class="rule-icon check" viewBox="0 0 20 20" fill="currentColor">
@@ -66,7 +66,7 @@
           <div class="date-card">
             <div class="date-icon">🔒</div>
             <h3>{{ $t('home.dates.registrationClose') }}</h3>
-            <p class="date-value">{{ $t('home.dates.registrationCloseDate') }}</p>
+            <p class="date-value">{{ formattedRegistrationEndDate }}</p>
             <div class="date-rules">
               <p class="rule-text">
                 <svg class="rule-icon cross" viewBox="0 0 20 20" fill="currentColor">
@@ -103,7 +103,7 @@
           <div class="date-card">
             <div class="date-icon">💳</div>
             <h3>{{ $t('home.dates.paymentDeadline') }}</h3>
-            <p class="date-value">{{ $t('home.dates.paymentDeadlineDate') }}</p>
+            <p class="date-value">{{ formattedPaymentDeadline }}</p>
             <div class="date-rules">
               <p class="rule-text">
                 <svg class="rule-icon cross" viewBox="0 0 20 20" fill="currentColor">
@@ -128,7 +128,7 @@
           <div class="date-card highlight">
             <div class="date-icon">🏁</div>
             <h3>{{ $t('home.dates.competitionDate') }}</h3>
-            <p class="date-value">{{ $t('home.dates.competitionDateValue') }}</p>
+            <p class="date-value">{{ formattedEventDate }}</p>
             <div class="date-rules">
               <p class="rule-text">
                 <svg class="rule-icon warning" viewBox="0 0 20 20" fill="currentColor">
@@ -353,11 +353,60 @@
 </template>
 
 <script setup>
-import { useAuthStore } from '../stores/authStore';
+import { ref, computed, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '../stores/authStore'
+import { useEventInfo } from '../composables/useEventInfo'
+import { formatDateShort } from '../utils/dateFormatter'
 
-const authStore = useAuthStore();
-const contactEmail = import.meta.env.VITE_CONTACT_EMAIL || 'impressionnistes@rcpm-aviron.fr';
-const eventWebsite = import.meta.env.VITE_EVENT_WEBSITE || 'https://rcpm-aviron.fr/';
+const authStore = useAuthStore()
+const { locale } = useI18n()
+const { eventInfo, fetchEventInfo } = useEventInfo()
+
+const contactEmail = import.meta.env.VITE_CONTACT_EMAIL || 'impressionnistes@rcpm-aviron.fr'
+const eventWebsite = import.meta.env.VITE_EVENT_WEBSITE || 'https://rcpm-aviron.fr/'
+
+// Fallback dates from translation files
+const fallbackDates = {
+  registrationStartDate: '19 mars 2025',
+  registrationEndDate: '19 avril 2025',
+  paymentDeadline: '25 avril 2025',
+  eventDate: '1er mai 2025'
+}
+
+// Computed properties for formatted dates
+const formattedRegistrationStartDate = computed(() => {
+  if (eventInfo.value?.registration_start_date) {
+    return formatDateShort(eventInfo.value.registration_start_date, locale.value)
+  }
+  return fallbackDates.registrationStartDate
+})
+
+const formattedRegistrationEndDate = computed(() => {
+  if (eventInfo.value?.registration_end_date) {
+    return formatDateShort(eventInfo.value.registration_end_date, locale.value)
+  }
+  return fallbackDates.registrationEndDate
+})
+
+const formattedPaymentDeadline = computed(() => {
+  if (eventInfo.value?.payment_deadline) {
+    return formatDateShort(eventInfo.value.payment_deadline, locale.value)
+  }
+  return fallbackDates.paymentDeadline
+})
+
+const formattedEventDate = computed(() => {
+  if (eventInfo.value?.event_date) {
+    return formatDateShort(eventInfo.value.event_date, locale.value)
+  }
+  return fallbackDates.eventDate
+})
+
+// Fetch event info on mount
+onMounted(async () => {
+  await fetchEventInfo()
+})
 </script>
 
 <style scoped>
