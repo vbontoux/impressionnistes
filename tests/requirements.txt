@@ -1,0 +1,8 @@
+# Test dependencies
+pytest==7.4.3
+pytest-cov==4.1.0
+moto[dynamodb]==4.2.9
+boto3==1.34.10
+
+# Note: We explicitly avoid installing 'responses' package
+# because it conflicts with our functions/shared/responses.py module

@@ -1,9 +1,15 @@
-.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws list describe-infra costs db-export db-view db-reset db-migrate cognito-create-admin cognito-list-users cognito-add-to-group clean
+.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws list describe-infra costs db-export db-view db-reset db-migrate cognito-create-admin cognito-list-users cognito-add-to-group clean test test-setup test-clean test-coverage
 
 # Virtual environment paths
 VENV = venv
 PYTHON = $(VENV)/bin/python
 PIP = $(VENV)/bin/pip
+
+# Test virtual environment paths (relative to project root)
+TEST_VENV = tests/venv
+TEST_PYTHON = $(TEST_VENV)/bin/python
+TEST_PIP = $(TEST_VENV)/bin/pip
+TEST_PYTEST = $(TEST_VENV)/bin/pytest
 
 # CDK should be installed globally
 CDK = cdk
@@ -72,6 +78,12 @@ help:
 	@echo "  make boat-unpay TEAM_MANAGER_ID=xxx BOAT_ID=xxx      - Reset single boat to unpaid"
 	@echo "  make boat-unpay-all TEAM_MANAGER_ID=xxx              - Reset all boats to unpaid"
 	@echo "  make boat-list-paid TEAM_MANAGER_ID=xxx              - List all paid boats"
+	@echo ""
+	@echo "Testing:"
+	@echo "  make test-setup     - Set up test environment (create venv, install deps)"
+	@echo "  make test           - Run all integration tests"
+	@echo "  make test-coverage  - Run tests with HTML coverage report"
+	@echo "  make test-clean     - Remove test venv and cache files"
 	@echo ""
 	@echo "Troubleshooting:"
 	@echo "  make fix-stuck-stack - Fix stuck CloudFormation stack"
@@ -1182,3 +1194,66 @@ boat-unpay-all:
 	echo "=========================================="; \
 	echo "✓ All boats reset successfully!"; \
 	echo "=========================================="
+
+# ==========================================
+# Testing Commands
+# ==========================================
+
+test-setup:
+	@echo "=========================================="
+	@echo "Setting Up Test Environment"
+	@echo "=========================================="
+	@echo ""
+	@if [ ! -d "../$(TEST_VENV)" ]; then \
+		echo "Creating test virtual environment..."; \
+		cd .. && python3 -m venv $(TEST_VENV); \
+		echo "✓ Virtual environment created"; \
+		echo ""; \
+	else \
+		echo "✓ Virtual environment already exists"; \
+		echo ""; \
+	fi
+	@echo "Installing test dependencies..."
+	@cd .. && $(TEST_PIP) install --upgrade pip -q
+	@cd .. && $(TEST_PIP) install -r tests/requirements.txt -q
+	@echo "✓ Dependencies installed"
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ Test environment ready!"
+	@echo ""
+	@echo "Run tests with: make test"
+	@echo "=========================================="
+
+test: test-setup
+	@echo "=========================================="
+	@echo "Running Integration Tests"
+	@echo "=========================================="
+	@echo ""
+	@cd .. && $(TEST_PYTEST) tests/ -v
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ Tests complete!"
+	@echo "=========================================="
+
+test-coverage: test-setup
+	@echo "=========================================="
+	@echo "Running Tests with Coverage"
+	@echo "=========================================="
+	@echo ""
+	@cd .. && $(TEST_PYTEST) tests/ -v --cov=functions --cov-report=term-missing --cov-report=html
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ Tests complete!"
+	@echo ""
+	@echo "📊 Coverage report: htmlcov/index.html"
+	@echo "=========================================="
+
+test-clean:
+	@echo "Cleaning test environment..."
+	@rm -rf ../$(TEST_VENV)
+	@rm -rf ../tests/__pycache__
+	@rm -rf ../tests/integration/__pycache__
+	@rm -rf ../.pytest_cache
+	@rm -rf ../htmlcov
+	@rm -rf ../.coverage
+	@echo "✓ Test environment cleaned"
