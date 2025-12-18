@@ -1,0 +1,21 @@
+{
+  "name": "Run Tests on Python File Save",
+  "description": "Automatically runs integration tests when Lambda or shared Python files are saved",
+  "enabled": true,
+  "trigger": {
+    "type": "onFileSave",
+    "filePattern": "functions/**/*.py"
+  },
+  "action": {
+    "type": "shellCommand",
+    "command": "cd infrastructure && make test",
+    "showOutput": true,
+    "continueOnError": true
+  },
+  "debounceMs": 2000,
+  "metadata": {
+    "category": "testing",
+    "createdBy": "kiro",
+    "createdAt": "2024-12-18"
+  }
+}

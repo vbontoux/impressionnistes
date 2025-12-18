@@ -14,7 +14,7 @@ from responses import (
     success_response,
     validation_error,
     internal_error,
-    handle_exceptions
+    handle_exceptions 
 )
 from validation import validate_crew_member, sanitize_dict, crew_member_schema, is_rcpm_member
 from database import get_db_client, get_timestamp
@@ -55,7 +55,7 @@ def lambda_handler(event, context):
         return validation_error({'body': 'Invalid JSON'})
     
     # Extract and sanitize data
-    crew_data = sanitize_dict({
+    crew_data = sanitize_dict({ 
         'first_name': body.get('first_name', '').strip(),
         'last_name': body.get('last_name', '').strip(),
         'date_of_birth': body.get('date_of_birth', '').strip(),

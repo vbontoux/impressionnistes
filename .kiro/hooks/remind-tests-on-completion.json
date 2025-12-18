@@ -1,0 +1,20 @@
+{
+  "name": "Remind to Run Tests After Task Completion",
+  "description": "Sends a reminder message to run tests after completing a task that modified backend code",
+  "enabled": true,
+  "trigger": {
+    "type": "onExecutionComplete"
+  },
+  "action": {
+    "type": "sendMessage",
+    "message": "⚠️ Task complete! If you modified any backend Python files, please run tests:\n\ncd infrastructure && make test\n\nThis ensures no regressions were introduced."
+  },
+  "conditions": {
+    "filesModified": "functions/**/*.py"
+  },
+  "metadata": {
+    "category": "testing",
+    "createdBy": "kiro",
+    "createdAt": "2024-12-18"
+  }
+}

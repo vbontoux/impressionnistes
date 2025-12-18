@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Run Tests on Functions Change",
+  "description": "Automatically runs all tests when any file in the functions/ folder is modified to ensure code quality and catch regressions early",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "functions/**/*"
+    ]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "cd infrastructure && make test"
+  }
+}
