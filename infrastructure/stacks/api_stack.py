@@ -497,6 +497,28 @@ class ApiStack(Stack):
             'rental/get_rentals_for_payment',
             'Get confirmed rental boats ready for payment'
         )
+        
+        # Export functions
+        self.lambda_functions['export_crewtimer'] = self._create_lambda_function(
+            'ExportCrewTimerFunction',
+            'admin/export_crewtimer',
+            'Export races and boats in CrewTimer.com format',
+            timeout=60  # Longer timeout for export generation (in seconds)
+        )
+        
+        self.lambda_functions['export_crew_members'] = self._create_lambda_function(
+            'ExportCrewMembersFunction',
+            'admin/export_crew_members',
+            'Export all crew members to CSV format',
+            timeout=60
+        )
+        
+        self.lambda_functions['export_boat_registrations'] = self._create_lambda_function(
+            'ExportBoatRegistrationsFunction',
+            'admin/export_boat_registrations',
+            'Export all boat registrations to CSV format with race names',
+            timeout=60
+        )
     
     def _create_public_functions(self):
         """Create public Lambda functions (no authentication required)"""
@@ -554,7 +576,14 @@ class ApiStack(Stack):
                 logging_level=apigateway.MethodLoggingLevel.INFO,
                 data_trace_enabled=True,
                 metrics_enabled=True
-            )
+            ),
+            
+            # Binary media types for file downloads
+            binary_media_types=[
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',  # Excel
+                'application/octet-stream',  # Generic binary
+                'text/csv'  # CSV files
+            ]
         )
         
         # Add Gateway Responses for CORS on error responses
@@ -1022,6 +1051,47 @@ class ApiStack(Stack):
         stats_resource.add_method(
             'GET',
             get_stats_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Export routes
+        # GET /admin/export/crewtimer - Export races and boats in CrewTimer format (admin only)
+        export_resource = admin_resource.add_resource('export')
+        crewtimer_export_resource = export_resource.add_resource('crewtimer')
+        export_crewtimer_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['export_crewtimer'],
+            proxy=True
+        )
+        crewtimer_export_resource.add_method(
+            'GET',
+            export_crewtimer_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # GET /admin/export/crew-members - Export all crew members to CSV (admin only)
+        crew_members_export_resource = export_resource.add_resource('crew-members')
+        export_crew_members_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['export_crew_members'],
+            proxy=True
+        )
+        crew_members_export_resource.add_method(
+            'GET',
+            export_crew_members_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # GET /admin/export/boat-registrations - Export all boat registrations to CSV (admin only)
+        boat_registrations_export_resource = export_resource.add_resource('boat-registrations')
+        export_boat_registrations_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['export_boat_registrations'],
+            proxy=True
+        )
+        boat_registrations_export_resource.add_method(
+            'GET',
+            export_boat_registrations_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )

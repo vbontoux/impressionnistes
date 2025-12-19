@@ -511,19 +511,9 @@
 
 ### 14. Additional Data Export Features (Beyond Admin Exports)
 
-- [ ] 14.1 Implement advanced export formats
-  - Add Excel format support (beyond CSV)
-  - Add JSON format for API integrations
-  - Create export templates for race timing systems
-  - Implement custom field selection for exports
-  - Add export scheduling for recurring reports
-  - _Requirements: FR-7.2_
-
-- [ ] 14.2 Build public export interface (if needed)
-  - Create public-facing export page for race results
-  - Add export history tracking
-  - Implement export notifications
-  - _Requirements: FR-7.2_
+- [ ] from the export admin page add one button to export to the timer application (CrewTimer.com). we must add the crewtimer.com icone to make it clear this is a specific format for that application
+  - [ ] when we click on the button we request the db to retreive the races with all boats that are complete, or payed, free and not forfait.
+  - [ ] the an Excel file is downloaded following the format in raw-file/CrewTimer_Example_for_Head_or_Sprint_racing.xlsx. We must map the columns as follows: Event time will be empty for now - Event Num will be incremental integer for all races (starting with all marathon races, then all the Semi marathon races) - event name is the race name - Event Abrev is the race name that we will abreviate on the fly - Crew will be the club name - crew abrev will be the club name abreviated on the fly (unique) - stroke will be the stroke seat crew member last name  - Bow will be will be incremental integer for all races (starting with all marathon races, then all the Semi marathon races) - race info will be "Head" - Status will be empty - Age will be the average boat age.
 
 ### 18. Basic Email Notifications (Essential Only)
 

@@ -65,6 +65,21 @@
       "dataExports": "Exports de données",
       "dataExportsDesc": "Exporter les équipiers et les inscriptions de bateaux"
     },
+    "dataExport": {
+      "subtitle": "Exporter les données pour l'analyse et les applications tierces",
+      "crewTimerExport": "Export CrewTimer",
+      "crewTimerDescription": "Exporter les courses et les bateaux au format CrewTimer.com pour la gestion des chronométrages. Inclut uniquement les bateaux complets, payés ou gratuits (non forfaits).",
+      "exportToCrewTimer": "Exporter vers CrewTimer",
+      "standardExports": "Exports standards",
+      "standardDescription": "Exporter les équipiers et les inscriptions de bateaux au format CSV",
+      "exportCrewMembers": "Exporter les équipiers",
+      "exportBoatRegistrations": "Exporter les inscriptions",
+      "exporting": "Export en cours...",
+      "exportSuccess": "Export réussi ! Le fichier a été téléchargé.",
+      "exportError": "Erreur lors de l'export. Veuillez réessayer.",
+      "totalRaces": "Courses totales",
+      "totalBoats": "Bateaux totaux"
+    },
     "eventConfig": {
       "title": "Configuration des dates",
       "subtitle": "Gérer les dates de l'événement et les périodes d'inscription",

@@ -65,6 +65,21 @@
       "dataExports": "Data Exports",
       "dataExportsDesc": "Export crew members and boat registrations"
     },
+    "dataExport": {
+      "subtitle": "Export data for analysis and third-party applications",
+      "crewTimerExport": "CrewTimer Export",
+      "crewTimerDescription": "Export races and boats in CrewTimer.com format for timing management. Includes only complete, paid, or free boats (not forfeited).",
+      "exportToCrewTimer": "Export to CrewTimer",
+      "standardExports": "Standard Exports",
+      "standardDescription": "Export crew members and boat registrations in CSV format",
+      "exportCrewMembers": "Export Crew Members",
+      "exportBoatRegistrations": "Export Boat Registrations",
+      "exporting": "Exporting...",
+      "exportSuccess": "Export successful! File has been downloaded.",
+      "exportError": "Export failed. Please try again.",
+      "totalRaces": "Total Races",
+      "totalBoats": "Total Boats"
+    },
     "eventConfig": {
       "title": "Event Date Configuration",
       "subtitle": "Manage event dates and registration periods",
