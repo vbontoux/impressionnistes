@@ -498,25 +498,25 @@ class ApiStack(Stack):
             'Get confirmed rental boats ready for payment'
         )
         
-        # Export functions
-        self.lambda_functions['export_crewtimer'] = self._create_lambda_function(
-            'ExportCrewTimerFunction',
-            'admin/export_crewtimer',
-            'Export races and boats in CrewTimer.com format',
-            timeout=60  # Longer timeout for export generation (in seconds)
-        )
-        
-        self.lambda_functions['export_crew_members'] = self._create_lambda_function(
-            'ExportCrewMembersFunction',
-            'admin/export_crew_members',
-            'Export all crew members to CSV format',
+        # Export functions (JSON)
+        self.lambda_functions['export_crew_members_json'] = self._create_lambda_function(
+            'ExportCrewMembersJsonFunction',
+            'admin/export_crew_members_json',
+            'Export all crew members as JSON for frontend formatting',
             timeout=60
         )
         
-        self.lambda_functions['export_boat_registrations'] = self._create_lambda_function(
-            'ExportBoatRegistrationsFunction',
-            'admin/export_boat_registrations',
-            'Export all boat registrations to CSV format with race names',
+        self.lambda_functions['export_boat_registrations_json'] = self._create_lambda_function(
+            'ExportBoatRegistrationsJsonFunction',
+            'admin/export_boat_registrations_json',
+            'Export all boat registrations as JSON for frontend formatting',
+            timeout=60
+        )
+        
+        self.lambda_functions['export_races_json'] = self._create_lambda_function(
+            'ExportRacesJsonFunction',
+            'admin/export_races_json',
+            'Export races with all related data as JSON for frontend formatting',
             timeout=60
         )
     
@@ -1057,41 +1057,43 @@ class ApiStack(Stack):
         
         # Export routes
         # GET /admin/export/crewtimer - Export races and boats in CrewTimer format (admin only)
+        # JSON export endpoints
         export_resource = admin_resource.add_resource('export')
-        crewtimer_export_resource = export_resource.add_resource('crewtimer')
-        export_crewtimer_integration = apigateway.LambdaIntegration(
-            self.lambda_functions['export_crewtimer'],
+        # GET /admin/export/crew-members-json - Export all crew members as JSON (admin only)
+        crew_members_json_export_resource = export_resource.add_resource('crew-members-json')
+        export_crew_members_json_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['export_crew_members_json'],
             proxy=True
         )
-        crewtimer_export_resource.add_method(
+        crew_members_json_export_resource.add_method(
             'GET',
-            export_crewtimer_integration,
+            export_crew_members_json_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )
         
-        # GET /admin/export/crew-members - Export all crew members to CSV (admin only)
-        crew_members_export_resource = export_resource.add_resource('crew-members')
-        export_crew_members_integration = apigateway.LambdaIntegration(
-            self.lambda_functions['export_crew_members'],
+        # GET /admin/export/boat-registrations-json - Export all boat registrations as JSON (admin only)
+        boat_registrations_json_export_resource = export_resource.add_resource('boat-registrations-json')
+        export_boat_registrations_json_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['export_boat_registrations_json'],
             proxy=True
         )
-        crew_members_export_resource.add_method(
+        boat_registrations_json_export_resource.add_method(
             'GET',
-            export_crew_members_integration,
+            export_boat_registrations_json_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )
         
-        # GET /admin/export/boat-registrations - Export all boat registrations to CSV (admin only)
-        boat_registrations_export_resource = export_resource.add_resource('boat-registrations')
-        export_boat_registrations_integration = apigateway.LambdaIntegration(
-            self.lambda_functions['export_boat_registrations'],
+        # GET /admin/export/races-json - Export races with all related data as JSON (admin only)
+        races_json_export_resource = export_resource.add_resource('races-json')
+        export_races_json_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['export_races_json'],
             proxy=True
         )
-        boat_registrations_export_resource.add_method(
+        races_json_export_resource.add_method(
             'GET',
-            export_boat_registrations_integration,
+            export_races_json_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )

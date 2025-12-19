@@ -1,0 +1,136 @@
+"""
+Lambda function to export all boat registrations as JSON
+Admin only - returns raw JSON data for frontend formatting
+"""
+import json
+import logging
+from datetime import datetime
+
+from responses import success_response, handle_exceptions, internal_error
+from auth_utils import require_admin
+from database import get_db_client, decimal_to_float
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+
+@handle_exceptions
+@require_admin
+def lambda_handler(event, context):
+    """
+    Export all boat registrations as JSON with race names and team manager information
+    
+    Returns:
+        JSON response with boat registration data including all boats regardless of status
+    """
+    logger.info("Admin export boat registrations JSON request")
+    
+    db = get_db_client()
+    
+    try:
+        # Scan all boat registrations across all team managers
+        # Include ALL boats regardless of status (no filtering)
+        response = db.table.scan(
+            FilterExpression='begins_with(SK, :sk_prefix)',
+            ExpressionAttributeValues={
+                ':sk_prefix': 'BOAT#'
+            }
+        )
+        
+        boats = response.get('Items', [])
+        
+        # Handle pagination for large datasets
+        while 'LastEvaluatedKey' in response:
+            logger.info(f"Paginating boat registrations scan, current count: {len(boats)}")
+            response = db.table.scan(
+                FilterExpression='begins_with(SK, :sk_prefix)',
+                ExpressionAttributeValues={
+                    ':sk_prefix': 'BOAT#'
+                },
+                ExclusiveStartKey=response['LastEvaluatedKey']
+            )
+            boats.extend(response.get('Items', []))
+        
+        logger.info(f"Found {len(boats)} boat registrations")
+        
+        # Get all races to map race_id to race name
+        races_response = db.table.query(
+            KeyConditionExpression='PK = :pk',
+            ExpressionAttributeValues={
+                ':pk': 'RACE'
+            }
+        )
+        races = races_response.get('Items', [])
+        
+        # Create race lookup dictionary
+        race_lookup = {race['race_id']: race.get('name', '') for race in races}
+        logger.info(f"Loaded {len(race_lookup)} races for lookup")
+        
+        # Cache team manager lookups to minimize database queries
+        team_manager_cache = {}
+        
+        for boat in boats:
+            team_manager_id = boat.get('PK', '').replace('TEAM#', '')
+            
+            # Cache team manager info to avoid repeated queries
+            if team_manager_id not in team_manager_cache:
+                try:
+                    tm_response = db.table.get_item(
+                        Key={
+                            'PK': f'USER#{team_manager_id}',
+                            'SK': 'PROFILE'
+                        }
+                    )
+                    team_manager_cache[team_manager_id] = tm_response.get('Item', {})
+                except Exception as e:
+                    logger.warning(f"Could not fetch team manager {team_manager_id}: {str(e)}")
+                    team_manager_cache[team_manager_id] = {}
+            
+            # Add team manager info to boat
+            tm_info = team_manager_cache[team_manager_id]
+            boat['team_manager_id'] = team_manager_id
+            boat['team_manager_name'] = f"{tm_info.get('first_name', '')} {tm_info.get('last_name', '')}".strip() or 'Unknown'
+            boat['team_manager_email'] = tm_info.get('email', '')
+            boat['team_manager_club'] = tm_info.get('club_affiliation', '')
+            
+            # Add race name from lookup
+            race_id = boat.get('race_id')
+            boat['race_name'] = race_lookup.get(race_id, '') if race_id else ''
+            
+            # Calculate filled seats
+            seats = boat.get('seats', [])
+            filled_seats = sum(1 for seat in seats if seat.get('crew_member_id'))
+            total_seats = len(seats)
+            
+            # Add crew composition details
+            crew_comp = boat.get('crew_composition', {})
+            if not crew_comp:
+                crew_comp = {}
+            
+            # Ensure crew_composition has filled_seats and total_seats
+            crew_comp['filled_seats'] = filled_seats
+            crew_comp['total_seats'] = total_seats
+            boat['crew_composition'] = crew_comp
+        
+        # Sort by team manager name, then by event type, then by boat type
+        boats.sort(key=lambda b: (
+            b.get('team_manager_name', ''),
+            b.get('event_type', ''),
+            b.get('boat_type', '')
+        ))
+        
+        # Convert Decimal types to float for JSON serialization
+        boats = decimal_to_float(boats)
+        
+        logger.info(f"Successfully exported {len(boats)} boat registrations as JSON")
+        
+        # Return JSON response with metadata
+        return success_response(data={
+            'boats': boats,
+            'total_count': len(boats),
+            'exported_at': datetime.utcnow().isoformat() + 'Z'
+        })
+        
+    except Exception as e:
+        logger.error(f"Failed to export boat registrations: {str(e)}", exc_info=True)
+        return internal_error(message='Failed to export boat registrations')

@@ -137,7 +137,11 @@
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import apiClient from '../../services/apiClient';
-import * as XLSX from 'xlsx';
+import {
+  downloadCrewMembersCSV,
+  downloadBoatRegistrationsCSV,
+  downloadCrewTimerExcel
+} from '../../utils/exportFormatters';
 
 const { t } = useI18n();
 
@@ -158,56 +162,33 @@ const clearMessages = () => {
   success.value = null;
 };
 
-const downloadFile = (blob, filename) => {
-  const url = window.URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
-};
-
 const exportCrewTimer = async () => {
   clearMessages();
   loadingCrewTimer.value = true;
   
   try {
-    // Get data from backend as JSON
-    const response = await apiClient.get('/admin/export/crewtimer');
-    const data = response.data.data;
+    const response = await apiClient.get('/admin/export/races-json');
     
-    // Update stats
-    crewTimerStats.value = {
-      totalRaces: data.total_races,
-      totalBoats: data.total_boats
-    };
-    
-    // Generate Excel file using SheetJS
-    // Create worksheet from data
-    const ws = XLSX.utils.json_to_sheet(data.rows, {
-      header: ['Event Time', 'Event Num', 'Event', 'Event Abbrev', 'Crew', 
-               'Crew Abbrev', 'Stroke', 'Bow', 'Race Info', 'Status', 'Age']
-    });
-    
-    // Create workbook
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'CrewTimer Export');
-    
-    // Generate filename with timestamp
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-    const filename = `crewtimer_export_${timestamp}.xlsx`;
-    
-    // Download file
-    XLSX.writeFile(wb, filename);
-    
-    success.value = t('admin.dataExport.exportSuccess');
-    
-    // Clear success message after 5 seconds
-    setTimeout(() => {
-      success.value = null;
-    }, 5000);
+    if (response.data && response.data.success) {
+      const jsonData = response.data.data;
+      
+      // Update stats
+      crewTimerStats.value = {
+        totalRaces: jsonData.total_races || 0,
+        totalBoats: jsonData.total_boats || 0
+      };
+      
+      // Use formatter to generate and download Excel file
+      // Pass the full response structure (with data property) to the formatter
+      downloadCrewTimerExcel(response.data);
+      
+      success.value = t('admin.dataExport.exportSuccess');
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        success.value = null;
+      }, 5000);
+    }
   } catch (err) {
     console.error('Failed to export CrewTimer data:', err);
     error.value = err.response?.data?.error?.message || t('admin.dataExport.exportError');
@@ -221,25 +202,19 @@ const exportCrewMembers = async () => {
   loadingCrewMembers.value = true;
   
   try {
-    const response = await apiClient.get('/admin/export/crew-members', {
-      responseType: 'blob'
-    });
+    const response = await apiClient.get('/admin/export/crew-members-json');
     
-    const contentDisposition = response.headers['content-disposition'];
-    let filename = 'crew_members_export.csv';
-    if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
-      if (filenameMatch) {
-        filename = filenameMatch[1];
-      }
+    if (response.data && response.data.success) {
+      // Use formatter to generate and download CSV file
+      // Pass the full response structure (with data property) to the formatter
+      downloadCrewMembersCSV(response.data);
+      
+      success.value = t('admin.dataExport.exportSuccess');
+      
+      setTimeout(() => {
+        success.value = null;
+      }, 5000);
     }
-    
-    downloadFile(response.data, filename);
-    success.value = t('admin.dataExport.exportSuccess');
-    
-    setTimeout(() => {
-      success.value = null;
-    }, 5000);
   } catch (err) {
     console.error('Failed to export crew members:', err);
     error.value = err.response?.data?.error?.message || t('admin.dataExport.exportError');
@@ -253,25 +228,19 @@ const exportBoatRegistrations = async () => {
   loadingBoatRegistrations.value = true;
   
   try {
-    const response = await apiClient.get('/admin/export/boat-registrations', {
-      responseType: 'blob'
-    });
+    const response = await apiClient.get('/admin/export/boat-registrations-json');
     
-    const contentDisposition = response.headers['content-disposition'];
-    let filename = 'boat_registrations_export.csv';
-    if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="?(.+)"?/);
-      if (filenameMatch) {
-        filename = filenameMatch[1];
-      }
+    if (response.data && response.data.success) {
+      // Use formatter to generate and download CSV file
+      // Pass the full response structure (with data property) to the formatter
+      downloadBoatRegistrationsCSV(response.data);
+      
+      success.value = t('admin.dataExport.exportSuccess');
+      
+      setTimeout(() => {
+        success.value = null;
+      }, 5000);
     }
-    
-    downloadFile(response.data, filename);
-    success.value = t('admin.dataExport.exportSuccess');
-    
-    setTimeout(() => {
-      success.value = null;
-    }, 5000);
   } catch (err) {
     console.error('Failed to export boat registrations:', err);
     error.value = err.response?.data?.error?.message || t('admin.dataExport.exportError');

@@ -1,4 +1,4 @@
-.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws list describe-infra costs db-export db-view db-reset db-migrate cognito-create-admin cognito-list-users cognito-add-to-group clean test test-setup test-clean test-coverage
+.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws list describe-infra costs db-export db-view db-reset db-migrate cognito-create-admin cognito-list-users cognito-add-to-group clean test test-backend test-frontend test-setup test-clean test-coverage
 
 # Virtual environment paths
 VENV = venv
@@ -81,8 +81,10 @@ help:
 	@echo ""
 	@echo "Testing:"
 	@echo "  make test-setup     - Set up test environment (create venv, install deps)"
-	@echo "  make test           - Run all integration tests"
-	@echo "  make test-coverage  - Run tests with HTML coverage report"
+	@echo "  make test           - Run all tests (backend + frontend)"
+	@echo "  make test-backend   - Run backend integration tests only"
+	@echo "  make test-frontend  - Run frontend formatter tests only"
+	@echo "  make test-coverage  - Run backend tests with HTML coverage report"
 	@echo "  make test-clean     - Remove test venv and cache files"
 	@echo ""
 	@echo "Troubleshooting:"
@@ -1226,13 +1228,43 @@ test-setup:
 
 test: test-setup
 	@echo "=========================================="
-	@echo "Running Integration Tests"
+	@echo "Running All Tests"
+	@echo "=========================================="
+	@echo ""
+	@echo "1. Backend Integration Tests"
+	@echo "----------------------------"
+	@cd .. && $(TEST_PYTEST) tests/ -v
+	@echo ""
+	@echo "2. Frontend Formatter Tests"
+	@echo "----------------------------"
+	@cd ../frontend/src/utils/exportFormatters && ./runTests.sh
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ All tests complete!"
+	@echo "  - Backend integration tests: PASSED"
+	@echo "  - Frontend formatter tests: PASSED"
+	@echo "=========================================="
+
+test-backend: test-setup
+	@echo "=========================================="
+	@echo "Running Backend Integration Tests"
 	@echo "=========================================="
 	@echo ""
 	@cd .. && $(TEST_PYTEST) tests/ -v
 	@echo ""
 	@echo "=========================================="
-	@echo "✓ Tests complete!"
+	@echo "✓ Backend tests complete!"
+	@echo "=========================================="
+
+test-frontend:
+	@echo "=========================================="
+	@echo "Running Frontend Formatter Tests"
+	@echo "=========================================="
+	@echo ""
+	@cd ../frontend/src/utils/exportFormatters && ./runTests.sh
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ Frontend tests complete!"
 	@echo "=========================================="
 
 test-coverage: test-setup

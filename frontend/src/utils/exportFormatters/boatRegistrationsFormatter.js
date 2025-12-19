@@ -1,0 +1,109 @@
+/**
+ * Boat Registrations Export Formatter
+ * Converts JSON data from the backend API to CSV format for download
+ */
+
+import { escapeCSVField, downloadFile, formatDateForFilename, formatBoolean } from './shared.js'
+
+/**
+ * Calculate filled seats in "X/Y" format
+ * @param {Object} boat - The boat registration object
+ * @returns {string} - Filled seats formatted as "X/Y"
+ */
+export function calculateFilledSeats(boat) {
+  if (!boat.crew_composition) {
+    // Fallback: count from seats array
+    const seats = boat.seats || []
+    const filled = seats.filter(seat => seat.crew_member_id).length
+    const total = seats.length
+    return `${filled}/${total}`
+  }
+  
+  const filled = boat.crew_composition.filled_seats || 0
+  const total = boat.crew_composition.total_seats || 0
+  return `${filled}/${total}`
+}
+
+
+
+/**
+ * Convert boat registrations JSON data to CSV format
+ * @param {Object} jsonData - The JSON response from the backend API
+ * @returns {string} - CSV formatted string
+ */
+export function formatBoatRegistrationsToCSV(jsonData) {
+  if (!jsonData || !jsonData.data || !jsonData.data.boats) {
+    throw new Error('Invalid data format: expected data.boats array')
+  }
+  
+  const boats = jsonData.data.boats
+  
+  // Define CSV headers
+  const headers = [
+    'Boat Registration ID',
+    'Event Type',
+    'Boat Type',
+    'Race Name',
+    'Registration Status',
+    'Forfait',
+    'Filled Seats',
+    'Gender Category',
+    'Age Category',
+    'Average Age',
+    'Is Multi-Club Crew',
+    'Team Manager Name',
+    'Team Manager Email',
+    'Team Manager Club',
+    'Created At',
+    'Updated At',
+    'Paid At'
+  ]
+  
+  // Build CSV rows
+  const rows = [headers]
+  
+  for (const boat of boats) {
+    const crewComp = boat.crew_composition || {}
+    
+    rows.push([
+      escapeCSVField(boat.boat_registration_id || ''),
+      escapeCSVField(boat.event_type || ''),
+      escapeCSVField(boat.boat_type || ''),
+      escapeCSVField(boat.race_name || ''),
+      escapeCSVField(boat.registration_status || ''),
+      escapeCSVField(formatBoolean(boat.forfait)),
+      escapeCSVField(calculateFilledSeats(boat)),
+      escapeCSVField(crewComp.gender_category || ''),
+      escapeCSVField(crewComp.age_category || ''),
+      escapeCSVField(crewComp.avg_age || ''),
+      escapeCSVField(formatBoolean(boat.is_multi_club_crew)),
+      escapeCSVField(boat.team_manager_name || ''),
+      escapeCSVField(boat.team_manager_email || ''),
+      escapeCSVField(boat.team_manager_club || ''),
+      escapeCSVField(boat.created_at || ''),
+      escapeCSVField(boat.updated_at || ''),
+      escapeCSVField(boat.paid_at || '')
+    ])
+  }
+  
+  // Convert rows to CSV string
+  return rows.map(row => row.join(',')).join('\n')
+}
+
+/**
+ * Download boat registrations data as CSV file
+ * @param {Object} jsonData - The JSON response from the backend API
+ * @param {string} filename - Optional custom filename (without extension)
+ */
+export function downloadBoatRegistrationsCSV(jsonData, filename = null) {
+  // Generate CSV content
+  const csvContent = formatBoatRegistrationsToCSV(jsonData)
+  
+  // Generate filename with timestamp if not provided
+  const timestamp = formatDateForFilename()
+  const finalFilename = filename || `boat_registrations_export_${timestamp}`
+  
+  // Create blob and download
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  downloadFile(blob, `${finalFilename}.csv`)
+}
