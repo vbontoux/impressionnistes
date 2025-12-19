@@ -9,6 +9,7 @@ from datetime import datetime
 from responses import success_response, handle_exceptions, internal_error
 from auth_utils import require_admin
 from database import get_db_client, decimal_to_float
+from race_eligibility import calculate_age
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -70,9 +71,6 @@ def lambda_handler(event, context):
         team_manager_cache = {}
         crew_member_cache = {}
         
-        # Get current year for age calculation
-        current_year = datetime.utcnow().year
-        
         for boat in boats:
             team_manager_id = boat.get('PK', '').replace('TEAM#', '')
             
@@ -121,13 +119,12 @@ def lambda_handler(event, context):
                     
                     crew_info = crew_member_cache[crew_member_id]
                     
-                    # Calculate age (age the person will reach during the current year)
+                    # Calculate age using centralized function
                     age = None
                     if crew_info.get('date_of_birth'):
                         try:
-                            birth_year = int(crew_info['date_of_birth'].split('-')[0])
-                            age = current_year - birth_year
-                        except (ValueError, IndexError) as e:
+                            age = calculate_age(crew_info['date_of_birth'])
+                        except (ValueError, Exception) as e:
                             logger.warning(f"Could not calculate age for crew member {crew_member_id}: {str(e)}")
                     
                     crew_details.append({

@@ -9,24 +9,22 @@ from typing import List, Dict, Any, Optional
 def calculate_age(date_of_birth: str, reference_date: Optional[date] = None) -> int:
     """
     Calculate age based on date of birth
+    Age is calculated as the age the person will reach during the reference year,
+    regardless of whether their birthday has passed yet.
     
     Args:
         date_of_birth: Date string in YYYY-MM-DD format
         reference_date: Reference date for age calculation (defaults to today)
     
     Returns:
-        Age in years
+        Age the person will reach during the reference year
     """
     if reference_date is None:
         reference_date = date.today()
     
     birth_date = datetime.strptime(date_of_birth, '%Y-%m-%d').date()
+    # Age is simply the difference in years - no adjustment for birthday
     age = reference_date.year - birth_date.year
-    
-    # Adjust if birthday hasn't occurred this year
-    if reference_date.month < birth_date.month or \
-       (reference_date.month == birth_date.month and reference_date.day < birth_date.day):
-        age -= 1
     
     return age
 
