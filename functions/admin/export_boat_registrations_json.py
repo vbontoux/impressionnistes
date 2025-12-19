@@ -66,8 +66,12 @@ def lambda_handler(event, context):
         race_lookup = {race['race_id']: race.get('name', '') for race in races}
         logger.info(f"Loaded {len(race_lookup)} races for lookup")
         
-        # Cache team manager lookups to minimize database queries
+        # Cache team manager and crew member lookups to minimize database queries
         team_manager_cache = {}
+        crew_member_cache = {}
+        
+        # Get current year for age calculation
+        current_year = datetime.utcnow().year
         
         for boat in boats:
             team_manager_id = boat.get('PK', '').replace('TEAM#', '')
@@ -92,6 +96,69 @@ def lambda_handler(event, context):
             boat['team_manager_name'] = f"{tm_info.get('first_name', '')} {tm_info.get('last_name', '')}".strip() or 'Unknown'
             boat['team_manager_email'] = tm_info.get('email', '')
             boat['team_manager_club'] = tm_info.get('club_affiliation', '')
+            
+            # Fetch crew member details for each seat
+            seats = boat.get('seats', [])
+            crew_details = []
+            
+            for seat in seats:
+                crew_member_id = seat.get('crew_member_id')
+                
+                if crew_member_id:
+                    # Cache crew member info to avoid repeated queries
+                    if crew_member_id not in crew_member_cache:
+                        try:
+                            crew_response = db.table.get_item(
+                                Key={
+                                    'PK': f'TEAM#{team_manager_id}',
+                                    'SK': f'CREW#{crew_member_id}'
+                                }
+                            )
+                            crew_member_cache[crew_member_id] = crew_response.get('Item', {})
+                        except Exception as e:
+                            logger.warning(f"Could not fetch crew member {crew_member_id}: {str(e)}")
+                            crew_member_cache[crew_member_id] = {}
+                    
+                    crew_info = crew_member_cache[crew_member_id]
+                    
+                    # Calculate age (age the person will reach during the current year)
+                    age = None
+                    if crew_info.get('date_of_birth'):
+                        try:
+                            birth_year = int(crew_info['date_of_birth'].split('-')[0])
+                            age = current_year - birth_year
+                        except (ValueError, IndexError) as e:
+                            logger.warning(f"Could not calculate age for crew member {crew_member_id}: {str(e)}")
+                    
+                    crew_details.append({
+                        'position': seat.get('position'),
+                        'type': seat.get('type'),
+                        'crew_member_id': crew_member_id,
+                        'first_name': crew_info.get('first_name', ''),
+                        'last_name': crew_info.get('last_name', ''),
+                        'gender': crew_info.get('gender', ''),
+                        'date_of_birth': crew_info.get('date_of_birth', ''),
+                        'age': age,
+                        'license_number': crew_info.get('license_number', ''),
+                        'club_affiliation': crew_info.get('club_affiliation', '')
+                    })
+                else:
+                    # Empty seat
+                    crew_details.append({
+                        'position': seat.get('position'),
+                        'type': seat.get('type'),
+                        'crew_member_id': None,
+                        'first_name': '',
+                        'last_name': '',
+                        'gender': '',
+                        'date_of_birth': '',
+                        'age': '',
+                        'license_number': '',
+                        'club_affiliation': ''
+                    })
+            
+            # Add crew details to boat
+            boat['crew_details'] = crew_details
             
             # Add race name from lookup
             race_id = boat.get('race_id')

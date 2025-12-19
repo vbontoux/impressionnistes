@@ -55,6 +55,9 @@ def lambda_handler(event, context):
         # Cache team manager lookups to minimize database queries
         team_manager_cache = {}
         
+        # Get current year for age calculation
+        current_year = datetime.utcnow().year
+        
         for member in crew_members:
             team_manager_id = member.get('PK', '').replace('TEAM#', '')
             
@@ -78,6 +81,17 @@ def lambda_handler(event, context):
             member['team_manager_name'] = f"{tm_info.get('first_name', '')} {tm_info.get('last_name', '')}".strip() or 'Unknown'
             member['team_manager_email'] = tm_info.get('email', '')
             member['team_manager_club'] = tm_info.get('club_affiliation', '')
+            
+            # Calculate age (age the person will reach during the current year)
+            if member.get('date_of_birth'):
+                try:
+                    birth_year = int(member['date_of_birth'].split('-')[0])
+                    member['age'] = current_year - birth_year
+                except (ValueError, IndexError) as e:
+                    logger.warning(f"Could not calculate age for crew member {member.get('crew_member_id')}: {str(e)}")
+                    member['age'] = None
+            else:
+                member['age'] = None
         
         # Sort by team manager name, then by crew member last name
         crew_members.sort(key=lambda m: (

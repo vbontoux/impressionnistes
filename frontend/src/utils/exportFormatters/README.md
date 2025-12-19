@@ -40,6 +40,31 @@ node boatRegistrationsFormatter.test.js
 node crewTimerFormatter.test.js
 ```
 
+## CSV Export Features
+
+### Boat Registrations Export
+
+The boat registrations CSV export includes:
+
+**Base Boat Information:**
+- Boat Registration ID, Event Type, Boat Type, Race Name
+- Registration Status, Forfait flag, Filled Seats
+- Gender Category, Age Category, Average Age
+- Multi-Club Crew flag
+- Team Manager details (name, email, club)
+- Timestamps (created, updated, paid)
+
+**Crew Member Details (Dynamic Columns):**
+For each crew member position in the boat, the export includes:
+- `1. First Name`, `1. Last Name`, `1. Gender`, `1. Date of Birth`, `1. Age`, `1. License Number`, `1. Club Affiliation`
+- `2. First Name`, `2. Last Name`, `2. Gender`, `2. Date of Birth`, `2. Age`, `2. License Number`, `2. Club Affiliation`
+- ... (continues for all positions in the boat)
+
+The number of crew member columns is dynamically determined by the largest boat in the export. Smaller boats will have empty values for unused positions.
+
+**Example:**
+If exporting boats with 1, 4, and 8 crew members, the CSV will have columns for 8 crew members (positions 1-8). The single-person boat will have data in position 1 columns only, with positions 2-8 empty.
+
 ## Test Coverage
 
 ### Crew Members Formatter (22 tests)
@@ -50,11 +75,13 @@ node crewTimerFormatter.test.js
 - ✓ Invalid data format error handling
 - ✓ Multiple crew members
 
-### Boat Registrations Formatter (33 tests)
-- ✓ CSV structure and headers
+### Boat Registrations Formatter (42 tests)
+- ✓ CSV structure and headers (including crew member columns)
 - ✓ Filled seats calculation (from crew_composition or seats array)
 - ✓ Boolean formatting (Yes/No)
 - ✓ Nested data handling (crew_composition fields)
+- ✓ Crew member details (first name, last name, gender, DOB, age, license, club)
+- ✓ Dynamic column generation based on boat size
 - ✓ Empty dataset handling
 - ✓ Missing field handling
 - ✓ Invalid data format error handling

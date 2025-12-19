@@ -97,6 +97,9 @@ def lambda_handler(event, context):
         
         logger.info(f"Found {len(crew_members)} crew members")
         
+        # Get current year for age calculation
+        current_year = datetime.utcnow().year
+        
         # Get all team managers (users with PROFILE)
         users_response = db.table.scan(
             FilterExpression='SK = :sk',
@@ -158,6 +161,15 @@ def lambda_handler(event, context):
         # Simplify crew member data for export
         simplified_crew = []
         for crew in crew_members:
+            # Calculate age (age the person will reach during the current year)
+            age = None
+            if crew.get('date_of_birth'):
+                try:
+                    birth_year = int(crew['date_of_birth'].split('-')[0])
+                    age = current_year - birth_year
+                except (ValueError, IndexError) as e:
+                    logger.warning(f"Could not calculate age for crew member {crew.get('crew_member_id')}: {str(e)}")
+            
             simplified_crew.append({
                 'crew_member_id': crew.get('crew_member_id'),
                 'first_name': crew.get('first_name'),
@@ -166,7 +178,7 @@ def lambda_handler(event, context):
                 'gender': crew.get('gender'),
                 'license_number': crew.get('license_number'),
                 'club_affiliation': crew.get('club_affiliation'),
-                'age': crew.get('age')
+                'age': age
             })
         
         # Simplify race data for export

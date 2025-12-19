@@ -38,8 +38,17 @@ export function formatBoatRegistrationsToCSV(jsonData) {
   
   const boats = jsonData.data.boats
   
-  // Define CSV headers
-  const headers = [
+  // Find the maximum number of crew members across all boats
+  let maxCrewMembers = 0
+  for (const boat of boats) {
+    const crewDetails = boat.crew_details || []
+    if (crewDetails.length > maxCrewMembers) {
+      maxCrewMembers = crewDetails.length
+    }
+  }
+  
+  // Define base CSV headers
+  const baseHeaders = [
     'Boat Registration ID',
     'Event Type',
     'Boat Type',
@@ -59,13 +68,31 @@ export function formatBoatRegistrationsToCSV(jsonData) {
     'Paid At'
   ]
   
+  // Add crew member headers dynamically based on max crew size
+  const crewHeaders = []
+  for (let i = 1; i <= maxCrewMembers; i++) {
+    crewHeaders.push(
+      `${i}. First Name`,
+      `${i}. Last Name`,
+      `${i}. Gender`,
+      `${i}. Date of Birth`,
+      `${i}. Age`,
+      `${i}. License Number`,
+      `${i}. Club Affiliation`
+    )
+  }
+  
+  const headers = [...baseHeaders, ...crewHeaders]
+  
   // Build CSV rows
   const rows = [headers]
   
   for (const boat of boats) {
     const crewComp = boat.crew_composition || {}
+    const crewDetails = boat.crew_details || []
     
-    rows.push([
+    // Base boat information
+    const baseRow = [
       escapeCSVField(boat.boat_registration_id || ''),
       escapeCSVField(boat.event_type || ''),
       escapeCSVField(boat.boat_type || ''),
@@ -83,7 +110,24 @@ export function formatBoatRegistrationsToCSV(jsonData) {
       escapeCSVField(boat.created_at || ''),
       escapeCSVField(boat.updated_at || ''),
       escapeCSVField(boat.paid_at || '')
-    ])
+    ]
+    
+    // Add crew member details
+    const crewRow = []
+    for (let i = 0; i < maxCrewMembers; i++) {
+      const crew = crewDetails[i] || {}
+      crewRow.push(
+        escapeCSVField(crew.first_name || ''),
+        escapeCSVField(crew.last_name || ''),
+        escapeCSVField(crew.gender || ''),
+        escapeCSVField(crew.date_of_birth || ''),
+        escapeCSVField(crew.age || ''),
+        escapeCSVField(crew.license_number || ''),
+        escapeCSVField(crew.club_affiliation || '')
+      )
+    }
+    
+    rows.push([...baseRow, ...crewRow])
   }
   
   // Convert rows to CSV string

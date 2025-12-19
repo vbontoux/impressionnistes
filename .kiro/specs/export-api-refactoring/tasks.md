@@ -167,14 +167,14 @@
   - Verify performance with large datasets
   - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
 
-- [ ] 7. Remove old export endpoints
+- [x] 7. Remove old export endpoints
   - Delete old Lambda functions (export_crew_members.py, export_boat_registrations.py, export_crewtimer.py)
   - Remove old API Gateway routes from api_stack.py
   - Remove fallback logic from frontend component
   - Remove tests for old endpoints
   - _Requirements: 7.3, 7.5_
 
-- [ ] 8. Final verification and documentation
+- [x] 8. Final verification and documentation
   - Verify all three new export types work in dev
   - Verify no errors in production after cleanup
   - Update documentation to reflect new architecture

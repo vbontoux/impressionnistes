@@ -39,6 +39,13 @@ const testData1 = {
           { position: 4, type: 'rower', crew_member_id: 'crew-4' },
           { position: 5, type: 'cox', crew_member_id: 'crew-5' }
         ],
+        crew_details: [
+          { position: 1, type: 'rower', crew_member_id: 'crew-1', first_name: 'Alice', last_name: 'Smith', gender: 'F', date_of_birth: '2008-05-15', age: 16, license_number: 'LIC001', club_affiliation: 'RCPM' },
+          { position: 2, type: 'rower', crew_member_id: 'crew-2', first_name: 'Bob', last_name: 'Jones', gender: 'F', date_of_birth: '2008-08-20', age: 16, license_number: 'LIC002', club_affiliation: 'RCPM' },
+          { position: 3, type: 'rower', crew_member_id: 'crew-3', first_name: 'Carol', last_name: 'White', gender: 'F', date_of_birth: '2008-03-10', age: 17, license_number: 'LIC003', club_affiliation: 'RCPM' },
+          { position: 4, type: 'rower', crew_member_id: 'crew-4', first_name: 'Diana', last_name: 'Brown', gender: 'F', date_of_birth: '2008-11-25', age: 16, license_number: 'LIC004', club_affiliation: 'RCPM' },
+          { position: 5, type: 'cox', crew_member_id: 'crew-5', first_name: 'Eve', last_name: 'Davis', gender: 'F', date_of_birth: '2009-01-05', age: 16, license_number: 'LIC005', club_affiliation: 'RCPM' }
+        ],
         crew_composition: {
           gender_category: 'women',
           age_category: 'j16',
@@ -71,9 +78,14 @@ assert(headers1.includes('Forfait'), 'Headers include Forfait');
 assert(headers1.includes('Filled Seats'), 'Headers include Filled Seats');
 assert(headers1.includes('Gender Category'), 'Headers include Gender Category');
 assert(headers1.includes('Age Category'), 'Headers include Age Category');
+assert(headers1.includes('1. First Name'), 'Headers include crew member 1 first name');
+assert(headers1.includes('1. Last Name'), 'Headers include crew member 1 last name');
+assert(headers1.includes('5. Club Affiliation'), 'Headers include crew member 5 club affiliation');
 assert(lines1.length === 2, 'CSV has header + 1 data row');
 assert(lines1[1].includes('boat-123'), 'Data row contains boat ID');
 assert(lines1[1].includes('21km'), 'Data row contains event type');
+assert(lines1[1].includes('Alice'), 'Data row contains crew member first name');
+assert(lines1[1].includes('Smith'), 'Data row contains crew member last name');
 console.log('');
 
 // Test 2: Filled seats calculation
@@ -163,6 +175,10 @@ const testData4 = {
         boat_type: '4+',
         registration_status: 'complete',
         forfait: false,
+        crew_details: [
+          { position: 1, type: 'rower', crew_member_id: 'crew-1', first_name: 'John', last_name: 'Doe', gender: 'M', date_of_birth: '1995-05-15', age: 30, license_number: 'LIC100', club_affiliation: 'Club A' },
+          { position: 2, type: 'rower', crew_member_id: 'crew-2', first_name: 'Jane', last_name: 'Smith', gender: 'F', date_of_birth: '1997-08-20', age: 28, license_number: 'LIC101', club_affiliation: 'Club B' }
+        ],
         crew_composition: {
           gender_category: 'mixed',
           age_category: 'senior',
@@ -182,6 +198,8 @@ assert(lines4[1].includes('mixed'), 'Nested gender_category extracted');
 assert(lines4[1].includes('senior'), 'Nested age_category extracted');
 assert(lines4[1].includes('28.5'), 'Nested avg_age extracted');
 assert(lines4[1].includes('5/5'), 'Filled seats calculated from nested data');
+assert(lines4[1].includes('John'), 'Crew member first name included');
+assert(lines4[1].includes('Club A'), 'Crew member club affiliation included');
 console.log('');
 
 // Test 5: Empty dataset handling
@@ -257,6 +275,9 @@ const testData8 = {
         boat_type: '4+',
         registration_status: 'complete',
         forfait: false,
+        crew_details: [
+          { position: 1, type: 'rower', crew_member_id: 'crew-1', first_name: 'Alice', last_name: 'A', gender: 'F', date_of_birth: '2000-01-01', age: 25, license_number: 'L1', club_affiliation: 'C1' }
+        ],
         crew_composition: { filled_seats: 5, total_seats: 5 }
       },
       {
@@ -265,6 +286,9 @@ const testData8 = {
         boat_type: 'skiff',
         registration_status: 'paid',
         forfait: false,
+        crew_details: [
+          { position: 1, type: 'rower', crew_member_id: 'crew-2', first_name: 'Bob', last_name: 'B', gender: 'M', date_of_birth: '1995-05-05', age: 30, license_number: 'L2', club_affiliation: 'C2' }
+        ],
         crew_composition: { filled_seats: 1, total_seats: 1 }
       },
       {
@@ -273,6 +297,7 @@ const testData8 = {
         boat_type: '8+',
         registration_status: 'free',
         forfait: true,
+        crew_details: [],
         crew_composition: { filled_seats: 9, total_seats: 9 }
       }
     ]
@@ -286,6 +311,8 @@ assert(lines8.length === 4, 'CSV has header + 3 data rows');
 assert(lines8[1].includes('boat-1'), 'First boat present');
 assert(lines8[2].includes('boat-2'), 'Second boat present');
 assert(lines8[3].includes('boat-3'), 'Third boat present');
+assert(lines8[1].includes('Alice'), 'First boat crew member present');
+assert(lines8[2].includes('Bob'), 'Second boat crew member present');
 console.log('');
 
 // Summary

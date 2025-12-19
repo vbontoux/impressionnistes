@@ -230,6 +230,8 @@ const exportBoatRegistrations = async () => {
   try {
     const response = await apiClient.get('/admin/export/boat-registrations-json');
     
+    console.log('Boat registrations response:', response.data);
+    
     if (response.data && response.data.success) {
       // Use formatter to generate and download CSV file
       // Pass the full response structure (with data property) to the formatter
@@ -243,6 +245,7 @@ const exportBoatRegistrations = async () => {
     }
   } catch (err) {
     console.error('Failed to export boat registrations:', err);
+    console.error('Error response:', err.response);
     error.value = err.response?.data?.error?.message || t('admin.dataExport.exportError');
   } finally {
     loadingBoatRegistrations.value = false;
