@@ -11,9 +11,11 @@ from aws_cdk import (
     aws_cloudfront as cloudfront,
     aws_cloudfront_origins as origins,
     aws_s3_deployment as s3_deployment,
+    aws_certificatemanager as acm,
 )
 from constructs import Construct
 import os
+from config import EnvironmentConfig
 
 
 class FrontendStack(Stack):
@@ -33,6 +35,11 @@ class FrontendStack(Stack):
 
         self.api_stack = api_stack
         env_name = self.node.try_get_context("env") or "dev"
+        config = EnvironmentConfig.get_config(env_name)
+        
+        # Get custom domain configuration
+        custom_domain = config.get("custom_domain")
+        certificate_arn = config.get("certificate_arn")
         
         # S3 bucket for static website hosting
         self.website_bucket = s3.Bucket(
@@ -64,11 +71,9 @@ class FrontendStack(Stack):
         # Grant CloudFront read access to the bucket
         self.website_bucket.grant_read(oai)
         
-        # CloudFront distribution
-        self.distribution = cloudfront.Distribution(
-            self,
-            "Distribution",
-            default_behavior=cloudfront.BehaviorOptions(
+        # Prepare CloudFront distribution configuration
+        distribution_config = {
+            "default_behavior": cloudfront.BehaviorOptions(
                 origin=origins.S3Origin(
                     self.website_bucket,
                     origin_access_identity=oai
@@ -79,8 +84,8 @@ class FrontendStack(Stack):
                 cache_policy=cloudfront.CachePolicy.CACHING_OPTIMIZED,
                 compress=True,
             ),
-            default_root_object="index.html",
-            error_responses=[
+            "default_root_object": "index.html",
+            "error_responses": [
                 cloudfront.ErrorResponse(
                     http_status=404,
                     response_http_status=200,
@@ -94,8 +99,26 @@ class FrontendStack(Stack):
                     ttl=Duration.minutes(5)
                 )
             ],
-            price_class=cloudfront.PriceClass.PRICE_CLASS_100,  # Use only North America and Europe
-            comment=f"Impressionnistes Frontend Distribution {env_name}"
+            "price_class": cloudfront.PriceClass.PRICE_CLASS_100,
+            "comment": f"Impressionnistes Frontend Distribution {env_name}"
+        }
+        
+        # Add custom domain and certificate if configured
+        if custom_domain and certificate_arn:
+            # Import the certificate from ACM (must be in us-east-1 for CloudFront)
+            certificate = acm.Certificate.from_certificate_arn(
+                self,
+                "Certificate",
+                certificate_arn
+            )
+            distribution_config["domain_names"] = [custom_domain]
+            distribution_config["certificate"] = certificate
+        
+        # CloudFront distribution
+        self.distribution = cloudfront.Distribution(
+            self,
+            "Distribution",
+            **distribution_config
         )
         
         # Deploy Cognito logo to a stable location
@@ -156,7 +179,21 @@ class FrontendStack(Stack):
         CfnOutput(
             self,
             "WebsiteURL",
-            value=f"https://{self.distribution.distribution_domain_name}",
+            value=f"https://{custom_domain}" if custom_domain else f"https://{self.distribution.distribution_domain_name}",
             description="Frontend website URL",
             export_name=f"ImpressiornistesFrontendURL-{env_name}"
         )
+        
+        if custom_domain:
+            CfnOutput(
+                self,
+                "CustomDomain",
+                value=custom_domain,
+                description="Custom domain name configured for CloudFront"
+            )
+            CfnOutput(
+                self,
+                "DNSConfiguration",
+                value=f"Create CNAME record: {custom_domain} -> {self.distribution.distribution_domain_name}",
+                description="DNS configuration required"
+            )

@@ -418,8 +418,9 @@ build-frontend:
 	echo "   API URL: $$API_URL"; echo "   Cognito Client ID: $$CLIENT_ID"; echo "   Cognito Domain: $$DOMAIN"; echo ""; \
 	echo "2. Creating production .env file..."; \
 	CLOUDFRONT_DOMAIN=$$(aws cloudformation describe-stacks --stack-name ImpressiornistesFrontend-$(ENV) --query 'Stacks[0].Outputs[?OutputKey==`DistributionDomainName`].OutputValue' --output text 2>/dev/null); \
-	if [ -z "$$CLOUDFRONT_DOMAIN" ] || [ "$$CLOUDFRONT_DOMAIN" = "None" ]; then echo "   ⚠️  Frontend stack not deployed yet, using placeholder"; CLOUDFRONT_DOMAIN="PLACEHOLDER-DEPLOY-FRONTEND-FIRST"; fi; \
-	cd ../frontend && echo "VITE_API_URL=$$API_URL" > .env.production && echo "VITE_COGNITO_DOMAIN=$$DOMAIN" >> .env.production && echo "VITE_COGNITO_CLIENT_ID=$$CLIENT_ID" >> .env.production && echo "VITE_COGNITO_REDIRECT_URI=https://$$CLOUDFRONT_DOMAIN/callback" >> .env.production && if [ -f ".env.$(ENV)" ]; then grep VITE_STRIPE_PUBLISHABLE_KEY .env.$(ENV) >> .env.production 2>/dev/null || true; fi; \
+	WEBSITE_URL=$$(aws cloudformation describe-stacks --stack-name ImpressiornistesFrontend-$(ENV) --query 'Stacks[0].Outputs[?OutputKey==`WebsiteURL`].OutputValue' --output text 2>/dev/null); \
+	if [ -z "$$CLOUDFRONT_DOMAIN" ] || [ "$$CLOUDFRONT_DOMAIN" = "None" ]; then echo "   ⚠️  Frontend stack not deployed yet, using placeholder"; CLOUDFRONT_DOMAIN="PLACEHOLDER-DEPLOY-FRONTEND-FIRST"; WEBSITE_URL="https://PLACEHOLDER-DEPLOY-FRONTEND-FIRST"; fi; \
+	cd ../frontend && echo "VITE_API_URL=$$API_URL" > .env.production && echo "VITE_COGNITO_DOMAIN=$$DOMAIN" >> .env.production && echo "VITE_COGNITO_CLIENT_ID=$$CLIENT_ID" >> .env.production && echo "VITE_COGNITO_REDIRECT_URI=$$WEBSITE_URL/callback" >> .env.production && if [ -f ".env.$(ENV)" ]; then grep VITE_STRIPE_PUBLISHABLE_KEY .env.$(ENV) >> .env.production 2>/dev/null || true; fi; \
 	echo "   ✓ Created .env.production"; echo ""; \
 	echo "3. Installing dependencies..."; npm install --silent; echo "   ✓ Dependencies installed"; echo ""; \
 	echo "4. Building production bundle..."; npm run build; echo "   ✓ Build complete"; echo ""; \

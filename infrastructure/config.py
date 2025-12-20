@@ -17,6 +17,9 @@ class EnvironmentConfig:
         "lambda_memory_size": 256,
         "api_throttle_rate_limit": 100,
         "api_throttle_burst_limit": 200,
+        # CloudFront custom domain configuration
+        "custom_domain": "impressionnistes-dev.aviron-rcpm.fr",
+        "certificate_arn": "arn:aws:acm:us-east-1:458847123929:certificate/79f8324b-b1e9-4416-ab5d-2b8e28969dae",
     }
     
     PROD_CONFIG = {
@@ -29,6 +32,9 @@ class EnvironmentConfig:
         "lambda_memory_size": 512,
         "api_throttle_rate_limit": 1000,
         "api_throttle_burst_limit": 2000,
+        # CloudFront custom domain configuration
+        "custom_domain": "impressionnistes.aviron-rcpm.fr",
+        "certificate_arn": "arn:aws:acm:us-east-1:206478392268:certificate/dbdc7ccc-f905-45b0-94e3-906fcbb2aabe",
     }
     
     @classmethod

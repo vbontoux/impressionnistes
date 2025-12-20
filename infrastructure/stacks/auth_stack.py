@@ -153,10 +153,13 @@ class AuthStack(Stack):
             callback_urls.append(f"{cloudfront_url}/callback")
             logout_urls.append(f"{cloudfront_url}/")
         
-        # Add custom domain if configured
-        custom_domain = f"https://impressionnistes-{env_name}.rcpm-aviron.fr"
-        callback_urls.append(f"{custom_domain}/callback")
-        logout_urls.append(f"{custom_domain}/")
+        # Add custom domain if configured (from config)
+        from config import EnvironmentConfig
+        config = EnvironmentConfig.get_config(env_name)
+        custom_domain = config.get("custom_domain")
+        if custom_domain:
+            callback_urls.append(f"https://{custom_domain}/callback")
+            logout_urls.append(f"https://{custom_domain}/")
         
         # Create app client for web application
         self.user_pool_client = self.user_pool.add_client(
