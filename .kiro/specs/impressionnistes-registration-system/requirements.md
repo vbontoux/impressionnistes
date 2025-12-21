@@ -129,10 +129,19 @@ These requirements define what the system does from a business and user perspect
 #### Acceptance Criteria
 
 1. WHEN an Admin_User accesses the dashboard, THE Registration_System SHALL display real-time statistics including participant counts and boats per category
-2. WHEN an Admin_User requests data export, THE Registration_System SHALL generate CSV or Excel files containing all boat and crew member details
-3. THE Registration_System SHALL provide Admin_Users with financial reports showing the ratio of paid seats to registered seats
-4. THE Registration_System SHALL track and display registration metrics including total participants and category distribution
-5. THE Registration_System SHALL maintain audit logs of all Admin_User actions with role-based tagging
+2. WHEN an Admin_User requests data export, THE Registration_System SHALL provide JSON API endpoints that return raw data for client-side formatting into CSV or Excel files
+3. THE Registration_System SHALL provide three separate export endpoints:
+   - `/admin/export/crew-members-json` - Returns all crew members with team manager information, age calculations, and sorting by team manager name then crew member last name
+   - `/admin/export/boat-registrations-json` - Returns all boat registrations (regardless of status) with race names, team manager information, crew details, and seat assignments
+   - `/admin/export/races-json` - Returns comprehensive race data including system configuration, all races, all boats, all crew members, and all team managers for CrewTimer integration
+4. WHEN an Admin_User exports crew members, THE Registration_System SHALL format the data as CSV with columns for team manager name, club affiliation, crew member details (first name, last name, gender, date of birth, age), and license number
+5. WHEN an Admin_User exports boat registrations, THE Registration_System SHALL format the data as CSV with columns for team manager name, club affiliation, event type, boat type, race name, registration status, forfait status, payment status, and detailed crew composition with seat positions
+6. WHEN an Admin_User exports races for CrewTimer, THE Registration_System SHALL format the data as Excel (XLSX) following the CrewTimer import specification with columns for Event, Crew, Bow, and individual rower details
+7. THE Registration_System SHALL provide Admin_Users with financial reports showing the ratio of paid seats to registered seats
+8. THE Registration_System SHALL track and display registration metrics including total participants and category distribution
+9. THE Registration_System SHALL maintain audit logs of all Admin_User actions with role-based tagging
+10. THE Registration_System SHALL calculate crew member ages dynamically using the centralized age calculation function based on the configured competition date
+11. THE Registration_System SHALL include all boats in exports regardless of registration status (draft, complete, paid, forfait) to provide comprehensive competition data
 
 ### FR-8: Boat Rental Management
 
@@ -361,6 +370,22 @@ These requirements define the mandatory technical architecture and implementatio
 4. WHEN configuration changes are made through the admin interface, THE Registration_System SHALL automatically update the centralized configuration store
 5. WHEN a DevOps_User needs to manually modify configuration for emergency purposes, THE Registration_System SHALL provide secure CLI or API access with proper authentication
 6. THE Registration_System SHALL validate all configuration changes to ensure system integrity before applying them
+
+### TC-5: Export Architecture Constraint
+
+**Constraint:** Data exports must use JSON APIs with client-side formatting to minimize backend processing and enable flexible output formats.
+
+#### Acceptance Criteria
+
+1. THE Registration_System SHALL implement data exports using JSON API endpoints that return raw structured data rather than pre-formatted files
+2. THE Registration_System SHALL provide separate export endpoints for different data entities (crew members, boat registrations, races) to enable targeted data retrieval
+3. THE Registration_System SHALL implement client-side formatting in the frontend application to convert JSON data into CSV or Excel formats
+4. WHEN export data volumes are large, THE Registration_System SHALL implement pagination handling in the Lambda functions to retrieve all records across multiple DynamoDB scan operations
+5. THE Registration_System SHALL cache frequently accessed data (team managers, crew members) during export operations to minimize database queries and improve performance
+6. THE Registration_System SHALL convert DynamoDB Decimal types to standard float/integer types before returning JSON responses to ensure compatibility with frontend JavaScript
+7. THE Registration_System SHALL set Lambda function timeouts to 60 seconds for export operations to accommodate large dataset processing
+8. THE Registration_System SHALL include metadata in export responses (total count, export timestamp) to provide context for the exported data
+9. WHEN formatting exports in the frontend, THE Registration_System SHALL provide reusable formatter utilities for consistent CSV and Excel generation across different export types
 
 ---
 
