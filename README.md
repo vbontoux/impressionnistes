@@ -2,18 +2,43 @@
 
 A serverless web application for managing rowing competition registrations, built on AWS with Vue.js frontend and Python backend.
 
-## Overview
+## 🚀 Quick Start
 
-The Course des Impressionnistes Registration System enables rowing club team managers to register crews and boats for the RCPM Competition. The system provides:
+New to the project? Start here:
 
-- **Team Manager Portal**: Register crews, manage boat entries, process payments
-- **Admin Dashboard**: Validate registrations, manage configuration, export reports
-- **Multilingual Support**: French and English interfaces
-- **Payment Processing**: Secure payments via Stripe
-- **Notification System**: Email and Slack notifications
-- **Boat Rental Management**: RCPM boat rental with priority system
+1. **[Quick Start Guide](docs/guides/setup/quick-start.md)** - Get up and running in minutes
+2. **[Setup Guide](docs/guides/setup/setup.md)** - Detailed setup instructions
+3. **[Deployment Guide](docs/guides/setup/deployment.md)** - Deploy to AWS
 
-## Architecture
+## 📖 Overview
+
+The Course des Impressionnistes Registration System enables rowing club team managers to register crews and boats for the RCPM Competition.
+
+### Key Features
+
+**For Team Managers:**
+- Register and manage crew members
+- Create boat registrations with seat assignments
+- Request boat rentals from RCPM
+- Process payments securely via Stripe
+- Receive notifications about registration status
+
+**For Administrators:**
+- Validate and manage all registrations
+- Configure system parameters (dates, pricing, races)
+- Flag issues and grant editing exceptions
+- Export data for competition management (CSV, Excel/CrewTimer)
+- View real-time dashboard statistics
+
+**Technical Highlights:**
+- Serverless architecture with auto-scaling
+- Single-table DynamoDB design for efficiency
+- Multilingual support (French/English)
+- Custom domains with SSL certificates
+- GDPR compliant data handling
+- Comprehensive monitoring and logging
+
+## 🏗️ Architecture
 
 - **Frontend**: Vue.js 3 with Vite, served via S3/CloudFront
 - **Backend**: Python Lambda functions
@@ -24,45 +49,51 @@ The Course des Impressionnistes Registration System enables rowing club team man
 - **Infrastructure**: AWS CDK (Python)
 - **Monitoring**: CloudWatch logs and alarms
 
-## Project Structure
+**[→ Detailed Project Structure](docs/reference/project-structure.md)**
 
-```
-.
-├── frontend/              # Vue.js 3 frontend application
-│   ├── src/
-│   │   ├── components/   # Vue components
-│   │   ├── views/        # Page views
-│   │   ├── stores/       # Pinia state management
-│   │   ├── services/     # API services
-│   │   └── locales/      # i18n translations
-│   └── package.json
-│
-├── backend/              # Python backend
-│   ├── functions/        # Lambda function handlers
-│   │   ├── auth/
-│   │   ├── crew/
-│   │   ├── boat/
-│   │   ├── payment/
-│   │   ├── admin/
-│   │   └── notifications/
-│   ├── shared/           # Shared utilities
-│   │   ├── database.py
-│   │   ├── configuration.py
-│   │   ├── validation.py
-│   │   └── notifications.py
-│   └── requirements.txt
-│
-└── infrastructure/       # AWS CDK infrastructure
-    ├── stacks/
-    │   ├── database_stack.py
-    │   ├── api_stack.py
-    │   ├── frontend_stack.py
-    │   └── monitoring_stack.py
-    ├── app.py
-    └── requirements.txt
-```
+## 📚 Documentation
 
-## Prerequisites
+### Setup & Deployment
+
+- **[Quick Start](docs/guides/setup/quick-start.md)** - Get started quickly
+- **[Setup Guide](docs/guides/setup/setup.md)** - Complete setup instructions
+- **[Deployment Guide](docs/guides/setup/deployment.md)** - Deploy to AWS environments
+- **[Custom Domains](docs/guides/setup/custom-domains.md)** - Configure custom domains and SSL
+- **[Stripe Setup](docs/guides/setup/stripe-setup.md)** - Configure payment processing
+- **[Secrets Management](docs/guides/setup/secrets-management.md)** - Manage sensitive configuration
+
+### Development
+
+- **[Development Workflow](docs/guides/development/dev-workflow.md)** - Day-to-day development process
+- **[Testing Guide](docs/guides/development/testing-guide.md)** - Testing strategy and practices
+- **[Lambda Testing](docs/guides/development/lambda-testing.md)** - Test Lambda functions locally
+- **[Frontend Testing](docs/guides/development/frontend-testing.md)** - Frontend testing guide
+- **[Frontend Setup](docs/guides/development/frontend-setup.md)** - Frontend development setup
+
+### Operations
+
+- **[Infrastructure Quickstart](docs/guides/operations/infrastructure-quickstart.md)** - Quick infrastructure commands
+- **[Database Export](docs/guides/operations/database-export.md)** - Export and backup database
+- **[Monitoring](docs/guides/operations/monitoring.md)** - Monitor system health
+- **[DNS Records](docs/guides/operations/dns-records.md)** - DNS configuration reference
+
+### Reference
+
+- **[API Endpoints](docs/reference/api-endpoints.md)** - Complete API reference
+- **[Auth API](docs/reference/auth-api.md)** - Authentication endpoints
+- **[Commands](docs/reference/commands.md)** - CLI commands reference
+- **[Project Structure](docs/reference/project-structure.md)** - Codebase organization
+
+### Component-Specific Docs
+
+- **[Frontend Environment Files](frontend/ENV_FILES_GUIDE.md)** - Frontend .env configuration
+- **[Payment Testing](frontend/PAYMENT_TESTING.md)** - Test Stripe integration
+- **[Infrastructure README](infrastructure/README.md)** - Infrastructure module overview
+- **[Auth Test Events](functions/auth/TEST_EVENTS.md)** - Lambda test payloads
+- **[Migrations Guide](functions/migrations/README.md)** - Database migration instructions
+- **[Tests README](tests/README.md)** - Test suite documentation
+
+## 🛠️ Prerequisites
 
 - Node.js 18+ and npm
 - Python 3.11+
@@ -70,170 +101,169 @@ The Course des Impressionnistes Registration System enables rowing club team man
 - AWS CDK CLI (`npm install -g aws-cdk`)
 - Stripe account (test mode for development)
 
-**📖 For detailed setup instructions, see [SETUP.md](SETUP.md)**
+## ⚡ Getting Started
 
-**🚀 For deployment instructions, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)**
-
-## Getting Started
-
-### 1. Set Up Python Virtual Environments
-
-**Automated setup (recommended):**
-```bash
-# macOS/Linux
-./setup-venv.sh
-
-# Windows PowerShell
-.\setup-venv.ps1
-```
-
-**Manual setup:**
-```bash
-# Backend
-cd backend
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-deactivate
-
-# Infrastructure
-cd infrastructure
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-deactivate
-```
-
-### 2. Install Frontend Dependencies
+### 1. Clone and Setup
 
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd impressionnistes
+
+# Set up Python virtual environments (automated)
+./setup-venv.sh  # macOS/Linux
+# or
+.\setup-venv.ps1  # Windows PowerShell
+
+# Install frontend dependencies
 cd frontend
 npm install
 ```
 
-### 3. Configure Environment
+### 2. Configure Environment
 
-Create `.env` files for local development:
+See **[Setup Guide](docs/guides/setup/setup.md)** for detailed configuration instructions.
 
-**Frontend (.env.local):**
-```
-VITE_API_URL=https://your-api-gateway-url
-VITE_STRIPE_PUBLIC_KEY=pk_test_...
-```
-
-**Backend:**
-Environment variables are managed through CDK deployment.
-
-### 4. Deploy Infrastructure
+### 3. Deploy Infrastructure
 
 ```bash
 cd infrastructure
-source venv/bin/activate  # Activate virtual environment
-cdk bootstrap --context env=dev  # First time only
-cdk deploy --all --context env=dev
-
-# Or use the deployment script (handles venv automatically)
-./deploy.sh dev
+make deploy-dev
 ```
 
-See [infrastructure/README.md](infrastructure/README.md) for detailed deployment instructions.
+See **[Deployment Guide](docs/guides/setup/deployment.md)** for complete deployment instructions.
 
-### 5. Run Frontend Locally
+### 4. Run Frontend Locally
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-## Development
+## 🔧 Common Commands
+
+### Infrastructure (use Makefile)
+
+```bash
+cd infrastructure
+
+# Deployment
+make deploy-dev          # Deploy to dev environment
+make deploy-prod         # Deploy to production
+make describe-infra      # Show API URLs and config
+
+# Database
+make db-view             # View database contents
+make db-export           # Export database to CSV
+make db-migrate          # Run database migrations
+
+# Testing
+make test                # Run integration tests
+make test-coverage       # Run tests with coverage
+
+# Monitoring
+make costs               # Show AWS costs
+make list                # List all stacks
+```
+
+**[→ Full Commands Reference](docs/reference/commands.md)**
 
 ### Frontend Development
+
 ```bash
 cd frontend
-npm run dev          # Start dev server
-npm run build        # Build for production
-npm run lint         # Lint code
+npm run dev              # Start dev server
+npm run build            # Build for production
+npm run lint             # Lint code
 ```
 
 ### Backend Testing
-```bash
-cd backend
-source venv/bin/activate  # Activate virtual environment
-pytest               # Run tests
-pytest --cov         # Run with coverage
-deactivate           # Deactivate when done
-```
 
-### Infrastructure Deployment
 ```bash
 cd infrastructure
-source venv/bin/activate  # Activate virtual environment
-cdk diff --context env=dev             # Preview changes
-cdk deploy --all --context env=dev     # Deploy to AWS
-cdk destroy --all --context env=dev    # Remove all resources
-deactivate           # Deactivate when done
-
-# Or use deployment scripts (handle venv automatically)
-./deploy.sh dev
-./destroy.sh dev
+make test                # Run all integration tests
+make test ARGS="tests/integration/test_crew_member_api.py"  # Run specific test
 ```
 
-## Key Features
+## 🌐 Environments
 
-### For Team Managers
-- Register and manage crew members
-- Create boat registrations with seat assignments
-- Request boat rentals from RCPM
-- Process payments securely via Stripe
-- Receive notifications about registration status
+### Development
+- **Domain**: `impressionnistes-dev.aviron-rcpm.fr`
+- **Purpose**: Testing and development
 
-### For Administrators
-- Validate and manage all registrations
-- Configure system parameters (dates, pricing, races)
-- Flag issues and grant editing exceptions
-- Export data for competition management
-- View real-time dashboard statistics
+### Production
+- **Domain**: `impressionnistes.aviron-rcpm.fr`
+- **Purpose**: Live competition registration
 
-### Technical Features
-- Serverless architecture with auto-scaling
-- Single-table DynamoDB design for efficiency
-- Multilingual support (French/English)
-- GDPR compliant data handling
-- Comprehensive monitoring and logging
-- Automated backup and recovery
+**[→ Custom Domains Setup](docs/guides/setup/custom-domains.md)**
 
-## Configuration
+## 🔐 Security
 
-System configuration is managed through DynamoDB and can be updated via the admin interface:
+- All data encrypted at rest (DynamoDB)
+- HTTPS/TLS for all communications
+- Cognito authentication with MFA support
+- Role-based access control (Team Managers, Admins)
+- Input sanitization and validation
+- GDPR compliance features
 
-- Registration and payment periods
-- Pricing (base seat price, rental fees)
-- Notification settings
-- Race categories
-- Boat inventory
-
-## Monitoring
+## 📊 Monitoring
 
 - **CloudWatch Logs**: All Lambda function logs
 - **CloudWatch Alarms**: Error rates, throttling
 - **Slack Notifications**: Real-time alerts for admins and DevOps
 - **Email Notifications**: User notifications via SES
 
-## Security
+**[→ Monitoring Guide](docs/guides/operations/monitoring.md)**
 
-- All data encrypted at rest (DynamoDB)
-- HTTPS/TLS for all communications
-- Cognito authentication with MFA support
-- Role-based access control
-- Input sanitization and validation
-- GDPR compliance features
+## 🤝 Contributing
 
-## Support
+### Development Workflow
+
+1. Create a feature branch
+2. Make changes following the coding standards
+3. Run tests: `cd infrastructure && make test`
+4. Deploy to dev: `make deploy-dev`
+5. Test your changes
+6. Create a pull request
+
+**[→ Development Workflow Guide](docs/guides/development/dev-workflow.md)**
+
+### Testing
+
+- **Integration Tests**: 24 tests covering all API endpoints
+- **Frontend Tests**: Component and E2E tests
+- **Lambda Tests**: Local testing with moto
+
+**[→ Testing Guide](docs/guides/development/testing-guide.md)**
+
+## 📞 Support
 
 For questions or issues, contact the RCPM organization:
-- Email: contact@impressionnistes.rcpm.fr
-- Website: [Course des Impressionnistes](https://impressionnistes.rcpm.fr)
+- **Email**: contact@impressionnistes.rcpm.fr
+- **Website**: [Course des Impressionnistes](https://impressionnistes.aviron-rcpm.fr)
 
-## License
+## 📄 License
 
 Copyright © 2025 RCPM - Rowing Club de Port Marly
+
+---
+
+## 📁 Documentation Structure
+
+```
+docs/
+├── guides/
+│   ├── setup/              # Setup and deployment guides
+│   ├── development/        # Development guides
+│   └── operations/         # Operations and maintenance
+├── reference/              # Technical reference documentation
+└── archived/               # Historical documentation
+
+Component-specific docs stay with their components:
+├── frontend/               # Frontend-specific guides
+├── infrastructure/         # Infrastructure-specific guides
+├── functions/              # Lambda function documentation
+└── tests/                  # Test documentation
+```
+
+**[→ Complete Documentation Index](docs/)**
