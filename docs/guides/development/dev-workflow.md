@@ -74,15 +74,14 @@ make deploy-prod
 # List deployed stacks
 make list
 
-# Check DynamoDB table
-aws dynamodb describe-table --table-name impressionnistes-registration-dev
+# Get infrastructure details (API URL, Cognito config)
+make describe-infra
 
-# Scan configuration
-aws dynamodb scan \
-  --table-name impressionnistes-registration-dev \
-  --filter-expression "PK = :pk" \
-  --expression-attribute-values '{":pk":{"S":"CONFIG"}}' \
-  --max-items 5
+# View database contents
+make db-view
+
+# Export database to CSV
+make db-export
 
 # Check Lambda functions
 aws lambda list-functions --query 'Functions[?starts_with(FunctionName, `Impressionnistes`)].FunctionName'
@@ -119,17 +118,10 @@ make diff
 # 2. Deploy
 make deploy
 
-# 3. Verify table was created
-aws dynamodb describe-table --table-name impressionnistes-registration-dev
+# 3. Verify table and configuration
+make db-view
 
-# 4. Check configuration was initialized
-aws dynamodb scan \
-  --table-name impressionnistes-registration-dev \
-  --filter-expression "PK = :pk" \
-  --expression-attribute-values '{":pk":{"S":"CONFIG"}}' \
-  --max-items 3
-
-# 5. Test Slack notification (if configured)
+# 4. Test Slack notification (if configured)
 # Check the app-impressionnistes channel for any deployment notifications
 ```
 
@@ -140,9 +132,8 @@ aws dynamodb scan \
 make deploy
 
 # 2. Test Lambda function locally (if applicable)
-cd ../backend
-source venv/bin/activate
-python -c "from shared.configuration import ConfigurationManager; print('Import successful')"
+cd ../functions
+# Test imports work correctly
 
 # 3. Redeploy if needed
 cd ../infrastructure

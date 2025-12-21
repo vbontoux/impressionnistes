@@ -399,8 +399,11 @@ make cognito-create-admin EMAIL=admin@example.com ENV=dev
 
 ## Additional Resources
 
-- [Makefile Commands](infrastructure/Makefile) - Run `make help` for full list
-- [Database Migrations](functions/migrations/README.md)
-- [Frontend Testing](FRONTEND_TESTING.md)
-- [Lambda Testing](LAMBDA_TESTING_GUIDE.md)
-- [API Gateway Implementation](API_GATEWAY_IMPLEMENTATION.md)
+- **[All Commands Reference](../../reference/commands.md)** - Complete command documentation
+- **[Infrastructure Quickstart](../operations/infrastructure-quickstart.md)** - Quick command reference
+- **[Database Migrations](../../../functions/migrations/README.md)** - Migration guide
+- **[Testing Guide](../development/testing-guide.md)** - Testing documentation
+- **[Monitoring](../operations/monitoring.md)** - System monitoring
+- **[Database Export](../operations/database-export.md)** - Database backup and export
+
+Run `make help` in infrastructure/ for the complete list of available commands.
