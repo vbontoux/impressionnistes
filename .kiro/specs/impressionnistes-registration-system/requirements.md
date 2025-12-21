@@ -332,8 +332,12 @@ These requirements define the mandatory technical architecture and implementatio
 1. THE Registration_System SHALL utilize AWS serverless services in general and Python language where script or lambda functions are necessary
 2. THE Registration_System SHALL store all data in Amazon DynamoDB with encryption at rest enabled
 3. WHEN traffic increases, THE Registration_System SHALL automatically scale without manual intervention
-4. THE Registration_System SHALL serve the frontend application through Amazon S3 and CloudFront for optimal performance
-5. THE Registration_System SHALL NOT necessarily need an api layer
+4. THE Registration_System SHALL serve the frontend application through Amazon S3 and CloudFront for optimal performance with custom domain support
+5. THE Registration_System SHALL configure custom domains for both development and production environments using AWS Certificate Manager (ACM) certificates in the us-east-1 region (required for CloudFront)
+6. THE Registration_System SHALL use the following custom domains:
+   - Development: `impressionnistes-dev.aviron-rcpm.fr`
+   - Production: `impressionnistes.aviron-rcpm.fr`
+7. THE Registration_System SHALL NOT necessarily need an api layer
 
 ### TC-2: Infrastructure as Code Constraint
 
@@ -386,6 +390,29 @@ These requirements define the mandatory technical architecture and implementatio
 7. THE Registration_System SHALL set Lambda function timeouts to 60 seconds for export operations to accommodate large dataset processing
 8. THE Registration_System SHALL include metadata in export responses (total count, export timestamp) to provide context for the exported data
 9. WHEN formatting exports in the frontend, THE Registration_System SHALL provide reusable formatter utilities for consistent CSV and Excel generation across different export types
+
+### TC-6: Custom Domain and SSL Certificate Constraint
+
+**Constraint:** The system must use custom domains with SSL certificates for both development and production environments to provide professional URLs and secure HTTPS access.
+
+#### Acceptance Criteria
+
+1. THE Registration_System SHALL use custom domains for CloudFront distributions:
+   - Development environment: `impressionnistes-dev.aviron-rcpm.fr`
+   - Production environment: `impressionnistes.aviron-rcpm.fr`
+2. THE Registration_System SHALL create SSL certificates using AWS Certificate Manager (ACM) in the us-east-1 region (required for CloudFront global distribution)
+3. THE Registration_System SHALL use DNS validation method for certificate verification to automate the validation process
+4. WHEN creating certificates, THE Registration_System SHALL provide clear DNS validation records (CNAME records) that must be added to the domain's DNS configuration
+5. THE Registration_System SHALL store certificate ARNs in the environment-specific configuration file (`infrastructure/config.py`) for use during CDK deployment
+6. THE Registration_System SHALL configure CloudFront distributions to use the custom domain and associated SSL certificate for HTTPS access
+7. WHEN deploying the frontend stack, THE Registration_System SHALL output the CloudFront distribution domain name that must be configured as a CNAME record in DNS
+8. THE Registration_System SHALL require the following DNS records for full custom domain setup:
+   - Certificate validation CNAME records (for ACM validation)
+   - CloudFront CNAME records (pointing custom domain to CloudFront distribution)
+9. THE Registration_System SHALL provide automated scripts (`create-certificates.sh`) to simplify certificate creation and display required DNS records
+10. THE Registration_System SHALL update Cognito callback URLs to include custom domains in addition to CloudFront distribution URLs
+11. THE Registration_System SHALL provide comprehensive documentation (`SETUP_CUSTOM_DOMAINS.md`, `DNS_RECORDS_TO_ADD.md`) with step-by-step instructions for certificate creation, DNS configuration, and deployment
+12. WHEN certificates are pending validation, THE Registration_System SHALL provide commands to check certificate status and troubleshoot validation issues
 
 ---
 

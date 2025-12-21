@@ -1554,6 +1554,401 @@ jobs:
 
 This design document provides a comprehensive technical foundation for implementing the Course des Impressionnistes Registration System based on the approved requirements. The serverless architecture ensures scalability and cost-effectiveness, while the detailed component design enables efficient development and maintenance.
 
+## Custom Domains and SSL Certificates
+
+### Overview
+
+The system uses custom domains for both development and production environments to provide professional URLs and secure HTTPS access. Custom domains are configured using AWS Certificate Manager (ACM) for SSL certificates and CloudFront for content delivery.
+
+### Domain Configuration
+
+#### Environment-Specific Domains
+
+**Development Environment:**
+- Domain: `impressionnistes-dev.aviron-rcpm.fr`
+- Purpose: Testing and development access
+- Certificate: ACM certificate in us-east-1 region
+
+**Production Environment:**
+- Domain: `impressionnistes.aviron-rcpm.fr`
+- Purpose: Live competition registration system
+- Certificate: ACM certificate in us-east-1 region
+
+### SSL Certificate Setup
+
+#### Certificate Requirements
+
+CloudFront requires SSL certificates to be created in the **us-east-1 region** regardless of where other resources are deployed. This is a CloudFront global distribution requirement.
+
+#### Certificate Creation Process
+
+**Automated Script (`create-certificates.sh`):**
+```bash
+#!/bin/bash
+# Create SSL certificates for CloudFront custom domains
+
+# Create certificate for dev domain
+DEV_CERT_ARN=$(aws acm request-certificate \
+    --domain-name impressionnistes-dev.aviron-rcpm.fr \
+    --validation-method DNS \
+    --region us-east-1 \
+    --query 'CertificateArn' \
+    --output text)
+
+# Create certificate for prod domain
+PROD_CERT_ARN=$(aws acm request-certificate \
+    --domain-name impressionnistes.aviron-rcpm.fr \
+    --validation-method DNS \
+    --region us-east-1 \
+    --query 'CertificateArn' \
+    --output text)
+
+# Display validation records
+aws acm describe-certificate \
+    --certificate-arn "$DEV_CERT_ARN" \
+    --region us-east-1 \
+    --query 'Certificate.DomainValidationOptions[0].ResourceRecord'
+```
+
+**Manual Certificate Creation:**
+```bash
+# Alternative manual approach
+aws acm request-certificate \
+  --domain-name impressionnistes-dev.aviron-rcpm.fr \
+  --validation-method DNS \
+  --region us-east-1
+```
+
+#### DNS Validation Records
+
+After certificate creation, ACM provides CNAME records for DNS validation:
+
+**Example Validation Record:**
+```
+Name: _abc123def456.impressionnistes-dev.aviron-rcpm.fr
+Type: CNAME
+Value: _xyz789.acm-validations.aws.
+TTL: 300
+```
+
+These records must be added to the domain's DNS configuration (domain registrar or Route53).
+
+#### Certificate Status Verification
+
+```bash
+# Check certificate validation status
+aws acm describe-certificate \
+  --certificate-arn arn:aws:acm:us-east-1:ACCOUNT:certificate/CERT_ID \
+  --region us-east-1 \
+  --query 'Certificate.Status' \
+  --output text
+
+# Expected output: ISSUED (after DNS validation completes)
+```
+
+### Infrastructure Configuration
+
+#### Environment Configuration (`infrastructure/config.py`)
+
+```python
+class EnvironmentConfig:
+    """Helper class to manage environment-specific configuration"""
+    
+    DEV_CONFIG = {
+        "region": "eu-west-3",
+        "table_name": "impressionnistes-registration-dev",
+        # CloudFront custom domain configuration
+        "custom_domain": "impressionnistes-dev.aviron-rcpm.fr",
+        "certificate_arn": "arn:aws:acm:us-east-1:ACCOUNT:certificate/DEV_CERT_ID",
+    }
+    
+    PROD_CONFIG = {
+        "region": "eu-west-3",
+        "table_name": "impressionnistes-registration-prod",
+        # CloudFront custom domain configuration
+        "custom_domain": "impressionnistes.aviron-rcpm.fr",
+        "certificate_arn": "arn:aws:acm:us-east-1:ACCOUNT:certificate/PROD_CERT_ID",
+    }
+```
+
+#### Frontend Stack Implementation (`infrastructure/stacks/frontend_stack.py`)
+
+```python
+from aws_cdk import (
+    Stack,
+    aws_s3 as s3,
+    aws_cloudfront as cloudfront,
+    aws_certificatemanager as acm,
+    CfnOutput
+)
+
+class FrontendStack(Stack):
+    def __init__(self, scope, construct_id, env_name, **kwargs):
+        super().__init__(scope, construct_id, **kwargs)
+        
+        # Get custom domain configuration
+        from config import EnvironmentConfig
+        config = EnvironmentConfig.get_config(env_name)
+        custom_domain = config.get("custom_domain")
+        certificate_arn = config.get("certificate_arn")
+        
+        # S3 bucket for static website hosting
+        website_bucket = s3.Bucket(
+            self, "WebsiteBucket",
+            # ... bucket configuration ...
+        )
+        
+        # CloudFront distribution configuration
+        distribution_config = {
+            "default_behavior": cloudfront.BehaviorOptions(
+                origin=origins.S3Origin(website_bucket),
+                viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                cache_policy=cloudfront.CachePolicy.CACHING_OPTIMIZED,
+            ),
+            "default_root_object": "index.html",
+            "error_responses": [
+                cloudfront.ErrorResponse(
+                    http_status=404,
+                    response_http_status=200,
+                    response_page_path="/index.html",
+                    ttl=Duration.minutes(5)
+                )
+            ]
+        }
+        
+        # Add custom domain and certificate if configured
+        if custom_domain and certificate_arn:
+            # Import the certificate from ACM (must be in us-east-1 for CloudFront)
+            certificate = acm.Certificate.from_certificate_arn(
+                self,
+                "Certificate",
+                certificate_arn
+            )
+            distribution_config["domain_names"] = [custom_domain]
+            distribution_config["certificate"] = certificate
+        
+        # Create CloudFront distribution
+        self.distribution = cloudfront.Distribution(
+            self, "Distribution",
+            **distribution_config
+        )
+        
+        # Output CloudFront domain name for DNS configuration
+        CfnOutput(
+            self,
+            "DistributionDomainName",
+            value=self.distribution.distribution_domain_name,
+            description="CloudFront distribution domain name"
+        )
+        
+        # Output website URL
+        CfnOutput(
+            self,
+            "WebsiteURL",
+            value=f"https://{custom_domain}" if custom_domain else f"https://{self.distribution.distribution_domain_name}",
+            description="Frontend website URL",
+            export_name=f"ImpressiornistesFrontendURL-{env_name}"
+        )
+        
+        # Output DNS configuration instructions
+        if custom_domain:
+            CfnOutput(
+                self,
+                "CustomDomain",
+                value=custom_domain,
+                description="Custom domain name configured for CloudFront"
+            )
+            CfnOutput(
+                self,
+                "DNSConfiguration",
+                value=f"Create CNAME record: {custom_domain} -> {self.distribution.distribution_domain_name}",
+                description="DNS configuration required"
+            )
+```
+
+#### Cognito Integration (`infrastructure/stacks/auth_stack.py`)
+
+Custom domains must be added to Cognito callback and logout URLs:
+
+```python
+class AuthStack(Stack):
+    def __init__(self, scope, construct_id, env_name, **kwargs):
+        super().__init__(scope, construct_id, **kwargs)
+        
+        # Get custom domain configuration
+        from config import EnvironmentConfig
+        config = EnvironmentConfig.get_config(env_name)
+        custom_domain = config.get("custom_domain")
+        
+        # Build callback URLs
+        callback_urls = [
+            f"https://{cloudfront_domain}/callback"  # CloudFront default
+        ]
+        logout_urls = [
+            f"https://{cloudfront_domain}/"
+        ]
+        
+        # Add custom domain URLs if configured
+        if custom_domain:
+            callback_urls.append(f"https://{custom_domain}/callback")
+            logout_urls.append(f"https://{custom_domain}/")
+        
+        # Create Cognito User Pool Client
+        user_pool_client = cognito.UserPoolClient(
+            self, "UserPoolClient",
+            user_pool=user_pool,
+            callback_urls=callback_urls,
+            logout_urls=logout_urls,
+            # ... other configuration ...
+        )
+```
+
+### DNS Configuration
+
+#### Required DNS Records
+
+**Step 1: Certificate Validation (Add First)**
+
+For each environment, add the CNAME record provided by ACM:
+
+```
+# Dev Certificate Validation
+Name: _abc123.impressionnistes-dev.aviron-rcpm.fr
+Type: CNAME
+Value: _xyz789.acm-validations.aws.
+TTL: 300
+
+# Prod Certificate Validation
+Name: _def456.impressionnistes.aviron-rcpm.fr
+Type: CNAME
+Value: _uvw012.acm-validations.aws.
+TTL: 300
+```
+
+**Step 2: CloudFront CNAME (Add After Deployment)**
+
+After deploying the frontend stack, add CNAME records pointing to CloudFront:
+
+```
+# Dev Environment
+Name: impressionnistes-dev.aviron-rcpm.fr
+Type: CNAME
+Value: d1234567890abc.cloudfront.net  # From CDK output
+TTL: 300
+
+# Prod Environment
+Name: impressionnistes.aviron-rcpm.fr
+Type: CNAME
+Value: d0987654321xyz.cloudfront.net  # From CDK output
+TTL: 300
+```
+
+### Deployment Workflow
+
+#### Complete Setup Process
+
+**1. Create SSL Certificates**
+```bash
+cd infrastructure
+chmod +x create-certificates.sh
+./create-certificates.sh
+```
+
+**2. Add DNS Validation Records**
+- Copy CNAME records from script output
+- Add to DNS configuration (domain registrar or Route53)
+- Wait 5-10 minutes for validation
+
+**3. Verify Certificate Status**
+```bash
+aws acm describe-certificate \
+  --certificate-arn <cert-arn> \
+  --region us-east-1 \
+  --query 'Certificate.Status'
+```
+
+**4. Update Configuration**
+- Edit `infrastructure/config.py`
+- Add certificate ARNs to DEV_CONFIG and PROD_CONFIG
+
+**5. Deploy Infrastructure**
+```bash
+cd infrastructure
+make deploy-dev    # Deploy development environment
+make deploy-prod   # Deploy production environment
+```
+
+**6. Add CloudFront CNAME Records**
+- Get CloudFront domain from deployment output
+- Add CNAME records to DNS configuration
+
+**7. Test Custom Domains**
+```bash
+# Test dev
+curl -I https://impressionnistes-dev.aviron-rcpm.fr
+
+# Test prod
+curl -I https://impressionnistes.aviron-rcpm.fr
+```
+
+### Troubleshooting
+
+#### Certificate Validation Issues
+
+**Problem:** Certificate stays in "Pending validation" status
+
+**Solutions:**
+1. Verify DNS records are correct: `dig _abc123.impressionnistes-dev.aviron-rcpm.fr`
+2. Check DNS propagation: Use online DNS checker tools
+3. Wait up to 30 minutes for DNS propagation
+4. If stuck, delete and recreate certificate
+
+#### 403 Error After Deployment
+
+**Problem:** Getting 403 error when accessing custom domain
+
+**Solutions:**
+1. Verify certificate ARN is correctly configured in `config.py`
+2. Redeploy the frontend stack
+3. Check CloudFront distribution in AWS Console shows custom domain
+4. Verify certificate status is "ISSUED"
+
+#### DNS Not Resolving
+
+**Problem:** Domain doesn't resolve to CloudFront
+
+**Solutions:**
+1. Verify CNAME record exists: `dig impressionnistes-dev.aviron-rcpm.fr`
+2. Wait for DNS propagation (up to 48 hours, usually much faster)
+3. Clear local DNS cache: `sudo dscacheutil -flushcache` (macOS)
+4. Test from different network/location
+
+#### CloudFront Distribution Not Using Certificate
+
+**Problem:** HTTPS not working or showing certificate error
+
+**Solutions:**
+1. Verify certificate is in us-east-1 region
+2. Check certificate ARN matches in config.py
+3. Verify custom domain is added to CloudFront distribution
+4. Redeploy frontend stack with correct configuration
+
+### Documentation Files
+
+The system provides comprehensive documentation for custom domain setup:
+
+- **`SETUP_CUSTOM_DOMAINS.md`**: Step-by-step setup guide with all commands
+- **`DNS_RECORDS_TO_ADD.md`**: Specific DNS records with actual values for current deployment
+- **`create-certificates.sh`**: Automated script for certificate creation
+- **`config.py`**: Environment-specific configuration including certificate ARNs
+
+### Security Considerations
+
+1. **HTTPS Enforcement**: CloudFront configured with `REDIRECT_TO_HTTPS` policy
+2. **Certificate Validation**: DNS validation ensures domain ownership
+3. **Regional Requirements**: Certificates must be in us-east-1 for CloudFront
+4. **Certificate Renewal**: ACM automatically renews certificates before expiration
+5. **Access Control**: S3 bucket access restricted to CloudFront via Origin Access Identity
 
 ## Slack Notifications for Admin and DevOps
 
