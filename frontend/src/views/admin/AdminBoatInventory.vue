@@ -12,9 +12,29 @@
           <h1>{{ $t('admin.boatInventory.title') }}</h1>
           <p class="subtitle">{{ $t('admin.boatInventory.subtitle') }}</p>
         </div>
-        <button @click="showAddBoatModal = true" class="btn-primary">
-          {{ $t('admin.boatInventory.addBoat') }}
-        </button>
+        <div class="header-actions">
+          <div class="view-toggle">
+            <button 
+              @click="viewMode = 'cards'" 
+              :class="{ active: viewMode === 'cards' }"
+              class="btn-view"
+              :title="$t('common.cardView')"
+            >
+              ⊞
+            </button>
+            <button 
+              @click="viewMode = 'table'" 
+              :class="{ active: viewMode === 'table' }"
+              class="btn-view"
+              :title="$t('common.tableView')"
+            >
+              ☰
+            </button>
+          </div>
+          <button @click="showAddBoatModal = true" class="btn-primary">
+            {{ $t('admin.boatInventory.addBoat') }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -54,8 +74,120 @@
         </div>
       </div>
 
+      <!-- Card View -->
+      <div v-if="viewMode === 'cards'" class="boats-grid">
+        <div v-if="filteredBoats.length === 0" class="empty-state">
+          {{ $t('admin.boatInventory.noBoats') }}
+        </div>
+        <div
+          v-for="boat in filteredBoats"
+          :key="boat.rental_boat_id || boat.PK"
+          class="boat-card"
+          :class="`status-${boat.status}`"
+        >
+          <div class="boat-header">
+            <input
+              v-if="editingBoat === (boat.rental_boat_id || boat.PK)"
+              v-model="editForm.boat_name"
+              type="text"
+              class="inline-edit-input"
+              @keyup.enter="saveEdit(boat)"
+              @keyup.esc="cancelEdit"
+            />
+            <h3 v-else 
+              :class="{ 'editable': boat.status !== 'paid' }" 
+              @click="boat.status !== 'paid' && startEdit(boat)"
+            >
+              {{ boat.boat_name }}
+              <svg v-if="boat.status !== 'paid'" class="edit-hint" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </h3>
+            <span class="boat-type">{{ boat.boat_type }}</span>
+          </div>
+
+          <div class="boat-details">
+            <div class="detail-row">
+              <span class="label">{{ $t('admin.boatInventory.weightCapacity') }}:</span>
+              <input
+                v-if="editingBoat === (boat.rental_boat_id || boat.PK)"
+                v-model="editForm.rower_weight_range"
+                type="text"
+                class="inline-edit-input"
+                :placeholder="$t('admin.boatInventory.weightPlaceholder')"
+                @keyup.enter="saveEdit(boat)"
+                @keyup.esc="cancelEdit"
+              />
+              <span v-else 
+                :class="{ 'editable': boat.status !== 'paid' }" 
+                @click="boat.status !== 'paid' && startEdit(boat)"
+              >
+                {{ boat.rower_weight_range || '-' }}
+                <svg v-if="boat.status !== 'paid'" class="edit-hint" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </div>
+            <div class="detail-row">
+              <span class="label">{{ $t('admin.boatInventory.statusLabel') }}:</span>
+              <select
+                v-if="editingBoat === (boat.rental_boat_id || boat.PK)"
+                v-model="editForm.status"
+                class="inline-edit-select"
+                @change="saveEdit(boat)"
+              >
+                <option v-for="status in getAvailableStatuses(boat)" :key="status" :value="status">
+                  {{ $t(`admin.boatInventory.status.${status}`) }}
+                </option>
+              </select>
+              <span v-else 
+                class="status-badge" 
+                :class="[boat.status, { 'editable': boat.status !== 'paid' }]"
+                @click="boat.status !== 'paid' && startEdit(boat)"
+              >
+                {{ $t(`admin.boatInventory.status.${boat.status}`) }}
+                <svg v-if="boat.status !== 'paid'" class="edit-hint" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </div>
+            <div v-if="boat.requester" class="detail-row">
+              <span class="label">{{ $t('admin.boatInventory.requester') }}:</span>
+              <span>{{ boat.requester }}</span>
+            </div>
+          </div>
+
+          <div class="boat-actions">
+            <button
+              v-if="editingBoat === (boat.rental_boat_id || boat.PK)"
+              @click="saveEdit(boat)"
+              class="btn-save"
+            >
+              ✓ {{ $t('common.save') }}
+            </button>
+            <button
+              v-if="editingBoat === (boat.rental_boat_id || boat.PK)"
+              @click="cancelEdit"
+              class="btn-cancel"
+            >
+              ✕ {{ $t('common.cancel') }}
+            </button>
+            <button
+              v-if="editingBoat !== (boat.rental_boat_id || boat.PK) && boat.status !== 'paid' && boat.status !== 'confirmed'"
+              @click="deleteBoat(boat)"
+              class="btn-danger"
+            >
+              {{ $t('common.delete') }}
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Boats Table -->
-      <div class="boats-table-container">
+      <div v-else class="boats-table-container">
         <table class="boats-table">
           <thead>
             <tr>
@@ -241,7 +373,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import apiClient from '../../services/apiClient';
@@ -252,6 +384,7 @@ const { t } = useI18n();
 const loading = ref(true);
 const error = ref(null);
 const boats = ref([]);
+const viewMode = ref(localStorage.getItem('adminBoatInventoryViewMode') || 'table');
 
 const boatTypes = ['skiff', '4-', '4+', '4x-', '4x+', '8+', '8x+'];
 // All possible statuses (for filtering)
@@ -473,6 +606,11 @@ const deleteBoat = async (boat) => {
   }
 };
 
+// Watch for view mode changes and save to localStorage
+watch(viewMode, (newMode) => {
+  localStorage.setItem('adminBoatInventoryViewMode', newMode);
+});
+
 onMounted(() => {
   loadBoats();
 });
@@ -508,6 +646,42 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   gap: 2rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 0.5rem;
+  background: white;
+  padding: 0.25rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-view {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.25rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+  color: #6c757d;
+}
+
+.btn-view:hover {
+  background: #f8f9fa;
+  color: #495057;
+}
+
+.btn-view.active {
+  background: #3498db;
+  color: white;
 }
 
 .page-header h1 {
@@ -831,6 +1005,258 @@ onMounted(() => {
   opacity: 0.6;
 }
 
+/* Card View Styles */
+.boats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.boat-card {
+  border: 1px solid #e1e8ed;
+  border-radius: 8px;
+  padding: 1rem;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.boat-card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.boat-card.status-new {
+  border-left: 4px solid #2980b9;
+}
+
+.boat-card.status-available {
+  border-left: 4px solid #27ae60;
+}
+
+.boat-card.status-requested {
+  border-left: 4px solid #f39c12;
+}
+
+.boat-card.status-confirmed {
+  border-left: 4px solid #e74c3c;
+}
+
+.boat-card.status-paid {
+  border-left: 4px solid #2874a6;
+}
+
+.boat-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.boat-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.boat-header h3.editable {
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px dashed transparent;
+  transition: all 0.2s;
+}
+
+.boat-header h3.editable:hover {
+  background-color: #f0f0f0;
+  border-color: #3498db;
+}
+
+.boat-header h3.editable:hover .edit-hint {
+  opacity: 1;
+}
+
+.boat-type {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+  font-weight: 500;
+}
+
+.boat-details {
+  margin-bottom: 1rem;
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.detail-row span:not(.label):not(.status-badge) {
+  color: #2c3e50;
+}
+
+.detail-row span.editable {
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px dashed transparent;
+  transition: all 0.2s;
+  display: inline-block;
+}
+
+.detail-row span.editable:hover {
+  background-color: #f0f0f0;
+  border-color: #3498db;
+}
+
+.detail-row span.editable:hover .edit-hint {
+  opacity: 1;
+}
+
+.edit-hint {
+  opacity: 0.4;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  transition: opacity 0.2s;
+  display: inline-block;
+}
+
+.label {
+  font-weight: 500;
+  color: #34495e;
+  font-size: 0.85rem;
+}
+
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.status-badge.editable {
+  cursor: pointer;
+  border: 1px dashed transparent;
+  transition: all 0.2s;
+}
+
+.status-badge.editable:hover {
+  opacity: 0.9;
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.status-badge.editable:hover .edit-hint {
+  opacity: 1;
+}
+
+.status-badge.new {
+  background: #e8f4f8;
+  color: #2980b9;
+}
+
+.status-badge.available {
+  background: #d5f4e6;
+  color: #27ae60;
+}
+
+.status-badge.requested {
+  background: #fef9e7;
+  color: #f39c12;
+}
+
+.status-badge.confirmed {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-badge.paid {
+  background: #d6eaf8;
+  color: #2874a6;
+}
+
+.boat-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.boat-actions button {
+  width: 100%;
+}
+
+.boat-actions .btn-save {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.boat-actions .btn-save:hover {
+  background-color: #229954;
+}
+
+.boat-actions .btn-cancel {
+  background-color: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.boat-actions .btn-cancel:hover {
+  background-color: #7f8c8d;
+}
+
+.boat-actions .btn-danger {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.boat-actions .btn-danger:hover {
+  background-color: #c82333;
+}
+
+.inline-edit-input,
+.inline-edit-select {
+  padding: 0.35rem 0.5rem;
+  border: 2px solid #3498db;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  width: 100%;
+}
+
+.inline-edit-input:focus,
+.inline-edit-select:focus {
+  outline: none;
+  border-color: #2980b9;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 1.5rem;
+  color: #7f8c8d;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 /* Modal */
 .modal-overlay {
   position: fixed;
@@ -1006,6 +1432,38 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
+  .admin-boat-inventory {
+    padding: 1rem;
+  }
+
+  .page-header {
+    margin-bottom: 1rem;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .header-actions {
+    flex-direction: row;
+    width: 100%;
+  }
+
+  .view-toggle {
+    flex-shrink: 0;
+  }
+
+  .btn-primary {
+    flex: 1;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .modal-overlay {
     align-items: flex-end;
     padding: 0;
@@ -1048,6 +1506,32 @@ onMounted(() => {
   .btn-table {
     min-height: 44px;
     min-width: 44px;
+  }
+}
+
+@media (min-width: 768px) {
+  .boats-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+
+  .boat-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .detail-row {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .boat-actions {
+    flex-direction: row;
+  }
+
+  .boat-actions button {
+    width: auto;
+    flex: 1;
   }
 }
 </style>
