@@ -1,8 +1,30 @@
 <template>
   <div class="boat-rental-view">
     <div class="header">
-      <h1>{{ $t('boatRental.title') }}</h1>
-      <p class="subtitle">{{ $t('boatRental.subtitle') }}</p>
+      <div class="header-top">
+        <div>
+          <h1>{{ $t('boatRental.title') }}</h1>
+          <p class="subtitle">{{ $t('boatRental.subtitle') }}</p>
+        </div>
+        <div class="view-toggle">
+          <button 
+            @click="viewMode = 'table'" 
+            :class="{ active: viewMode === 'table' }"
+            class="btn-view"
+            :title="$t('common.tableView')"
+          >
+            ☰
+          </button>
+          <button 
+            @click="viewMode = 'cards'" 
+            :class="{ active: viewMode === 'cards' }"
+            class="btn-view"
+            :title="$t('common.cardView')"
+          >
+            ⊞
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- Available Boats Section -->
@@ -20,24 +42,6 @@
             <option value="8+">{{ $t('boat.types.eightWithCox') }}</option>
             <option value="8x+">{{ $t('boat.types.octaWithCox') }}</option>
           </select>
-          <div class="view-toggle">
-            <button 
-              @click="viewMode = 'table'" 
-              :class="{ active: viewMode === 'table' }"
-              class="btn-view"
-              :title="$t('common.tableView')"
-            >
-              ☰
-            </button>
-            <button 
-              @click="viewMode = 'cards'" 
-              :class="{ active: viewMode === 'cards' }"
-              class="btn-view"
-              :title="$t('common.cardView')"
-            >
-              ⊞
-            </button>
-          </div>
         </div>
       </div>
 
@@ -139,24 +143,6 @@
           <button @click="loadMyRequests" class="btn-secondary">
             {{ $t('boatRental.refresh') }}
           </button>
-          <div class="view-toggle">
-            <button 
-              @click="viewMode = 'table'" 
-              :class="{ active: viewMode === 'table' }"
-              class="btn-view"
-              :title="$t('common.tableView')"
-            >
-              ☰
-            </button>
-            <button 
-              @click="viewMode = 'cards'" 
-              :class="{ active: viewMode === 'cards' }"
-              class="btn-view"
-              :title="$t('common.cardView')"
-            >
-              ⊞
-            </button>
-          </div>
         </div>
       </div>
 
@@ -495,6 +481,17 @@ export default {
   margin-bottom: 1.5rem;
 }
 
+.header-top {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.header-top > div:first-child {
+  flex: 1;
+}
+
 .header h1 {
   margin: 0 0 0.5rem 0;
   color: #2c3e50;
@@ -540,6 +537,7 @@ export default {
   overflow: hidden;
   width: 100%;
   flex-shrink: 0;
+  align-self: flex-start;
 }
 
 .btn-view {
@@ -890,12 +888,22 @@ export default {
     padding: 2rem;
   }
 
+  .header-top {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
   .header h1 {
     font-size: 2rem;
   }
 
   .subtitle {
     font-size: 1rem;
+  }
+
+  .view-toggle {
+    width: auto;
   }
 
   .section-header {
@@ -917,10 +925,6 @@ export default {
   .filter-select {
     width: auto;
     min-width: 200px;
-  }
-
-  .view-toggle {
-    width: auto;
   }
 
   .btn-view {
