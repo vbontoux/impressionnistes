@@ -5,6 +5,24 @@
         <h1>{{ $t('admin.crewMembers.title') }}</h1>
         <p class="subtitle">{{ $t('admin.crewMembers.subtitle') }}</p>
       </div>
+      <div class="view-toggle">
+        <button 
+          @click="viewMode = 'cards'" 
+          :class="{ active: viewMode === 'cards' }"
+          class="btn-view"
+          :title="$t('common.cardView')"
+        >
+          ⊞
+        </button>
+        <button 
+          @click="viewMode = 'table'" 
+          :class="{ active: viewMode === 'table' }"
+          class="btn-view"
+          :title="$t('common.tableView')"
+        >
+          ☰
+        </button>
+      </div>
     </div>
 
     <!-- Filters -->
@@ -86,7 +104,7 @@
     </div>
 
     <!-- Crew members table -->
-    <div v-if="!loading && !error" class="crew-table-container">
+    <div v-if="!loading && !error && viewMode === 'table'" class="crew-table-container">
       <p class="count">{{ $t('admin.crewMembers.totalCount', { count: filteredCrewMembers.length }) }}</p>
       
       <table class="crew-table">
@@ -154,19 +172,77 @@
           </tr>
         </tbody>
       </table>
+    </div>
 
-      <!-- Pagination -->
-      <div v-if="totalPages > 1" class="pagination">
-        <button @click="currentPage--" :disabled="currentPage === 1" class="btn-secondary">
-          {{ $t('common.previous') }}
-        </button>
-        <span class="page-info">
-          {{ $t('common.pageInfo', { current: currentPage, total: totalPages }) }}
-        </span>
-        <button @click="currentPage++" :disabled="currentPage === totalPages" class="btn-secondary">
-          {{ $t('common.next') }}
-        </button>
+    <!-- Card View -->
+    <div v-if="!loading && !error && viewMode === 'cards'" class="crew-grid">
+      <div v-for="crew in paginatedCrewMembers" :key="crew.crew_member_id" class="crew-card" :class="{ 'assigned': crew.assigned_boat_id }">
+        <div class="card-header">
+          <div class="member-info">
+            <h4>{{ crew.first_name }} {{ crew.last_name }}</h4>
+            <span class="license">{{ crew.license_number }}</span>
+          </div>
+          <div class="badges">
+            <span v-if="crew.assigned_boat_id" class="badge badge-assigned">{{ $t('crew.card.assigned') }}</span>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="detail-row">
+            <span class="label">{{ $t('crew.list.age') }}&nbsp;:</span>
+            <span class="value">{{ crew._age }} {{ $t('crew.card.years') }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">{{ $t('crew.card.category') }}&nbsp;:</span>
+            <span class="value">
+              <span class="category-badge" :class="`category-${crew._category}`">
+                {{ $t(`boat.${crew._category}`) }}
+                <span v-if="crew._category === 'master'" class="master-letter">
+                  {{ crew._masterLetter }}
+                </span>
+              </span>
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="label">{{ $t('crew.form.gender') }}&nbsp;:</span>
+            <span class="value">{{ crew.gender === 'M' ? $t('crew.form.male') : $t('crew.form.female') }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">{{ $t('crew.card.club') }}&nbsp;:</span>
+            <span class="value">
+              <span class="club-box">{{ crew.club_affiliation || crew.team_manager_club }}</span>
+            </span>
+          </div>
+          <div class="detail-row">
+            <span class="label">{{ $t('admin.crewMembers.teamManager') }}&nbsp;:</span>
+            <span class="value">
+              <div class="team-manager-info">
+                <div>{{ crew.team_manager_name }}</div>
+                <div class="email">{{ crew.team_manager_email }}</div>
+              </div>
+            </span>
+          </div>
+        </div>
+
+        <div class="card-actions">
+          <button class="btn btn-small btn-edit" @click="editCrewMember(crew)">
+            {{ $t('common.edit') }}
+          </button>
+        </div>
       </div>
+    </div>
+
+    <!-- Pagination -->
+    <div v-if="!loading && !error && totalPages > 1" class="pagination">
+      <button @click="currentPage--" :disabled="currentPage === 1" class="btn-secondary">
+        {{ $t('common.previous') }}
+      </button>
+      <span class="page-info">
+        {{ $t('common.pageInfo', { current: currentPage, total: totalPages }) }}
+      </span>
+      <button @click="currentPage++" :disabled="currentPage === totalPages" class="btn-secondary">
+        {{ $t('common.next') }}
+      </button>
     </div>
 
     <!-- Edit Crew Member Modal -->
@@ -256,7 +332,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import apiClient from '../../services/apiClient';
 import { calculateAge, getAgeCategory, getMasterCategory } from '../../utils/raceEligibility';
@@ -280,6 +356,7 @@ export default {
     const sortDirection = ref('asc');
     const currentPage = ref(1);
     const itemsPerPage = 50;
+    const viewMode = ref(localStorage.getItem('adminCrewViewMode') || 'table');
 
     // Modal state
     const showEditCrewModal = ref(false);
@@ -550,6 +627,11 @@ export default {
       fetchCrewMembers();
     });
 
+    // Watch for view mode changes and save to localStorage
+    watch(viewMode, (newMode) => {
+      localStorage.setItem('adminCrewViewMode', newMode);
+    });
+
     return {
       crewMembers,
       teamManagers,
@@ -564,6 +646,7 @@ export default {
       sortDirection,
       currentPage,
       totalPages,
+      viewMode,
       assignedCrewCount,
       unassignedCrewCount,
       filteredCrewMembers,
@@ -618,6 +701,36 @@ export default {
   color: #7f8c8d;
   font-size: 1rem;
   margin: 0;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 0.5rem;
+  background: white;
+  padding: 0.25rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.btn-view {
+  padding: 0.5rem 1rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 1.25rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+  color: #6c757d;
+}
+
+.btn-view:hover {
+  background: #f8f9fa;
+  color: #495057;
+}
+
+.btn-view.active {
+  background: #007bff;
+  color: white;
 }
 
 .filters {
@@ -1369,6 +1482,145 @@ button:disabled {
   font-size: 0.75rem;
   line-height: 1.3;
   word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Card View Styles */
+.crew-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
+.crew-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: all 0.3s;
+}
+
+.crew-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.crew-card.assigned {
+  border-left: 4px solid #4CAF50;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.member-info h4 {
+  margin: 0 0 0.25rem 0;
+  color: #333;
+  font-size: 1.25rem;
+}
+
+.license {
+  color: #666;
+  font-size: 0.875rem;
+  font-family: monospace;
+}
+
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.badge-assigned {
+  background-color: #9C27B0;
+  color: white;
+}
+
+.card-body {
+  margin-bottom: 1rem;
+}
+
+.detail-row {
+  display: flex;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f5f5f5;
+  align-items: flex-start;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.label {
+  font-weight: 500;
+  color: #666;
+  min-width: 120px;
+  max-width: 120px;
+  flex-shrink: 0;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+.value {
+  color: #333;
+  flex: 1;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-small {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+}
+
+.btn-edit {
+  background-color: #2196F3;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #1976D2;
+}
+
+.team-manager-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.team-manager-info .email {
+  font-size: 0.85rem;
+  color: #6c757d;
+  word-break: break-all;
   overflow-wrap: break-word;
 }
 </style>
