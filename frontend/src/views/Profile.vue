@@ -362,8 +362,8 @@ onMounted(async () => {
   padding: 0;
   margin-left: 1rem;
   line-height: 1;
-  width: 24px;
-  height: 24px;
+  min-width: 44px; /* Touch target size */
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -426,7 +426,8 @@ onMounted(async () => {
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 1rem;
+  font-size: 16px; /* Prevents zoom on iOS */
+  min-height: 44px; /* Touch target size */
   transition: border-color 0.2s;
 }
 
@@ -452,12 +453,20 @@ onMounted(async () => {
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 1rem;
+  min-height: 44px; /* Touch target size */
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
 }
 
 .checkbox-label {
   margin: 0;
   font-weight: normal;
   cursor: pointer;
+  font-size: 16px; /* Prevents zoom on iOS */
 }
 
 .autocomplete-wrapper {
@@ -483,6 +492,9 @@ onMounted(async () => {
   padding: 0.75rem;
   cursor: pointer;
   border-bottom: 1px solid #f0f0f0;
+  min-height: 44px; /* Touch target size */
+  display: flex;
+  align-items: center;
 }
 
 .autocomplete-item:hover {
@@ -520,6 +532,8 @@ onMounted(async () => {
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
+  min-height: 44px; /* Touch target size */
+  min-width: 44px;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -537,12 +551,69 @@ onMounted(async () => {
     padding: 1rem;
   }
 
+  .header {
+    margin-bottom: 1.5rem;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+  }
+
   .form-section {
-    padding: 1.5rem;
+    padding: 1rem;
+  }
+
+  .form-section h2 {
+    font-size: 1.125rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-group {
+    margin-bottom: 1rem;
+  }
+
+  .form-group label {
+    font-size: 0.875rem;
+  }
+
+  .form-input {
+    padding: 0.75rem;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  .field-hint {
+    font-size: 0.8125rem;
   }
 
   .form-actions {
     padding: 1rem;
+  }
+
+  .btn-primary {
+    width: 100%; /* Full width on mobile */
+    padding: 0.875rem 1rem;
+  }
+
+  .error-message,
+  .success-message {
+    padding: 0.875rem;
+    font-size: 0.875rem;
+  }
+
+  .autocomplete-dropdown {
+    max-height: 200px; /* Reduce height on mobile */
+  }
+
+  .autocomplete-item {
+    padding: 0.875rem;
+  }
+
+  .club-name {
+    font-size: 0.9375rem;
   }
 }
 </style>

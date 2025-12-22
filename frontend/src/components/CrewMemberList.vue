@@ -398,6 +398,11 @@ const closeForm = () => {
   font-size: 1.25rem;
   border-radius: 4px;
   transition: background-color 0.2s;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-view:hover {
@@ -531,6 +536,7 @@ const closeForm = () => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 1rem;
 }
 
 .modal-content {
@@ -539,6 +545,8 @@ const closeForm = () => {
   max-width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-small {
@@ -565,6 +573,7 @@ const closeForm = () => {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s;
+  min-height: 44px;
 }
 
 .btn-primary {
@@ -662,6 +671,8 @@ const closeForm = () => {
   cursor: pointer;
   font-size: 0.875rem;
   transition: background-color 0.2s;
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .btn-edit-table {
@@ -684,18 +695,140 @@ const closeForm = () => {
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
+  .crew-member-list {
+    padding: 0;
+  }
+
   .list-header {
     flex-direction: column;
     align-items: stretch;
+    margin-bottom: 1rem;
+    gap: 0.75rem;
+  }
+
+  .list-header h1 {
+    font-size: 1.5rem;
   }
 
   .header-actions {
     justify-content: space-between;
+    width: 100%;
   }
 
-  .crew-table-container {
-    margin: 0 -2rem;
+  /* Filters - stack vertically on mobile */
+  .filters {
+    padding: 1rem;
+    margin-bottom: 1rem;
     border-radius: 0;
+  }
+
+  .search-box {
+    margin-bottom: 0.75rem;
+  }
+
+  .search-input {
+    font-size: 16px; /* Prevents iOS zoom */
+    min-height: 44px; /* Touch target */
+  }
+
+  .filter-row {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+
+  .filter-btn {
+    width: 100%;
+    padding: 0.75rem;
+    min-height: 44px; /* Touch target */
+  }
+
+  .filter-group {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .filter-select,
+  .sort-select {
+    width: 100%;
+    font-size: 16px; /* Prevents iOS zoom */
+    min-height: 44px; /* Touch target */
+  }
+
+  /* Card grid - single column on mobile */
+  .crew-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  /* Table - horizontal scroll with indicators */
+  .crew-table-container {
+    margin: 0 -1rem;
+    border-radius: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    position: relative;
+  }
+
+  .crew-table {
+    min-width: 800px;
+  }
+
+  /* Action buttons - reduce padding on mobile */
+  .actions-cell {
+    padding: 0.5rem;
+  }
+
+  .btn-table {
+    padding: 0.5rem;
+    font-size: 0.75rem;
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Modals - bottom sheet style on mobile */
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-content {
+    border-radius: 12px 12px 0 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 90vh;
+  }
+
+  .modal-small {
+    border-radius: 12px 12px 0 0;
+    padding: 1.5rem;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .button-group {
+    flex-direction: column;
+  }
+
+  .button-group .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .crew-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .filter-row {
+    flex-wrap: wrap;
+  }
+
+  .filter-group {
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 150px;
   }
 }
 

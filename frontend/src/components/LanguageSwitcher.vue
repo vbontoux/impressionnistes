@@ -35,6 +35,7 @@ const changeLanguage = (lang) => {
 </script>
 
 <style scoped>
+/* Mobile-first base styles */
 .language-switcher {
   display: flex;
   gap: 0.5rem;
@@ -46,19 +47,43 @@ const changeLanguage = (lang) => {
   border: 2px solid transparent;
   font-size: 1.5rem;
   cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 4px;
-  transition: all 0.3s;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s;
   line-height: 1;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.lang-btn:hover {
+/* Active state for touch devices */
+.lang-btn:active {
+  background-color: #e8f5e9;
   border-color: #4CAF50;
-  transform: scale(1.1);
+  transform: scale(0.95);
 }
 
 .lang-btn.active {
   border-color: #4CAF50;
   background-color: #e8f5e9;
+}
+
+/* Tablet and desktop hover effects */
+@media (min-width: 768px) {
+  .lang-btn {
+    padding: 0.375rem;
+  }
+
+  .lang-btn:hover {
+    border-color: #4CAF50;
+    transform: scale(1.1);
+  }
+
+  .lang-btn:active {
+    transform: scale(1.05);
+  }
 }
 </style>

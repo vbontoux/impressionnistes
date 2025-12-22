@@ -205,17 +205,23 @@ export default {
 </script>
 
 <style scoped>
+/* Mobile-first base styles */
 .seat-assignment {
-  padding: 1.5rem;
+  padding: 1rem;
   background-color: #f8f9fa;
   border-radius: 8px;
+}
+
+.seat-assignment h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.125rem;
 }
 
 .boat-visual {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  margin: 1.5rem 0;
+  margin: 1rem 0;
 }
 
 .seat {
@@ -237,31 +243,46 @@ export default {
 .seat-header {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 0.75rem;
   font-weight: 500;
+  gap: 0.5rem;
 }
 
 .seat-position {
   color: #495057;
+  font-size: 0.875rem;
+  word-break: break-word;
+  flex: 1;
 }
 
 .seat-type {
   color: #6c757d;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .seat-content {
   display: flex;
-  gap: 0.5rem;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .crew-select {
-  flex: 1;
-  padding: 0.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  min-height: 44px;
   border: 1px solid #ced4da;
   border-radius: 4px;
-  font-size: 0.875rem;
+  font-size: 16px; /* Prevents iOS zoom */
+  background-color: white;
+}
+
+.crew-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .crew-select option[data-category="j14"] {
@@ -295,16 +316,20 @@ export default {
 }
 
 .btn-clear {
-  padding: 0.5rem 1rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  min-height: 44px;
   background-color: #dc3545;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.875rem;
+  font-weight: 500;
+  touch-action: manipulation;
 }
 
-.btn-clear:hover {
+.btn-clear:active {
   background-color: #c82333;
 }
 
@@ -315,12 +340,14 @@ export default {
 }
 
 .error-message {
-  padding: 1rem;
+  padding: 0.875rem;
   background-color: #fee;
   border: 1px solid #fcc;
   border-radius: 4px;
   color: #c33;
   margin-top: 1rem;
+  font-size: 0.875rem;
+  word-break: break-word;
 }
 
 .assignment-summary {
@@ -336,5 +363,59 @@ export default {
   padding: 0.5rem;
   border-radius: 4px;
   margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Tablet and larger screens */
+@media (min-width: 768px) {
+  .seat-assignment {
+    padding: 1.5rem;
+  }
+
+  .seat-assignment h3 {
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+  }
+
+  .boat-visual {
+    margin: 1.5rem 0;
+  }
+
+  .seat-position {
+    font-size: 1rem;
+  }
+
+  .seat-type {
+    font-size: 0.875rem;
+  }
+
+  .seat-content {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .crew-select {
+    flex: 1;
+    width: auto;
+    padding: 0.5rem;
+    min-height: auto;
+    font-size: 0.875rem;
+  }
+
+  .btn-clear {
+    width: auto;
+    padding: 0.5rem 1rem;
+    min-height: auto;
+  }
+
+  .btn-clear:hover {
+    background-color: #c82333;
+  }
+
+  .error-message {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
 }
 </style>

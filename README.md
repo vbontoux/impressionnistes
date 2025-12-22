@@ -69,6 +69,10 @@ The Course des Impressionnistes Registration System enables rowing club team man
 - **[Lambda Testing](docs/guides/development/lambda-testing.md)** - Test Lambda functions locally
 - **[Frontend Testing](docs/guides/development/frontend-testing.md)** - Frontend testing guide
 - **[Frontend Setup](docs/guides/development/frontend-setup.md)** - Frontend development setup
+- **[Mobile Responsiveness Guide](docs/guides/development/mobile-responsiveness-guide.md)** - Complete mobile responsiveness patterns and best practices
+- **[Mobile Testing Checklist](docs/guides/development/mobile-testing-checklist.md)** - Checklist for testing mobile responsiveness
+- **[Responsive Design](docs/guides/development/responsive-design.md)** - Mobile-first responsive design guide
+- **[Responsive Table Patterns](docs/guides/development/responsive-table-patterns.md)** - Table responsiveness strategies
 
 ### Operations
 

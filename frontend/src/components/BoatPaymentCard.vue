@@ -165,17 +165,17 @@ const formatPrice = (amount) => {
 </script>
 
 <style scoped>
+/* Mobile-first base styles */
 .boat-payment-card {
   background: white;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1rem;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: border-color 0.3s, background-color 0.3s;
 }
 
-.boat-payment-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+.boat-payment-card:active {
   border-color: #4CAF50;
 }
 
@@ -186,36 +186,41 @@ const formatPrice = (amount) => {
 
 .card-header {
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.75rem;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #e0e0e0;
 }
 
 .checkbox {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
+  min-width: 44px;
+  min-height: 44px;
   cursor: pointer;
   flex-shrink: 0;
-  margin-top: 0.25rem;
+  margin: 0;
 }
 
 .boat-info {
-  flex: 1;
+  width: 100%;
 }
 
 .boat-title-row {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 0.25rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .boat-info h3 {
   margin: 0;
   color: #333;
-  font-size: 1.125rem;
+  font-size: 1rem;
+  font-weight: 600;
+  word-break: break-word;
 }
 
 .view-details-link {
@@ -223,25 +228,33 @@ const formatPrice = (amount) => {
   text-decoration: none;
   font-size: 0.875rem;
   font-weight: 500;
-  padding: 0.25rem 0.75rem;
+  padding: 0.75rem;
+  min-height: 44px;
+  width: 100%;
+  text-align: center;
   border: 1px solid #4CAF50;
   border-radius: 4px;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
 }
 
-.view-details-link:hover {
+.view-details-link:active {
   background-color: #4CAF50;
   color: white;
 }
 
 .race-name {
-  margin: 0.25rem 0;
+  margin: 0;
   color: #666;
   font-size: 0.875rem;
+  word-break: break-word;
 }
 
 .crew-preview {
-  margin: 0.25rem 0 0 0;
+  margin: 0.5rem 0 0 0;
   color: #555;
   font-size: 0.875rem;
   font-style: italic;
@@ -255,11 +268,15 @@ const formatPrice = (amount) => {
 }
 
 .boat-price {
-  text-align: right;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
 }
 
 .price-amount {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: #4CAF50;
 }
@@ -272,9 +289,9 @@ const formatPrice = (amount) => {
 
 .boat-summary {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 0.5rem;
-  flex-wrap: wrap;
   color: #666;
   font-size: 0.875rem;
 }
@@ -283,6 +300,7 @@ const formatPrice = (amount) => {
   display: flex;
   align-items: center;
   gap: 0.375rem;
+  width: 100%;
 }
 
 .icon-svg {
@@ -295,17 +313,19 @@ const formatPrice = (amount) => {
 .separator {
   color: #ccc;
   margin: 0 0.25rem;
+  display: none;
 }
 
 .rcpm-indicator {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  width: 100%;
 }
 
 .rcpm-badge {
   display: inline-block;
-  padding: 0.125rem 0.5rem;
+  padding: 0.25rem 0.5rem;
   background-color: #ffc107;
   color: #000;
   border-radius: 4px;
@@ -321,18 +341,18 @@ const formatPrice = (amount) => {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  padding: 1rem;
+  padding: 0.75rem;
   background-color: #f8f9fa;
   border-radius: 4px;
 }
 
 .breakdown-item {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: flex-start;
+  gap: 0.25rem;
   font-size: 0.875rem;
   color: #666;
-  gap: 1rem;
 }
 
 .breakdown-label {
@@ -340,6 +360,7 @@ const formatPrice = (amount) => {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  word-break: break-word;
 }
 
 .breakdown-detail {
@@ -360,34 +381,115 @@ const formatPrice = (amount) => {
   font-weight: 600;
   font-size: 1rem;
   color: #333;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .total-amount {
   color: #4CAF50;
   font-size: 1.125rem;
+  white-space: nowrap;
 }
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
+/* Tablet and larger screens */
+@media (min-width: 768px) {
+  .boat-payment-card {
+    padding: 1.5rem;
+  }
+
+  .boat-payment-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #4CAF50;
+  }
+
   .card-header {
-    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .checkbox {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    margin-top: 0.25rem;
+  }
+
+  .boat-info {
+    flex: 1;
+    width: auto;
   }
 
   .boat-title-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .boat-info h3 {
+    font-size: 1.125rem;
+  }
+
+  .view-details-link {
+    width: auto;
+    padding: 0.25rem 0.75rem;
+    min-height: auto;
+  }
+
+  .view-details-link:hover {
+    background-color: #4CAF50;
+    color: white;
+  }
+
+  .race-name {
+    margin: 0.25rem 0;
   }
 
   .boat-price {
-    width: 100%;
-    text-align: left;
-    margin-top: 0.5rem;
+    width: auto;
+    text-align: right;
+    padding: 0;
+    background-color: transparent;
   }
 
-  .boat-details {
-    flex-direction: column;
+  .price-amount {
+    font-size: 1.5rem;
+  }
+
+  .boat-summary {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
     gap: 0.5rem;
+  }
+
+  .summary-item {
+    width: auto;
+  }
+
+  .separator {
+    display: inline;
+  }
+
+  .rcpm-indicator {
+    width: auto;
+  }
+
+  .price-breakdown {
+    padding: 1rem;
+  }
+
+  .breakdown-item {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .breakdown-label {
+    width: auto;
   }
 }
 </style>

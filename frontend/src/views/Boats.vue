@@ -338,6 +338,7 @@ export default {
 </script>
 
 <style scoped>
+/* Mobile-first base styles */
 .boats-view {
   padding: 0;
   max-width: 1200px;
@@ -346,7 +347,8 @@ export default {
 
 .loading {
   text-align: center;
-  padding: 3rem;
+  padding: 2rem 1rem;
+  color: #666;
 }
 
 .spinner {
@@ -366,36 +368,39 @@ export default {
 
 .header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
+  margin-bottom: 1.5rem;
   gap: 1rem;
 }
 
 .header h1 {
   margin: 0;
+  font-size: 1.5rem;
 }
 
 .header-actions {
   display: flex;
-  gap: 1rem;
-  align-items: center;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: stretch;
 }
 
 .status-filter {
   display: flex;
   align-items: center;
+  width: 100%;
 }
 
 .filter-select {
-  padding: 0.5rem 1rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  min-height: 44px;
   border: 1px solid #dee2e6;
   border-radius: 4px;
   background-color: white;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 1rem;
   transition: border-color 0.2s;
 }
 
@@ -415,25 +420,48 @@ export default {
   background-color: #e9ecef;
   border-radius: 4px;
   padding: 0.25rem;
+  width: 100%;
 }
 
 .btn-view {
-  padding: 0.5rem 0.75rem;
+  flex: 1;
+  padding: 0.75rem;
+  min-height: 44px;
   background-color: transparent;
   border: none;
   cursor: pointer;
   font-size: 1.25rem;
   border-radius: 4px;
   transition: background-color 0.2s;
+  touch-action: manipulation;
 }
 
-.btn-view:hover {
+.btn-view:active {
   background-color: #dee2e6;
 }
 
 .btn-view.active {
   background-color: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  min-height: 44px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  touch-action: manipulation;
+}
+
+.btn-primary:active {
+  background-color: #0056b3;
 }
 
 .modal-overlay {
@@ -444,24 +472,21 @@ export default {
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   z-index: 1000;
+  padding: 0;
 }
 
 .modal-content {
   background-color: white;
-  border-radius: 8px;
-  max-width: 600px;
-  width: 90%;
+  border-radius: 12px 12px 0 0;
+  width: 100%;
+  max-width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-}
-
-.loading {
-  text-align: center;
-  padding: 3rem;
-  color: #666;
+  display: flex;
+  flex-direction: column;
 }
 
 .error-message {
@@ -471,34 +496,32 @@ export default {
   border-radius: 4px;
   color: #c33;
   margin-bottom: 1rem;
+  font-size: 0.875rem;
 }
 
 .empty-state {
   text-align: center;
-  padding: 3rem;
+  padding: 2rem 1rem;
 }
 
 .empty-state p {
   color: #666;
   margin-bottom: 1.5rem;
+  font-size: 0.95rem;
 }
 
 .boat-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: 1fr;
+  gap: 1rem;
 }
 
 .boat-card {
   background-color: white;
   border: 2px solid #dee2e6;
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1rem;
   transition: box-shadow 0.2s;
-}
-
-.boat-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .boat-card.status-complete {
@@ -520,13 +543,17 @@ export default {
 .boat-header {
   display: flex;
   justify-content: space-between;
-  align-items: start;
+  align-items: flex-start;
   margin-bottom: 1rem;
+  gap: 0.5rem;
 }
 
 .boat-header h3 {
   margin: 0;
   color: #212529;
+  font-size: 1rem;
+  word-break: break-word;
+  flex: 1;
 }
 
 .status-badge {
@@ -534,6 +561,8 @@ export default {
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .status-badge.status-incomplete {
@@ -570,11 +599,19 @@ export default {
   justify-content: space-between;
   padding: 0.5rem 0;
   border-bottom: 1px solid #f0f0f0;
+  font-size: 0.875rem;
+  gap: 0.5rem;
 }
 
 .detail-row .label {
   font-weight: 500;
   color: #666;
+  flex-shrink: 0;
+}
+
+.detail-row span:last-child {
+  text-align: right;
+  word-break: break-word;
 }
 
 .rental-badge,
@@ -619,6 +656,7 @@ export default {
   font-size: 0.875rem;
   line-height: 1.4;
   color: #495057;
+  word-break: break-word;
 }
 
 .race-name strong {
@@ -627,37 +665,31 @@ export default {
 
 .boat-actions {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.75rem;
   margin-top: 1rem;
 }
 
-.btn-primary,
 .btn-secondary,
 .btn-danger {
-  padding: 0.5rem 1rem;
+  width: 100%;
+  min-height: 44px;
+  padding: 0.75rem 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.875rem;
+  font-weight: 500;
   transition: background-color 0.2s;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
+  touch-action: manipulation;
 }
 
 .btn-secondary {
   background-color: #6c757d;
   color: white;
-  flex: 1;
 }
 
-.btn-secondary:hover {
+.btn-secondary:active {
   background-color: #545b62;
 }
 
@@ -666,7 +698,7 @@ export default {
   color: white;
 }
 
-.btn-danger:hover:not(:disabled) {
+.btn-danger:active:not(:disabled) {
   background-color: #c82333;
 }
 
@@ -679,9 +711,11 @@ export default {
 /* Table View Styles */
 .boat-table-container {
   background-color: white;
-  border-radius: 8px;
+  border-radius: 0;
   overflow-x: auto;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0 -1rem;
+  -webkit-overflow-scrolling: touch;
 }
 
 .boat-table {
@@ -695,20 +729,18 @@ export default {
 }
 
 .boat-table th {
-  padding: 1rem;
+  padding: 0.75rem;
   text-align: left;
   font-weight: 600;
   color: #495057;
   border-bottom: 2px solid #dee2e6;
+  font-size: 0.875rem;
 }
 
 .boat-table td {
-  padding: 1rem;
+  padding: 0.75rem;
   border-bottom: 1px solid #dee2e6;
-}
-
-.boat-table tbody tr:hover {
-  background-color: #f8f9fa;
+  font-size: 0.875rem;
 }
 
 .boat-table tbody tr.row-status-complete {
@@ -737,13 +769,9 @@ export default {
   border-left-width: 4px;
 }
 
-.boat-table .race-row:hover {
-  background-color: #f8f9fa;
-}
-
 .boat-table .race-cell {
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
   font-style: italic;
   color: #495057;
 }
@@ -756,16 +784,20 @@ export default {
 
 .actions-cell {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
 }
 
 .btn-table {
-  padding: 0.4rem 0.8rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  min-height: 36px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   transition: background-color 0.2s;
+  white-space: nowrap;
 }
 
 .btn-view-table {
@@ -773,7 +805,7 @@ export default {
   color: white;
 }
 
-.btn-view-table:hover {
+.btn-view-table:active {
   background-color: #545b62;
 }
 
@@ -782,7 +814,7 @@ export default {
   color: white;
 }
 
-.btn-delete-table:hover:not(:disabled) {
+.btn-delete-table:active:not(:disabled) {
   background-color: #c82333;
 }
 
@@ -792,20 +824,153 @@ export default {
   opacity: 0.6;
 }
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
+/* Tablet and larger screens */
+@media (min-width: 768px) {
   .header {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .header h1 {
+    font-size: 2rem;
   }
 
   .header-actions {
-    justify-content: space-between;
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+    width: auto;
+  }
+
+  .status-filter {
+    width: auto;
+  }
+
+  .filter-select {
+    width: auto;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .view-toggle {
+    width: auto;
+  }
+
+  .btn-view {
+    flex: 0;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .btn-view:hover {
+    background-color: #dee2e6;
+  }
+
+  .btn-primary {
+    width: auto;
+    padding: 0.5rem 1rem;
+  }
+
+  .btn-primary:hover {
+    background-color: #0056b3;
+  }
+
+  .modal-overlay {
+    align-items: center;
+    padding: 1rem;
+  }
+
+  .modal-content {
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+  }
+
+  .loading {
+    padding: 3rem;
+  }
+
+  .empty-state {
+    padding: 3rem;
+  }
+
+  .boat-cards {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .boat-card {
+    padding: 1.5rem;
+  }
+
+  .boat-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .boat-header h3 {
+    font-size: 1.125rem;
+  }
+
+  .boat-actions {
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .btn-secondary,
+  .btn-danger {
+    width: auto;
+    flex: 1;
+    padding: 0.5rem 1rem;
+  }
+
+  .btn-secondary:hover {
+    background-color: #545b62;
+  }
+
+  .btn-danger:hover:not(:disabled) {
+    background-color: #c82333;
   }
 
   .boat-table-container {
-    margin: 0 -1rem;
-    border-radius: 0;
+    border-radius: 8px;
+    margin: 0;
+  }
+
+  .boat-table th {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .boat-table td {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .boat-table tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+
+  .boat-table .race-cell {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  .actions-cell {
+    flex-direction: row;
+  }
+
+  .btn-table {
+    width: auto;
+    padding: 0.4rem 0.8rem;
+  }
+
+  .btn-view-table:hover {
+    background-color: #545b62;
+  }
+
+  .btn-delete-table:hover:not(:disabled) {
+    background-color: #c82333;
   }
 }
 </style>

@@ -355,10 +355,10 @@ h2 {
 .top-header {
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 1rem;
+  padding: 0.75rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -373,8 +373,10 @@ h2 {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 40px;
-  height: 40px;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
   position: relative;
 }
 
@@ -446,7 +448,7 @@ h2 {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .btn-header {
@@ -457,6 +459,11 @@ h2 {
   font-size: 0.9rem;
   transition: background-color 0.3s;
   white-space: nowrap;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-header.btn-primary {
@@ -495,6 +502,8 @@ h2 {
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .user-menu-button:hover {
@@ -532,6 +541,15 @@ h2 {
   animation: slideDown 0.2s ease;
 }
 
+/* Ensure dropdown stays within viewport on mobile */
+@media (max-width: 767px) {
+  .user-menu-dropdown {
+    right: 0;
+    left: auto;
+    max-width: calc(100vw - 2rem);
+  }
+}
+
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -557,6 +575,7 @@ h2 {
   cursor: pointer;
   transition: background-color 0.15s;
   font-size: 0.9rem;
+  min-height: 44px;
 }
 
 .user-menu-dropdown .menu-item:hover {
@@ -743,6 +762,11 @@ h2 {
 
 /* Tablet and Desktop */
 @media (min-width: 768px) {
+  .top-header {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
   .logo-text {
     display: inline;
   }
@@ -767,6 +791,10 @@ h2 {
   .footer.with-sidebar {
     margin-left: 280px;
   }
+
+  .header-actions {
+    gap: 1rem;
+  }
 }
 
 /* Large Desktop */
@@ -779,15 +807,21 @@ h2 {
 /* Mobile Optimization */
 @media (max-width: 767px) {
   .top-header {
-    padding: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    gap: 0.5rem;
   }
 
   .logo {
-    font-size: 1rem;
+    font-size: 0.9rem;
+    gap: 0.5rem;
   }
 
   .logo-image {
     height: 32px;
+  }
+
+  .logo-text {
+    display: none;
   }
 
   .main-content {
@@ -795,8 +829,22 @@ h2 {
   }
 
   .btn-header {
-    padding: 0.4rem 0.8rem;
+    padding: 0.5rem 0.75rem;
     font-size: 0.85rem;
+    min-height: 44px;
+  }
+
+  .user-menu-button {
+    padding: 0.5rem 0.75rem;
+    min-height: 44px;
+  }
+
+  .user-name {
+    max-width: 80px;
+  }
+
+  .header-actions {
+    gap: 0.5rem;
   }
 }
 

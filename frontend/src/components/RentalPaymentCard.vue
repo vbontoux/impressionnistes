@@ -206,11 +206,64 @@ const formatPrice = (amount) => {
   }
 
   .card-header {
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+  }
+
+  .selection-checkbox {
+    width: 24px;
+    height: 24px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .rental-info {
+    width: 100%;
   }
 
   .rental-name {
     font-size: 1.1rem;
+  }
+
+  .rental-type {
+    font-size: 0.875rem;
+  }
+
+  .rental-badge {
+    width: 100%;
+  }
+
+  .badge {
+    display: block;
+    text-align: center;
+    padding: 0.5rem;
+  }
+
+  .rental-details {
+    padding: 0.75rem;
+  }
+
+  .detail-row {
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .pricing-section {
+    padding-top: 0.75rem;
+  }
+
+  .price-row {
+    font-size: 0.875rem;
+  }
+
+  .price-row.total {
+    font-size: 1rem;
   }
 }
 </style>

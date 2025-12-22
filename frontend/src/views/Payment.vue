@@ -362,15 +362,92 @@ onMounted(async () => {
     padding: 1rem;
   }
 
+  .header {
+    margin-bottom: 1.5rem;
+  }
+
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .subtitle {
+    font-size: 0.875rem;
+  }
+
+  .empty-state {
+    padding: 3rem 1rem;
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+  }
+
+  .empty-state h2 {
+    font-size: 1.25rem;
+  }
+
+  .empty-state p {
+    font-size: 0.875rem;
+  }
+
   .selection-controls {
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .selection-controls button {
+    width: 100%;
+    min-height: 44px;
   }
 
   .selection-count {
     width: 100%;
     margin-left: 0;
-    margin-top: 0.5rem;
     text-align: center;
+    padding: 0.5rem;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+  }
+
+  .payment-content {
+    gap: 1.5rem;
+  }
+
+  .payment-section {
+    margin-bottom: 1.5rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+  }
+
+  .boats-list {
+    gap: 1rem;
+  }
+
+  .payment-summary-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    border-radius: 12px 12px 0 0;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2);
+    margin: 0;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+  }
+
+  .btn-small {
+    min-height: 44px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
   }
 }
 </style>

@@ -491,22 +491,24 @@ const handleCancel = () => {
 </script>
 
 <style scoped>
+/* Mobile-first base styles */
 .crew-member-form {
   max-width: 600px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 h3 {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   color: #333;
+  font-size: 1.25rem;
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 label {
@@ -514,14 +516,18 @@ label {
   margin-bottom: 0.5rem;
   font-weight: 500;
   color: #333;
+  font-size: 0.875rem;
 }
 
+/* Mobile-optimized inputs: 16px font to prevent iOS zoom, 44px min height for touch targets */
 input, select {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 1rem;
+  font-size: 16px; /* Prevents iOS zoom on focus */
+  min-height: 44px; /* Touch target minimum */
+  box-sizing: border-box;
 }
 
 input:focus, select:focus {
@@ -548,11 +554,11 @@ input:disabled, select:disabled {
   margin-top: 0.25rem;
 }
 
+/* Mobile: Stack license field and warning vertically */
 .license-with-warning {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .license-field {
@@ -571,6 +577,7 @@ input:disabled, select:disabled {
   height: fit-content;
   cursor: pointer;
   transition: background-color 0.2s;
+  min-height: 44px; /* Touch target minimum */
 }
 
 .warning-box:hover {
@@ -621,18 +628,11 @@ input:disabled, select:disabled {
   transform: rotate(180deg);
 }
 
-/* Stack on mobile */
-@media (max-width: 768px) {
-  .license-with-warning {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-}
-
 .alert {
-  padding: 1rem;
+  padding: 0.75rem;
   border-radius: 4px;
   margin-bottom: 1rem;
+  font-size: 0.875rem;
 }
 
 .alert-error {
@@ -647,21 +647,24 @@ input:disabled, select:disabled {
   border: 1px solid #66bb6a;
 }
 
+/* Mobile: Stack buttons vertically */
 .button-group {
   display: flex;
-  gap: 1rem;
-  margin-top: 2rem;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
 }
 
 .btn {
-  flex: 1;
+  width: 100%;
   padding: 0.75rem;
   border: none;
   border-radius: 4px;
-  font-size: 1rem;
+  font-size: 16px; /* Prevents iOS zoom */
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s;
+  min-height: 44px; /* Touch target minimum */
 }
 
 .btn-primary {
@@ -692,11 +695,14 @@ input:disabled, select:disabled {
   display: flex;
   align-items: center;
   margin-bottom: 0.75rem;
+  min-height: 44px; /* Touch target minimum */
 }
 
 .checkbox-group input[type="checkbox"] {
-  width: auto;
+  width: 20px;
+  height: 20px;
   margin-right: 0.5rem;
+  flex-shrink: 0;
 }
 
 .checkbox-label {
@@ -706,10 +712,11 @@ input:disabled, select:disabled {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-size: 0.875rem;
 }
 
 .ffa-logo {
-  height: 40px;
+  height: 32px;
   width: auto;
 }
 
@@ -722,7 +729,7 @@ input:disabled, select:disabled {
   top: 100%;
   left: 0;
   right: 0;
-  max-height: 300px;
+  max-height: 250px;
   overflow-y: auto;
   background: white;
   border: 1px solid #ddd;
@@ -736,6 +743,9 @@ input:disabled, select:disabled {
   padding: 0.75rem;
   cursor: pointer;
   border-bottom: 1px solid #f0f0f0;
+  min-height: 44px; /* Touch target minimum */
+  display: flex;
+  align-items: center;
 }
 
 .autocomplete-item:hover {
@@ -749,6 +759,7 @@ input:disabled, select:disabled {
 .club-name {
   font-weight: 500;
   color: #333;
+  font-size: 0.875rem;
 }
 
 .club-url {
@@ -765,5 +776,75 @@ input:disabled, select:disabled {
   border: 1px solid #ddd;
   border-top: none;
   border-radius: 0 0 4px 4px;
+  font-size: 0.875rem;
+}
+
+/* Tablet and larger: Enhanced layout */
+@media (min-width: 768px) {
+  .crew-member-form {
+    padding: 2rem;
+  }
+
+  h3 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  label {
+    font-size: 1rem;
+  }
+
+  input, select {
+    font-size: 1rem;
+  }
+
+  /* Desktop: Side-by-side license and warning */
+  .license-with-warning {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+  }
+
+  .alert {
+    padding: 1rem;
+    font-size: 1rem;
+  }
+
+  /* Desktop: Horizontal button group */
+  .button-group {
+    flex-direction: row;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .btn {
+    flex: 1;
+    font-size: 1rem;
+  }
+
+  .checkbox-label {
+    font-size: 1rem;
+  }
+
+  .ffa-logo {
+    height: 40px;
+  }
+
+  .autocomplete-dropdown {
+    max-height: 300px;
+  }
+
+  .club-name {
+    font-size: 1rem;
+  }
+
+  .autocomplete-no-results {
+    font-size: 1rem;
+  }
 }
 </style>

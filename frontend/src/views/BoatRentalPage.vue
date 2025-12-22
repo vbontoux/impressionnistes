@@ -401,9 +401,6 @@ export default {
         // Refresh both lists
         await Promise.all([loadAvailableBoats(), loadMyRequests()])
         
-        // Show success message (you could add a toast notification here)
-        alert(t('boatRental.requestSuccess'))
-        
       } catch (err) {
         console.error('Failed to request boat:', err)
         alert(err.response?.data?.message || t('boatRental.requestError'))
@@ -438,9 +435,6 @@ export default {
         
         // Refresh both lists
         await Promise.all([loadAvailableBoats(), loadMyRequests()])
-        
-        // Show success message
-        alert(t('boatRental.cancelSuccess'))
         
       } catch (err) {
         console.error('Failed to cancel rental request:', err)
@@ -490,46 +484,52 @@ export default {
 </script>
 
 <style scoped>
+/* Mobile-first base styles */
 .boat-rental-view {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
 }
 
 .header {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .header h1 {
   margin: 0 0 0.5rem 0;
   color: #2c3e50;
+  font-size: 1.5rem;
 }
 
 .subtitle {
   color: #7f8c8d;
   margin: 0;
+  font-size: 0.9rem;
 }
 
 .section {
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .section-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
+  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
 .section-header h2 {
   margin: 0;
   color: #34495e;
+  font-size: 1.25rem;
 }
 
 .header-actions {
   display: flex;
-  gap: 1rem;
-  align-items: center;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  align-items: stretch;
 }
 
 .view-toggle {
@@ -538,15 +538,21 @@ export default {
   border: 1px solid #ddd;
   border-radius: 4px;
   overflow: hidden;
+  width: 100%;
+  flex-shrink: 0;
 }
 
 .btn-view {
-  padding: 0.5rem 0.75rem;
+  flex: 1;
+  padding: 0.75rem;
   border: none;
   background: white;
   cursor: pointer;
   font-size: 1.2rem;
   transition: all 0.2s ease;
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
 }
 
 .btn-view:hover {
@@ -559,10 +565,14 @@ export default {
 }
 
 .filter-select {
-  padding: 0.5rem;
+  width: 100%;
+  padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   background: white;
+  font-size: 16px; /* Prevent iOS zoom */
+  min-height: 44px;
+  touch-action: manipulation;
 }
 
 .boats-table {
@@ -570,25 +580,31 @@ export default {
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
 }
 
 .boats-table table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 600px; /* Ensure horizontal scroll on mobile */
 }
 
 .boats-table th {
   background: #f8f9fa;
-  padding: 1rem;
+  padding: 0.75rem;
   text-align: left;
   font-weight: 600;
   color: #2c3e50;
   border-bottom: 2px solid #e1e8ed;
+  font-size: 0.9rem;
+  white-space: nowrap;
 }
 
 .boats-table td {
-  padding: 1rem;
+  padding: 0.75rem;
   border-bottom: 1px solid #e1e8ed;
+  font-size: 0.9rem;
 }
 
 .boats-table tr:hover {
@@ -601,23 +617,28 @@ export default {
 }
 
 .btn-sm {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.9rem;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem !important;
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  white-space: nowrap;
 }
 
 .boats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: 1fr; /* Single column on mobile */
+  gap: 1rem;
 }
 
 .boat-card {
   border: 1px solid #e1e8ed;
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: 1rem;
   background: white;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   transition: all 0.2s ease;
+  position: relative;
 }
 
 .boat-card:hover {
@@ -646,35 +667,38 @@ export default {
 
 .boat-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.5rem;
   margin-bottom: 1rem;
 }
 
 .boat-header h3 {
   margin: 0;
   color: #2c3e50;
+  font-size: 1.1rem;
 }
 
 .boat-type {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #7f8c8d;
   font-weight: 500;
 }
 
 .boat-details {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .detail-row {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0.75rem;
 }
 
 .label {
   font-weight: 500;
   color: #34495e;
+  font-size: 0.85rem;
 }
 
 .status-badge {
@@ -706,7 +730,12 @@ export default {
 
 .boat-actions {
   display: flex;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.boat-actions button {
+  width: 100%;
 }
 
 .status-indicator {
@@ -721,8 +750,9 @@ export default {
 
 .loading, .empty-state {
   text-align: center;
-  padding: 2rem;
+  padding: 1.5rem;
   color: #7f8c8d;
+  font-size: 0.9rem;
 }
 
 .error-message {
@@ -731,9 +761,10 @@ export default {
   padding: 1rem;
   border-radius: 4px;
   margin-bottom: 1rem;
+  font-size: 0.9rem;
 }
 
-/* Modal styles */
+/* Modal styles - Mobile-first */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -742,28 +773,45 @@ export default {
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: center;
+  align-items: flex-end; /* Slide from bottom on mobile */
   justify-content: center;
   z-index: 1000;
+  padding: 0;
 }
 
 .modal-content {
   background: white;
-  border-radius: 8px;
-  padding: 2rem;
-  max-width: 500px;
-  width: 90%;
+  border-radius: 12px 12px 0 0; /* Rounded top corners only on mobile */
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 100%;
   max-height: 90vh;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 .modal-header h3 {
   margin: 0 0 1rem 0;
   color: #2c3e50;
+  font-size: 1.25rem;
 }
 
 .modal-body {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+  font-size: 0.95rem;
 }
 
 .boat-summary {
@@ -771,6 +819,7 @@ export default {
   padding: 1rem;
   border-radius: 4px;
   margin-top: 1rem;
+  font-size: 0.9rem;
 }
 
 .boat-summary div {
@@ -779,18 +828,23 @@ export default {
 
 .modal-actions {
   display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
+  flex-direction: column; /* Stack vertically on mobile */
+  gap: 0.75rem;
+  flex-shrink: 0;
 }
 
-/* Button styles */
+/* Button styles - Mobile-first */
 .btn-primary, .btn-secondary, .btn-danger {
-  padding: 0.5rem 1rem;
+  width: 100%; /* Full-width on mobile */
+  padding: 0.75rem 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s ease;
+  min-height: 44px;
+  font-size: 16px; /* Prevent iOS zoom */
+  touch-action: manipulation;
 }
 
 .btn-primary {
@@ -830,24 +884,116 @@ export default {
   cursor: not-allowed;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
+/* Tablet and desktop enhancements */
+@media (min-width: 768px) {
   .boat-rental-view {
-    padding: 1rem;
+    padding: 2rem;
   }
-  
-  .boats-grid {
-    grid-template-columns: 1fr;
+
+  .header h1 {
+    font-size: 2rem;
   }
-  
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
   .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
   }
-  
-  .modal-content {
+
+  .section-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .header-actions {
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+  }
+
+  .filter-select {
+    width: auto;
+    min-width: 200px;
+  }
+
+  .view-toggle {
+    width: auto;
+  }
+
+  .btn-view {
+    flex: 0 0 auto;
+    padding: 0.5rem 1rem;
+  }
+
+  .boats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .boat-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .detail-row {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .boat-actions {
+    flex-direction: row;
+  }
+
+  .boat-actions button {
+    width: auto;
+  }
+
+  .modal-overlay {
+    align-items: center;
     padding: 1rem;
+  }
+
+  .modal-content {
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    padding: 2rem;
+  }
+
+  .modal-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+
+  .modal-actions .btn-primary,
+  .modal-actions .btn-secondary,
+  .modal-actions .btn-danger {
+    width: auto;
+    min-width: 120px;
+  }
+
+  .btn-primary:hover:not(:disabled),
+  .btn-secondary:hover,
+  .btn-danger:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .boats-table {
+    overflow-x: visible;
+  }
+
+  .boats-table table {
+    min-width: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .boats-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 </style>

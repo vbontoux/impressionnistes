@@ -79,6 +79,7 @@ const dashOffset = computed(() => {
 </script>
 
 <style scoped>
+/* Mobile-first base styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -87,19 +88,23 @@ const dashOffset = computed(() => {
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.7);
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   z-index: 9999;
-  padding: 1rem;
+  padding: 0;
 }
 
 .modal-content {
   background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  max-width: 450px;
+  border-radius: 12px 12px 0 0;
+  padding: 1.5rem;
   width: 100%;
+  max-width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
 }
 
 .session-warning {
@@ -107,10 +112,11 @@ const dashOffset = computed(() => {
 }
 
 .warning-icon {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 1.5rem;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1rem;
   color: #ff9800;
+  flex-shrink: 0;
 }
 
 .warning-icon svg {
@@ -119,28 +125,30 @@ const dashOffset = computed(() => {
 }
 
 .session-warning h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
   color: #333;
+  line-height: 1.3;
 }
 
 .session-warning p {
   font-size: 1rem;
   color: #666;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   line-height: 1.5;
 }
 
 .countdown {
-  margin: 2rem 0;
+  margin: 1.5rem 0;
   display: flex;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .countdown-circle {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
 }
 
 .countdown-circle svg {
@@ -157,26 +165,30 @@ const dashOffset = computed(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: bold;
   color: #ff9800;
 }
 
 .modal-actions {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   justify-content: center;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
+  flex-shrink: 0;
 }
 
 .btn {
-  padding: 0.75rem 2rem;
+  padding: 0.875rem 1.5rem;
   border: none;
   border-radius: 6px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s;
+  min-height: 44px;
+  min-width: 44px;
+  width: 100%;
 }
 
 .btn-primary {
@@ -186,8 +198,11 @@ const dashOffset = computed(() => {
 
 .btn-primary:hover {
   background-color: #45a049;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.btn-primary:active {
+  background-color: #3d8b40;
+  transform: scale(0.98);
 }
 
 /* Modal transition */
@@ -208,35 +223,68 @@ const dashOffset = computed(() => {
 
 .modal-enter-from .modal-content,
 .modal-leave-to .modal-content {
-  transform: scale(0.9);
+  transform: translateY(100%);
 }
 
-/* Mobile responsive */
-@media (max-width: 480px) {
+/* Tablet and desktop styles */
+@media (min-width: 768px) {
+  .modal-overlay {
+    align-items: center;
+    padding: 1rem;
+  }
+
   .modal-content {
-    padding: 1.5rem;
+    border-radius: 12px;
+    max-width: 450px;
+    padding: 2rem;
+    max-height: 90vh;
+  }
+
+  .warning-icon {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 1.5rem;
   }
 
   .session-warning h2 {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
   }
 
   .session-warning p {
-    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .countdown {
+    margin: 2rem 0;
   }
 
   .countdown-circle {
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 120px;
   }
 
   .countdown-text {
-    font-size: 1.5rem;
+    font-size: 2rem;
+  }
+
+  .modal-actions {
+    margin-top: 1.5rem;
   }
 
   .btn {
-    padding: 0.6rem 1.5rem;
-    font-size: 0.9rem;
+    padding: 0.75rem 2rem;
+    width: auto;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  }
+
+  .modal-enter-from .modal-content,
+  .modal-leave-to .modal-content {
+    transform: scale(0.9);
   }
 }
 </style>

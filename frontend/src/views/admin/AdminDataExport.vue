@@ -440,31 +440,94 @@ const exportBoatRegistrations = async () => {
   flex-shrink: 0;
 }
 
+/* Mobile Responsiveness */
 @media (max-width: 768px) {
   .admin-data-export {
     padding: 1rem;
   }
 
+  .page-header {
+    margin-bottom: 2rem;
+  }
+
   .page-header h1 {
-    font-size: 2rem;
+    font-size: 1.75rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .export-sections {
+    gap: 1.5rem;
   }
 
   .export-card {
-    padding: 1.5rem;
+    padding: 1.25rem;
+  }
+
+  .export-header h2 {
+    font-size: 1.25rem;
+  }
+
+  .export-description {
+    font-size: 0.9rem;
+  }
+
+  .export-title-row {
+    gap: 0.75rem;
+  }
+
+  .crewtimer-icon {
+    width: 28px;
+    height: 28px;
   }
 
   .export-actions {
     flex-direction: column;
+    gap: 0.75rem;
   }
 
   .btn {
     width: 100%;
     justify-content: center;
+    min-height: 44px;
+    padding: 0.875rem 1.5rem;
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+
+  .btn-icon {
+    width: 18px;
+    height: 18px;
   }
 
   .export-stats {
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+  }
+
+  .stat-item {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .stat-label,
+  .stat-value {
+    font-size: 0.875rem;
+  }
+
+  .error-message,
+  .success-message {
+    padding: 0.875rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .error-message svg,
+  .success-message svg {
+    width: 20px;
+    height: 20px;
   }
 }
 </style>

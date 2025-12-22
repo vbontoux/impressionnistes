@@ -128,23 +128,27 @@ const initializeStripe = async () => {
       throw new Error('Failed to load Stripe')
     }
 
-    // Create card element
+    // Create card element with mobile-optimized styling
     const elements = stripe.elements()
     cardElement = elements.create('card', {
       style: {
         base: {
-          fontSize: '16px',
+          fontSize: '16px', // Prevents zoom on iOS
           color: '#32325d',
           fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
           '::placeholder': {
             color: '#aab7c4'
-          }
+          },
+          // Mobile-friendly padding
+          padding: '12px'
         },
         invalid: {
           color: '#fa755a',
           iconColor: '#fa755a'
         }
-      }
+      },
+      // Disable autocomplete for better mobile experience
+      hidePostalCode: false
     })
 
     // Mount card element
@@ -267,38 +271,41 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Mobile-first base styles */
 .stripe-checkout {
   max-width: 600px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
+  width: 100%;
 }
 
 .checkout-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .checkout-header h2 {
   color: #2c3e50;
   margin-bottom: 0.5rem;
+  font-size: 1.25rem;
 }
 
 .checkout-subtitle {
   color: #666;
-  font-size: 0.95rem;
+  font-size: 0.875rem;
 }
 
 .order-summary {
   background: #f8f9fa;
   border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .order-summary h3 {
   margin: 0 0 1rem 0;
   color: #2c3e50;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .summary-items {
@@ -313,24 +320,29 @@ onMounted(() => {
 .summary-item {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  gap: 0.5rem;
 }
 
 .item-name {
   color: #495057;
-  font-size: 0.95rem;
+  font-size: 0.875rem;
+  flex: 1;
+  word-break: break-word;
 }
 
 .item-price {
   color: #2c3e50;
   font-weight: 500;
+  font-size: 0.875rem;
+  white-space: nowrap;
 }
 
 .summary-total {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .total-label {
@@ -341,32 +353,34 @@ onMounted(() => {
 .total-amount {
   color: #4CAF50;
   font-weight: 700;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
 }
 
 .payment-form {
   background: white;
   border-radius: 8px;
-  padding: 2rem;
+  padding: 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .form-section {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .form-section h3 {
   margin: 0 0 1rem 0;
   color: #2c3e50;
-  font-size: 1.1rem;
+  font-size: 1rem;
 }
 
 .card-element {
-  padding: 1rem;
+  padding: 0.75rem;
   border: 1px solid #ced4da;
   border-radius: 4px;
   background: white;
   transition: border-color 0.2s;
+  min-height: 44px;
+  /* Ensure Stripe element is properly sized for mobile */
 }
 
 .card-element:focus-within {
@@ -382,22 +396,27 @@ onMounted(() => {
 
 .btn-pay {
   width: 100%;
-  padding: 1rem;
+  padding: 0.875rem 1rem;
+  min-height: 44px;
   background-color: #4CAF50;
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
   margin-bottom: 1rem;
+  /* Ensure button is easily tappable on mobile */
+  touch-action: manipulation;
 }
 
 .btn-pay:hover:not(:disabled) {
   background-color: #45a049;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+}
+
+.btn-pay:active:not(:disabled) {
+  background-color: #3d8b40;
 }
 
 .btn-pay:disabled {
@@ -414,7 +433,7 @@ onMounted(() => {
 }
 
 .btn-icon {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 .spinner-small {
@@ -432,12 +451,14 @@ onMounted(() => {
 }
 
 .alert-error {
-  padding: 1rem;
+  padding: 0.875rem;
   background-color: #ffebee;
   color: #c62828;
   border: 1px solid #ef5350;
   border-radius: 4px;
   margin-bottom: 1rem;
+  font-size: 0.875rem;
+  word-break: break-word;
 }
 
 .security-notice {
@@ -446,30 +467,99 @@ onMounted(() => {
   justify-content: center;
   gap: 0.5rem;
   color: #666;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   padding-top: 1rem;
   border-top: 1px solid #e0e0e0;
 }
 
 .security-icon {
-  font-size: 1rem;
+  font-size: 0.875rem;
 }
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
+/* Tablet and larger screens */
+@media (min-width: 768px) {
   .stripe-checkout {
-    padding: 1rem;
+    padding: 2rem;
   }
 
-  .payment-form {
+  .checkout-header {
+    margin-bottom: 2rem;
+  }
+
+  .checkout-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .checkout-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .order-summary {
     padding: 1.5rem;
+    margin-bottom: 2rem;
   }
 
-  .total-amount {
+  .order-summary h3 {
     font-size: 1.1rem;
   }
 
+  .item-name {
+    font-size: 0.95rem;
+  }
+
+  .item-price {
+    font-size: 0.95rem;
+  }
+
+  .summary-total {
+    font-size: 1.1rem;
+  }
+
+  .total-amount {
+    font-size: 1.3rem;
+  }
+
+  .payment-form {
+    padding: 2rem;
+  }
+
+  .form-section {
+    margin-bottom: 2rem;
+  }
+
+  .form-section h3 {
+    font-size: 1.1rem;
+  }
+
+  .card-element {
+    padding: 1rem;
+  }
+
   .btn-pay {
+    padding: 1rem;
+    font-size: 1.1rem;
+    /* Add hover transform on larger screens */
+  }
+
+  .btn-pay:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+  }
+
+  .btn-icon {
+    font-size: 1.2rem;
+  }
+
+  .alert-error {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .security-notice {
+    font-size: 0.875rem;
+  }
+
+  .security-icon {
     font-size: 1rem;
   }
 }

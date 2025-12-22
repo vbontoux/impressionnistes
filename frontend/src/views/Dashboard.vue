@@ -535,31 +535,170 @@ section h2 {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .welcome-section {
-    padding: 2rem 1.5rem;
+  .dashboard {
+    padding: 0 1rem;
   }
 
-  .welcome-content h1 {
-    font-size: 1.5rem;
+  /* Sections */
+  section {
+    margin-bottom: 1.5rem;
   }
 
-  .user-info {
-    flex-direction: column;
-    gap: 0.75rem;
+  section h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
   }
 
-  .stats-grid,
+  /* Stats Grid - Stack vertically on mobile */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .stat-value {
+    font-size: 1.75rem;
+  }
+
+  .stat-label {
+    font-size: 0.8125rem;
+  }
+
+  /* Actions Grid - Stack vertically on mobile */
   .actions-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .action-card {
+    padding: 1.5rem;
+    /* Ensure touch target is accessible */
+    min-height: 44px;
+  }
+
+  .action-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .action-card h3 {
+    font-size: 1.125rem;
+  }
+
+  .action-card p {
+    font-size: 0.9375rem;
+  }
+
+  .action-arrow {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  /* Status Section */
+  .status-card {
+    padding: 1.5rem 1rem;
   }
 
   .status-row {
-    grid-template-columns: 100px 1fr 50px;
-    gap: 0.75rem;
+    grid-template-columns: 80px 1fr 50px;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
   }
 
   .status-label {
+    font-size: 0.8125rem;
+  }
+
+  .status-bar {
+    height: 20px;
+  }
+
+  .status-value {
+    font-size: 1rem;
+  }
+
+  /* Empty State */
+  .empty-state {
+    padding: 3rem 1.5rem;
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+  }
+
+  .empty-state h3 {
+    font-size: 1.25rem;
+  }
+
+  .empty-state p {
+    font-size: 1rem;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 1rem;
+    /* Ensure touch target meets minimum */
+    min-height: 44px;
+  }
+
+  /* Loading */
+  .loading-container {
+    padding: 2rem 1rem;
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 375px) {
+  .dashboard {
+    padding: 0 0.75rem;
+  }
+
+  section h2 {
+    font-size: 1.125rem;
+  }
+
+  .stat-card {
+    padding: 0.875rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .action-card {
+    padding: 1.25rem;
+  }
+
+  .action-card h3 {
+    font-size: 1rem;
+  }
+
+  .action-card p {
     font-size: 0.875rem;
+  }
+
+  .status-row {
+    grid-template-columns: 70px 1fr 45px;
+  }
+
+  .status-label {
+    font-size: 0.75rem;
+  }
+
+  .status-bar {
+    height: 18px;
+  }
+
+  .status-value {
+    font-size: 0.9375rem;
   }
 }
 </style>

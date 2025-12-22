@@ -1,0 +1,419 @@
+/**
+ * Responsive Design Utilities
+ * 
+ * This stylesheet provides utility classes for common responsive patterns.
+ * Import this file in components that need responsive utilities.
+ * 
+ * Usage in Vue components:
+ * <style scoped>
+ * @import '@/assets/responsive.css';
+ * </style>
+ */
+
+/* ============================================
+   VISIBILITY UTILITIES
+   ============================================ */
+
+/* Hide on mobile, show on tablet and up */
+.mobile-hidden {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .mobile-hidden {
+    display: block;
+  }
+}
+
+/* Show on mobile only, hide on tablet and up */
+.mobile-only {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none;
+  }
+}
+
+/* Hide on tablet, show on mobile and desktop */
+.tablet-hidden {
+  display: block;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .tablet-hidden {
+    display: none;
+  }
+}
+
+/* Show on tablet only */
+.tablet-only {
+  display: none;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .tablet-only {
+    display: block;
+  }
+}
+
+/* Hide on desktop, show on mobile and tablet */
+.desktop-hidden {
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .desktop-hidden {
+    display: none;
+  }
+}
+
+/* Show on desktop only */
+.desktop-only {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .desktop-only {
+    display: block;
+  }
+}
+
+/* ============================================
+   LAYOUT UTILITIES
+   ============================================ */
+
+/* Responsive container with max-width */
+.responsive-container {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 768px) {
+  .responsive-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Stack vertically on mobile, horizontal on tablet+ */
+.responsive-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .responsive-stack {
+    flex-direction: row;
+  }
+}
+
+/* Responsive grid: 1 column on mobile, 2 on tablet, 3 on desktop */
+.responsive-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .responsive-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ============================================
+   SPACING UTILITIES
+   ============================================ */
+
+/* Responsive padding */
+.responsive-padding {
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .responsive-padding {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-padding {
+    padding: 2rem;
+  }
+}
+
+/* Responsive margin */
+.responsive-margin {
+  margin: 1rem;
+}
+
+@media (min-width: 768px) {
+  .responsive-margin {
+    margin: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-margin {
+    margin: 2rem;
+  }
+}
+
+/* ============================================
+   TOUCH TARGET UTILITIES
+   ============================================ */
+
+/* Ensure minimum touch target size (44x44px) */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Button with proper touch target */
+.touch-button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* ============================================
+   FORM UTILITIES
+   ============================================ */
+
+/* Responsive form input */
+.responsive-input {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 16px; /* Prevents zoom on iOS */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  min-height: 44px;
+}
+
+/* Responsive form group */
+.responsive-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Responsive form row (stacks on mobile) */
+.responsive-form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .responsive-form-row {
+    flex-direction: row;
+  }
+  
+  .responsive-form-row > * {
+    flex: 1;
+  }
+}
+
+/* ============================================
+   TABLE UTILITIES
+   ============================================ */
+
+/* Responsive table wrapper with horizontal scroll */
+.responsive-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 768px) {
+  .responsive-table-wrapper {
+    overflow-x: visible;
+  }
+}
+
+/* Table that maintains structure on mobile */
+.responsive-table {
+  width: 100%;
+  min-width: 600px; /* Adjust based on table content */
+}
+
+@media (min-width: 768px) {
+  .responsive-table {
+    min-width: auto;
+  }
+}
+
+/* ============================================
+   CARD UTILITIES
+   ============================================ */
+
+/* Responsive card */
+.responsive-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (min-width: 768px) {
+  .responsive-card {
+    padding: 1.5rem;
+  }
+}
+
+/* Card list (single column on mobile) */
+.responsive-card-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .responsive-card-list {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-card-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ============================================
+   BUTTON GROUP UTILITIES
+   ============================================ */
+
+/* Button group that stacks on mobile */
+.responsive-button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .responsive-button-group {
+    flex-direction: row;
+  }
+}
+
+/* ============================================
+   MODAL UTILITIES
+   ============================================ */
+
+/* Responsive modal overlay */
+.responsive-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 1000;
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .responsive-modal-overlay {
+    align-items: center;
+    padding: 1rem;
+  }
+}
+
+/* Responsive modal content */
+.responsive-modal-content {
+  background: white;
+  border-radius: 12px 12px 0 0;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .responsive-modal-content {
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+  }
+}
+
+/* ============================================
+   TEXT UTILITIES
+   ============================================ */
+
+/* Responsive heading sizes */
+.responsive-heading-1 {
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
+
+@media (min-width: 768px) {
+  .responsive-heading-1 {
+    font-size: 2.5rem;
+  }
+}
+
+.responsive-heading-2 {
+  font-size: 1.5rem;
+  line-height: 1.3;
+}
+
+@media (min-width: 768px) {
+  .responsive-heading-2 {
+    font-size: 2rem;
+  }
+}
+
+.responsive-heading-3 {
+  font-size: 1.25rem;
+  line-height: 1.4;
+}
+
+@media (min-width: 768px) {
+  .responsive-heading-3 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Responsive body text */
+.responsive-text {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+  .responsive-text {
+    font-size: 1.125rem;
+  }
+}

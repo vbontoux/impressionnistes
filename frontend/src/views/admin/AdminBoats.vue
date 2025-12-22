@@ -70,69 +70,132 @@
       {{ error }}
     </div>
 
-    <!-- Boats table -->
+    <!-- Boats table/cards -->
     <div v-if="!loading && !error" class="boats-table-container">
       <p class="count">{{ $t('admin.boats.totalCount', { count: filteredBoats.length }) }}</p>
       
-      <table class="boats-table">
-        <thead>
-          <tr>
-            <th @click="sortBy('event_type')">
-              {{ $t('boat.eventType') }}
-              <span v-if="sortField === 'event_type'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-            </th>
-            <th>{{ $t('boat.boatType') }}</th>
-            <th>{{ $t('boat.firstRower') }}</th>
-            <th>{{ $t('boat.status.label') }}</th>
-            <th>{{ $t('boat.seats') }}</th>
-            <th @click="sortBy('team_manager_name')">
-              {{ $t('admin.boats.teamManager') }}
-              <span v-if="sortField === 'team_manager_name'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-            </th>
-            <th @click="sortBy('team_manager_club')">
-              {{ $t('admin.boats.club') }}
-              <span v-if="sortField === 'team_manager_club'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-            </th>
-            <th>{{ $t('common.actions') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="boat in paginatedBoats" :key="boat.boat_registration_id" :class="getRowClass(boat)">
-            <td>{{ boat.event_type }}</td>
-            <td>{{ boat.boat_type }}</td>
-            <td>{{ getFirstRowerLastName(boat) }}</td>
-            <td>
+      <!-- Desktop: Table view -->
+      <div class="desktop-only">
+        <TableScrollIndicator aria-label="Boats table">
+          <table class="boats-table">
+            <thead>
+              <tr>
+                <th @click="sortBy('event_type')">
+                  {{ $t('boat.eventType') }}
+                  <span v-if="sortField === 'event_type'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+                </th>
+                <th>{{ $t('boat.boatType') }}</th>
+                <th>{{ $t('boat.firstRower') }}</th>
+                <th>{{ $t('boat.status.label') }}</th>
+                <th>{{ $t('boat.seats') }}</th>
+                <th @click="sortBy('team_manager_name')">
+                  {{ $t('admin.boats.teamManager') }}
+                  <span v-if="sortField === 'team_manager_name'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+                </th>
+                <th @click="sortBy('team_manager_club')">
+                  {{ $t('admin.boats.club') }}
+                  <span v-if="sortField === 'team_manager_club'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+                </th>
+                <th>{{ $t('common.actions') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="boat in paginatedBoats" :key="boat.boat_registration_id" :class="getRowClass(boat)">
+                <td>{{ boat.event_type }}</td>
+                <td>{{ boat.boat_type }}</td>
+                <td>{{ getFirstRowerLastName(boat) }}</td>
+                <td>
+                  <span class="status-badge" :class="`status-${getBoatStatus(boat)}`">
+                    {{ getBoatStatusLabel(boat) }}
+                  </span>
+                </td>
+                <td>
+                  {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
+                  <span v-if="boat.is_multi_club_crew" class="multi-club-badge-small">{{ $t('boat.multiClub') }}</span>
+                </td>
+                <td>{{ boat.team_manager_name }}</td>
+                <td>{{ boat.team_manager_club }}</td>
+                <td class="actions-cell">
+                  <button 
+                    @click="toggleForfait(boat)" 
+                    class="btn-table btn-forfait-table"
+                    :class="{ active: boat.forfait }"
+                    :title="boat.forfait ? $t('admin.boats.removeForfait') : $t('admin.boats.setForfait')"
+                  >
+                    {{ boat.forfait ? $t('admin.boats.removeForfait') : $t('admin.boats.setForfait') }}
+                  </button>
+                  <button 
+                    @click="deleteBoat(boat)" 
+                    class="btn-table btn-delete-table"
+                    :disabled="boat.registration_status === 'paid'"
+                    :title="boat.registration_status === 'paid' ? $t('boat.cannotDeletePaid') : ''"
+                  >
+                    {{ $t('common.delete') }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </TableScrollIndicator>
+      </div>
+
+      <!-- Mobile: Card view -->
+      <div class="mobile-only">
+        <div class="card-list">
+          <div v-for="boat in paginatedBoats" :key="boat.boat_registration_id" class="boat-card" :class="getRowClass(boat)">
+            <div class="card-header">
+              <div class="card-title">
+                <strong>{{ boat.event_type }}</strong> - {{ boat.boat_type }}
+              </div>
               <span class="status-badge" :class="`status-${getBoatStatus(boat)}`">
                 {{ getBoatStatusLabel(boat) }}
               </span>
-            </td>
-            <td>
-              {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
-              <span v-if="boat.is_multi_club_crew" class="multi-club-badge-small">{{ $t('boat.multiClub') }}</span>
-            </td>
-            <td>{{ boat.team_manager_name }}</td>
-            <td>{{ boat.team_manager_club }}</td>
-            <td class="actions-cell">
+            </div>
+            
+            <div class="card-body">
+              <div class="card-row">
+                <span class="card-label">{{ $t('boat.firstRower') }}:</span>
+                <span class="card-value">{{ getFirstRowerLastName(boat) }}</span>
+              </div>
+              
+              <div class="card-row">
+                <span class="card-label">{{ $t('boat.seats') }}:</span>
+                <span class="card-value">
+                  {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
+                  <span v-if="boat.is_multi_club_crew" class="multi-club-badge-small">{{ $t('boat.multiClub') }}</span>
+                </span>
+              </div>
+              
+              <div class="card-row">
+                <span class="card-label">{{ $t('admin.boats.teamManager') }}:</span>
+                <span class="card-value">{{ boat.team_manager_name }}</span>
+              </div>
+              
+              <div class="card-row">
+                <span class="card-label">{{ $t('admin.boats.club') }}:</span>
+                <span class="card-value">{{ boat.team_manager_club }}</span>
+              </div>
+            </div>
+            
+            <div class="card-actions">
               <button 
                 @click="toggleForfait(boat)" 
-                class="btn-table btn-forfait-table"
+                class="btn-card btn-forfait-card"
                 :class="{ active: boat.forfait }"
-                :title="boat.forfait ? $t('admin.boats.removeForfait') : $t('admin.boats.setForfait')"
               >
                 {{ boat.forfait ? $t('admin.boats.removeForfait') : $t('admin.boats.setForfait') }}
               </button>
               <button 
                 @click="deleteBoat(boat)" 
-                class="btn-table btn-delete-table"
+                class="btn-card btn-delete-card"
                 :disabled="boat.registration_status === 'paid'"
-                :title="boat.registration_status === 'paid' ? $t('boat.cannotDeletePaid') : ''"
               >
                 {{ $t('common.delete') }}
               </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- Pagination -->
       <div v-if="totalPages > 1" class="pagination">
@@ -181,9 +244,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import apiClient from '../../services/apiClient'
+import TableScrollIndicator from '../../components/TableScrollIndicator.vue'
 
 export default {
   name: 'AdminBoats',
+  components: {
+    TableScrollIndicator
+  },
   setup() {
     const router = useRouter()
     const { t } = useI18n()
@@ -433,6 +500,29 @@ export default {
 </script>
 
 <style scoped>
+@import '@/assets/responsive.css';
+
+/* Override responsive.css breakpoints for this component */
+.desktop-only {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .desktop-only {
+    display: block;
+  }
+}
+
+.mobile-only {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none;
+  }
+}
+
 .admin-boats {
   padding: 0;
   max-width: 1400px;
@@ -782,6 +872,7 @@ export default {
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 1rem;
 }
 
 .modal-content {
@@ -791,6 +882,8 @@ export default {
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-header {
@@ -799,6 +892,7 @@ export default {
   align-items: center;
   padding: 1.5rem;
   border-bottom: 1px solid #dee2e6;
+  flex-shrink: 0;
 }
 
 .modal-header h2 {
@@ -812,6 +906,12 @@ export default {
   cursor: pointer;
   color: #6c757d;
   line-height: 1;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
 .close-btn:hover {
@@ -820,6 +920,8 @@ export default {
 
 .modal-body {
   padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
 }
 
 .info-text {
@@ -833,6 +935,7 @@ export default {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .btn-secondary {
@@ -842,11 +945,44 @@ export default {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  min-height: 44px;
 }
 
 .btn-secondary:hover {
   background-color: #545b62;
 }
+
+@media (max-width: 768px) {
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-content {
+    border-radius: 12px 12px 0 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 90vh;
+  }
+
+  .modal-header {
+    padding: 1rem;
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+
+  .modal-footer {
+    padding: 1rem;
+    flex-direction: column;
+  }
+
+  .modal-footer .btn-secondary {
+    width: 100%;
+  }
+}
+</style>
 
 @media (max-width: 768px) {
   .filter-row {
@@ -864,5 +1000,250 @@ export default {
   .actions-cell {
     flex-direction: column;
   }
+
+  .filter-select,
+  .filter-input {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .filter-btn {
+    min-height: 44px;
+  }
+
+  .btn-table {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }
-</style>
+
+/* Mobile card styles */
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.boat-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #dee2e6;
+}
+
+.boat-card.row-status-complete {
+  border-left-color: #28a745;
+}
+
+.boat-card.row-status-paid {
+  border-left-color: #007bff;
+}
+
+.boat-card.row-status-free {
+  border-left-color: #007bff;
+}
+
+.boat-card.row-status-incomplete {
+  border-left-color: #ffc107;
+}
+
+.boat-card.row-forfait {
+  border-left-color: #dc3545;
+  background-color: #fff5f5;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e0e0e0;
+  gap: 0.5rem;
+}
+
+.card-title {
+  font-size: 1rem;
+  color: #212529;
+  flex: 1;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.5rem 0;
+  gap: 1rem;
+}
+
+.card-label {
+  font-weight: 600;
+  color: #6c757d;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.card-value {
+  color: #212529;
+  font-size: 0.875rem;
+  text-align: right;
+  word-break: break-word;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn-card {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  min-height: 44px;
+}
+
+.btn-forfait-card {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.btn-forfait-card:hover {
+  background-color: #e0a800;
+}
+
+.btn-forfait-card.active {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-forfait-card.active:hover {
+  background-color: #c82333;
+}
+
+.btn-delete-card {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-delete-card:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.btn-delete-card:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .admin-boats {
+    padding: 0;
+  }
+
+  .list-header {
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 1rem;
+  }
+
+  .list-header .btn-primary {
+    width: 100%;
+  }
+
+  .filters {
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .search-input {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .filter-row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .filter-group {
+    min-width: 100%;
+  }
+
+  .filter-select,
+  .filter-input {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .filter-btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .boats-table-container {
+    padding: 1rem;
+  }
+
+  .boats-table {
+    min-width: 900px;
+  }
+
+  .boats-table th,
+  .boats-table td {
+    white-space: nowrap;
+  }
+
+  .actions-cell {
+    flex-wrap: nowrap;
+  }
+
+  .btn-table {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .pagination {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .pagination-btn {
+    flex: 1;
+    min-width: 100px;
+    min-height: 44px;
+  }
+
+  .page-info {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+@media (min-width: 768px) {
+  .boats-table {
+    min-width: auto;
+  }
+
+  .boats-table td,
+  .boats-table th {
+    white-space: normal;
+  }
+}

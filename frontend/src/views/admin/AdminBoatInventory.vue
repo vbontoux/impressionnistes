@@ -840,6 +840,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  padding: 1rem;
 }
 
 .modal {
@@ -850,6 +851,8 @@ onMounted(() => {
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
 }
 
 .modal-header {
@@ -858,6 +861,7 @@ onMounted(() => {
   align-items: center;
   padding: 1.5rem;
   border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
 }
 
 .modal-header h2 {
@@ -872,8 +876,8 @@ onMounted(() => {
   cursor: pointer;
   color: #7f8c8d;
   padding: 0;
-  width: 30px;
-  height: 30px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -886,6 +890,8 @@ onMounted(() => {
 
 .modal-form {
   padding: 1.5rem;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .form-group {
@@ -954,6 +960,7 @@ onMounted(() => {
   gap: 1rem;
   justify-content: flex-end;
   margin-top: 2rem;
+  flex-shrink: 0;
 }
 
 .btn-primary,
@@ -964,6 +971,7 @@ onMounted(() => {
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s;
+  min-height: 44px;
 }
 
 .btn-primary {
@@ -992,5 +1000,51 @@ onMounted(() => {
 .btn-secondary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal {
+    border-radius: 12px 12px 0 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 90vh;
+  }
+
+  .modal-header {
+    padding: 1rem;
+  }
+
+  .modal-form {
+    padding: 1rem;
+  }
+
+  .form-control {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions .btn-primary,
+  .modal-actions .btn-secondary {
+    width: 100%;
+  }
+
+  .filter-select {
+    font-size: 16px;
+    min-height: 44px;
+  }
+
+  .btn-table {
+    min-height: 44px;
+    min-width: 44px;
+  }
 }
 </style>

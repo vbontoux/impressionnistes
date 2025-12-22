@@ -954,32 +954,264 @@ section h2 {
   }
 }
 
+/* Mobile Optimizations */
 @media (max-width: 768px) {
+  /* Container */
+  .container {
+    padding: 0 1rem;
+  }
+
+  /* Hero Section - Mobile Optimized */
+  .hero {
+    padding: 2rem 0;
+  }
+
   .hero h1 {
-    font-size: 2rem;
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
   }
 
   .hero-subtitle {
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0 1rem;
+  }
+
+  /* Buttons - Mobile Touch Targets */
+  .btn {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-large {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.875rem 2rem;
     font-size: 1.125rem;
   }
 
-  section h2 {
-    font-size: 2rem;
+  /* Sections - Reduced Padding */
+  section {
+    padding: 3rem 0;
   }
 
-  .dates-grid,
-  .events-grid,
-  .process-steps,
-  .pricing-grid {
+  section h2 {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .section-intro {
+    font-size: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Dates Grid - Single Column */
+  .dates-section {
+    padding: 2.5rem 0;
+  }
+
+  .dates-grid {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
   }
 
   .date-card {
     min-height: auto;
+    padding: 1.25rem;
   }
 
-  .container {
-    padding: 0 1rem;
+  .date-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .date-card h3 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .date-value {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .rule-text {
+    font-size: 0.875rem;
+    margin: 0.5rem 0;
+  }
+
+  .rule-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  /* Events Grid - Single Column */
+  .events-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .event-card {
+    padding: 1.5rem;
+  }
+
+  .event-header h3 {
+    font-size: 1.25rem;
+  }
+
+  .event-distance {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  /* Process Steps - Single Column */
+  .process-steps {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .step {
+    padding: 1.5rem;
+  }
+
+  .step-number {
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
+  }
+
+  .step h3 {
+    font-size: 1.125rem;
+  }
+
+  /* Pricing Section - Mobile Optimized */
+  .pricing-category {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .category-title {
+    font-size: 1.5rem;
+  }
+
+  .category-description {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .pricing-card {
+    padding: 1.5rem;
+  }
+
+  .pricing-icon {
+    font-size: 2.5rem;
+  }
+
+  .pricing-card h4 {
+    font-size: 1.125rem;
+  }
+
+  .price {
+    font-size: 2.5rem;
+  }
+
+  .price-unit {
+    font-size: 1.125rem;
+  }
+
+  /* Examples - Mobile Optimized */
+  .pricing-examples {
+    padding: 1.5rem;
+  }
+
+  .pricing-examples h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .example-section {
+    margin-bottom: 2rem;
+  }
+
+  .example-section-title {
+    font-size: 1.125rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .examples-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .example-card {
+    padding: 1.25rem;
+  }
+
+  .example-icon {
+    font-size: 2rem;
+  }
+
+  .example-card h5 {
+    font-size: 1rem;
+  }
+
+  .example-calc {
+    font-size: 0.875rem;
+  }
+
+  .example-total {
+    font-size: 1.25rem;
+  }
+
+  /* Contact Section - Mobile Optimized */
+  .contact-section p {
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .contact-email {
+    font-size: 1.125rem;
+    padding: 0.75rem 1.5rem;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* CTA Section - Mobile Optimized */
+  .cta-section {
+    padding: 3rem 0;
+  }
+
+  .cta-section h2 {
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .cta-section p {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
   }
 }
 </style>

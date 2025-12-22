@@ -467,4 +467,81 @@ onMounted(() => {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .admin-event-config {
+    padding: 1rem;
+  }
+
+  .page-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .back-link {
+    font-size: 16px; /* Prevent iOS zoom */
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .config-form {
+    padding: 1.25rem;
+  }
+
+  .form-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .form-section h2 {
+    font-size: 1.125rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .form-control {
+    min-height: 44px;
+    font-size: 16px; /* Prevent iOS zoom */
+    padding: 0.625rem 0.75rem;
+  }
+
+  .help-text,
+  .error-text {
+    font-size: 0.8rem;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 0.75rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    min-height: 44px;
+    font-size: 16px; /* Prevent iOS zoom */
+    padding: 0.875rem 1.5rem;
+  }
+
+  .error-message,
+  .success-message {
+    padding: 0.875rem;
+    font-size: 0.9rem;
+  }
+}
 </style>
