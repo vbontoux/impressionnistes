@@ -442,8 +442,14 @@
     "selectRaceToSave": "Please select a race before saving",
     "selectRaceRequired": "A race must be selected when all seats are filled",
     "filter": {
-      "all": "All Boats"
+      "all": "All Boats",
+      "search": "Search by stroke rower, boat type, event or race...",
+      "allEvents": "All Events",
+      "allBoatTypes": "All Boat Types",
+      "sortBy": "Sort by",
+      "dateAdded": "Date Added"
     },
+    "searchPlaceholder": "Search by stroke rower, boat type, event or race...",
     "types": {
       "skiff": "Skiff",
       "4-": "Four without coxswain",

@@ -442,8 +442,14 @@
     "selectRaceToSave": "Veuillez sélectionner une course avant d'enregistrer",
     "selectRaceRequired": "Une course doit être sélectionnée lorsque toutes les places sont remplies",
     "filter": {
-      "all": "Tous les bateaux"
+      "all": "Tous les bateaux",
+      "search": "Rechercher par chef de nage, type de bateau, événement ou course...",
+      "allEvents": "Tous les événements",
+      "allBoatTypes": "Tous les types de bateaux",
+      "sortBy": "Trier par",
+      "dateAdded": "Date d'ajout"
     },
+    "searchPlaceholder": "Rechercher par chef de nage, type de bateau, événement ou course...",
     "types": {
       "skiff": "Skiff",
       "4-": "Quatre sans barreur",

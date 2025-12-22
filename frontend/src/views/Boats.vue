@@ -3,14 +3,6 @@
     <div class="header">
       <h1>{{ $t('nav.boats') }}</h1>
       <div class="header-actions">
-        <div class="status-filter">
-          <select v-model="statusFilter" class="filter-select">
-            <option value="all">{{ $t('boat.filter.all') }}</option>
-            <option value="incomplete">{{ $t('boat.status.incomplete') }}</option>
-            <option value="complete">{{ $t('boat.status.complete') }}</option>
-            <option value="paid">{{ $t('boat.status.paid') }}</option>
-          </select>
-        </div>
         <div class="view-toggle">
           <button 
             @click="viewMode = 'cards'" 
@@ -32,6 +24,30 @@
         <button @click="showCreateForm = true" class="btn-primary">
           {{ $t('boat.addNew') }}
         </button>
+      </div>
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="filters">
+      <div class="search-box">
+        <input
+          v-model="searchQuery"
+          type="text"
+          :placeholder="$t('boat.searchPlaceholder')"
+          class="search-input"
+        />
+      </div>
+      
+      <div class="filter-row">
+        <div class="filter-group">
+          <label>{{ $t('boat.status.label') }}&nbsp;:</label>
+          <select v-model="statusFilter" class="filter-select">
+            <option value="all">{{ $t('boat.filter.all') }}</option>
+            <option value="incomplete">{{ $t('boat.status.incomplete') }}</option>
+            <option value="complete">{{ $t('boat.status.complete') }}</option>
+            <option value="paid">{{ $t('boat.status.paid') }}</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -207,6 +223,7 @@ export default {
     // Load view mode from localStorage or default to 'cards'
     const viewMode = ref(localStorage.getItem('boatsViewMode') || 'cards')
     const statusFilter = ref('all')
+    const searchQuery = ref('')
 
     // Watch for view mode changes and save to localStorage
     watch(viewMode, (newMode) => {
@@ -214,11 +231,30 @@ export default {
     })
 
     const boatRegistrations = computed(() => {
-      const boats = boatStore.boatRegistrations
-      if (statusFilter.value === 'all') {
-        return boats
+      let boats = boatStore.boatRegistrations
+      
+      // Apply status filter
+      if (statusFilter.value !== 'all') {
+        boats = boats.filter(boat => boat.registration_status === statusFilter.value)
       }
-      return boats.filter(boat => boat.registration_status === statusFilter.value)
+
+      // Apply search query
+      if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase()
+        boats = boats.filter(boat => {
+          const firstRower = getFirstRowerLastName(boat).toLowerCase()
+          const eventType = boat.event_type?.toLowerCase() || ''
+          const boatType = boat.boat_type?.toLowerCase() || ''
+          const raceName = getRaceName(boat)?.toLowerCase() || ''
+          
+          return firstRower.includes(query) ||
+                 eventType.includes(query) ||
+                 boatType.includes(query) ||
+                 raceName.includes(query)
+        })
+      }
+
+      return boats
     })
 
     const getFilledSeatsCount = (boat) => {
@@ -319,6 +355,7 @@ export default {
       showCreateForm,
       viewMode,
       statusFilter,
+      searchQuery,
       boatRegistrations,
       getFilledSeatsCount,
       getFirstRowerLastName,
@@ -381,31 +418,64 @@ export default {
 
 .header-actions {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  align-items: stretch;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.status-filter {
+.filters {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.search-box {
+  margin-bottom: 0.75rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  min-height: 44px;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.filter-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-group {
   display: flex;
   align-items: center;
-  width: 100%;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-weight: 500;
+  white-space: nowrap;
 }
 
 .filter-select {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  min-height: 44px;
-  border: 1px solid #dee2e6;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
   border-radius: 4px;
-  background-color: white;
+  background: white;
   cursor: pointer;
-  font-size: 1rem;
-  transition: border-color 0.2s;
-}
-
-.filter-select:hover {
-  border-color: #007bff;
+  min-width: 120px;
+  min-height: 44px;
 }
 
 .filter-select:focus {
@@ -824,6 +894,40 @@ export default {
   opacity: 0.6;
 }
 
+/* Mobile Responsive */
+@media (max-width: 767px) {
+  .header-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .filters {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 0;
+  }
+
+  .search-input {
+    font-size: 16px; /* Prevents iOS zoom */
+  }
+
+  .filter-row {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .filter-select {
+    width: 100%;
+    font-size: 16px; /* Prevents iOS zoom */
+  }
+}
+
 /* Tablet and larger screens */
 @media (min-width: 768px) {
   .header {
@@ -838,20 +942,12 @@ export default {
   }
 
   .header-actions {
-    flex-direction: row;
     gap: 1rem;
-    align-items: center;
     width: auto;
   }
 
-  .status-filter {
+  .filter-group {
     width: auto;
-  }
-
-  .filter-select {
-    width: auto;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
   }
 
   .view-toggle {
