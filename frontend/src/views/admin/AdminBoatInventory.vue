@@ -13,7 +13,6 @@
           <p class="subtitle">{{ $t('admin.boatInventory.subtitle') }}</p>
         </div>
         <button @click="showAddBoatModal = true" class="btn-primary">
-          <span class="btn-icon">+</span>
           {{ $t('admin.boatInventory.addBoat') }}
         </button>
       </div>
@@ -555,12 +554,15 @@ onMounted(() => {
   margin-bottom: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
-  gap: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
   align-items: flex-end;
 }
 
 .filter-group {
-  flex: 0 0 200px;
+  flex: 0 1 auto;
+  min-width: 150px;
+  max-width: 250px;
 }
 
 .filter-group label {
@@ -580,10 +582,11 @@ onMounted(() => {
 }
 
 .filter-stats {
-  flex: 1;
+  flex: 1 1 auto;
   text-align: right;
   color: #7f8c8d;
   font-size: 0.9rem;
+  min-width: 200px;
 }
 
 /* Table */
