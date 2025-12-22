@@ -42,6 +42,8 @@
     "eventConfig": "Event Configuration",
     "pricingConfig": "Pricing Configuration",
     "boatInventory": "Rental Boats",
+    "crewMembers": "Crew Members",
+    "boatRegistrations": "Boat Registrations",
     "dataExports": "Data Exports"
   },
   "admin": {

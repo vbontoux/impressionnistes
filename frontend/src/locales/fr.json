@@ -42,6 +42,8 @@
     "eventConfig": "Configuration Événement",
     "pricingConfig": "Configuration Tarifs",
     "boatInventory": "Bateaux à louer",
+    "crewMembers": "Équipiers",
+    "boatRegistrations": "Inscriptions de bateaux",
     "dataExports": "Exports de Données"
   },
   "admin": {
