@@ -246,7 +246,6 @@
               <div v-if="request.status === 'requested'" class="status-icon pending">⏳</div>
               <div v-else-if="request.status === 'confirmed'" class="status-icon confirmed">✅</div>
               <div v-else-if="request.status === 'available'" class="status-icon rejected">❌</div>
-              <div v-else-if="request.status === 'paid'" class="status-icon paid">💳</div>
             </div>
           </div>
         </div>
