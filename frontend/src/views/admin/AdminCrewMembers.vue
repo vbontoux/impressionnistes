@@ -19,6 +19,25 @@
       </div>
 
       <div class="filter-row">
+        <button 
+          :class="['filter-btn', { active: assignedFilter === 'all' }]"
+          @click="assignedFilter = 'all'"
+        >
+          {{ $t('crew.list.all') }} ({{ crewMembers.length }})
+        </button>
+        <button 
+          :class="['filter-btn', { active: assignedFilter === 'assigned' }]"
+          @click="assignedFilter = 'assigned'"
+        >
+          {{ $t('crew.list.assigned') }} ({{ assignedCrewCount }})
+        </button>
+        <button 
+          :class="['filter-btn', { active: assignedFilter === 'unassigned' }]"
+          @click="assignedFilter = 'unassigned'"
+        >
+          {{ $t('crew.list.unassigned') }} ({{ unassignedCrewCount }})
+        </button>
+
         <div class="filter-group">
           <label>{{ $t('admin.crewMembers.filterByTeamManager') }}&nbsp;:</label>
           <select v-model="filterTeamManager" class="filter-select">
@@ -81,9 +100,10 @@
             <th>{{ $t('crew.form.gender') }}</th>
             <th>{{ $t('crew.form.licenseNumber') }}</th>
             <th @click="sortBy('club_affiliation')">
-              {{ $t('crew.form.clubAffiliation') }}
+              {{ $t('crew.card.club') }}
               <span v-if="sortField === 'club_affiliation'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
             </th>
+            <th>{{ $t('crew.card.assigned') }}</th>
             <th @click="sortBy('team_manager_name')">
               {{ $t('admin.crewMembers.teamManager') }}
               <span v-if="sortField === 'team_manager_name'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
@@ -111,7 +131,11 @@
             </td>
             <td>{{ crew.gender === 'M' ? $t('crew.form.male') : $t('crew.form.female') }}</td>
             <td>{{ crew.license_number }}</td>
-            <td>{{ crew.club_affiliation || crew.team_manager_club }}</td>
+            <td><span class="club-box">{{ crew.club_affiliation || crew.team_manager_club }}</span></td>
+            <td>
+              <span v-if="crew.assigned_boat_id" class="assigned-badge">✓</span>
+              <span v-else>-</span>
+            </td>
             <td>
               <div class="team-manager-info">
                 <div>{{ crew.team_manager_name }}</div>
@@ -251,6 +275,7 @@ export default {
     const filterClub = ref('');
     const filterTeamManager = ref('');
     const categoryFilter = ref('all');
+    const assignedFilter = ref('all');
     const sortField = ref('team_manager_name');
     const sortDirection = ref('asc');
     const currentPage = ref(1);
@@ -276,8 +301,23 @@ export default {
     });
 
     // Computed
+    const assignedCrewCount = computed(() => {
+      return crewMembers.value.filter(crew => crew.assigned_boat_id).length;
+    });
+
+    const unassignedCrewCount = computed(() => {
+      return crewMembers.value.filter(crew => !crew.assigned_boat_id).length;
+    });
+
     const filteredCrewMembers = computed(() => {
       let filtered = crewMembers.value;
+
+      // Apply assigned filter
+      if (assignedFilter.value === 'assigned') {
+        filtered = filtered.filter(crew => crew.assigned_boat_id);
+      } else if (assignedFilter.value === 'unassigned') {
+        filtered = filtered.filter(crew => !crew.assigned_boat_id);
+      }
 
       // Apply search filter
       if (searchTerm.value) {
@@ -410,6 +450,7 @@ export default {
       filterClub.value = '';
       filterTeamManager.value = '';
       categoryFilter.value = 'all';
+      assignedFilter.value = 'all';
       currentPage.value = 1;
     };
 
@@ -518,10 +559,13 @@ export default {
       filterClub,
       filterTeamManager,
       categoryFilter,
+      assignedFilter,
       sortField,
       sortDirection,
       currentPage,
       totalPages,
+      assignedCrewCount,
+      unassignedCrewCount,
       filteredCrewMembers,
       paginatedCrewMembers,
       showEditCrewModal,
@@ -1307,6 +1351,25 @@ button:disabled {
   color: #666;
   font-size: 0.9rem;
   white-space: nowrap;
+}
+
+.assigned-badge {
+  color: #4CAF50;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.club-box {
+  display: inline-block;
+  max-width: 200px;
+  padding: 0.25rem 0.5rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 </style>
 
