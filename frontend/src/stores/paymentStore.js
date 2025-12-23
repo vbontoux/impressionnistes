@@ -79,9 +79,6 @@ export const usePaymentStore = defineStore('payment', {
      * Fetch boats that are ready for payment (status: complete)
      */
     async fetchBoatsReadyForPayment() {
-      this.loading = true
-      this.error = null
-
       try {
         const response = await boatService.getBoatRegistrations()
         const allBoats = response.data.boat_registrations || []
@@ -97,8 +94,6 @@ export const usePaymentStore = defineStore('payment', {
         this.error = getErrorMessage(error)
         console.error('Failed to fetch boats for payment:', error)
         throw error
-      } finally {
-        this.loading = false
       }
     },
 
@@ -106,9 +101,6 @@ export const usePaymentStore = defineStore('payment', {
      * Fetch confirmed rental boats ready for payment
      */
     async fetchRentalsReadyForPayment() {
-      this.loading = true
-      this.error = null
-
       try {
         const response = await boatService.getRentalsForPayment()
         console.log('Rentals API response:', response)
@@ -120,8 +112,6 @@ export const usePaymentStore = defineStore('payment', {
         this.error = getErrorMessage(error)
         console.error('Failed to fetch rentals for payment:', error)
         throw error
-      } finally {
-        this.loading = false
       }
     },
 
