@@ -37,24 +37,14 @@
       </div>
 
       <div class="filter-row">
-        <button 
-          :class="['filter-btn', { active: assignedFilter === 'all' }]"
-          @click="assignedFilter = 'all'"
-        >
-          {{ $t('crew.list.all') }} ({{ crewMembers.length }})
-        </button>
-        <button 
-          :class="['filter-btn', { active: assignedFilter === 'assigned' }]"
-          @click="assignedFilter = 'assigned'"
-        >
-          {{ $t('crew.list.assigned') }} ({{ assignedCrewCount }})
-        </button>
-        <button 
-          :class="['filter-btn', { active: assignedFilter === 'unassigned' }]"
-          @click="assignedFilter = 'unassigned'"
-        >
-          {{ $t('crew.list.unassigned') }} ({{ unassignedCrewCount }})
-        </button>
+        <div class="filter-group">
+          <label>{{ $t('crew.list.status') }}&nbsp;:</label>
+          <select v-model="assignedFilter" class="filter-select">
+            <option value="all">{{ $t('crew.list.all') }} ({{ crewMembers.length }})</option>
+            <option value="assigned">{{ $t('crew.list.assigned') }} ({{ assignedCrewCount }})</option>
+            <option value="unassigned">{{ $t('crew.list.unassigned') }} ({{ unassignedCrewCount }})</option>
+          </select>
+        </div>
 
         <div class="filter-group">
           <label>{{ $t('admin.crewMembers.filterByTeamManager') }}&nbsp;:</label>
@@ -1724,6 +1714,11 @@ button:disabled {
     flex-direction: column;
     align-items: stretch;
     margin-bottom: 1rem;
+  }
+
+  .view-toggle {
+    width: auto;
+    align-self: flex-start;
   }
 
   .filters {

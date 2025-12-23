@@ -39,18 +39,14 @@
       </div>
       
       <div class="filter-row">
-        <button 
-          :class="['filter-btn', { active: filter === 'all' }]"
-          @click="filter = 'all'"
-        >
-          {{ $t('crew.list.all') }} ({{ crewStore.crewMembers.length }})
-        </button>
-        <button 
-          :class="['filter-btn', { active: filter === 'assigned' }]"
-          @click="filter = 'assigned'"
-        >
-          {{ $t('crew.list.assigned') }} ({{ crewStore.assignedCrewMembers.length }})
-        </button>
+        <div class="filter-group">
+          <label>{{ $t('crew.list.status') }}&nbsp;:</label>
+          <select v-model="filter" class="filter-select">
+            <option value="all">{{ $t('crew.list.all') }} ({{ crewStore.crewMembers.length }})</option>
+            <option value="assigned">{{ $t('crew.list.assigned') }} ({{ crewStore.assignedCrewMembers.length }})</option>
+            <option value="unassigned">{{ $t('crew.list.unassigned') }} ({{ unassignedCount }})</option>
+          </select>
+        </div>
 
         <div class="filter-group">
           <label>{{ $t('crew.list.gender') }}&nbsp;:</label>
@@ -80,6 +76,10 @@
             <option value="created_at">{{ $t('crew.list.dateAdded') }}</option>
           </select>
         </div>
+
+        <button @click="clearFilters" class="filter-btn">
+          {{ $t('admin.boats.clearFilters') }}
+        </button>
       </div>
     </div>
 
@@ -207,6 +207,11 @@ const searchQuery = ref('');
 const filter = ref('all');
 const genderFilter = ref('all');
 const categoryFilter = ref('all');
+
+// Computed: count of unassigned crew members
+const unassignedCount = computed(() => {
+  return crewStore.crewMembers.filter(member => !member.assigned_boat_id).length;
+});
 const sortBy = ref('last_name');
 // Load view mode from localStorage or default to 'cards'
 const viewMode = ref(localStorage.getItem('crewViewMode') || 'cards');
@@ -275,6 +280,9 @@ const filteredCrewMembers = computed(() => {
   switch (filter.value) {
     case 'assigned':
       members = crewStore.assignedCrewMembers;
+      break;
+    case 'unassigned':
+      members = crewStore.crewMembers.filter(member => !member.assigned_boat_id);
       break;
   }
 
@@ -352,6 +360,13 @@ const closeForm = () => {
   editingMember.value = null;
   // Clear any errors from the store when closing the form
   crewStore.clearError();
+};
+
+const clearFilters = () => {
+  filter.value = 'all';
+  genderFilter.value = 'all';
+  categoryFilter.value = 'all';
+  searchQuery.value = '';
 };
 </script>
 
@@ -447,17 +462,13 @@ const closeForm = () => {
   background: white;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 0.875rem;
+  white-space: nowrap;
   transition: all 0.3s;
 }
 
 .filter-btn:hover {
   background: #f5f5f5;
-}
-
-.filter-btn.active {
-  background: #4CAF50;
-  color: white;
-  border-color: #4CAF50;
 }
 
 .filter-group {
@@ -753,6 +764,11 @@ const closeForm = () => {
     width: 100%;
     font-size: 16px; /* Prevents iOS zoom */
     min-height: 44px; /* Touch target */
+  }
+
+  .filter-btn {
+    width: 100%;
+    min-height: 44px;
   }
 
   /* Card grid - single column on mobile */

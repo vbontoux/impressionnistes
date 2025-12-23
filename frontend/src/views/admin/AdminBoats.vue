@@ -736,17 +736,17 @@ export default {
 
 .filter-btn {
   padding: 0.5rem 1rem;
-  background-color: #6c757d;
-  color: white;
-  border: none;
+  border: 1px solid #ddd;
+  background: white;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.875rem;
   white-space: nowrap;
+  transition: all 0.3s;
 }
 
 .filter-btn:hover {
-  background-color: #545b62;
+  background: #f5f5f5;
 }
 
 .loading {

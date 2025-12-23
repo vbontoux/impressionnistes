@@ -48,6 +48,10 @@
             <option value="paid">{{ $t('boat.status.paid') }}</option>
           </select>
         </div>
+        
+        <button @click="clearFilters" class="filter-btn">
+          {{ $t('admin.boats.clearFilters') }}
+        </button>
       </div>
     </div>
 
@@ -342,6 +346,11 @@ export default {
       }
     }
 
+    const clearFilters = () => {
+      statusFilter.value = 'all'
+      searchQuery.value = ''
+    }
+
     onMounted(async () => {
       // Load races if not already loaded
       if (raceStore.races.length === 0) {
@@ -368,7 +377,8 @@ export default {
       getRaceName,
       handleBoatCreated,
       viewBoat,
-      deleteBoat
+      deleteBoat,
+      clearFilters
     }
   }
 }
@@ -482,6 +492,26 @@ export default {
   outline: none;
   border-color: #007bff;
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.filter-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  transition: all 0.3s;
+  min-height: 44px;
+}
+
+.filter-btn:hover {
+  background: #f5f5f5;
+}
+
+.filter-btn:active {
+  background: #e9ecef;
 }
 
 .view-toggle {
@@ -897,9 +927,22 @@ export default {
 /* Mobile Responsive */
 @media (max-width: 767px) {
   .header-actions {
-    flex-direction: column;
-    gap: 0.75rem;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 1rem;
     width: 100%;
+  }
+
+  .view-toggle {
+    flex-shrink: 0;
+    width: auto;
+  }
+
+  .btn-primary {
+    flex-shrink: 0;
+    width: auto;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
   }
 
   .filters {
@@ -925,6 +968,11 @@ export default {
   .filter-select {
     width: 100%;
     font-size: 16px; /* Prevents iOS zoom */
+  }
+
+  .filter-btn {
+    width: 100%;
+    min-height: 44px;
   }
 }
 
