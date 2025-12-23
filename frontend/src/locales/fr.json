@@ -43,7 +43,7 @@
     "pricingConfig": "Configuration Tarifs",
     "boatInventory": "Bateaux à louer",
     "crewMembers": "Équipiers",
-    "boatRegistrations": "Inscriptions de bateaux",
+    "boatRegistrations": "Bateaux",
     "dataExports": "Exports de Données"
   },
   "admin": {
@@ -60,9 +60,9 @@
       "pricingDesc": "Gérer les prix des sièges et les frais de location",
       "boatInventory": "Bateaux à louer",
       "boatInventoryDesc": "Gérer les bateaux disponibles à la location",
-      "crewMembers": "Équipiers",
+      "crewMembers": "Gérer les équipiers",
       "crewMembersDesc": "Voir et gérer tous les équipiers",
-      "boatRegistrations": "Inscriptions de bateaux",
+      "boatRegistrations": "Gérer les bateaux",
       "boatRegistrationsDesc": "Voir et gérer toutes les inscriptions de bateaux",
       "dataExports": "Exports de données",
       "dataExportsDesc": "Exporter les équipiers et les inscriptions de bateaux"
@@ -659,12 +659,16 @@
     "quickActions": "Actions rapides",
     "actions": {
       "manageCrew": {
-        "title": "Gérer l'équipage",
+        "title": "Gérer les équipiers",
         "description": "Ajouter et gérer vos membres d'équipage"
       },
       "manageBoats": {
         "title": "Gérer les bateaux",
         "description": "Inscrire et configurer vos inscriptions de bateaux"
+      },
+      "manageRentals": {
+        "title": "Gérer vos locations de bateaux",
+        "description": "Demander et gérer vos locations de bateaux RCPM"
       },
       "makePayment": {
         "title": "Effectuer un paiement",

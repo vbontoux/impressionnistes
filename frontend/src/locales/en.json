@@ -43,7 +43,7 @@
     "pricingConfig": "Pricing Configuration",
     "boatInventory": "Rental Boats",
     "crewMembers": "Crew Members",
-    "boatRegistrations": "Boat Registrations",
+    "boatRegistrations": "Boats",
     "dataExports": "Data Exports"
   },
   "admin": {
@@ -60,9 +60,9 @@
       "pricingDesc": "Manage seat prices and rental fees",
       "boatInventory": "Rental Boats",
       "boatInventoryDesc": "Manage boats available for rental",
-      "crewMembers": "Crew Members",
+      "crewMembers": "Manage Crew Members",
       "crewMembersDesc": "View and manage all crew members",
-      "boatRegistrations": "Boat Registrations",
+      "boatRegistrations": "Manage Boats",
       "boatRegistrationsDesc": "View and manage all boat registrations",
       "dataExports": "Data Exports",
       "dataExportsDesc": "Export crew members and boat registrations"
@@ -659,12 +659,16 @@
     "quickActions": "Quick Actions",
     "actions": {
       "manageCrew": {
-        "title": "Manage Crew",
+        "title": "Manage Crew Members",
         "description": "Add and manage your crew members"
       },
       "manageBoats": {
         "title": "Manage Boats",
         "description": "Register and configure your boat entries"
+      },
+      "manageRentals": {
+        "title": "Manage Boat Rentals",
+        "description": "Request and manage your RCPM boat rentals"
       },
       "makePayment": {
         "title": "Make Payment",
