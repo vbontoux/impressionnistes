@@ -105,13 +105,13 @@
             </div>
           </div>
 
-          <div v-if="boat.race_name" class="race-name">
-            <strong>{{ $t('boat.selectedRace') }}&nbsp;:</strong> {{ boat.race_name }}
+          <div v-if="getRaceName(boat)" class="race-name">
+            <strong>{{ $t('boat.selectedRace') }}&nbsp;:</strong> {{ getRaceName(boat) }}
           </div>
 
           <div class="boat-actions">
             <button 
-              v-if="boat.registration_status === 'forfait'"
+              v-if="boat.forfait"
               @click="removeForfait(boat)" 
               class="btn-secondary"
             >
@@ -157,40 +157,47 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="boat in paginatedBoats" :key="boat.boat_registration_id" :class="getRowClass(boat)">
-                <td>{{ boat.event_type }}</td>
-                <td>{{ boat.boat_type }}</td>
-                <td>{{ getFirstRowerLastName(boat) }}</td>
-                <td>
-                  <span class="status-badge" :class="`status-${getBoatStatus(boat)}`">
-                    {{ getBoatStatusLabel(boat) }}
-                  </span>
-                </td>
-                <td>
-                  {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
-                  <span v-if="boat.is_multi_club_crew" class="multi-club-badge-small">{{ $t('boat.multiClub') }}</span>
-                </td>
-                <td>{{ boat.team_manager_name }}</td>
-                <td>{{ boat.team_manager_club }}</td>
-                <td class="actions-cell">
-                  <button 
-                    @click="toggleForfait(boat)" 
-                    class="btn-table btn-forfait-table"
-                    :class="{ active: boat.forfait }"
-                    :title="boat.forfait ? $t('admin.boats.removeForfait') : $t('admin.boats.setForfait')"
-                  >
-                    {{ boat.forfait ? $t('admin.boats.removeForfait') : $t('admin.boats.setForfait') }}
-                  </button>
-                  <button 
-                    @click="deleteBoat(boat)" 
-                    class="btn-table btn-delete-table"
-                    :disabled="boat.registration_status === 'paid'"
-                    :title="boat.registration_status === 'paid' ? $t('boat.cannotDeletePaid') : ''"
-                  >
-                    {{ $t('common.delete') }}
-                  </button>
-                </td>
-              </tr>
+              <template v-for="boat in paginatedBoats" :key="boat.boat_registration_id">
+                <tr :class="getRowClass(boat)">
+                  <td>{{ boat.event_type }}</td>
+                  <td>{{ boat.boat_type }}</td>
+                  <td>{{ getFirstRowerLastName(boat) }}</td>
+                  <td>
+                    <span class="status-badge" :class="`status-${getBoatStatus(boat)}`">
+                      {{ getBoatStatusLabel(boat) }}
+                    </span>
+                  </td>
+                  <td>
+                    {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
+                    <span v-if="boat.is_multi_club_crew" class="multi-club-badge-small">{{ $t('boat.multiClub') }}</span>
+                  </td>
+                  <td>{{ boat.team_manager_name }}</td>
+                  <td>{{ boat.team_manager_club }}</td>
+                  <td class="actions-cell">
+                    <button 
+                      @click="toggleForfait(boat)" 
+                      class="btn-table btn-forfait-table"
+                      :class="{ active: boat.forfait }"
+                      :title="boat.forfait ? $t('admin.boats.removeForfait') : $t('admin.boats.setForfait')"
+                    >
+                      {{ boat.forfait ? $t('admin.boats.removeForfait') : $t('admin.boats.setForfait') }}
+                    </button>
+                    <button 
+                      @click="deleteBoat(boat)" 
+                      class="btn-table btn-delete-table"
+                      :disabled="boat.registration_status === 'paid'"
+                      :title="boat.registration_status === 'paid' ? $t('boat.cannotDeletePaid') : ''"
+                    >
+                      {{ $t('common.delete') }}
+                    </button>
+                  </td>
+                </tr>
+                <tr v-if="getRaceName(boat)" class="race-row" :class="getRowClass(boat)">
+                  <td colspan="8" class="race-cell">
+                    <span class="race-label">{{ $t('boat.selectedRace') }}&nbsp;:</span> {{ getRaceName(boat) }}
+                  </td>
+                </tr>
+              </template>
             </tbody>
           </table>
         </TableScrollIndicator>
@@ -243,6 +250,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import apiClient from '../../services/apiClient'
+import { useRaceStore } from '../../stores/raceStore'
 import TableScrollIndicator from '../../components/TableScrollIndicator.vue'
 import ListHeader from '../../components/shared/ListHeader.vue'
 import ListFilters from '../../components/shared/ListFilters.vue'
@@ -257,6 +265,7 @@ export default {
   setup() {
     const router = useRouter()
     const { t } = useI18n()
+    const raceStore = useRaceStore()
 
     const boats = ref([])
     const loading = ref(false)
@@ -413,6 +422,18 @@ export default {
       return `${day}/${month}/${year}`
     }
 
+    const getRaceName = (boat) => {
+      if (!boat.race_id) return null
+      const race = raceStore.races.find(r => r.race_id === boat.race_id)
+      if (!race || !race.name) return null
+      
+      // Try to get translation, fallback to original name if not found
+      const translationKey = `races.${race.name}`
+      const translated = t(translationKey)
+      // If translation key is returned as-is, it means no translation exists
+      return translated === translationKey ? race.name : translated
+    }
+
     const getBoatStatus = (boat) => {
       if (boat.forfait) return 'forfait'
       return boat.registration_status || 'incomplete'
@@ -526,7 +547,11 @@ export default {
       editingBoat.value = null
     }
 
-    onMounted(() => {
+    onMounted(async () => {
+      // Load races if not already loaded
+      if (raceStore.races.length === 0) {
+        await raceStore.fetchRaces()
+      }
       fetchBoats()
     })
 
@@ -559,6 +584,7 @@ export default {
       getBoatStatus,
       getBoatStatusLabel,
       getRowClass,
+      getRaceName,
       sortBy,
       clearFilters,
       toggleForfait,
@@ -717,6 +743,24 @@ export default {
 .boats-table tbody tr.row-forfait {
   border-left: 4px solid #dc3545;
   background-color: #fff5f5;
+}
+
+.boats-table .race-row {
+  background-color: #f8f9fa;
+  border-left-width: 4px;
+}
+
+.boats-table .race-cell {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: #495057;
+}
+
+.boats-table .race-label {
+  font-weight: 600;
+  font-style: normal;
+  color: #212529;
 }
 
 .status-badge {
