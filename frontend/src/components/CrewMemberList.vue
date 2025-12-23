@@ -1,44 +1,18 @@
 <template>
   <div class="crew-member-list">
-    <div class="list-header">
-      <h1>{{ $t('crew.list.title') }}</h1>
-      <div class="header-actions">
-        <div class="view-toggle">
-          <button 
-            @click="viewMode = 'cards'" 
-            :class="{ active: viewMode === 'cards' }"
-            class="btn-view"
-            :title="$t('common.cardView')"
-          >
-            ⊞
-          </button>
-          <button 
-            @click="viewMode = 'table'" 
-            :class="{ active: viewMode === 'table' }"
-            class="btn-view"
-            :title="$t('common.tableView')"
-          >
-            ☰
-          </button>
-        </div>
-        <button class="btn btn-primary" @click="showCreateForm = true">
-          {{ $t('crew.list.addNew') }}
-        </button>
-      </div>
-    </div>
+    <ListHeader
+      :title="$t('crew.list.title')"
+      v-model:viewMode="viewMode"
+      :actionLabel="$t('crew.list.addNew')"
+      @action="showCreateForm = true"
+    />
 
-    <!-- Filters and Search -->
-    <div class="filters">
-      <div class="search-box">
-        <input
-          v-model="searchQuery"
-          type="text"
-          :placeholder="$t('crew.list.search')"
-          class="search-input"
-        />
-      </div>
-      
-      <div class="filter-row">
+    <ListFilters
+      v-model:searchQuery="searchQuery"
+      :searchPlaceholder="$t('crew.list.search')"
+      @clear="clearFilters"
+    >
+      <template #filters>
         <div class="filter-group">
           <label>{{ $t('crew.list.status') }}&nbsp;:</label>
           <select v-model="filter" class="filter-select">
@@ -76,12 +50,8 @@
             <option value="created_at">{{ $t('crew.list.dateAdded') }}</option>
           </select>
         </div>
-
-        <button @click="clearFilters" class="filter-btn">
-          {{ $t('admin.boats.clearFilters') }}
-        </button>
-      </div>
-    </div>
+      </template>
+    </ListFilters>
 
     <!-- Loading State -->
     <div v-if="crewStore.loading" class="loading">
@@ -199,6 +169,8 @@ import { useCrewStore } from '../stores/crewStore';
 import { calculateAge, getAgeCategory, getMasterCategory } from '../utils/raceEligibility';
 import CrewMemberCard from './CrewMemberCard.vue';
 import CrewMemberForm from './CrewMemberForm.vue';
+import ListHeader from './shared/ListHeader.vue';
+import ListFilters from './shared/ListFilters.vue';
 
 const { t } = useI18n();
 const crewStore = useCrewStore();
@@ -377,100 +349,6 @@ const clearFilters = () => {
   padding: 0;
 }
 
-.list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.list-header h1 {
-  margin: 0;
-  color: #333;
-}
-
-.header-actions {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
-.view-toggle {
-  display: flex;
-  gap: 0.25rem;
-  background-color: #e9ecef;
-  border-radius: 4px;
-  padding: 0.25rem;
-}
-
-.btn-view {
-  padding: 0.5rem 0.75rem;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 1.25rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-  min-width: 44px;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-view:hover {
-  background-color: #dee2e6;
-}
-
-.btn-view.active {
-  background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.filters {
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.search-box {
-  margin-bottom: 0.75rem;
-}
-
-.search-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-.filter-row {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.filter-btn {
-  padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
-  background: white;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  white-space: nowrap;
-  transition: all 0.3s;
-}
-
-.filter-btn:hover {
-  background: #f5f5f5;
-}
-
 .filter-group {
   display: flex;
   align-items: center;
@@ -489,12 +367,6 @@ const clearFilters = () => {
   background: white;
   cursor: pointer;
   min-width: 120px;
-}
-
-.sort-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .sort-select {
@@ -710,50 +582,6 @@ const clearFilters = () => {
     padding: 0;
   }
 
-  .list-header {
-    flex-direction: column;
-    align-items: stretch;
-    margin-bottom: 1rem;
-    gap: 0.75rem;
-  }
-
-  .list-header h1 {
-    font-size: 1.5rem;
-  }
-
-  .header-actions {
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  /* Filters - stack vertically on mobile */
-  .filters {
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 0;
-  }
-
-  .search-box {
-    margin-bottom: 0.75rem;
-  }
-
-  .search-input {
-    font-size: 16px; /* Prevents iOS zoom */
-    min-height: 44px; /* Touch target */
-  }
-
-  .filter-row {
-    flex-direction: column;
-    gap: 0.75rem;
-    align-items: stretch;
-  }
-
-  .filter-btn {
-    width: 100%;
-    padding: 0.75rem;
-    min-height: 44px; /* Touch target */
-  }
-
   .filter-group {
     width: 100%;
     min-width: auto;
@@ -764,11 +592,6 @@ const clearFilters = () => {
     width: 100%;
     font-size: 16px; /* Prevents iOS zoom */
     min-height: 44px; /* Touch target */
-  }
-
-  .filter-btn {
-    width: 100%;
-    min-height: 44px;
   }
 
   /* Card grid - single column on mobile */

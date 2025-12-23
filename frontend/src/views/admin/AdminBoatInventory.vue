@@ -7,35 +7,13 @@
         </svg>
         {{ $t('common.back') }}
       </router-link>
-      <div class="header-content">
-        <div>
-          <h1>{{ $t('admin.boatInventory.title') }}</h1>
-          <p class="subtitle">{{ $t('admin.boatInventory.subtitle') }}</p>
-        </div>
-        <div class="header-actions">
-          <div class="view-toggle">
-            <button 
-              @click="viewMode = 'cards'" 
-              :class="{ active: viewMode === 'cards' }"
-              class="btn-view"
-              :title="$t('common.cardView')"
-            >
-              ⊞
-            </button>
-            <button 
-              @click="viewMode = 'table'" 
-              :class="{ active: viewMode === 'table' }"
-              class="btn-view"
-              :title="$t('common.tableView')"
-            >
-              ☰
-            </button>
-          </div>
-          <button @click="showAddBoatModal = true" class="btn-primary">
-            {{ $t('admin.boatInventory.addBoat') }}
-          </button>
-        </div>
-      </div>
+      <ListHeader
+        :title="$t('admin.boatInventory.title')"
+        :subtitle="$t('admin.boatInventory.subtitle')"
+        v-model:viewMode="viewMode"
+        :actionLabel="$t('admin.boatInventory.addBoat')"
+        @action="showAddBoatModal = true"
+      />
     </div>
 
     <div v-if="loading" class="loading">
@@ -50,29 +28,35 @@
 
     <div v-else>
       <!-- Filters -->
-      <div class="filters">
-        <div class="filter-group">
-          <label>{{ $t('admin.boatInventory.filterByType') }}</label>
-          <select v-model="filterType" @change="applyFilters" class="filter-select">
-            <option value="">{{ $t('admin.boatInventory.allTypes') }}</option>
-            <option v-for="type in boatTypes" :key="type" :value="type">{{ type }}</option>
-          </select>
-        </div>
+      <ListFilters
+        v-model:searchQuery="searchQuery"
+        :searchPlaceholder="$t('admin.boatInventory.searchPlaceholder')"
+        @clear="clearFilters"
+      >
+        <template #filters>
+          <div class="filter-group">
+            <label>{{ $t('admin.boatInventory.filterByType') }}&nbsp;:</label>
+            <select v-model="filterType" class="filter-select">
+              <option value="">{{ $t('admin.boatInventory.allTypes') }}</option>
+              <option v-for="type in boatTypes" :key="type" :value="type">{{ type }}</option>
+            </select>
+          </div>
 
-        <div class="filter-group">
-          <label>{{ $t('admin.boatInventory.filterByStatus') }}</label>
-          <select v-model="filterStatus" @change="applyFilters" class="filter-select">
-            <option value="">{{ $t('admin.boatInventory.allStatuses') }}</option>
-            <option v-for="status in allStatuses" :key="status" :value="status">
-              {{ $t(`admin.boatInventory.status.${status}`) }}
-            </option>
-          </select>
-        </div>
+          <div class="filter-group">
+            <label>{{ $t('admin.boatInventory.filterByStatus') }}&nbsp;:</label>
+            <select v-model="filterStatus" class="filter-select">
+              <option value="">{{ $t('admin.boatInventory.allStatuses') }}</option>
+              <option v-for="status in allStatuses" :key="status" :value="status">
+                {{ $t(`admin.boatInventory.status.${status}`) }}
+              </option>
+            </select>
+          </div>
 
-        <div class="filter-stats">
-          {{ $t('admin.boatInventory.showing') }}: {{ filteredBoats.length }} {{ $t('admin.boatInventory.boats') }}
-        </div>
-      </div>
+          <div class="filter-stats">
+            {{ $t('admin.boatInventory.showing') }}: {{ filteredBoats.length }} {{ $t('admin.boatInventory.boats') }}
+          </div>
+        </template>
+      </ListFilters>
 
       <!-- Card View -->
       <div v-if="viewMode === 'cards'" class="boats-grid">
@@ -377,6 +361,8 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import apiClient from '../../services/apiClient';
+import ListHeader from '../../components/shared/ListHeader.vue';
+import ListFilters from '../../components/shared/ListFilters.vue';
 
 const router = useRouter();
 const { t } = useI18n();
@@ -385,6 +371,7 @@ const loading = ref(true);
 const error = ref(null);
 const boats = ref([]);
 const viewMode = ref(localStorage.getItem('adminBoatInventoryViewMode') || 'table');
+const searchQuery = ref('');
 
 const boatTypes = ['skiff', '4-', '4+', '4x-', '4x+', '8+', '8x+'];
 // All possible statuses (for filtering)
@@ -436,6 +423,16 @@ const editForm = ref({
 const filteredBoats = computed(() => {
   let result = boats.value;
 
+  // Apply search filter
+  if (searchQuery.value) {
+    const search = searchQuery.value.toLowerCase();
+    result = result.filter(boat =>
+      boat.boat_name?.toLowerCase().includes(search) ||
+      boat.boat_type?.toLowerCase().includes(search) ||
+      boat.requester?.toLowerCase().includes(search)
+    );
+  }
+
   if (filterType.value) {
     result = result.filter(b => b.boat_type === filterType.value);
   }
@@ -462,8 +459,10 @@ const loadBoats = async () => {
   }
 };
 
-const applyFilters = () => {
-  // Filters are reactive, no action needed
+const clearFilters = () => {
+  filterType.value = '';
+  filterStatus.value = '';
+  searchQuery.value = '';
 };
 
 const closeAddBoatModal = () => {
@@ -641,65 +640,6 @@ onMounted(() => {
   text-decoration: underline;
 }
 
-.header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 2rem;
-}
-
-.header-actions {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
-.view-toggle {
-  display: flex;
-  gap: 0.5rem;
-  background: white;
-  padding: 0.25rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.btn-view {
-  padding: 0.5rem 1rem;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 1.25rem;
-  border-radius: 6px;
-  transition: all 0.2s;
-  color: #6c757d;
-}
-
-.btn-view:hover {
-  background: #f8f9fa;
-  color: #495057;
-}
-
-.btn-view.active {
-  background: #3498db;
-  color: white;
-}
-
-.page-header h1 {
-  font-size: 2rem;
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
-}
-
-.subtitle {
-  color: #7f8c8d;
-  font-size: 1.1rem;
-}
-
-.btn-icon {
-  font-size: 1.2rem;
-  margin-right: 0.5rem;
-}
-
 .loading {
   text-align: center;
   padding: 3rem;
@@ -721,42 +661,35 @@ onMounted(() => {
 }
 
 /* Filters */
-.filters {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: flex-end;
-}
-
 .filter-group {
-  flex: 0 1 auto;
-  min-width: 150px;
-  max-width: 250px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .filter-group label {
-  display: block;
   font-weight: 500;
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
+  white-space: nowrap;
 }
 
 .filter-select {
-  width: 100%;
   padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  font-size: 0.95rem;
+  background: white;
+  cursor: pointer;
+  min-width: 120px;
+  min-height: 44px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .filter-stats {
-  flex: 1 1 auto;
+  flex: 1;
   text-align: right;
   color: #7f8c8d;
   font-size: 0.9rem;
@@ -1438,30 +1371,6 @@ onMounted(() => {
 
   .page-header {
     margin-bottom: 1rem;
-  }
-
-  .header-content {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-
-  .header-actions {
-    flex-direction: row;
-    width: 100%;
-  }
-
-  .view-toggle {
-    flex-shrink: 0;
-  }
-
-  .btn-primary {
-    flex: 1;
-    padding: 0.75rem 0.5rem;
-    font-size: 0.85rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   .modal-overlay {

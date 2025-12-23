@@ -1,44 +1,17 @@
 <template>
   <div class="admin-crew-members">
-    <div class="list-header">
-      <div>
-        <h1>{{ $t('admin.crewMembers.title') }}</h1>
-        <p class="subtitle">{{ $t('admin.crewMembers.subtitle') }}</p>
-      </div>
-      <div class="header-actions">
-        <div class="view-toggle">
-          <button 
-            @click="viewMode = 'cards'" 
-            :class="{ active: viewMode === 'cards' }"
-            class="btn-view"
-            :title="$t('common.cardView')"
-          >
-            ⊞
-          </button>
-          <button 
-            @click="viewMode = 'table'" 
-            :class="{ active: viewMode === 'table' }"
-            class="btn-view"
-            :title="$t('common.tableView')"
-          >
-            ☰
-          </button>
-        </div>
-      </div>
-    </div>
+    <ListHeader
+      :title="$t('admin.crewMembers.title')"
+      :subtitle="$t('admin.crewMembers.subtitle')"
+      v-model:viewMode="viewMode"
+    />
 
-    <!-- Filters -->
-    <div class="filters">
-      <div class="search-box">
-        <input
-          v-model="searchTerm"
-          type="text"
-          :placeholder="$t('admin.crewMembers.searchPlaceholder')"
-          class="search-input"
-        />
-      </div>
-
-      <div class="filter-row">
+    <ListFilters
+      v-model:searchQuery="searchTerm"
+      :searchPlaceholder="$t('admin.crewMembers.searchPlaceholder')"
+      @clear="clearFilters"
+    >
+      <template #filters>
         <div class="filter-group">
           <label>{{ $t('crew.list.status') }}&nbsp;:</label>
           <select v-model="assignedFilter" class="filter-select">
@@ -77,12 +50,8 @@
             <option value="master">{{ $t('boat.master') }}</option>
           </select>
         </div>
-
-        <button @click="clearFilters" class="filter-btn">
-          {{ $t('admin.crewMembers.clearFilters') }}
-        </button>
-      </div>
-    </div>
+      </template>
+    </ListFilters>
 
     <!-- Loading state -->
     <div v-if="loading" class="loading">
@@ -328,9 +297,15 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import apiClient from '../../services/apiClient';
 import { calculateAge, getAgeCategory, getMasterCategory } from '../../utils/raceEligibility';
+import ListHeader from '../../components/shared/ListHeader.vue';
+import ListFilters from '../../components/shared/ListFilters.vue';
 
 export default {
   name: 'AdminCrewMembers',
+  components: {
+    ListHeader,
+    ListFilters
+  },
   setup() {
     const { t } = useI18n();
 
@@ -674,128 +649,26 @@ export default {
   margin: 0 auto;
 }
 
-.list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.list-header h1 {
-  font-size: 2rem;
-  color: #2c3e50;
-  margin: 0 0 0.5rem 0;
-}
-
-.subtitle {
-  color: #7f8c8d;
-  font-size: 1rem;
-  margin: 0;
-}
-
-.header-actions {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
-.view-toggle {
-  display: flex;
-  gap: 0.5rem;
-  background: white;
-  padding: 0.25rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.btn-view {
-  padding: 0.5rem 1rem;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 1.25rem;
-  border-radius: 6px;
-  transition: all 0.2s;
-  color: #6c757d;
-}
-
-.btn-view:hover {
-  background: #f8f9fa;
-  color: #495057;
-}
-
-.btn-view.active {
-  background: #007bff;
-  color: white;
-}
-
-.filters {
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.search-box {
-  margin-bottom: 0.75rem;
-}
-
-.search-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-.filter-row {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.filter-btn {
-  padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
-  background: white;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.filter-btn:hover {
-  background: #f5f5f5;
-}
-
-.filter-btn.active {
-  background: #4CAF50;
-  color: white;
-  border-color: #4CAF50;
-}
-
 .filter-group {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 0.5rem;
+  flex: 1;
+  min-width: 200px;
 }
 
 .filter-group label {
   font-weight: 500;
-  white-space: nowrap;
+  color: #495057;
+  font-size: 0.875rem;
 }
 
 .filter-select,
 .filter-input {
   padding: 0.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid #dee2e6;
   border-radius: 4px;
-  background: white;
-  cursor: pointer;
-  min-width: 120px;
+  font-size: 0.875rem;
 }
 
 .loading {
@@ -1718,36 +1591,6 @@ button:disabled {
     padding: 1rem;
   }
 
-  .list-header {
-    flex-direction: column;
-    align-items: stretch;
-    margin-bottom: 1rem;
-  }
-
-  .header-actions {
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  .view-toggle {
-    width: auto;
-  }
-
-  .filters {
-    padding: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .search-input {
-    font-size: 16px;
-    min-height: 44px;
-  }
-
-  .filter-row {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
   .filter-group {
     flex-direction: column;
     align-items: stretch;
@@ -1762,11 +1605,6 @@ button:disabled {
   .filter-input {
     width: 100%;
     font-size: 16px;
-    min-height: 44px;
-  }
-
-  .filter-btn {
-    width: 100%;
     min-height: 44px;
   }
 

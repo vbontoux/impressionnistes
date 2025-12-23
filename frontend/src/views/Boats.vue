@@ -1,44 +1,18 @@
 <template>
   <div class="boats-view">
-    <div class="header">
-      <h1>{{ $t('nav.boats') }}</h1>
-      <div class="header-actions">
-        <div class="view-toggle">
-          <button 
-            @click="viewMode = 'cards'" 
-            :class="{ active: viewMode === 'cards' }"
-            class="btn-view"
-            :title="$t('common.cardView')"
-          >
-            ⊞
-          </button>
-          <button 
-            @click="viewMode = 'table'" 
-            :class="{ active: viewMode === 'table' }"
-            class="btn-view"
-            :title="$t('common.tableView')"
-          >
-            ☰
-          </button>
-        </div>
-        <button @click="showCreateForm = true" class="btn-primary">
-          {{ $t('boat.addNew') }}
-        </button>
-      </div>
-    </div>
+    <ListHeader
+      :title="$t('nav.boats')"
+      v-model:viewMode="viewMode"
+      :actionLabel="$t('boat.addNew')"
+      @action="showCreateForm = true"
+    />
 
-    <!-- Filters and Search -->
-    <div class="filters">
-      <div class="search-box">
-        <input
-          v-model="searchQuery"
-          type="text"
-          :placeholder="$t('boat.searchPlaceholder')"
-          class="search-input"
-        />
-      </div>
-      
-      <div class="filter-row">
+    <ListFilters
+      v-model:searchQuery="searchQuery"
+      :searchPlaceholder="$t('boat.searchPlaceholder')"
+      @clear="clearFilters"
+    >
+      <template #filters>
         <div class="filter-group">
           <label>{{ $t('boat.status.label') }}&nbsp;:</label>
           <select v-model="statusFilter" class="filter-select">
@@ -48,12 +22,8 @@
             <option value="paid">{{ $t('boat.status.paid') }}</option>
           </select>
         </div>
-        
-        <button @click="clearFilters" class="filter-btn">
-          {{ $t('admin.boats.clearFilters') }}
-        </button>
-      </div>
-    </div>
+      </template>
+    </ListFilters>
 
     <!-- Create Form Modal -->
     <div v-if="showCreateForm" class="modal-overlay" @click.self="showCreateForm = false">
@@ -211,11 +181,15 @@ import { useBoatStore } from '../stores/boatStore'
 import { useRaceStore } from '../stores/raceStore'
 import { useI18n } from 'vue-i18n'
 import BoatRegistrationForm from '../components/BoatRegistrationForm.vue'
+import ListHeader from '../components/shared/ListHeader.vue'
+import ListFilters from '../components/shared/ListFilters.vue'
 
 export default {
   name: 'BoatsView',
   components: {
-    BoatRegistrationForm
+    BoatRegistrationForm,
+    ListHeader,
+    ListFilters
   },
   setup() {
     const router = useRouter()
@@ -392,81 +366,6 @@ export default {
   margin: 0 auto;
 }
 
-.loading {
-  text-align: center;
-  padding: 2rem 1rem;
-  color: #666;
-}
-
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #4CAF50;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.header {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  margin-bottom: 1.5rem;
-  gap: 1rem;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-.header-actions {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.filters {
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.search-box {
-  margin-bottom: 0.75rem;
-}
-
-.search-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  min-height: 44px;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-}
-
-.filter-row {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
 .filter-group {
   display: flex;
   align-items: center;
@@ -494,74 +393,25 @@ export default {
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
-.filter-btn {
-  padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
-  background: white;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  white-space: nowrap;
-  transition: all 0.3s;
-  min-height: 44px;
+.loading {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #666;
 }
 
-.filter-btn:hover {
-  background: #f5f5f5;
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #4CAF50;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
 }
 
-.filter-btn:active {
-  background: #e9ecef;
-}
-
-.view-toggle {
-  display: flex;
-  gap: 0.25rem;
-  background-color: #e9ecef;
-  border-radius: 4px;
-  padding: 0.25rem;
-  width: 100%;
-}
-
-.btn-view {
-  flex: 1;
-  padding: 0.75rem;
-  min-height: 44px;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 1.25rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-  touch-action: manipulation;
-}
-
-.btn-view:active {
-  background-color: #dee2e6;
-}
-
-.btn-view.active {
-  background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.btn-primary {
-  width: 100%;
-  padding: 0.875rem 1rem;
-  min-height: 44px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
-  touch-action: manipulation;
-}
-
-.btn-primary:active {
-  background-color: #0056b3;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .modal-overlay {
@@ -926,41 +776,6 @@ export default {
 
 /* Mobile Responsive */
 @media (max-width: 767px) {
-  .header-actions {
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 1rem;
-    width: 100%;
-  }
-
-  .view-toggle {
-    flex-shrink: 0;
-    width: auto;
-  }
-
-  .btn-primary {
-    flex-shrink: 0;
-    width: auto;
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
-  }
-
-  .filters {
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 0;
-  }
-
-  .search-input {
-    font-size: 16px; /* Prevents iOS zoom */
-  }
-
-  .filter-row {
-    flex-direction: column;
-    gap: 0.75rem;
-    align-items: stretch;
-  }
-
   .filter-group {
     width: 100%;
   }
@@ -969,55 +784,16 @@ export default {
     width: 100%;
     font-size: 16px; /* Prevents iOS zoom */
   }
-
-  .filter-btn {
-    width: 100%;
-    min-height: 44px;
-  }
 }
 
 /* Tablet and larger screens */
 @media (min-width: 768px) {
-  .header {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-  }
-
-  .header h1 {
-    font-size: 2rem;
-  }
-
-  .header-actions {
-    gap: 1rem;
-    width: auto;
-  }
-
   .filter-group {
     width: auto;
   }
 
-  .view-toggle {
-    width: auto;
-  }
-
-  .btn-view {
-    flex: 0;
-    padding: 0.5rem 0.75rem;
-  }
-
-  .btn-view:hover {
-    background-color: #dee2e6;
-  }
-
-  .btn-primary {
-    width: auto;
-    padding: 0.5rem 1rem;
-  }
-
-  .btn-primary:hover {
-    background-color: #0056b3;
+  .loading {
+    padding: 3rem;
   }
 
   .modal-overlay {
@@ -1029,10 +805,6 @@ export default {
     border-radius: 8px;
     width: 90%;
     max-width: 600px;
-  }
-
-  .loading {
-    padding: 3rem;
   }
 
   .empty-state {

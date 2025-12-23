@@ -141,6 +141,7 @@
       "title": "Bateaux à louer",
       "subtitle": "Gérer les bateaux disponibles à la location",
       "addBoat": "Ajouter un bateau",
+      "searchPlaceholder": "Rechercher par nom de bateau, type ou demandeur...",
       "filterByType": "Filtrer par type",
       "filterByStatus": "Filtrer par statut",
       "allTypes": "Tous les types",

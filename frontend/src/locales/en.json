@@ -141,6 +141,7 @@
       "title": "Rental Boats",
       "subtitle": "Manage boats available for rental",
       "addBoat": "Add Boat",
+      "searchPlaceholder": "Search by boat name, type, or requester...",
       "filterByType": "Filter by type",
       "filterByStatus": "Filter by status",
       "allTypes": "All types",

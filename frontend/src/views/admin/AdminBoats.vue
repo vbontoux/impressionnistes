@@ -1,47 +1,19 @@
 <template>
   <div class="admin-boats">
-    <div class="list-header">
-      <div>
-        <h1>{{ $t('admin.boats.title') }}</h1>
-        <p class="subtitle">{{ $t('admin.boats.subtitle') }}</p>
-      </div>
-      <div class="header-actions">
-        <div class="view-toggle">
-          <button 
-            @click="viewMode = 'cards'" 
-            :class="{ active: viewMode === 'cards' }"
-            class="btn-view"
-            :title="$t('common.cardView')"
-          >
-            ⊞
-          </button>
-          <button 
-            @click="viewMode = 'table'" 
-            :class="{ active: viewMode === 'table' }"
-            class="btn-view"
-            :title="$t('common.tableView')"
-          >
-            ☰
-          </button>
-        </div>
-        <button @click="showCreateModal = true" class="btn-primary">
-          {{ $t('admin.boats.addBoat') }}
-        </button>
-      </div>
-    </div>
+    <ListHeader
+      :title="$t('admin.boats.title')"
+      :subtitle="$t('admin.boats.subtitle')"
+      v-model:viewMode="viewMode"
+      :actionLabel="$t('admin.boats.addBoat')"
+      @action="showCreateModal = true"
+    />
 
-    <!-- Filters -->
-    <div class="filters">
-      <div class="search-box">
-        <input
-          v-model="searchTerm"
-          type="text"
-          :placeholder="$t('admin.boats.searchPlaceholder')"
-          class="search-input"
-        />
-      </div>
-
-      <div class="filter-row">
+    <ListFilters
+      v-model:searchQuery="searchTerm"
+      :searchPlaceholder="$t('admin.boats.searchPlaceholder')"
+      @clear="clearFilters"
+    >
+      <template #filters>
         <div class="filter-group">
           <label>{{ $t('admin.boats.filterByTeamManager') }}&nbsp;:</label>
           <select v-model="filterTeamManager" class="filter-select">
@@ -72,12 +44,8 @@
             <option value="forfait">{{ $t('admin.boats.forfait') }}</option>
           </select>
         </div>
-
-        <button @click="clearFilters" class="filter-btn">
-          {{ $t('admin.boats.clearFilters') }}
-        </button>
-      </div>
-    </div>
+      </template>
+    </ListFilters>
 
     <!-- Loading state -->
     <div v-if="loading" class="loading">
@@ -276,11 +244,15 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import apiClient from '../../services/apiClient'
 import TableScrollIndicator from '../../components/TableScrollIndicator.vue'
+import ListHeader from '../../components/shared/ListHeader.vue'
+import ListFilters from '../../components/shared/ListFilters.vue'
 
 export default {
   name: 'AdminBoats',
   components: {
-    TableScrollIndicator
+    TableScrollIndicator,
+    ListHeader,
+    ListFilters
   },
   setup() {
     const router = useRouter()
@@ -630,88 +602,6 @@ export default {
   margin: 0 auto;
 }
 
-.list-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.list-header h1 {
-  margin: 0 0 0.5rem 0;
-  color: #212529;
-}
-
-.subtitle {
-  color: #6c757d;
-  margin: 0;
-}
-
-.header-actions {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
-.view-toggle {
-  display: flex;
-  gap: 0.5rem;
-  background: white;
-  padding: 0.25rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.btn-view {
-  padding: 0.5rem 1rem;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 1.25rem;
-  border-radius: 6px;
-  transition: all 0.2s;
-  color: #6c757d;
-}
-
-.btn-view:hover {
-  background: #f8f9fa;
-  color: #495057;
-}
-
-.btn-view.active {
-  background: #007bff;
-  color: white;
-}
-
-.filters {
-  background-color: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.search-box {
-  margin-bottom: 1rem;
-}
-
-.search-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-.filter-row {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  align-items: flex-end;
-}
-
 .filter-group {
   display: flex;
   flex-direction: column;
@@ -732,21 +622,6 @@ export default {
   border: 1px solid #dee2e6;
   border-radius: 4px;
   font-size: 0.875rem;
-}
-
-.filter-btn {
-  padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
-  background: white;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  white-space: nowrap;
-  transition: all 0.3s;
-}
-
-.filter-btn:hover {
-  background: #f5f5f5;
 }
 
 .loading {
@@ -981,20 +856,6 @@ export default {
 
 .page-info {
   color: #6c757d;
-}
-
-.btn-primary {
-  padding: 0.75rem 1.5rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
 }
 
 /* Modal styles */
