@@ -5,23 +5,25 @@
         <h1>{{ $t('admin.crewMembers.title') }}</h1>
         <p class="subtitle">{{ $t('admin.crewMembers.subtitle') }}</p>
       </div>
-      <div class="view-toggle">
-        <button 
-          @click="viewMode = 'cards'" 
-          :class="{ active: viewMode === 'cards' }"
-          class="btn-view"
-          :title="$t('common.cardView')"
-        >
-          ⊞
-        </button>
-        <button 
-          @click="viewMode = 'table'" 
-          :class="{ active: viewMode === 'table' }"
-          class="btn-view"
-          :title="$t('common.tableView')"
-        >
-          ☰
-        </button>
+      <div class="header-actions">
+        <div class="view-toggle">
+          <button 
+            @click="viewMode = 'cards'" 
+            :class="{ active: viewMode === 'cards' }"
+            class="btn-view"
+            :title="$t('common.cardView')"
+          >
+            ⊞
+          </button>
+          <button 
+            @click="viewMode = 'table'" 
+            :class="{ active: viewMode === 'table' }"
+            class="btn-view"
+            :title="$t('common.tableView')"
+          >
+            ☰
+          </button>
+        </div>
       </div>
     </div>
 
@@ -691,6 +693,12 @@ export default {
   color: #7f8c8d;
   font-size: 1rem;
   margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
 .view-toggle {
@@ -1716,9 +1724,13 @@ button:disabled {
     margin-bottom: 1rem;
   }
 
+  .header-actions {
+    justify-content: space-between;
+    width: 100%;
+  }
+
   .view-toggle {
     width: auto;
-    align-self: flex-start;
   }
 
   .filters {
