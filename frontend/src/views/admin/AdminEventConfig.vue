@@ -623,6 +623,8 @@ onMounted(() => {
 @media (max-width: 768px) {
   .admin-event-config {
     padding: 1rem;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .page-header {
@@ -646,11 +648,15 @@ onMounted(() => {
 
   .config-form {
     padding: 1.25rem;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .form-section {
     margin-bottom: 1.5rem;
     padding-bottom: 1.5rem;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .form-section h2 {
@@ -660,6 +666,12 @@ onMounted(() => {
   .race-config-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
+    max-width: 100%;
+  }
+
+  .race-config-column {
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .race-type-title {
@@ -668,6 +680,7 @@ onMounted(() => {
 
   .form-group {
     margin-bottom: 1.25rem;
+    max-width: 100%;
   }
 
   .form-group label {
@@ -678,11 +691,23 @@ onMounted(() => {
     min-height: 44px;
     font-size: 16px; /* Prevent iOS zoom */
     padding: 0.625rem 0.75rem;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Specific fixes for date and time inputs */
+  input[type="date"],
+  input[type="time"],
+  input[type="number"] {
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .help-text,
   .error-text {
     font-size: 0.8rem;
+    word-wrap: break-word;
   }
 
   .form-actions {
