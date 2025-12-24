@@ -164,7 +164,7 @@ diff:
 	@echo "Showing changes for $(ENV) environment..."
 	@. $(VENV)/bin/activate && $(CDK) diff --all --context env=$(ENV)
 
-deploy: build-layer
+deploy: build-layer build-frontend
 	@echo "Deploying to $(ENV) environment..."
 	@. $(VENV)/bin/activate && $(CDK) deploy --all --context env=$(ENV) --require-approval never
 	@echo "✓ Deployment complete"
