@@ -51,6 +51,7 @@ def lambda_handler(event, context):
             initialize_system_config(table, environment)
             initialize_pricing_config(table)
             initialize_notification_config(table)
+            initialize_race_timing_config(table)
             initialize_race_definitions(table)
             initialize_rowing_clubs(table)
             
@@ -162,6 +163,29 @@ def initialize_notification_config(table):
         print("Notification configuration initialized")
     except dynamodb.meta.client.exceptions.ConditionalCheckFailedException:
         print("Notification configuration already exists - skipping")
+
+
+def initialize_race_timing_config(table):
+    """Initialize race timing configuration with default values"""
+    race_timing_config = {
+        'PK': 'CONFIG',
+        'SK': 'RACE_TIMING',
+        'marathon_start_time': '07:45',  # Start time for marathon races (HH:MM format)
+        'semi_marathon_start_time': '09:00',  # Start time for semi-marathon races (HH:MM format)
+        'semi_marathon_interval_seconds': 30,  # Time interval between boat starts for semi-marathon (in seconds)
+        'created_at': datetime.utcnow().isoformat() + 'Z',
+        'updated_at': datetime.utcnow().isoformat() + 'Z',
+        'updated_by': 'system',
+    }
+    
+    try:
+        table.put_item(
+            Item=race_timing_config,
+            ConditionExpression='attribute_not_exists(PK)'
+        )
+        print("Race timing configuration initialized")
+    except dynamodb.meta.client.exceptions.ConditionalCheckFailedException:
+        print("Race timing configuration already exists - skipping")
 
 
 def initialize_race_definitions(table):

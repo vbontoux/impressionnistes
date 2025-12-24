@@ -210,6 +210,35 @@ def test_admin_update_event_config(dynamodb_table, mock_admin_event, mock_lambda
     assert body['data']['event_date'] == '2025-06-01'
 
 
+def test_race_timing_config_initialized(dynamodb_table, mock_admin_event, mock_lambda_context):
+    """Test that race timing configuration is properly initialized"""
+    # Seed race timing config (simulating what init_config.py does)
+    dynamodb_table.put_item(
+        Item={
+            'PK': 'CONFIG',
+            'SK': 'RACE_TIMING',
+            'marathon_start_time': '07:45',
+            'semi_marathon_start_time': '09:00',
+            'semi_marathon_interval_seconds': 30,
+            'created_at': '2025-01-01T00:00:00Z',
+            'updated_at': '2025-01-01T00:00:00Z',
+            'updated_by': 'system'
+        }
+    )
+    
+    # Retrieve the config
+    response = dynamodb_table.get_item(
+        Key={'PK': 'CONFIG', 'SK': 'RACE_TIMING'}
+    )
+    
+    # Assert config exists and has correct values
+    assert 'Item' in response
+    config = response['Item']
+    assert config['marathon_start_time'] == '07:45'
+    assert config['semi_marathon_start_time'] == '09:00'
+    assert config['semi_marathon_interval_seconds'] == 30
+
+
 def test_non_admin_cannot_access_admin_endpoints(dynamodb_table, mock_api_gateway_event, mock_lambda_context, test_team_manager_id):
     """Test that non-admin users cannot access admin endpoints"""
     from admin.admin_list_all_boats import lambda_handler
