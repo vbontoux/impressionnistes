@@ -42,6 +42,16 @@ def lambda_handler(event, context):
         competition_date = config.get('competition_date', '2025-05-01')
         logger.info(f"Competition date: {competition_date}")
         
+        # Get race timing configuration
+        race_timing_response = db.table.get_item(
+            Key={'PK': 'CONFIG', 'SK': 'RACE_TIMING'}
+        )
+        race_timing = race_timing_response.get('Item', {})
+        marathon_start_time = race_timing.get('marathon_start_time', '07:45')
+        semi_marathon_start_time = race_timing.get('semi_marathon_start_time', '09:00')
+        semi_marathon_interval_seconds = race_timing.get('semi_marathon_interval_seconds', 30)
+        logger.info(f"Race timing - Marathon: {marathon_start_time}, Semi-Marathon: {semi_marathon_start_time}, Interval: {semi_marathon_interval_seconds}s")
+        
         # Get all races
         races_response = db.table.query(
             KeyConditionExpression='PK = :pk',
@@ -204,7 +214,10 @@ def lambda_handler(event, context):
         # Return comprehensive JSON response
         return success_response(data={
             'config': {
-                'competition_date': competition_date
+                'competition_date': competition_date,
+                'marathon_start_time': marathon_start_time,
+                'semi_marathon_start_time': semi_marathon_start_time,
+                'semi_marathon_interval_seconds': semi_marathon_interval_seconds
             },
             'races': simplified_races,
             'boats': simplified_boats,

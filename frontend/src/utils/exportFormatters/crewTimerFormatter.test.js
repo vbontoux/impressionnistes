@@ -5,7 +5,8 @@
 import { 
   formatRacesToCrewTimer,
   calculateAverageAge,
-  getStrokeSeatName
+  getStrokeSeatName,
+  formatTime12Hour
 } from './crewTimerFormatter.js';
 
 console.log('=== Testing CrewTimer Formatter ===\n');
@@ -331,6 +332,56 @@ assert(result9[0].Age === 35, 'First boat age correct (from crew_composition)');
 assert(result9[1].Age === 16, 'Second boat age correct (from crew_composition, rounded from 16.25)');
 console.log('');
 
+// Test 10: Time formatting (12-hour format with AM/PM)
+console.log('Test 10: Time formatting (12-hour format with AM/PM)');
+assert(formatTime12Hour('07:45', 0) === '7:45:00 AM', '7:45 AM formatted correctly');
+assert(formatTime12Hour('09:00', 0) === '9:00:00 AM', '9:00 AM formatted correctly');
+assert(formatTime12Hour('12:00', 0) === '12:00:00 PM', '12:00 PM formatted correctly');
+assert(formatTime12Hour('13:30', 0) === '1:30:00 PM', '1:30 PM formatted correctly');
+assert(formatTime12Hour('00:00', 0) === '12:00:00 AM', 'Midnight formatted correctly');
+assert(formatTime12Hour('09:00', 30) === '9:00:30 AM', '30 seconds added correctly');
+assert(formatTime12Hour('09:00', 90) === '9:01:30 AM', '90 seconds (1:30) added correctly');
+assert(formatTime12Hour('09:00', 3600) === '10:00:00 AM', '1 hour added correctly');
+console.log('');
+
+// Test 11: Event times in CrewTimer export
+console.log('Test 11: Event times in CrewTimer export');
+const testData11 = {
+  success: true,
+  data: {
+    config: { 
+      competition_date: '2025-05-01',
+      marathon_start_time: '07:45',
+      semi_marathon_start_time: '09:00',
+      semi_marathon_interval_seconds: 30
+    },
+    races: [
+      { race_id: 'M1', name: 'Marathon Skiff', distance: 42, event_type: '42km', boat_type: 'skiff' },
+      { race_id: 'SM1', name: 'Semi 4+', distance: 21, event_type: '21km', boat_type: '4+' }
+    ],
+    boats: [
+      { boat_registration_id: 'b1', race_id: 'M1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 35 } },
+      { boat_registration_id: 'b2', race_id: 'M1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 40 } },
+      { boat_registration_id: 'b3', race_id: 'SM1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 25 } },
+      { boat_registration_id: 'b4', race_id: 'SM1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 30 } },
+      { boat_registration_id: 'b5', race_id: 'SM1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 28 } }
+    ],
+    crew_members: [],
+    team_managers: []
+  }
+};
+
+const result11 = formatRacesToCrewTimer(testData11);
+assert(result11.length === 5, 'All 5 boats included');
+// Marathon boats should all have same start time
+assert(result11[0]['Event Time'] === '7:45:00 AM', 'First marathon boat at 7:45 AM');
+assert(result11[1]['Event Time'] === '7:45:00 AM', 'Second marathon boat at 7:45 AM');
+// Semi-marathon boats should have incremental times
+assert(result11[2]['Event Time'] === '9:00:00 AM', 'First semi-marathon boat at 9:00 AM');
+assert(result11[3]['Event Time'] === '9:00:30 AM', 'Second semi-marathon boat at 9:00:30 AM');
+assert(result11[4]['Event Time'] === '9:01:00 AM', 'Third semi-marathon boat at 9:01:00 AM');
+console.log('');
+
 // Summary
 console.log('=== Test Summary ===');
 console.log(`Total: ${passCount + failCount} tests`);
@@ -343,3 +394,4 @@ if (failCount === 0) {
   console.log(`\n✗ ${failCount} test(s) failed`);
   process.exit(1);
 }
+

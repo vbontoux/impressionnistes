@@ -7,6 +7,42 @@ import * as XLSX from 'xlsx'
 import { formatDateForFilename } from './shared.js'
 
 /**
+ * Format time in 12-hour format with AM/PM (e.g., "7:00:00 AM")
+ * @param {string} time24 - Time in 24-hour format (HH:MM)
+ * @param {number} additionalSeconds - Additional seconds to add to the time
+ * @returns {string} - Time in 12-hour format with AM/PM
+ */
+export function formatTime12Hour(time24, additionalSeconds = 0) {
+  if (!time24) return ''
+  
+  try {
+    // Parse HH:MM format
+    const [hours, minutes] = time24.split(':').map(Number)
+    
+    // Calculate total seconds
+    let totalSeconds = hours * 3600 + minutes * 60 + additionalSeconds
+    
+    // Handle day overflow (shouldn't happen in practice)
+    totalSeconds = totalSeconds % 86400
+    
+    // Convert back to hours, minutes, seconds
+    const finalHours = Math.floor(totalSeconds / 3600)
+    const finalMinutes = Math.floor((totalSeconds % 3600) / 60)
+    const finalSeconds = totalSeconds % 60
+    
+    // Convert to 12-hour format
+    const period = finalHours >= 12 ? 'PM' : 'AM'
+    const hours12 = finalHours === 0 ? 12 : (finalHours > 12 ? finalHours - 12 : finalHours)
+    
+    // Format as H:MM:SS AM/PM (no leading zero for hours)
+    return `${hours12}:${String(finalMinutes).padStart(2, '0')}:${String(finalSeconds).padStart(2, '0')} ${period}`
+  } catch (error) {
+    console.error('Error formatting time:', error)
+    return ''
+  }
+}
+
+/**
  * Translate short_name from English to French
  * Only translates gender markers (second position): W (woman) → F (femme), X (mixed) → M (mixte), M (men) → H (homme)
  * Age category markers (first position like M for Master, S for Senior, J for Junior) remain unchanged
@@ -134,11 +170,16 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
     throw new Error('Invalid data format: expected data object')
   }
   
-  const { races, boats, crew_members, team_managers } = jsonData.data
+  const { races, boats, crew_members, team_managers, config } = jsonData.data
   
   if (!races || !boats || !crew_members) {
     throw new Error('Invalid data format: expected races, boats, and crew_members arrays')
   }
+  
+  // Get race timing configuration
+  const marathonStartTime = config?.marathon_start_time || '07:45'
+  const semiMarathonStartTime = config?.semi_marathon_start_time || '09:00'
+  const semiMarathonIntervalSeconds = config?.semi_marathon_interval_seconds || 30
   
   // Create lookup dictionaries
   const crewMembersDict = {}
@@ -195,6 +236,7 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
   const crewTimerData = []
   let eventNum = 0
   let bowNum = 1
+  let semiMarathonBoatCount = 0 // Track boat count for semi-marathon interval calculation
   
   for (const race of sortedRaces) {
     const raceId = race.race_id
@@ -207,6 +249,9 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
     // Increment event number for this race
     eventNum += 1
     
+    // Determine if this is a marathon or semi-marathon race
+    const isMarathon = race.distance === 42 || race.event_type === '42km'
+    
     // Use the original race name from database (not the generated semi-marathon name)
     // This ensures proper translation via i18n
     const fullRaceName = t ? t(`races.${race.name}`, race.name) : race.name
@@ -218,6 +263,18 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
       : shortName
     
     for (const boat of raceBoats) {
+      // Calculate event time based on race type
+      let eventTime = ''
+      if (isMarathon) {
+        // All marathon boats start at the same time
+        eventTime = formatTime12Hour(marathonStartTime, 0)
+      } else {
+        // Semi-marathon boats start with intervals
+        const additionalSeconds = semiMarathonBoatCount * semiMarathonIntervalSeconds
+        eventTime = formatTime12Hour(semiMarathonStartTime, additionalSeconds)
+        semiMarathonBoatCount++
+      }
+      
       // Get team manager and club
       const teamManagerId = boat.team_manager_id
       const teamManager = teamManagersDict[teamManagerId] || {}
@@ -235,7 +292,7 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
       
       // Build row
       const row = {
-        'Event Time': '',
+        'Event Time': eventTime,
         'Event Num': eventNum,
         'Event': fullRaceName,
         'Event Abbrev': translatedShortName,

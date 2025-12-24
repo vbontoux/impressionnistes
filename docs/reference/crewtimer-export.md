@@ -18,7 +18,7 @@ The CrewTimer export generates an Excel file compatible with [CrewTimer.com](htt
 
 | Column | Description | Example |
 |--------|-------------|---------|
-| Event Time | Start time (empty for head races) | |
+| Event Time | Start time in 12-hour format (H:MM:SS AM/PM) | 7:45:00 AM, 9:00:30 AM |
 | Event Num | Sequential event number | 1, 2, 3... |
 | Event | Full translated race name | `WOMEN-MASTER-COXED QUAD SCULL YOLETTE` (EN)<br>`FEMMES-MASTER-QUATRE DE COUPLE BARRÉ YOLETTE` (FR) |
 | Event Abbrev | Translated short name code | `MW4X+Y` (EN)<br>`MF4X+Y` (FR) |
@@ -29,6 +29,28 @@ The CrewTimer export generates an Excel file compatible with [CrewTimer.com](htt
 | Race Info | Race type | `Head` |
 | Status | Registration status (empty) | |
 | Age | Average age of crew members | 35 |
+
+### Race Timing
+
+**Marathon Races (42km):**
+- All boats start at the same time
+- Start time configured in event settings (default: 7:45 AM)
+- All marathon skiffs are positioned according to race order but start simultaneously
+
+**Semi-Marathon Races (21km):**
+- Boats start with intervals
+- First boat starts at configured time (default: 9:00 AM)
+- Each subsequent boat starts after a configured interval (default: 30 seconds)
+- Example with 30-second intervals:
+  - Boat 1: 9:00:00 AM
+  - Boat 2: 9:00:30 AM
+  - Boat 3: 9:01:00 AM
+
+**Configuration:**
+Race timing is configured in Admin → Event Configuration:
+- Marathon Start Time (HH:MM format)
+- Semi-Marathon Start Time (HH:MM format)
+- Semi-Marathon Interval (10-300 seconds)
 
 ### Race Sorting
 
