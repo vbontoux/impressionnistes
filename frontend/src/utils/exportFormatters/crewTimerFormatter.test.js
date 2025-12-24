@@ -178,28 +178,28 @@ console.log('');
 // Test 6: Average age calculation
 console.log('Test 6: Average age calculation');
 const crewMembers1 = [
-  { date_of_birth: '1990-01-01' },
-  { date_of_birth: '1992-06-15' },
-  { date_of_birth: '1988-12-31' },
-  { date_of_birth: '1991-03-20' }
+  { age: 35 },
+  { age: 33 },
+  { age: 37 },
+  { age: 34 }
 ];
-const avgAge1 = calculateAverageAge(crewMembers1, '2025-05-01');
+const avgAge1 = calculateAverageAge(crewMembers1);
 // Ages: 35, 33, 37, 34 -> Average: 34.75 -> Rounded: 35
 assert(avgAge1 === 35, 'Average age calculated and rounded correctly');
 
 // Test with empty crew
-const avgAge2 = calculateAverageAge([], '2025-05-01');
+const avgAge2 = calculateAverageAge([]);
 assert(avgAge2 === 0, 'Empty crew returns 0');
 
-// Test with missing dates
+// Test with missing ages
 const crewMembers3 = [
-  { date_of_birth: '1990-01-01' },
-  { date_of_birth: null },
-  { date_of_birth: '1992-06-15' }
+  { age: 35 },
+  { age: null },
+  { age: 33 }
 ];
-const avgAge3 = calculateAverageAge(crewMembers3, '2025-05-01');
-// Only valid dates: 35, 33 -> Average: 34
-assert(avgAge3 === 34, 'Handles missing dates correctly');
+const avgAge3 = calculateAverageAge(crewMembers3);
+// Only valid ages: 35, 33 -> Average: 34
+assert(avgAge3 === 34, 'Handles missing ages correctly');
 console.log('');
 
 // Test 7: Empty dataset handling
@@ -236,8 +236,8 @@ try {
 }
 console.log('');
 
-// Test 9: Complete integration test (uses original race names)
-console.log('Test 9: Complete integration test (uses original race names)');
+// Test 9: Complete integration test (uses crew_composition.avg_age from backend)
+console.log('Test 9: Complete integration test (uses crew_composition.avg_age from backend)');
 const testData9 = {
   success: true,
   data: {
@@ -269,6 +269,11 @@ const testData9 = {
         registration_status: 'complete', 
         forfait: false,
         team_manager_id: 'tm1',
+        crew_composition: {
+          avg_age: 35.0,  // Pre-calculated by backend
+          gender_category: 'men',
+          age_category: 'senior'
+        },
         seats: [
           { position: 1, type: 'rower', crew_member_id: 'crew-1' }
         ]
@@ -279,6 +284,11 @@ const testData9 = {
         registration_status: 'paid', 
         forfait: false,
         team_manager_id: 'tm2',
+        crew_composition: {
+          avg_age: 16.25,  // Pre-calculated by backend (average of rowers only)
+          gender_category: 'women',
+          age_category: 'j16'
+        },
         seats: [
           { position: 1, type: 'rower', crew_member_id: 'crew-2' },
           { position: 2, type: 'rower', crew_member_id: 'crew-3' },
@@ -289,12 +299,12 @@ const testData9 = {
       }
     ],
     crew_members: [
-      { crew_member_id: 'crew-1', first_name: 'John', last_name: 'Doe', date_of_birth: '1990-01-01' },
-      { crew_member_id: 'crew-2', first_name: 'Jane', last_name: 'Smith', date_of_birth: '2009-01-01' },
-      { crew_member_id: 'crew-3', first_name: 'Bob', last_name: 'Jones', date_of_birth: '2009-06-15' },
-      { crew_member_id: 'crew-4', first_name: 'Alice', last_name: 'Brown', date_of_birth: '2008-12-31' },
-      { crew_member_id: 'crew-5', first_name: 'Charlie', last_name: 'Wilson', date_of_birth: '2009-03-20' },
-      { crew_member_id: 'crew-6', first_name: 'Eve', last_name: 'Cox', date_of_birth: '2010-01-01' }
+      { crew_member_id: 'crew-1', first_name: 'John', last_name: 'Doe', date_of_birth: '1990-01-01', age: 35 },
+      { crew_member_id: 'crew-2', first_name: 'Jane', last_name: 'Smith', date_of_birth: '2009-01-01', age: 16 },
+      { crew_member_id: 'crew-3', first_name: 'Bob', last_name: 'Jones', date_of_birth: '2009-06-15', age: 16 },
+      { crew_member_id: 'crew-4', first_name: 'Alice', last_name: 'Brown', date_of_birth: '2008-12-31', age: 17 },
+      { crew_member_id: 'crew-5', first_name: 'Charlie', last_name: 'Wilson', date_of_birth: '2009-03-20', age: 16 },
+      { crew_member_id: 'crew-6', first_name: 'Eve', last_name: 'Cox', date_of_birth: '2010-01-01', age: 15 }
     ],
     team_managers: [
       { user_id: 'tm1', club_affiliation: 'RCPM', email: 'tm1@example.com' },
@@ -317,8 +327,8 @@ assert(result9[0].Crew === 'RCPM', 'First boat club correct');
 assert(result9[1].Crew === 'Club Elite', 'Second boat club correct');
 assert(result9[0].Stroke === 'Doe', 'First boat stroke correct');
 assert(result9[1].Stroke === 'Wilson', 'Second boat stroke correct (highest rower)');
-assert(result9[0].Age === 35, 'First boat age correct');
-assert(result9[1].Age === 16, 'Second boat age correct (average of rowers)');
+assert(result9[0].Age === 35, 'First boat age correct (from crew_composition)');
+assert(result9[1].Age === 16, 'Second boat age correct (from crew_composition, rounded from 16.25)');
 console.log('');
 
 // Summary

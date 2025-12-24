@@ -115,7 +115,7 @@ FEMMES-MASTER-QUATRE DE COUPLE BARRÉ YOLETTE
 - `formatRacesToCrewTimer(jsonData, locale, t)` - Converts JSON to CrewTimer format
 - `downloadCrewTimerExcel(jsonData, filename, locale, t)` - Generates and downloads Excel file
 - `translateShortNameToFrench(shortName)` - Translates gender markers in short names
-- `calculateAverageAge(crewMembers, competitionDate)` - Calculates crew average age
+- `calculateAverageAge(crewMembers)` - Helper function for age calculation (kept for backward compatibility, but main export uses pre-calculated `crew_composition.avg_age`)
 - `getStrokeSeatName(seats, crewMembersDict)` - Extracts stroke seat rower name
 
 **Usage:**
@@ -191,11 +191,13 @@ The stroke seat is the **highest position rower** (not coxswain):
 
 ## Average Age Calculation
 
-Average age is calculated from all crew members' dates of birth:
-1. Extract birth year from each crew member's `date_of_birth`
-2. Calculate age: `competition_year - birth_year`
-3. Average all ages
-4. Round to nearest integer
+Average age is calculated by the backend in the `crew_composition` object:
+1. Backend calculates age for each crew member: `competition_year - birth_year`
+2. Backend calculates average age of **rowers only** (excluding coxswains)
+3. Frontend uses the pre-calculated `boat.crew_composition.avg_age` value
+4. Result is rounded to nearest integer for display
+
+**Note:** The backend handles age calculation to ensure consistency across the application. The frontend simply uses the pre-calculated value from `crew_composition.avg_age`, which is more efficient and avoids redundant calculations.
 
 ## Future Enhancements
 
@@ -211,6 +213,18 @@ Average age is calculated from all crew members' dates of birth:
 - [Project Structure](./project-structure.md)
 
 ## Change History
+
+### 2024-12-24: Use Pre-calculated Average Age
+- Optimized to use `boat.crew_composition.avg_age` from backend instead of recalculating
+- More efficient: avoids iterating through crew members and recalculating ages
+- More consistent: uses the same age calculation logic as the rest of the application
+- Backend calculates average age of rowers only (excluding coxswains) per competition rules
+
+### 2024-12-24: Age Calculation Fix
+- Fixed age ordering bug in CrewTimer export
+- Changed to use backend-provided `age` field instead of recalculating from `date_of_birth`
+- Ensures consistent age calculation across the application
+- Removed `competitionDate` parameter from `calculateAverageAge()` function
 
 ### 2024-12-24: Internationalization
 - Added full i18n support for race names and short codes

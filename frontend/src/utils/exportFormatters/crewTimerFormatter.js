@@ -4,7 +4,7 @@
  */
 
 import * as XLSX from 'xlsx'
-import { getBoatTypeDisplay, formatDateForFilename } from './shared.js'
+import { formatDateForFilename } from './shared.js'
 
 /**
  * Translate short_name from English to French
@@ -56,25 +56,21 @@ export function translateShortNameToFrench(shortName) {
 
 /**
  * Calculate average age of crew members
- * @param {Array} crewMembers - Array of crew member objects
- * @param {string} competitionDate - Competition date in YYYY-MM-DD format
+ * @param {Array} crewMembers - Array of crew member objects with age field
  * @returns {number} - Average age rounded to nearest integer
  */
-export function calculateAverageAge(crewMembers, competitionDate) {
+export function calculateAverageAge(crewMembers) {
   if (!crewMembers || crewMembers.length === 0) {
     return 0
   }
   
   try {
-    const compYear = parseInt(competitionDate.split('-')[0])
     const ages = []
     
     for (const member of crewMembers) {
-      const dob = member.date_of_birth
-      if (dob) {
-        const birthYear = parseInt(dob.split('-')[0])
-        const age = compYear - birthYear
-        ages.push(age)
+      // Use the age provided by the backend
+      if (member.age !== null && member.age !== undefined) {
+        ages.push(member.age)
       }
     }
     
@@ -138,13 +134,11 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
     throw new Error('Invalid data format: expected data object')
   }
   
-  const { config, races, boats, crew_members, team_managers } = jsonData.data
+  const { races, boats, crew_members, team_managers } = jsonData.data
   
   if (!races || !boats || !crew_members) {
     throw new Error('Invalid data format: expected races, boats, and crew_members arrays')
   }
-  
-  const competitionDate = config?.competition_date || '2025-05-01'
   
   // Create lookup dictionaries
   const crewMembersDict = {}
@@ -229,20 +223,14 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
       const teamManager = teamManagersDict[teamManagerId] || {}
       const clubName = teamManager.club_affiliation || boat.club_affiliation || 'Unknown'
       
-      // Get crew members for this boat from seats
-      const seats = boat.seats || []
-      const boatCrewMembers = []
-      for (const seat of seats) {
-        const crewMemberId = seat.crew_member_id
-        if (crewMemberId && crewMembersDict[crewMemberId]) {
-          boatCrewMembers.push(crewMembersDict[crewMemberId])
-        }
-      }
-      
-      // Calculate average age
-      const avgAge = calculateAverageAge(boatCrewMembers, competitionDate)
+      // Get average age from boat's crew_composition (pre-calculated by backend)
+      // This is more efficient and ensures consistency with backend logic
+      const avgAge = boat.crew_composition?.avg_age 
+        ? Math.round(boat.crew_composition.avg_age) 
+        : 0
       
       // Get stroke seat name
+      const seats = boat.seats || []
       const strokeName = getStrokeSeatName(seats, crewMembersDict)
       
       // Build row
