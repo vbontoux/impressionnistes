@@ -220,6 +220,8 @@ def test_race_timing_config_initialized(dynamodb_table, mock_admin_event, mock_l
             'marathon_start_time': '07:45',
             'semi_marathon_start_time': '09:00',
             'semi_marathon_interval_seconds': 30,
+            'marathon_bow_start': 1,
+            'semi_marathon_bow_start': 41,
             'created_at': '2025-01-01T00:00:00Z',
             'updated_at': '2025-01-01T00:00:00Z',
             'updated_by': 'system'
@@ -237,6 +239,8 @@ def test_race_timing_config_initialized(dynamodb_table, mock_admin_event, mock_l
     assert config['marathon_start_time'] == '07:45'
     assert config['semi_marathon_start_time'] == '09:00'
     assert config['semi_marathon_interval_seconds'] == 30
+    assert config['marathon_bow_start'] == 1
+    assert config['semi_marathon_bow_start'] == 41
 
 
 def test_get_event_config_includes_race_timing(dynamodb_table, mock_admin_event, mock_lambda_context):
@@ -261,7 +265,9 @@ def test_get_event_config_includes_race_timing(dynamodb_table, mock_admin_event,
             'SK': 'RACE_TIMING',
             'marathon_start_time': '07:45',
             'semi_marathon_start_time': '09:00',
-            'semi_marathon_interval_seconds': 30
+            'semi_marathon_interval_seconds': 30,
+            'marathon_bow_start': 1,
+            'semi_marathon_bow_start': 41
         }
     )
     
@@ -306,7 +312,9 @@ def test_update_race_timing_config(dynamodb_table, mock_admin_event, mock_lambda
             'SK': 'RACE_TIMING',
             'marathon_start_time': '07:45',
             'semi_marathon_start_time': '09:00',
-            'semi_marathon_interval_seconds': 30
+            'semi_marathon_interval_seconds': 30,
+            'marathon_bow_start': 1,
+            'semi_marathon_bow_start': 41
         }
     )
     
@@ -359,7 +367,9 @@ def test_update_race_timing_validates_time_format(dynamodb_table, mock_admin_eve
             'SK': 'RACE_TIMING',
             'marathon_start_time': '07:45',
             'semi_marathon_start_time': '09:00',
-            'semi_marathon_interval_seconds': 30
+            'semi_marathon_interval_seconds': 30,
+            'marathon_bow_start': 1,
+            'semi_marathon_bow_start': 41
         }
     )
     
@@ -380,6 +390,101 @@ def test_update_race_timing_validates_time_format(dynamodb_table, mock_admin_eve
     body = json.loads(response['body'])
     assert body['success'] is False
     # The validation error is returned
+    assert 'error' in body
+
+
+def test_update_bow_start_numbers(dynamodb_table, mock_admin_event, mock_lambda_context, admin_user_id):
+    """Test updating bow start numbers"""
+    # Seed initial configs
+    dynamodb_table.put_item(
+        Item={
+            'PK': 'CONFIG',
+            'SK': 'SYSTEM',
+            'event_date': '2025-05-01'
+        }
+    )
+    
+    dynamodb_table.put_item(
+        Item={
+            'PK': 'CONFIG',
+            'SK': 'RACE_TIMING',
+            'marathon_start_time': '07:45',
+            'semi_marathon_start_time': '09:00',
+            'semi_marathon_interval_seconds': 30,
+            'marathon_bow_start': 1,
+            'semi_marathon_bow_start': 41
+        }
+    )
+    
+    from admin.update_event_config import lambda_handler
+    
+    # Update bow start numbers
+    event = mock_admin_event(
+        http_method='PUT',
+        path='/admin/event-config',
+        body=json.dumps({
+            'marathon_bow_start': 100,
+            'semi_marathon_bow_start': 200
+        })
+    )
+    
+    response = lambda_handler(event, mock_lambda_context)
+    
+    assert response['statusCode'] == 200
+    body = json.loads(response['body'])
+    assert body['success'] is True
+    
+    config = body['data']
+    assert config['marathon_bow_start'] == 100
+    assert config['semi_marathon_bow_start'] == 200
+    
+    # Verify in database
+    db_response = dynamodb_table.get_item(
+        Key={'PK': 'CONFIG', 'SK': 'RACE_TIMING'}
+    )
+    assert db_response['Item']['marathon_bow_start'] == 100
+    assert db_response['Item']['semi_marathon_bow_start'] == 200
+
+
+def test_update_bow_start_validates_positive_integers(dynamodb_table, mock_admin_event, mock_lambda_context):
+    """Test that bow start numbers must be positive integers"""
+    # Seed initial configs
+    dynamodb_table.put_item(
+        Item={
+            'PK': 'CONFIG',
+            'SK': 'SYSTEM',
+            'event_date': '2025-05-01'
+        }
+    )
+    
+    dynamodb_table.put_item(
+        Item={
+            'PK': 'CONFIG',
+            'SK': 'RACE_TIMING',
+            'marathon_start_time': '07:45',
+            'semi_marathon_start_time': '09:00',
+            'semi_marathon_interval_seconds': 30,
+            'marathon_bow_start': 1,
+            'semi_marathon_bow_start': 41
+        }
+    )
+    
+    from admin.update_event_config import lambda_handler
+    
+    # Try invalid bow start (negative number)
+    event = mock_admin_event(
+        http_method='PUT',
+        path='/admin/event-config',
+        body=json.dumps({
+            'marathon_bow_start': -5
+        })
+    )
+    
+    response = lambda_handler(event, mock_lambda_context)
+    
+    assert response['statusCode'] == 400
+    body = json.loads(response['body'])
+    assert body['success'] is False
     assert 'error' in body
 
 

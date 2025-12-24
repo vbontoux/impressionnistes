@@ -128,7 +128,7 @@ def lambda_handler(event, context):
     system_fields = ['event_date', 'registration_start_date', 'registration_end_date', 
                      'payment_deadline', 'rental_priority_days']
     race_timing_fields = ['marathon_start_time', 'semi_marathon_start_time', 
-                          'semi_marathon_interval_seconds']
+                          'semi_marathon_interval_seconds', 'marathon_bow_start', 'semi_marathon_bow_start']
     
     system_updates = {k: v for k, v in body.items() if k in system_fields}
     race_timing_updates = {k: v for k, v in body.items() if k in race_timing_fields}
@@ -180,6 +180,25 @@ def lambda_handler(event, context):
                 race_timing_updates['semi_marathon_interval_seconds'] = interval
             except (ValueError, TypeError):
                 return validation_error('Semi-marathon interval must be a valid number')
+        
+        # Validate bow start numbers
+        if 'marathon_bow_start' in race_timing_updates:
+            try:
+                bow_start = int(race_timing_updates['marathon_bow_start'])
+                if bow_start < 1:
+                    return validation_error('Marathon bow start number must be a positive integer')
+                race_timing_updates['marathon_bow_start'] = bow_start
+            except (ValueError, TypeError):
+                return validation_error('Marathon bow start number must be a valid number')
+        
+        if 'semi_marathon_bow_start' in race_timing_updates:
+            try:
+                bow_start = int(race_timing_updates['semi_marathon_bow_start'])
+                if bow_start < 1:
+                    return validation_error('Semi-marathon bow start number must be a positive integer')
+                race_timing_updates['semi_marathon_bow_start'] = bow_start
+            except (ValueError, TypeError):
+                return validation_error('Semi-marathon bow start number must be a valid number')
     
     # Update configurations
     try:
@@ -208,6 +227,8 @@ def lambda_handler(event, context):
         'marathon_start_time': race_timing_config.get('marathon_start_time', '07:45'),
         'semi_marathon_start_time': race_timing_config.get('semi_marathon_start_time', '09:00'),
         'semi_marathon_interval_seconds': race_timing_config.get('semi_marathon_interval_seconds', 30),
+        'marathon_bow_start': race_timing_config.get('marathon_bow_start', 1),
+        'semi_marathon_bow_start': race_timing_config.get('semi_marathon_bow_start', 41),
     }
     
     return success_response(

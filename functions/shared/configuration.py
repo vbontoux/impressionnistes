@@ -58,6 +58,8 @@ DEFAULT_RACE_TIMING_CONFIG = {
     'marathon_start_time': '07:45',
     'semi_marathon_start_time': '09:00',
     'semi_marathon_interval_seconds': 30,
+    'marathon_bow_start': 1,
+    'semi_marathon_bow_start': 41,
     'created_at': '2024-01-01T00:00:00Z',
     'updated_at': '2024-01-01T00:00:00Z'
 }

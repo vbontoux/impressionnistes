@@ -50,7 +50,9 @@ def lambda_handler(event, context):
         marathon_start_time = race_timing.get('marathon_start_time', '07:45')
         semi_marathon_start_time = race_timing.get('semi_marathon_start_time', '09:00')
         semi_marathon_interval_seconds = race_timing.get('semi_marathon_interval_seconds', 30)
-        logger.info(f"Race timing - Marathon: {marathon_start_time}, Semi-Marathon: {semi_marathon_start_time}, Interval: {semi_marathon_interval_seconds}s")
+        marathon_bow_start = race_timing.get('marathon_bow_start', 1)
+        semi_marathon_bow_start = race_timing.get('semi_marathon_bow_start', 41)
+        logger.info(f"Race timing - Marathon: {marathon_start_time}, Semi-Marathon: {semi_marathon_start_time}, Interval: {semi_marathon_interval_seconds}s, Bow starts: M={marathon_bow_start}, SM={semi_marathon_bow_start}")
         
         # Get all races
         races_response = db.table.query(
@@ -217,7 +219,9 @@ def lambda_handler(event, context):
                 'competition_date': competition_date,
                 'marathon_start_time': marathon_start_time,
                 'semi_marathon_start_time': semi_marathon_start_time,
-                'semi_marathon_interval_seconds': semi_marathon_interval_seconds
+                'semi_marathon_interval_seconds': semi_marathon_interval_seconds,
+                'marathon_bow_start': marathon_bow_start,
+                'semi_marathon_bow_start': semi_marathon_bow_start
             },
             'races': simplified_races,
             'boats': simplified_boats,

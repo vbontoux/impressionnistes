@@ -94,13 +94,22 @@
       "rentalSettings": "Rental Settings",
       "rentalPriorityDays": "Rental Priority Days",
       "rentalPriorityHelp": "Number of days before closure when RCPM members have priority",
-      "raceTiming": "Race Timing",
+      "raceTiming": "Race Timing & Bow Numbers",
+      "marathon": "Marathon (42km)",
+      "semiMarathon": "Semi-Marathon (21km)",
+      "startTime": "Start Time",
+      "bowStart": "Starting Bow Number",
+      "interval": "Boat Interval (seconds)",
       "marathonStartTime": "Marathon Start Time",
       "marathonStartTimeHelp": "All marathon skiffs start together",
       "semiMarathonStartTime": "Semi-Marathon Start Time",
       "semiMarathonStartTimeHelp": "Start time for the first boat",
       "semiMarathonInterval": "Boat Interval (seconds)",
       "semiMarathonIntervalHelp": "Time between each boat start in semi-marathon",
+      "marathonBowStart": "Marathon Starting Bow Number",
+      "marathonBowStartHelp": "First bow number for marathon races",
+      "semiMarathonBowStart": "Semi-Marathon Starting Bow Number",
+      "semiMarathonBowStartHelp": "First bow number for semi-marathon races",
       "loadError": "Error loading configuration",
       "saveSuccess": "Configuration saved successfully!",
       "saveError": "Error saving configuration",
@@ -113,7 +122,8 @@
         "eventBeforePayment": "Event date must be after payment deadline",
         "rentalDaysRange": "Rental priority days must be between 0 and 90",
         "invalidTimeFormat": "Invalid time format. Use HH:MM",
-        "intervalRange": "Interval must be between 10 and 300 seconds"
+        "intervalRange": "Interval must be between 10 and 300 seconds",
+        "bowStartPositive": "Bow number must be a positive integer"
       }
     },
     "pricingConfig": {

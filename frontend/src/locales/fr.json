@@ -94,13 +94,22 @@
       "rentalSettings": "Paramètres de location",
       "rentalPriorityDays": "Jours de priorité de location",
       "rentalPriorityHelp": "Nombre de jours avant la clôture où les membres RCPM ont la priorité",
-      "raceTiming": "Horaires des courses",
+      "raceTiming": "Horaires des courses et numéros de dossard",
+      "marathon": "Marathon (42km)",
+      "semiMarathon": "Semi-Marathon (21km)",
+      "startTime": "Heure de départ",
+      "bowStart": "Numéro de dossard de départ",
+      "interval": "Intervalle entre les bateaux (secondes)",
       "marathonStartTime": "Heure de départ Marathon",
       "marathonStartTimeHelp": "Tous les skiffs marathon partent ensemble",
       "semiMarathonStartTime": "Heure de départ Semi-Marathon",
       "semiMarathonStartTimeHelp": "Heure de départ du premier bateau",
       "semiMarathonInterval": "Intervalle entre les bateaux (secondes)",
       "semiMarathonIntervalHelp": "Temps entre chaque départ de bateau en semi-marathon",
+      "marathonBowStart": "Numéro de dossard de départ Marathon",
+      "marathonBowStartHelp": "Premier numéro de dossard pour les courses marathon",
+      "semiMarathonBowStart": "Numéro de dossard de départ Semi-Marathon",
+      "semiMarathonBowStartHelp": "Premier numéro de dossard pour les courses semi-marathon",
       "loadError": "Erreur lors du chargement de la configuration",
       "saveSuccess": "Configuration enregistrée avec succès !",
       "saveError": "Erreur lors de l'enregistrement de la configuration",
@@ -113,7 +122,8 @@
         "eventBeforePayment": "La date de l'événement doit être après la date limite de paiement",
         "rentalDaysRange": "Les jours de priorité doivent être entre 0 et 90",
         "invalidTimeFormat": "Format d'heure invalide. Utilisez HH:MM",
-        "intervalRange": "L'intervalle doit être entre 10 et 300 secondes"
+        "intervalRange": "L'intervalle doit être entre 10 et 300 secondes",
+        "bowStartPositive": "Le numéro de dossard doit être un entier positif"
       }
     },
     "pricingConfig": {

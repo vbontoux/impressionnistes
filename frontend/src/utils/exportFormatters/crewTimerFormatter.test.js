@@ -29,16 +29,23 @@ console.log('Test 1: Boat filtering (complete/paid/free, exclude forfait)');
 const testData1 = {
   success: true,
   data: {
-    config: { competition_date: '2025-05-01' },
+    config: { 
+      competition_date: '2025-05-01',
+      marathon_start_time: '07:45',
+      semi_marathon_start_time: '09:00',
+      semi_marathon_interval_seconds: 30,
+      marathon_bow_start: 1,
+      semi_marathon_bow_start: 41
+    },
     races: [
       { race_id: 'R1', name: 'Test Race', distance: 21, event_type: '21km', boat_type: '4+' }
     ],
     boats: [
-      { boat_registration_id: 'b1', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [] },
-      { boat_registration_id: 'b2', race_id: 'R1', registration_status: 'paid', forfait: false, seats: [] },
-      { boat_registration_id: 'b3', race_id: 'R1', registration_status: 'free', forfait: false, seats: [] },
-      { boat_registration_id: 'b4', race_id: 'R1', registration_status: 'incomplete', forfait: false, seats: [] },
-      { boat_registration_id: 'b5', race_id: 'R1', registration_status: 'complete', forfait: true, seats: [] }
+      { boat_registration_id: 'b1', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 25 } },
+      { boat_registration_id: 'b2', race_id: 'R1', registration_status: 'paid', forfait: false, seats: [], crew_composition: { avg_age: 30 } },
+      { boat_registration_id: 'b3', race_id: 'R1', registration_status: 'free', forfait: false, seats: [], crew_composition: { avg_age: 28 } },
+      { boat_registration_id: 'b4', race_id: 'R1', registration_status: 'incomplete', forfait: false, seats: [], crew_composition: { avg_age: 35 } },
+      { boat_registration_id: 'b5', race_id: 'R1', registration_status: 'complete', forfait: true, seats: [], crew_composition: { avg_age: 32 } }
     ],
     crew_members: [],
     team_managers: []
@@ -47,7 +54,7 @@ const testData1 = {
 
 const result1 = formatRacesToCrewTimer(testData1);
 assert(result1.length === 3, 'Only complete/paid/free boats included');
-assert(result1.every(r => r.Bow >= 1 && r.Bow <= 3), 'Bow numbers 1-3 for 3 boats');
+assert(result1.every(r => r.Bow >= 41 && r.Bow <= 43), 'Semi-marathon bow numbers 41-43 for 3 boats');
 console.log('');
 
 // Test 2: Race sorting (marathon before semi-marathon)
@@ -55,7 +62,14 @@ console.log('Test 2: Race sorting (marathon before semi-marathon)');
 const testData2 = {
   success: true,
   data: {
-    config: { competition_date: '2025-05-01' },
+    config: { 
+      competition_date: '2025-05-01',
+      marathon_start_time: '07:45',
+      semi_marathon_start_time: '09:00',
+      semi_marathon_interval_seconds: 30,
+      marathon_bow_start: 1,
+      semi_marathon_bow_start: 41
+    },
     races: [
       { race_id: 'SM1', name: 'Semi Race 1', distance: 21, event_type: '21km', boat_type: '4+' },
       { race_id: 'M1', name: 'Marathon Race 1', distance: 42, event_type: '42km', boat_type: 'skiff' },
@@ -63,10 +77,10 @@ const testData2 = {
       { race_id: 'M2', name: 'Marathon Race 2', distance: 42, event_type: '42km', boat_type: '4+' }
     ],
     boats: [
-      { boat_registration_id: 'b1', race_id: 'SM1', registration_status: 'complete', forfait: false, seats: [] },
-      { boat_registration_id: 'b2', race_id: 'M1', registration_status: 'complete', forfait: false, seats: [] },
-      { boat_registration_id: 'b3', race_id: 'SM2', registration_status: 'complete', forfait: false, seats: [] },
-      { boat_registration_id: 'b4', race_id: 'M2', registration_status: 'complete', forfait: false, seats: [] }
+      { boat_registration_id: 'b1', race_id: 'SM1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 25 } },
+      { boat_registration_id: 'b2', race_id: 'M1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 30 } },
+      { boat_registration_id: 'b3', race_id: 'SM2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 28 } },
+      { boat_registration_id: 'b4', race_id: 'M2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 35 } }
     ],
     crew_members: [],
     team_managers: []
@@ -88,17 +102,24 @@ console.log('Test 3: Event numbering (same race = same event num)');
 const testData3 = {
   success: true,
   data: {
-    config: { competition_date: '2025-05-01' },
+    config: { 
+      competition_date: '2025-05-01',
+      marathon_start_time: '07:45',
+      semi_marathon_start_time: '09:00',
+      semi_marathon_interval_seconds: 30,
+      marathon_bow_start: 1,
+      semi_marathon_bow_start: 41
+    },
     races: [
       { race_id: 'R1', name: 'Race 1', distance: 21, event_type: '21km', boat_type: '4+' },
       { race_id: 'R2', name: 'Race 2', distance: 21, event_type: '21km', boat_type: '8+' }
     ],
     boats: [
-      { boat_registration_id: 'b1', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [] },
-      { boat_registration_id: 'b2', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [] },
-      { boat_registration_id: 'b3', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [] },
-      { boat_registration_id: 'b4', race_id: 'R2', registration_status: 'complete', forfait: false, seats: [] },
-      { boat_registration_id: 'b5', race_id: 'R2', registration_status: 'complete', forfait: false, seats: [] }
+      { boat_registration_id: 'b1', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 25 } },
+      { boat_registration_id: 'b2', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 30 } },
+      { boat_registration_id: 'b3', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 28 } },
+      { boat_registration_id: 'b4', race_id: 'R2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 35 } },
+      { boat_registration_id: 'b5', race_id: 'R2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 32 } }
     ],
     crew_members: [],
     team_managers: []
@@ -106,27 +127,34 @@ const testData3 = {
 };
 
 const result3 = formatRacesToCrewTimer(testData3);
-const r1Boats = result3.filter(r => r.Bow <= 3);
-const r2Boats = result3.filter(r => r.Bow > 3);
+const r1Boats = result3.filter(r => r.Bow >= 41 && r.Bow <= 43);
+const r2Boats = result3.filter(r => r.Bow >= 44 && r.Bow <= 45);
 assert(r1Boats.every(r => r['Event Num'] === 1), 'All Race 1 boats have Event Num 1');
 assert(r2Boats.every(r => r['Event Num'] === 2), 'All Race 2 boats have Event Num 2');
 console.log('');
 
-// Test 4: Bow numbering (global sequential)
-console.log('Test 4: Bow numbering (global sequential)');
+// Test 4: Bow numbering (separate sequences for marathon and semi-marathon)
+console.log('Test 4: Bow numbering (separate sequences for marathon and semi-marathon)');
 const testData4 = {
   success: true,
   data: {
-    config: { competition_date: '2025-05-01' },
+    config: { 
+      competition_date: '2025-05-01',
+      marathon_start_time: '07:45',
+      semi_marathon_start_time: '09:00',
+      semi_marathon_interval_seconds: 30,
+      marathon_bow_start: 1,
+      semi_marathon_bow_start: 41
+    },
     races: [
       { race_id: 'R1', name: 'Race 1', distance: 21, event_type: '21km', boat_type: '4+' },
       { race_id: 'R2', name: 'Race 2', distance: 21, event_type: '21km', boat_type: '8+' }
     ],
     boats: [
-      { boat_registration_id: 'b1', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [] },
-      { boat_registration_id: 'b2', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [] },
-      { boat_registration_id: 'b3', race_id: 'R2', registration_status: 'complete', forfait: false, seats: [] },
-      { boat_registration_id: 'b4', race_id: 'R2', registration_status: 'complete', forfait: false, seats: [] }
+      { boat_registration_id: 'b1', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 25 } },
+      { boat_registration_id: 'b2', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 30 } },
+      { boat_registration_id: 'b3', race_id: 'R2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 28 } },
+      { boat_registration_id: 'b4', race_id: 'R2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 35 } }
     ],
     crew_members: [],
     team_managers: []
@@ -136,11 +164,11 @@ const testData4 = {
 const result4 = formatRacesToCrewTimer(testData4);
 const bowNumbers = result4.map(r => r.Bow);
 assert(bowNumbers.length === 4, 'Four boats total');
-assert(bowNumbers[0] === 1, 'First bow is 1');
-assert(bowNumbers[1] === 2, 'Second bow is 2');
-assert(bowNumbers[2] === 3, 'Third bow is 3');
-assert(bowNumbers[3] === 4, 'Fourth bow is 4');
-assert(JSON.stringify(bowNumbers) === JSON.stringify([1, 2, 3, 4]), 'Bow numbers are sequential');
+assert(bowNumbers[0] === 41, 'First semi-marathon bow is 41');
+assert(bowNumbers[1] === 42, 'Second semi-marathon bow is 42');
+assert(bowNumbers[2] === 43, 'Third semi-marathon bow is 43');
+assert(bowNumbers[3] === 44, 'Fourth semi-marathon bow is 44');
+assert(JSON.stringify(bowNumbers) === JSON.stringify([41, 42, 43, 44]), 'Semi-marathon bow numbers are sequential starting at 41');
 console.log('');
 
 // Test 5: Stroke seat extraction
@@ -318,8 +346,8 @@ const result9 = formatRacesToCrewTimer(testData9);
 assert(result9.length === 2, 'Two boats in output');
 assert(result9[0]['Event Num'] === 1, 'Marathon is Event 1');
 assert(result9[1]['Event Num'] === 2, 'Semi-marathon is Event 2');
-assert(result9[0].Bow === 1, 'First boat is Bow 1');
-assert(result9[1].Bow === 2, 'Second boat is Bow 2');
+assert(result9[0].Bow === 1, 'Marathon boat starts at Bow 1');
+assert(result9[1].Bow === 41, 'Semi-marathon boat starts at Bow 41');
 assert(result9[0].Event === '1X SENIOR MAN', 'Marathon Event uses original race name');
 assert(result9[0]['Event Abbrev'] === '', 'Marathon Event Abbrev is empty (no short_name in test data)');
 assert(result9[1].Event === 'WOMEN-JUNIOR J16-COXED SWEEP FOUR', 'Semi-marathon Event uses original race name');
@@ -353,7 +381,9 @@ const testData11 = {
       competition_date: '2025-05-01',
       marathon_start_time: '07:45',
       semi_marathon_start_time: '09:00',
-      semi_marathon_interval_seconds: 30
+      semi_marathon_interval_seconds: 30,
+      marathon_bow_start: 1,
+      semi_marathon_bow_start: 41
     },
     races: [
       { race_id: 'M1', name: 'Marathon Skiff', distance: 42, event_type: '42km', boat_type: 'skiff' },

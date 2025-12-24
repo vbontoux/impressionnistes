@@ -109,51 +109,95 @@
       <div class="form-section">
         <h2>{{ $t('admin.eventConfig.raceTiming') }}</h2>
         
-        <div class="form-group">
-          <label for="marathon_start_time">{{ $t('admin.eventConfig.marathonStartTime') }}</label>
-          <input
-            id="marathon_start_time"
-            v-model="formData.marathon_start_time"
-            type="time"
-            class="form-control"
-            :class="{ 'error': validationErrors.marathon_start_time }"
-          />
-          <span class="help-text">{{ $t('admin.eventConfig.marathonStartTimeHelp') }}</span>
-          <span v-if="validationErrors.marathon_start_time" class="error-text">
-            {{ validationErrors.marathon_start_time }}
-          </span>
-        </div>
+        <div class="race-config-grid">
+          <!-- Marathon Configuration -->
+          <div class="race-config-column">
+            <h3 class="race-type-title">{{ $t('admin.eventConfig.marathon') }}</h3>
+            
+            <div class="form-group">
+              <label for="marathon_start_time">{{ $t('admin.eventConfig.startTime') }}</label>
+              <input
+                id="marathon_start_time"
+                v-model="formData.marathon_start_time"
+                type="time"
+                class="form-control"
+                :class="{ 'error': validationErrors.marathon_start_time }"
+              />
+              <span class="help-text">{{ $t('admin.eventConfig.marathonStartTimeHelp') }}</span>
+              <span v-if="validationErrors.marathon_start_time" class="error-text">
+                {{ validationErrors.marathon_start_time }}
+              </span>
+            </div>
 
-        <div class="form-group">
-          <label for="semi_marathon_start_time">{{ $t('admin.eventConfig.semiMarathonStartTime') }}</label>
-          <input
-            id="semi_marathon_start_time"
-            v-model="formData.semi_marathon_start_time"
-            type="time"
-            class="form-control"
-            :class="{ 'error': validationErrors.semi_marathon_start_time }"
-          />
-          <span class="help-text">{{ $t('admin.eventConfig.semiMarathonStartTimeHelp') }}</span>
-          <span v-if="validationErrors.semi_marathon_start_time" class="error-text">
-            {{ validationErrors.semi_marathon_start_time }}
-          </span>
-        </div>
+            <div class="form-group">
+              <label for="marathon_bow_start">{{ $t('admin.eventConfig.bowStart') }}</label>
+              <input
+                id="marathon_bow_start"
+                v-model.number="formData.marathon_bow_start"
+                type="number"
+                min="1"
+                class="form-control"
+                :class="{ 'error': validationErrors.marathon_bow_start }"
+              />
+              <span class="help-text">{{ $t('admin.eventConfig.marathonBowStartHelp') }}</span>
+              <span v-if="validationErrors.marathon_bow_start" class="error-text">
+                {{ validationErrors.marathon_bow_start }}
+              </span>
+            </div>
+          </div>
 
-        <div class="form-group">
-          <label for="semi_marathon_interval_seconds">{{ $t('admin.eventConfig.semiMarathonInterval') }}</label>
-          <input
-            id="semi_marathon_interval_seconds"
-            v-model.number="formData.semi_marathon_interval_seconds"
-            type="number"
-            min="10"
-            max="300"
-            class="form-control"
-            :class="{ 'error': validationErrors.semi_marathon_interval_seconds }"
-          />
-          <span class="help-text">{{ $t('admin.eventConfig.semiMarathonIntervalHelp') }}</span>
-          <span v-if="validationErrors.semi_marathon_interval_seconds" class="error-text">
-            {{ validationErrors.semi_marathon_interval_seconds }}
-          </span>
+          <!-- Semi-Marathon Configuration -->
+          <div class="race-config-column">
+            <h3 class="race-type-title">{{ $t('admin.eventConfig.semiMarathon') }}</h3>
+            
+            <div class="form-group">
+              <label for="semi_marathon_start_time">{{ $t('admin.eventConfig.startTime') }}</label>
+              <input
+                id="semi_marathon_start_time"
+                v-model="formData.semi_marathon_start_time"
+                type="time"
+                class="form-control"
+                :class="{ 'error': validationErrors.semi_marathon_start_time }"
+              />
+              <span class="help-text">{{ $t('admin.eventConfig.semiMarathonStartTimeHelp') }}</span>
+              <span v-if="validationErrors.semi_marathon_start_time" class="error-text">
+                {{ validationErrors.semi_marathon_start_time }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="semi_marathon_bow_start">{{ $t('admin.eventConfig.bowStart') }}</label>
+              <input
+                id="semi_marathon_bow_start"
+                v-model.number="formData.semi_marathon_bow_start"
+                type="number"
+                min="1"
+                class="form-control"
+                :class="{ 'error': validationErrors.semi_marathon_bow_start }"
+              />
+              <span class="help-text">{{ $t('admin.eventConfig.semiMarathonBowStartHelp') }}</span>
+              <span v-if="validationErrors.semi_marathon_bow_start" class="error-text">
+                {{ validationErrors.semi_marathon_bow_start }}
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label for="semi_marathon_interval_seconds">{{ $t('admin.eventConfig.interval') }}</label>
+              <input
+                id="semi_marathon_interval_seconds"
+                v-model.number="formData.semi_marathon_interval_seconds"
+                type="number"
+                min="10"
+                max="300"
+                class="form-control"
+                :class="{ 'error': validationErrors.semi_marathon_interval_seconds }"
+              />
+              <span class="help-text">{{ $t('admin.eventConfig.semiMarathonIntervalHelp') }}</span>
+              <span v-if="validationErrors.semi_marathon_interval_seconds" class="error-text">
+                {{ validationErrors.semi_marathon_interval_seconds }}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -202,6 +246,8 @@ const formData = ref({
   marathon_start_time: '07:45',
   semi_marathon_start_time: '09:00',
   semi_marathon_interval_seconds: 30,
+  marathon_bow_start: 1,
+  semi_marathon_bow_start: 41,
 });
 
 const validationErrors = ref({});
@@ -227,6 +273,8 @@ const loadConfig = async () => {
       marathon_start_time: config.marathon_start_time || '07:45',
       semi_marathon_start_time: config.semi_marathon_start_time || '09:00',
       semi_marathon_interval_seconds: config.semi_marathon_interval_seconds || 30,
+      marathon_bow_start: config.marathon_bow_start || 1,
+      semi_marathon_bow_start: config.semi_marathon_bow_start || 41,
     };
     
     originalData.value = { ...formData.value };
@@ -294,6 +342,14 @@ const validateForm = () => {
     validationErrors.value.semi_marathon_interval_seconds = t('admin.eventConfig.errors.intervalRange');
   }
   
+  // Validate bow start numbers
+  if (formData.value.marathon_bow_start < 1) {
+    validationErrors.value.marathon_bow_start = t('admin.eventConfig.errors.bowStartPositive');
+  }
+  if (formData.value.semi_marathon_bow_start < 1) {
+    validationErrors.value.semi_marathon_bow_start = t('admin.eventConfig.errors.bowStartPositive');
+  }
+  
   return Object.keys(validationErrors.value).length === 0;
 };
 
@@ -325,6 +381,8 @@ const handleSubmit = async () => {
       marathon_start_time: updatedConfig.marathon_start_time || '07:45',
       semi_marathon_start_time: updatedConfig.semi_marathon_start_time || '09:00',
       semi_marathon_interval_seconds: updatedConfig.semi_marathon_interval_seconds || 30,
+      marathon_bow_start: updatedConfig.marathon_bow_start || 1,
+      semi_marathon_bow_start: updatedConfig.semi_marathon_bow_start || 41,
     };
     
     originalData.value = { ...formData.value };
@@ -434,6 +492,25 @@ onMounted(() => {
   font-size: 1.3rem;
   color: #2c3e50;
   margin-bottom: 1.5rem;
+}
+
+.race-config-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.race-config-column {
+  min-width: 0; /* Prevent grid blowout */
+}
+
+.race-type-title {
+  font-size: 1.1rem;
+  color: #3498db;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #3498db;
 }
 
 .form-group {
@@ -578,6 +655,15 @@ onMounted(() => {
 
   .form-section h2 {
     font-size: 1.125rem;
+  }
+
+  .race-config-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .race-type-title {
+    font-size: 1rem;
   }
 
   .form-group {

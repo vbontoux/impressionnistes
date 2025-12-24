@@ -41,6 +41,8 @@ def lambda_handler(event, context):
         'marathon_start_time': race_timing_config.get('marathon_start_time', '07:45'),
         'semi_marathon_start_time': race_timing_config.get('semi_marathon_start_time', '09:00'),
         'semi_marathon_interval_seconds': race_timing_config.get('semi_marathon_interval_seconds', 30),
+        'marathon_bow_start': race_timing_config.get('marathon_bow_start', 1),
+        'semi_marathon_bow_start': race_timing_config.get('semi_marathon_bow_start', 41),
     }
     
     logger.info(f"Retrieved event configuration: {event_config}")

@@ -180,6 +180,8 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
   const marathonStartTime = config?.marathon_start_time || '07:45'
   const semiMarathonStartTime = config?.semi_marathon_start_time || '09:00'
   const semiMarathonIntervalSeconds = config?.semi_marathon_interval_seconds || 30
+  const marathonBowStart = config?.marathon_bow_start || 1
+  const semiMarathonBowStart = config?.semi_marathon_bow_start || 41
   
   // Create lookup dictionaries
   const crewMembersDict = {}
@@ -235,7 +237,8 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
   // Build CrewTimer data
   const crewTimerData = []
   let eventNum = 0
-  let bowNum = 1
+  let marathonBowNum = marathonBowStart
+  let semiMarathonBowNum = semiMarathonBowStart
   let semiMarathonBoatCount = 0 // Track boat count for semi-marathon interval calculation
   
   for (const race of sortedRaces) {
@@ -263,15 +266,21 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
       : shortName
     
     for (const boat of raceBoats) {
-      // Calculate event time based on race type
+      // Calculate event time and bow number based on race type
       let eventTime = ''
+      let bowNum = 0
+      
       if (isMarathon) {
         // All marathon boats start at the same time
         eventTime = formatTime12Hour(marathonStartTime, 0)
+        bowNum = marathonBowNum
+        marathonBowNum++
       } else {
         // Semi-marathon boats start with intervals
         const additionalSeconds = semiMarathonBoatCount * semiMarathonIntervalSeconds
         eventTime = formatTime12Hour(semiMarathonStartTime, additionalSeconds)
+        bowNum = semiMarathonBowNum
+        semiMarathonBowNum++
         semiMarathonBoatCount++
       }
       
@@ -306,7 +315,6 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
       }
       
       crewTimerData.push(row)
-      bowNum += 1
     }
   }
   
