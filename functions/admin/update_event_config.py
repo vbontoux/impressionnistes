@@ -14,6 +14,35 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
+def validate_time_format(time_str):
+    """
+    Validate time format (HH:MM)
+    
+    Args:
+        time_str: Time string to validate
+        
+    Returns:
+        tuple: (is_valid, error_message)
+    """
+    if not time_str:
+        return True, None
+    
+    try:
+        parts = time_str.split(':')
+        if len(parts) != 2:
+            return False, "Time must be in HH:MM format"
+        
+        hours, minutes = int(parts[0]), int(parts[1])
+        if hours < 0 or hours > 23:
+            return False, "Hours must be between 00 and 23"
+        if minutes < 0 or minutes > 59:
+            return False, "Minutes must be between 00 and 59"
+        
+        return True, None
+    except (ValueError, AttributeError):
+        return False, "Invalid time format. Use HH:MM format."
+
+
 def validate_event_dates(updates, current_config):
     """
     Validate event date configuration
@@ -74,7 +103,10 @@ def lambda_handler(event, context):
         "registration_start_date": "2025-03-19",
         "registration_end_date": "2025-04-19",
         "payment_deadline": "2025-04-25",
-        "rental_priority_days": 15
+        "rental_priority_days": 15,
+        "marathon_start_time": "07:45",
+        "semi_marathon_start_time": "09:00",
+        "semi_marathon_interval_seconds": 30
     }
     
     Returns:
@@ -92,49 +124,90 @@ def lambda_handler(event, context):
     except json.JSONDecodeError:
         return validation_error('Invalid JSON in request body')
     
-    # Validate that at least one field is provided
-    allowed_fields = ['event_date', 'registration_start_date', 'registration_end_date', 
+    # Separate system config fields from race timing fields
+    system_fields = ['event_date', 'registration_start_date', 'registration_end_date', 
                      'payment_deadline', 'rental_priority_days']
-    updates = {k: v for k, v in body.items() if k in allowed_fields}
+    race_timing_fields = ['marathon_start_time', 'semi_marathon_start_time', 
+                          'semi_marathon_interval_seconds']
     
-    if not updates:
+    system_updates = {k: v for k, v in body.items() if k in system_fields}
+    race_timing_updates = {k: v for k, v in body.items() if k in race_timing_fields}
+    
+    if not system_updates and not race_timing_updates:
         return validation_error('No valid fields provided for update')
     
     # Get current configuration for validation
     config_manager = ConfigurationManager()
-    current_config = config_manager.get_system_config()
+    current_system_config = config_manager.get_system_config()
+    current_race_timing_config = config_manager.get_race_timing_config()
     
-    # Validate date logic
-    is_valid, error_message = validate_event_dates(updates, current_config)
-    if not is_valid:
-        return validation_error(error_message)
+    # Validate system config updates
+    if system_updates:
+        # Validate date logic
+        is_valid, error_message = validate_event_dates(system_updates, current_system_config)
+        if not is_valid:
+            return validation_error(error_message)
+        
+        # Validate rental_priority_days if provided
+        if 'rental_priority_days' in system_updates:
+            try:
+                days = int(system_updates['rental_priority_days'])
+                if days < 0 or days > 90:
+                    return validation_error('Rental priority days must be between 0 and 90')
+                system_updates['rental_priority_days'] = days
+            except (ValueError, TypeError):
+                return validation_error('Rental priority days must be a valid number')
     
-    # Validate rental_priority_days if provided
-    if 'rental_priority_days' in updates:
-        try:
-            days = int(updates['rental_priority_days'])
-            if days < 0 or days > 90:
-                return validation_error('Rental priority days must be between 0 and 90')
-            updates['rental_priority_days'] = days
-        except (ValueError, TypeError):
-            return validation_error('Rental priority days must be a valid number')
+    # Validate race timing updates
+    if race_timing_updates:
+        # Validate time formats
+        if 'marathon_start_time' in race_timing_updates:
+            is_valid, error_message = validate_time_format(race_timing_updates['marathon_start_time'])
+            if not is_valid:
+                return validation_error(f'Marathon start time: {error_message}')
+        
+        if 'semi_marathon_start_time' in race_timing_updates:
+            is_valid, error_message = validate_time_format(race_timing_updates['semi_marathon_start_time'])
+            if not is_valid:
+                return validation_error(f'Semi-marathon start time: {error_message}')
+        
+        # Validate interval seconds
+        if 'semi_marathon_interval_seconds' in race_timing_updates:
+            try:
+                interval = int(race_timing_updates['semi_marathon_interval_seconds'])
+                if interval < 10 or interval > 300:
+                    return validation_error('Semi-marathon interval must be between 10 and 300 seconds')
+                race_timing_updates['semi_marathon_interval_seconds'] = interval
+            except (ValueError, TypeError):
+                return validation_error('Semi-marathon interval must be a valid number')
     
-    # Update configuration
+    # Update configurations
     try:
-        config_manager.update_config('SYSTEM', updates, admin_user_id)
-        logger.info(f"Event configuration updated by admin {admin_user_id}: {updates}")
+        if system_updates:
+            config_manager.update_config('SYSTEM', system_updates, admin_user_id)
+            logger.info(f"System configuration updated by admin {admin_user_id}: {system_updates}")
+        
+        if race_timing_updates:
+            config_manager.update_config('RACE_TIMING', race_timing_updates, admin_user_id)
+            logger.info(f"Race timing configuration updated by admin {admin_user_id}: {race_timing_updates}")
+            
     except Exception as e:
         logger.error(f"Failed to update event configuration: {str(e)}")
         return validation_error(f'Failed to update configuration: {str(e)}')
     
     # Get updated configuration
     system_config = config_manager.get_system_config()
+    race_timing_config = config_manager.get_race_timing_config()
+    
     event_config = {
         'event_date': system_config.get('event_date', '2025-05-01'),
         'registration_start_date': system_config.get('registration_start_date'),
         'registration_end_date': system_config.get('registration_end_date'),
         'payment_deadline': system_config.get('payment_deadline'),
         'rental_priority_days': system_config.get('rental_priority_days', 15),
+        'marathon_start_time': race_timing_config.get('marathon_start_time', '07:45'),
+        'semi_marathon_start_time': race_timing_config.get('semi_marathon_start_time', '09:00'),
+        'semi_marathon_interval_seconds': race_timing_config.get('semi_marathon_interval_seconds', 30),
     }
     
     return success_response(

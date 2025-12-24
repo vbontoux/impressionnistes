@@ -94,6 +94,13 @@
       "rentalSettings": "Rental Settings",
       "rentalPriorityDays": "Rental Priority Days",
       "rentalPriorityHelp": "Number of days before closure when RCPM members have priority",
+      "raceTiming": "Race Timing",
+      "marathonStartTime": "Marathon Start Time",
+      "marathonStartTimeHelp": "All marathon skiffs start together",
+      "semiMarathonStartTime": "Semi-Marathon Start Time",
+      "semiMarathonStartTimeHelp": "Start time for the first boat",
+      "semiMarathonInterval": "Boat Interval (seconds)",
+      "semiMarathonIntervalHelp": "Time between each boat start in semi-marathon",
       "loadError": "Error loading configuration",
       "saveSuccess": "Configuration saved successfully!",
       "saveError": "Error saving configuration",
@@ -104,7 +111,9 @@
         "paymentBeforeEnd": "Payment deadline must be on or after registration end date",
         "eventBeforeRegistration": "Event date must be after registration closes",
         "eventBeforePayment": "Event date must be after payment deadline",
-        "rentalDaysRange": "Rental priority days must be between 0 and 90"
+        "rentalDaysRange": "Rental priority days must be between 0 and 90",
+        "invalidTimeFormat": "Invalid time format. Use HH:MM",
+        "intervalRange": "Interval must be between 10 and 300 seconds"
       }
     },
     "pricingConfig": {

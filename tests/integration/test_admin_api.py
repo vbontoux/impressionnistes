@@ -239,6 +239,150 @@ def test_race_timing_config_initialized(dynamodb_table, mock_admin_event, mock_l
     assert config['semi_marathon_interval_seconds'] == 30
 
 
+def test_get_event_config_includes_race_timing(dynamodb_table, mock_admin_event, mock_lambda_context):
+    """Test that get event config includes race timing fields"""
+    # Seed system config
+    dynamodb_table.put_item(
+        Item={
+            'PK': 'CONFIG',
+            'SK': 'SYSTEM',
+            'event_date': '2025-05-01',
+            'registration_start_date': '2025-03-19',
+            'registration_end_date': '2025-04-19',
+            'payment_deadline': '2025-04-25',
+            'rental_priority_days': 15
+        }
+    )
+    
+    # Seed race timing config
+    dynamodb_table.put_item(
+        Item={
+            'PK': 'CONFIG',
+            'SK': 'RACE_TIMING',
+            'marathon_start_time': '07:45',
+            'semi_marathon_start_time': '09:00',
+            'semi_marathon_interval_seconds': 30
+        }
+    )
+    
+    from admin.get_event_config import lambda_handler
+    
+    event = mock_admin_event(
+        http_method='GET',
+        path='/admin/event-config'
+    )
+    
+    response = lambda_handler(event, mock_lambda_context)
+    
+    assert response['statusCode'] == 200
+    body = json.loads(response['body'])
+    assert body['success'] is True
+    
+    config = body['data']
+    assert config['event_date'] == '2025-05-01'
+    assert config['marathon_start_time'] == '07:45'
+    assert config['semi_marathon_start_time'] == '09:00'
+    assert config['semi_marathon_interval_seconds'] == 30
+
+
+def test_update_race_timing_config(dynamodb_table, mock_admin_event, mock_lambda_context, admin_user_id):
+    """Test updating race timing configuration"""
+    # Seed initial configs
+    dynamodb_table.put_item(
+        Item={
+            'PK': 'CONFIG',
+            'SK': 'SYSTEM',
+            'event_date': '2025-05-01',
+            'registration_start_date': '2025-03-19',
+            'registration_end_date': '2025-04-19',
+            'payment_deadline': '2025-04-25',
+            'rental_priority_days': 15
+        }
+    )
+    
+    dynamodb_table.put_item(
+        Item={
+            'PK': 'CONFIG',
+            'SK': 'RACE_TIMING',
+            'marathon_start_time': '07:45',
+            'semi_marathon_start_time': '09:00',
+            'semi_marathon_interval_seconds': 30
+        }
+    )
+    
+    from admin.update_event_config import lambda_handler
+    
+    # Update race timing
+    event = mock_admin_event(
+        http_method='PUT',
+        path='/admin/event-config',
+        body=json.dumps({
+            'marathon_start_time': '08:00',
+            'semi_marathon_start_time': '09:30',
+            'semi_marathon_interval_seconds': 45
+        })
+    )
+    
+    response = lambda_handler(event, mock_lambda_context)
+    
+    assert response['statusCode'] == 200
+    body = json.loads(response['body'])
+    assert body['success'] is True
+    
+    config = body['data']
+    assert config['marathon_start_time'] == '08:00'
+    assert config['semi_marathon_start_time'] == '09:30'
+    assert config['semi_marathon_interval_seconds'] == 45
+    
+    # Verify in database
+    db_response = dynamodb_table.get_item(
+        Key={'PK': 'CONFIG', 'SK': 'RACE_TIMING'}
+    )
+    assert db_response['Item']['marathon_start_time'] == '08:00'
+    assert db_response['Item']['semi_marathon_interval_seconds'] == 45
+
+
+def test_update_race_timing_validates_time_format(dynamodb_table, mock_admin_event, mock_lambda_context):
+    """Test that race timing update validates time format"""
+    # Seed initial configs
+    dynamodb_table.put_item(
+        Item={
+            'PK': 'CONFIG',
+            'SK': 'SYSTEM',
+            'event_date': '2025-05-01'
+        }
+    )
+    
+    dynamodb_table.put_item(
+        Item={
+            'PK': 'CONFIG',
+            'SK': 'RACE_TIMING',
+            'marathon_start_time': '07:45',
+            'semi_marathon_start_time': '09:00',
+            'semi_marathon_interval_seconds': 30
+        }
+    )
+    
+    from admin.update_event_config import lambda_handler
+    
+    # Try invalid time format
+    event = mock_admin_event(
+        http_method='PUT',
+        path='/admin/event-config',
+        body=json.dumps({
+            'marathon_start_time': '25:00'  # Invalid hour
+        })
+    )
+    
+    response = lambda_handler(event, mock_lambda_context)
+    
+    assert response['statusCode'] == 400
+    body = json.loads(response['body'])
+    assert body['success'] is False
+    # The validation error is returned
+    assert 'error' in body
+
+
 def test_non_admin_cannot_access_admin_endpoints(dynamodb_table, mock_api_gateway_event, mock_lambda_context, test_team_manager_id):
     """Test that non-admin users cannot access admin endpoints"""
     from admin.admin_list_all_boats import lambda_handler

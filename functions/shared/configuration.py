@@ -52,6 +52,16 @@ DEFAULT_NOTIFICATION_CONFIG = {
     'updated_at': '2024-01-01T00:00:00Z'
 }
 
+DEFAULT_RACE_TIMING_CONFIG = {
+    'PK': 'CONFIG',
+    'SK': 'RACE_TIMING',
+    'marathon_start_time': '07:45',
+    'semi_marathon_start_time': '09:00',
+    'semi_marathon_interval_seconds': 30,
+    'created_at': '2024-01-01T00:00:00Z',
+    'updated_at': '2024-01-01T00:00:00Z'
+}
+
 
 class ConfigurationManager:
     """
@@ -98,6 +108,15 @@ class ConfigurationManager:
             dict: Notification configuration
         """
         return self._get_config('NOTIFICATION', DEFAULT_NOTIFICATION_CONFIG)
+    
+    def get_race_timing_config(self):
+        """
+        Get race timing configuration from DynamoDB with caching
+        
+        Returns:
+            dict: Race timing configuration
+        """
+        return self._get_config('RACE_TIMING', DEFAULT_RACE_TIMING_CONFIG)
     
     def _get_config(self, config_type, default_config):
         """

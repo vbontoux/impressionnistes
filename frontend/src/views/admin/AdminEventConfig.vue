@@ -106,6 +106,57 @@
         </div>
       </div>
 
+      <div class="form-section">
+        <h2>{{ $t('admin.eventConfig.raceTiming') }}</h2>
+        
+        <div class="form-group">
+          <label for="marathon_start_time">{{ $t('admin.eventConfig.marathonStartTime') }}</label>
+          <input
+            id="marathon_start_time"
+            v-model="formData.marathon_start_time"
+            type="time"
+            class="form-control"
+            :class="{ 'error': validationErrors.marathon_start_time }"
+          />
+          <span class="help-text">{{ $t('admin.eventConfig.marathonStartTimeHelp') }}</span>
+          <span v-if="validationErrors.marathon_start_time" class="error-text">
+            {{ validationErrors.marathon_start_time }}
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="semi_marathon_start_time">{{ $t('admin.eventConfig.semiMarathonStartTime') }}</label>
+          <input
+            id="semi_marathon_start_time"
+            v-model="formData.semi_marathon_start_time"
+            type="time"
+            class="form-control"
+            :class="{ 'error': validationErrors.semi_marathon_start_time }"
+          />
+          <span class="help-text">{{ $t('admin.eventConfig.semiMarathonStartTimeHelp') }}</span>
+          <span v-if="validationErrors.semi_marathon_start_time" class="error-text">
+            {{ validationErrors.semi_marathon_start_time }}
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="semi_marathon_interval_seconds">{{ $t('admin.eventConfig.semiMarathonInterval') }}</label>
+          <input
+            id="semi_marathon_interval_seconds"
+            v-model.number="formData.semi_marathon_interval_seconds"
+            type="number"
+            min="10"
+            max="300"
+            class="form-control"
+            :class="{ 'error': validationErrors.semi_marathon_interval_seconds }"
+          />
+          <span class="help-text">{{ $t('admin.eventConfig.semiMarathonIntervalHelp') }}</span>
+          <span v-if="validationErrors.semi_marathon_interval_seconds" class="error-text">
+            {{ validationErrors.semi_marathon_interval_seconds }}
+          </span>
+        </div>
+      </div>
+
       <div v-if="saveError" class="error-message">
         {{ saveError }}
       </div>
@@ -148,6 +199,9 @@ const formData = ref({
   registration_end_date: '',
   payment_deadline: '',
   rental_priority_days: 15,
+  marathon_start_time: '07:45',
+  semi_marathon_start_time: '09:00',
+  semi_marathon_interval_seconds: 30,
 });
 
 const validationErrors = ref({});
@@ -170,6 +224,9 @@ const loadConfig = async () => {
       registration_end_date: config.registration_end_date || '',
       payment_deadline: config.payment_deadline || '',
       rental_priority_days: config.rental_priority_days || 15,
+      marathon_start_time: config.marathon_start_time || '07:45',
+      semi_marathon_start_time: config.semi_marathon_start_time || '09:00',
+      semi_marathon_interval_seconds: config.semi_marathon_interval_seconds || 30,
     };
     
     originalData.value = { ...formData.value };
@@ -223,6 +280,20 @@ const validateForm = () => {
     validationErrors.value.rental_priority_days = t('admin.eventConfig.errors.rentalDaysRange');
   }
   
+  // Validate time formats
+  const timeRegex = /^([0-1][0-9]|2[0-3]):[0-5][0-9]$/;
+  if (formData.value.marathon_start_time && !timeRegex.test(formData.value.marathon_start_time)) {
+    validationErrors.value.marathon_start_time = t('admin.eventConfig.errors.invalidTimeFormat');
+  }
+  if (formData.value.semi_marathon_start_time && !timeRegex.test(formData.value.semi_marathon_start_time)) {
+    validationErrors.value.semi_marathon_start_time = t('admin.eventConfig.errors.invalidTimeFormat');
+  }
+  
+  // Validate interval
+  if (formData.value.semi_marathon_interval_seconds < 10 || formData.value.semi_marathon_interval_seconds > 300) {
+    validationErrors.value.semi_marathon_interval_seconds = t('admin.eventConfig.errors.intervalRange');
+  }
+  
   return Object.keys(validationErrors.value).length === 0;
 };
 
@@ -251,6 +322,9 @@ const handleSubmit = async () => {
       registration_end_date: updatedConfig.registration_end_date || '',
       payment_deadline: updatedConfig.payment_deadline || '',
       rental_priority_days: updatedConfig.rental_priority_days || 15,
+      marathon_start_time: updatedConfig.marathon_start_time || '07:45',
+      semi_marathon_start_time: updatedConfig.semi_marathon_start_time || '09:00',
+      semi_marathon_interval_seconds: updatedConfig.semi_marathon_interval_seconds || 30,
     };
     
     originalData.value = { ...formData.value };

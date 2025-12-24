@@ -17,7 +17,7 @@ logger.setLevel(logging.INFO)
 @require_admin
 def lambda_handler(event, context):
     """
-    Get event configuration including dates and registration periods
+    Get event configuration including dates, registration periods, and race timing
     
     Returns:
         Event configuration data
@@ -28,6 +28,9 @@ def lambda_handler(event, context):
     config_manager = ConfigurationManager()
     system_config = config_manager.get_system_config()
     
+    # Get race timing configuration
+    race_timing_config = config_manager.get_race_timing_config()
+    
     # Extract event-related configuration
     event_config = {
         'event_date': system_config.get('event_date', '2025-05-01'),
@@ -35,6 +38,9 @@ def lambda_handler(event, context):
         'registration_end_date': system_config.get('registration_end_date'),
         'payment_deadline': system_config.get('payment_deadline'),
         'rental_priority_days': system_config.get('rental_priority_days', 15),
+        'marathon_start_time': race_timing_config.get('marathon_start_time', '07:45'),
+        'semi_marathon_start_time': race_timing_config.get('semi_marathon_start_time', '09:00'),
+        'semi_marathon_interval_seconds': race_timing_config.get('semi_marathon_interval_seconds', 30),
     }
     
     logger.info(f"Retrieved event configuration: {event_config}")
