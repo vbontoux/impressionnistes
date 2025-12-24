@@ -188,7 +188,9 @@ def lambda_handler(event, context):
                 'event_type': race.get('event_type'),
                 'boat_type': race.get('boat_type'),
                 'age_category': race.get('age_category'),
-                'gender_category': race.get('gender_category')
+                'gender_category': race.get('gender_category'),
+                'display_order': race.get('display_order'),
+                'short_name': race.get('short_name')
             })
         
         # Convert Decimal types to float for JSON serialization

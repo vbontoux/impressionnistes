@@ -17,9 +17,9 @@ export {
 export {
   formatRacesToCrewTimer,
   downloadCrewTimerExcel,
-  formatSemiMarathonRaceName,
   calculateAverageAge,
-  getStrokeSeatName
+  getStrokeSeatName,
+  translateShortNameToFrench
 } from './crewTimerFormatter.js'
 
 export {

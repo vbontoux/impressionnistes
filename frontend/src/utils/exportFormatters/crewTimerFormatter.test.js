@@ -3,8 +3,7 @@
  * Test CrewTimer transformations and formatting
  */
 import { 
-  formatRacesToCrewTimer, 
-  formatSemiMarathonRaceName,
+  formatRacesToCrewTimer,
   calculateAverageAge,
   getStrokeSeatName
 } from './crewTimerFormatter.js';
@@ -143,91 +142,8 @@ assert(bowNumbers[3] === 4, 'Fourth bow is 4');
 assert(JSON.stringify(bowNumbers) === JSON.stringify([1, 2, 3, 4]), 'Bow numbers are sequential');
 console.log('');
 
-// Test 5: Semi-marathon race name formatting
-console.log('Test 5: Semi-marathon race name formatting');
-const race1 = {
-  name: 'WOMEN-JUNIOR J16-COXED SWEEP FOUR',
-  boat_type: '4+',
-  age_category: 'j16',
-  gender_category: 'women'
-};
-const formatted1 = formatSemiMarathonRaceName(race1);
-assert(formatted1 === '4+ J16 WOMAN', 'Formats women j16 4+ correctly');
-
-const race2 = {
-  name: 'MEN-SENIOR-SKIFF',
-  boat_type: 'skiff',
-  age_category: 'senior',
-  gender_category: 'men'
-};
-const formatted2 = formatSemiMarathonRaceName(race2);
-assert(formatted2 === '1X SENIOR MAN', 'Formats men senior skiff correctly');
-
-const race3 = {
-  name: 'MIXED-MASTER-EIGHT',
-  boat_type: '8+',
-  age_category: 'master',
-  gender_category: 'mixed'
-};
-const formatted3 = formatSemiMarathonRaceName(race3);
-assert(formatted3 === '8+ MASTER MIXED', 'Formats mixed master 8+ correctly');
-console.log('');
-
-// Test 6: Marathon race name unchanged
-console.log('Test 6: Marathon race name unchanged');
-const testData6 = {
-  success: true,
-  data: {
-    config: { competition_date: '2025-05-01' },
-    races: [
-      { race_id: 'M1', name: '1X SENIOR MAN', distance: 42, event_type: '42km', boat_type: 'skiff' }
-    ],
-    boats: [
-      { boat_registration_id: 'b1', race_id: 'M1', registration_status: 'complete', forfait: false, seats: [] }
-    ],
-    crew_members: [],
-    team_managers: []
-  }
-};
-
-const result6 = formatRacesToCrewTimer(testData6);
-assert(result6[0].Event === '1X SENIOR MAN', 'Marathon race name unchanged');
-console.log('');
-
-// Test 7: Gender mapping (MAN/WOMAN/MIXED)
-console.log('Test 7: Gender mapping (MAN/WOMAN/MIXED)');
-const raceWomen = { name: 'Test', boat_type: '4+', age_category: 'senior', gender_category: 'women' };
-const raceMan = { name: 'Test', boat_type: '4+', age_category: 'senior', gender_category: 'men' };
-const raceMixed = { name: 'Test', boat_type: '4+', age_category: 'senior', gender_category: 'mixed' };
-
-assert(formatSemiMarathonRaceName(raceWomen).includes('WOMAN'), 'women -> WOMAN');
-assert(formatSemiMarathonRaceName(raceMan).includes('MAN'), 'men -> MAN');
-assert(formatSemiMarathonRaceName(raceMixed).includes('MIXED'), 'mixed -> MIXED');
-console.log('');
-
-// Test 8: Yolette detection (Y marker)
-console.log('Test 8: Yolette detection (Y marker)');
-const raceYolette = {
-  name: 'WOMEN-JUNIOR J16-YOLETTE-COXED SWEEP FOUR',
-  boat_type: '4+',
-  age_category: 'j16',
-  gender_category: 'women'
-};
-const formattedYolette = formatSemiMarathonRaceName(raceYolette);
-assert(formattedYolette.includes('Y'), 'Yolette race includes Y marker');
-assert(formattedYolette === '4+ Y J16 WOMAN', 'Yolette formatted correctly');
-
-const raceNoYolette = {
-  name: 'WOMEN-JUNIOR J16-COXED SWEEP FOUR',
-  boat_type: '4+',
-  age_category: 'j16',
-  gender_category: 'women'
-};
-const formattedNoYolette = formatSemiMarathonRaceName(raceNoYolette);
-assert(!formattedNoYolette.includes('Y '), 'Non-yolette race has no Y marker');
-console.log('');
-
-// Test 9: Stroke seat extraction
+// Test 5: Stroke seat extraction
+console.log('Test 5: Stroke seat extraction');
 console.log('Test 9: Stroke seat extraction');
 const seats1 = [
   { position: 1, type: 'rower', crew_member_id: 'crew-1' },
@@ -259,8 +175,8 @@ const strokeName3 = getStrokeSeatName([], crewDict1);
 assert(strokeName3 === '', 'Empty seats returns empty string');
 console.log('');
 
-// Test 10: Average age calculation
-console.log('Test 10: Average age calculation');
+// Test 6: Average age calculation
+console.log('Test 6: Average age calculation');
 const crewMembers1 = [
   { date_of_birth: '1990-01-01' },
   { date_of_birth: '1992-06-15' },
@@ -286,9 +202,9 @@ const avgAge3 = calculateAverageAge(crewMembers3, '2025-05-01');
 assert(avgAge3 === 34, 'Handles missing dates correctly');
 console.log('');
 
-// Test 11: Empty dataset handling
-console.log('Test 11: Empty dataset handling');
-const testData11 = {
+// Test 7: Empty dataset handling
+console.log('Test 7: Empty dataset handling');
+const testData7 = {
   success: true,
   data: {
     config: { competition_date: '2025-05-01' },
@@ -299,12 +215,12 @@ const testData11 = {
   }
 };
 
-const result11 = formatRacesToCrewTimer(testData11);
-assert(result11.length === 0, 'Empty dataset returns empty array');
+const result7 = formatRacesToCrewTimer(testData7);
+assert(result7.length === 0, 'Empty dataset returns empty array');
 console.log('');
 
-// Test 12: Invalid data format error handling
-console.log('Test 12: Invalid data format error handling');
+// Test 8: Invalid data format error handling
+console.log('Test 8: Invalid data format error handling');
 try {
   formatRacesToCrewTimer(null);
   assert(false, 'Should throw error for null data');
@@ -320,9 +236,9 @@ try {
 }
 console.log('');
 
-// Test 13: Complete integration test
-console.log('Test 13: Complete integration test');
-const testData13 = {
+// Test 9: Complete integration test (uses original race names)
+console.log('Test 9: Complete integration test (uses original race names)');
+const testData9 = {
   success: true,
   data: {
     config: { competition_date: '2025-05-01' },
@@ -387,20 +303,22 @@ const testData13 = {
   }
 };
 
-const result13 = formatRacesToCrewTimer(testData13);
-assert(result13.length === 2, 'Two boats in output');
-assert(result13[0]['Event Num'] === 1, 'Marathon is Event 1');
-assert(result13[1]['Event Num'] === 2, 'Semi-marathon is Event 2');
-assert(result13[0].Bow === 1, 'First boat is Bow 1');
-assert(result13[1].Bow === 2, 'Second boat is Bow 2');
-assert(result13[0].Event === '1X SENIOR MAN', 'Marathon name unchanged');
-assert(result13[1].Event === '4+ J16 WOMAN', 'Semi-marathon name formatted');
-assert(result13[0].Crew === 'RCPM', 'First boat club correct');
-assert(result13[1].Crew === 'Club Elite', 'Second boat club correct');
-assert(result13[0].Stroke === 'Doe', 'First boat stroke correct');
-assert(result13[1].Stroke === 'Wilson', 'Second boat stroke correct (highest rower)');
-assert(result13[0].Age === 35, 'First boat age correct');
-assert(result13[1].Age === 16, 'Second boat age correct (average of rowers)');
+const result9 = formatRacesToCrewTimer(testData9);
+assert(result9.length === 2, 'Two boats in output');
+assert(result9[0]['Event Num'] === 1, 'Marathon is Event 1');
+assert(result9[1]['Event Num'] === 2, 'Semi-marathon is Event 2');
+assert(result9[0].Bow === 1, 'First boat is Bow 1');
+assert(result9[1].Bow === 2, 'Second boat is Bow 2');
+assert(result9[0].Event === '1X SENIOR MAN', 'Marathon Event uses original race name');
+assert(result9[0]['Event Abbrev'] === '', 'Marathon Event Abbrev is empty (no short_name in test data)');
+assert(result9[1].Event === 'WOMEN-JUNIOR J16-COXED SWEEP FOUR', 'Semi-marathon Event uses original race name');
+assert(result9[1]['Event Abbrev'] === '', 'Semi-marathon Event Abbrev is empty (no short_name in test data)');
+assert(result9[0].Crew === 'RCPM', 'First boat club correct');
+assert(result9[1].Crew === 'Club Elite', 'Second boat club correct');
+assert(result9[0].Stroke === 'Doe', 'First boat stroke correct');
+assert(result9[1].Stroke === 'Wilson', 'Second boat stroke correct (highest rower)');
+assert(result9[0].Age === 35, 'First boat age correct');
+assert(result9[1].Age === 16, 'Second boat age correct (average of rowers)');
 console.log('');
 
 // Summary

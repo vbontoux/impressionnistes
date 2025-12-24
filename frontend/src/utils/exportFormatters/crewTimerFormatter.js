@@ -7,33 +7,51 @@ import * as XLSX from 'xlsx'
 import { getBoatTypeDisplay, formatDateForFilename } from './shared.js'
 
 /**
- * Format semi-marathon race name
- * Pattern: boat_type [Y if yolette] age_category gender_category
- * @param {Object} race - The race object
- * @returns {string} - Formatted race name
+ * Translate short_name from English to French
+ * Only translates gender markers (second position): W (woman) → F (femme), X (mixed) → M (mixte), M (men) → H (homme)
+ * Age category markers (first position like M for Master, S for Senior, J for Junior) remain unchanged
+ * @param {string} shortName - The short name in English (e.g., "MW4X+Y")
+ * @returns {string} - Translated short name (e.g., "MF4X+Y")
  */
-export function formatSemiMarathonRaceName(race) {
-  const boatType = getBoatTypeDisplay(race.boat_type || '')
+export function translateShortNameToFrench(shortName) {
+  if (!shortName) return ''
   
-  // Check if "yolette" is in the race name (case insensitive)
-  const raceName = (race.name || '').toLowerCase()
-  const yoletteMarker = raceName.includes('yolette') ? 'Y' : ''
+  // Short name format: [AgeCategory][Gender][BoatType]
+  // Examples: MW4X+Y (Master Women), SH8+ (Senior Men), J16F2X (Junior 16 Women)
   
-  // Get age category (j16, j18, senior, master)
-  const ageCategory = (race.age_category || '').toUpperCase()
+  // Only translate the gender marker (typically position 1, or after J16/J18)
+  let translated = ''
   
-  // Get gender category (men, women, mixed)
-  const genderCategory = race.gender_category || ''
-  const genderMap = {
-    'men': 'MAN',
-    'women': 'WOMAN',
-    'mixed': 'MIXED'
+  for (let i = 0; i < shortName.length; i++) {
+    const char = shortName[i]
+    const prevChar = i > 0 ? shortName[i - 1] : ''
+    
+    // Check if this is a gender marker (comes after age category or at position 1)
+    const isGenderPosition = (
+      // Position 1 (after single letter age category like M, S)
+      (i === 1 && /[MSJX]/.test(prevChar)) ||
+      // After J16 or J18
+      (i === 3 && shortName.substring(0, 3).match(/J1[68]/))
+    )
+    
+    if (isGenderPosition) {
+      // Translate gender markers
+      if (char === 'W') {
+        translated += 'F' // Women → Femme
+      } else if (char === 'X') {
+        translated += 'M' // Mixed → Mixte
+      } else if (char === 'M') {
+        translated += 'H' // Men → Homme
+      } else {
+        translated += char
+      }
+    } else {
+      // Keep all other characters unchanged (age category, boat type, etc.)
+      translated += char
+    }
   }
-  const genderDisplay = genderMap[genderCategory] || genderCategory.toUpperCase()
   
-  // Compose the name - filter out empty strings and join with single space
-  const parts = [boatType, yoletteMarker, ageCategory, genderDisplay]
-  return parts.filter(part => part).join(' ').trim()
+  return translated
 }
 
 /**
@@ -111,9 +129,11 @@ export function getStrokeSeatName(seats, crewMembersDict) {
 /**
  * Convert races JSON data to CrewTimer format
  * @param {Object} jsonData - The JSON response from the backend API
+ * @param {string} locale - The locale for internationalization ('en' or 'fr')
+ * @param {Function} t - The i18n translation function
  * @returns {Array} - Array of CrewTimer row objects
  */
-export function formatRacesToCrewTimer(jsonData) {
+export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
   if (!jsonData || !jsonData.data) {
     throw new Error('Invalid data format: expected data object')
   }
@@ -161,10 +181,21 @@ export function formatRacesToCrewTimer(jsonData) {
     }
   }
   
-  // Sort races: marathon (42km) first, then semi-marathon (21km)
-  const marathonRaces = races.filter(r => r.distance === 42 || r.event_type === '42km')
-  const semiMarathonRaces = races.filter(r => r.distance === 21 || r.event_type === '21km')
-  const sortedRaces = [...marathonRaces, ...semiMarathonRaces]
+  // Sort races by display_order (if available), otherwise fall back to distance-based sorting
+  let sortedRaces
+  if (races.length > 0 && races[0].display_order !== undefined && races[0].display_order !== null) {
+    // Use display_order for sorting
+    sortedRaces = [...races].sort((a, b) => {
+      const orderA = a.display_order || 999
+      const orderB = b.display_order || 999
+      return orderA - orderB
+    })
+  } else {
+    // Fallback: marathon (42km) first, then semi-marathon (21km)
+    const marathonRaces = races.filter(r => r.distance === 42 || r.event_type === '42km')
+    const semiMarathonRaces = races.filter(r => r.distance === 21 || r.event_type === '21km')
+    sortedRaces = [...marathonRaces, ...semiMarathonRaces]
+  }
   
   // Build CrewTimer data
   const crewTimerData = []
@@ -182,11 +213,15 @@ export function formatRacesToCrewTimer(jsonData) {
     // Increment event number for this race
     eventNum += 1
     
-    // Format race name based on distance
-    const distance = race.distance || (race.event_type === '42km' ? 42 : 21)
-    const raceName = distance === 21 
-      ? formatSemiMarathonRaceName(race)
-      : race.name
+    // Use the original race name from database (not the generated semi-marathon name)
+    // This ensures proper translation via i18n
+    const fullRaceName = t ? t(`races.${race.name}`, race.name) : race.name
+    
+    // Translate short name if locale is French
+    const shortName = race.short_name || ''
+    const translatedShortName = locale === 'fr' && shortName
+      ? translateShortNameToFrench(shortName)
+      : shortName
     
     for (const boat of raceBoats) {
       // Get team manager and club
@@ -214,8 +249,8 @@ export function formatRacesToCrewTimer(jsonData) {
       const row = {
         'Event Time': '',
         'Event Num': eventNum,
-        'Event': raceName,
-        'Event Abbrev': raceName,
+        'Event': fullRaceName,
+        'Event Abbrev': translatedShortName,
         'Crew': clubName,
         'Crew Abbrev': clubName,
         'Stroke': strokeName,
@@ -237,10 +272,12 @@ export function formatRacesToCrewTimer(jsonData) {
  * Download races data as CrewTimer Excel file
  * @param {Object} jsonData - The JSON response from the backend API
  * @param {string} filename - Optional custom filename (without extension)
+ * @param {string} locale - The locale for internationalization ('en' or 'fr')
+ * @param {Function} t - The i18n translation function
  */
-export function downloadCrewTimerExcel(jsonData, filename = null) {
-  // Generate CrewTimer data
-  const crewTimerData = formatRacesToCrewTimer(jsonData)
+export function downloadCrewTimerExcel(jsonData, filename = null, locale = 'en', t = null) {
+  // Generate CrewTimer data with locale and translation function
+  const crewTimerData = formatRacesToCrewTimer(jsonData, locale, t)
   
   if (crewTimerData.length === 0) {
     throw new Error('No data to export')

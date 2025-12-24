@@ -143,7 +143,7 @@ import {
   downloadCrewTimerExcel
 } from '../../utils/exportFormatters';
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const loadingCrewTimer = ref(false);
 const loadingCrewMembers = ref(false);
@@ -179,8 +179,8 @@ const exportCrewTimer = async () => {
       };
       
       // Use formatter to generate and download Excel file
-      // Pass the full response structure (with data property) to the formatter
-      downloadCrewTimerExcel(response.data);
+      // Pass the full response structure (with data property), locale, and translation function to the formatter
+      downloadCrewTimerExcel(response.data, null, locale.value, t);
       
       success.value = t('admin.dataExport.exportSuccess');
       
