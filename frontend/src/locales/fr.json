@@ -83,8 +83,8 @@
       "totalBoats": "Bateaux totaux"
     },
     "eventConfig": {
-      "title": "Configuration des dates",
-      "subtitle": "Gérer les dates de l'événement et les périodes d'inscription",
+      "title": "Configuration de l'événement",
+      "subtitle": "Gérer les dates, horaires de courses et numéros de dossard",
       "eventDate": "Date de l'événement",
       "competitionDate": "Date de la compétition",
       "registrationPeriod": "Période d'inscription",

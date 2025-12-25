@@ -83,8 +83,8 @@
       "totalBoats": "Total Boats"
     },
     "eventConfig": {
-      "title": "Event Date Configuration",
-      "subtitle": "Manage event dates and registration periods",
+      "title": "Event Configuration",
+      "subtitle": "Manage event dates, race timing, and bow numbers",
       "eventDate": "Event Date",
       "competitionDate": "Competition Date",
       "registrationPeriod": "Registration Period",
