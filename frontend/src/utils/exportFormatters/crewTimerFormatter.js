@@ -5,10 +5,11 @@
 
 import * as XLSX from 'xlsx'
 import { formatDateForFilename } from './shared.js'
+import { assignRaceAndBowNumbers, filterEligibleBoats } from './raceNumbering.js'
 
 /**
  * Format time in 12-hour format with AM/PM (e.g., "7:00:00 AM")
- * @param {string} time24 - Time in 24-hour format (HH:MM)
+ * @param {string} time24 - Time in 24-hour format (HH:MM or HH:MM:SS)
  * @param {number} additionalSeconds - Additional seconds to add to the time
  * @returns {string} - Time in 12-hour format with AM/PM
  */
@@ -16,11 +17,14 @@ export function formatTime12Hour(time24, additionalSeconds = 0) {
   if (!time24) return ''
   
   try {
-    // Parse HH:MM format
-    const [hours, minutes] = time24.split(':').map(Number)
+    // Parse HH:MM or HH:MM:SS format
+    const parts = time24.split(':').map(Number)
+    const hours = parts[0] || 0
+    const minutes = parts[1] || 0
+    const seconds = parts[2] || 0
     
     // Calculate total seconds
-    let totalSeconds = hours * 3600 + minutes * 60 + additionalSeconds
+    let totalSeconds = hours * 3600 + minutes * 60 + seconds + additionalSeconds
     
     // Handle day overflow (shouldn't happen in practice)
     totalSeconds = totalSeconds % 86400
@@ -176,13 +180,6 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
     throw new Error('Invalid data format: expected races, boats, and crew_members arrays')
   }
   
-  // Get race timing configuration
-  const marathonStartTime = config?.marathon_start_time || '07:45'
-  const semiMarathonStartTime = config?.semi_marathon_start_time || '09:00'
-  const semiMarathonIntervalSeconds = config?.semi_marathon_interval_seconds || 30
-  const marathonBowStart = config?.marathon_bow_start || 1
-  const semiMarathonBowStart = config?.semi_marathon_bow_start || 41
-  
   // Create lookup dictionaries
   const crewMembersDict = {}
   for (const member of crew_members) {
@@ -194,129 +191,75 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
     teamManagersDict[manager.user_id] = manager
   }
   
-  const racesDict = {}
-  for (const race of races) {
-    racesDict[race.race_id] = race
-  }
+  // Filter eligible boats using shared logic
+  const eligibleBoats = filterEligibleBoats(boats)
   
-  // Filter boats: complete/paid/free, exclude forfait
-  const eligibleBoats = boats.filter(boat => {
-    const status = boat.registration_status
-    const isForfait = boat.forfait === true
-    return (status === 'complete' || status === 'paid' || status === 'free') && !isForfait
-  })
-  
-  // Group boats by race
-  const boatsByRace = {}
-  for (const boat of eligibleBoats) {
-    const raceId = boat.race_id
-    if (raceId) {
-      if (!boatsByRace[raceId]) {
-        boatsByRace[raceId] = []
-      }
-      boatsByRace[raceId].push(boat)
-    }
-  }
-  
-  // Sort races by display_order (if available), otherwise fall back to distance-based sorting
-  let sortedRaces
-  if (races.length > 0 && races[0].display_order !== undefined && races[0].display_order !== null) {
-    // Use display_order for sorting
-    sortedRaces = [...races].sort((a, b) => {
-      const orderA = a.display_order || 999
-      const orderB = b.display_order || 999
-      return orderA - orderB
-    })
-  } else {
-    // Fallback: marathon (42km) first, then semi-marathon (21km)
-    const marathonRaces = races.filter(r => r.distance === 42 || r.event_type === '42km')
-    const semiMarathonRaces = races.filter(r => r.distance === 21 || r.event_type === '21km')
-    sortedRaces = [...marathonRaces, ...semiMarathonRaces]
-  }
+  // Assign race and bow numbers using shared logic
+  const { raceAssignments, boatAssignments } = assignRaceAndBowNumbers(races, eligibleBoats, config)
   
   // Build CrewTimer data
   const crewTimerData = []
-  let eventNum = 0
-  let marathonBowNum = marathonBowStart
-  let semiMarathonBowNum = semiMarathonBowStart
-  let semiMarathonBoatCount = 0 // Track boat count for semi-marathon interval calculation
   
-  for (const race of sortedRaces) {
-    const raceId = race.race_id
-    const raceBoats = boatsByRace[raceId] || []
+  for (const boat of eligibleBoats) {
+    const boatId = boat.boat_registration_id
+    const assignment = boatAssignments[boatId]
     
-    if (raceBoats.length === 0) {
-      continue // Skip races with no boats
-    }
+    if (!assignment) continue
     
-    // Increment event number for this race
-    eventNum += 1
+    const raceAssignment = raceAssignments[boat.race_id]
+    if (!raceAssignment) continue
     
-    // Determine if this is a marathon or semi-marathon race
-    const isMarathon = race.distance === 42 || race.event_type === '42km'
-    
-    // Use the original race name from database (not the generated semi-marathon name)
-    // This ensures proper translation via i18n
-    const fullRaceName = t ? t(`races.${race.name}`, race.name) : race.name
+    // Get race info
+    const fullRaceName = t ? t(`races.${raceAssignment.name}`, raceAssignment.name) : raceAssignment.name
     
     // Translate short name if locale is French
-    const shortName = race.short_name || ''
+    const shortName = raceAssignment.shortName || ''
     const translatedShortName = locale === 'fr' && shortName
       ? translateShortNameToFrench(shortName)
       : shortName
     
-    for (const boat of raceBoats) {
-      // Calculate event time and bow number based on race type
-      let eventTime = ''
-      let bowNum = 0
-      
-      if (isMarathon) {
-        // All marathon boats start at the same time
-        eventTime = formatTime12Hour(marathonStartTime, 0)
-        bowNum = marathonBowNum
-        marathonBowNum++
-      } else {
-        // Semi-marathon boats start with intervals
-        const additionalSeconds = semiMarathonBoatCount * semiMarathonIntervalSeconds
-        eventTime = formatTime12Hour(semiMarathonStartTime, additionalSeconds)
-        bowNum = semiMarathonBowNum
-        semiMarathonBowNum++
-        semiMarathonBoatCount++
-      }
-      
-      // Get team manager and club
-      const teamManagerId = boat.team_manager_id
-      const teamManager = teamManagersDict[teamManagerId] || {}
-      const clubName = teamManager.club_affiliation || boat.club_affiliation || 'Unknown'
-      
-      // Get average age from boat's crew_composition (pre-calculated by backend)
-      // This is more efficient and ensures consistency with backend logic
-      const avgAge = boat.crew_composition?.avg_age 
-        ? Math.round(boat.crew_composition.avg_age) 
-        : 0
-      
-      // Get stroke seat name
-      const seats = boat.seats || []
-      const strokeName = getStrokeSeatName(seats, crewMembersDict)
-      
-      // Build row
-      const row = {
-        'Event Time': eventTime,
-        'Event Num': eventNum,
-        'Event': fullRaceName,
-        'Event Abbrev': translatedShortName,
-        'Crew': clubName,
-        'Crew Abbrev': clubName,
-        'Stroke': strokeName,
-        'Bow': bowNum,
-        'Race Info': 'Head',
-        'Status': '',
-        'Age': avgAge
-      }
-      
-      crewTimerData.push(row)
+    // Format event time in 12-hour format for CrewTimer
+    const eventTime = formatTime12Hour(assignment.startTime, 0)
+    
+    // Get team manager and club
+    const teamManagerId = boat.team_manager_id
+    const teamManager = teamManagersDict[teamManagerId] || {}
+    const clubName = teamManager.club_affiliation || boat.club_affiliation || 'Unknown'
+    
+    // Get average age from boat's crew_composition (pre-calculated by backend)
+    const avgAge = boat.crew_composition?.avg_age 
+      ? Math.round(boat.crew_composition.avg_age) 
+      : 0
+    
+    // Get stroke seat name
+    const seats = boat.seats || []
+    const strokeName = getStrokeSeatName(seats, crewMembersDict)
+    
+    // Build row
+    const row = {
+      'Event Time': eventTime,
+      'Event Num': assignment.raceNumber,
+      'Event': fullRaceName,
+      'Event Abbrev': translatedShortName,
+      'Crew': clubName,
+      'Crew Abbrev': clubName,
+      'Stroke': strokeName,
+      'Bow': assignment.bowNumber,
+      'Race Info': 'Head',
+      'Status': '',
+      'Age': avgAge
     }
+    
+    crewTimerData.push(row)
   }
+  
+  // Sort by Event Num (race number), then by Bow number within each race
+  crewTimerData.sort((a, b) => {
+    if (a['Event Num'] !== b['Event Num']) {
+      return a['Event Num'] - b['Event Num']
+    }
+    return a['Bow'] - b['Bow']
+  })
   
   return crewTimerData
 }

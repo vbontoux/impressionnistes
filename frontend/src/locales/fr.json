@@ -72,6 +72,9 @@
       "crewTimerExport": "Export CrewTimer",
       "crewTimerDescription": "Exporter les courses et les bateaux au format CrewTimer.com pour la gestion des chronométrages. Inclut uniquement les bateaux complets, payés ou gratuits (non forfaits).",
       "exportToCrewTimer": "Exporter vers CrewTimer",
+      "eventProgramExport": "Programme de l'événement",
+      "eventProgramDescription": "Exporter la liste des équipiers et le programme des courses pour impression le jour de la course. Inclut uniquement les bateaux complets, payés ou gratuits (non forfaits).",
+      "exportEventProgram": "Exporter le programme",
       "standardExports": "Exports standards",
       "standardDescription": "Exporter les équipiers et les inscriptions de bateaux au format CSV",
       "exportCrewMembers": "Exporter les équipiers",
@@ -80,7 +83,8 @@
       "exportSuccess": "Export réussi ! Le fichier a été téléchargé.",
       "exportError": "Erreur lors de l'export. Veuillez réessayer.",
       "totalRaces": "Courses totales",
-      "totalBoats": "Bateaux totaux"
+      "totalBoats": "Bateaux totaux",
+      "totalCrewMembers": "Équipiers totaux"
     },
     "eventConfig": {
       "title": "Configuration de l'événement",

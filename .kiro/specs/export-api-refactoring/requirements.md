@@ -7,12 +7,19 @@ This specification defines the refactoring of the admin export API endpoints to 
 ## Glossary
 
 - **Export API**: Backend Lambda functions that retrieve and return data for administrative exports
-- **Frontend Formatter**: JavaScript utilities that transform JSON data into specific export formats (CSV, Excel, CrewTimer)
+- **Frontend Formatter**: JavaScript utilities that transform JSON data into specific export formats (CSV, Excel, CrewTimer, Event Program)
 - **Raw Data**: Unformatted database records returned as JSON from the API
 - **Format-Specific Logic**: Transformations like race name formatting, column ordering, data type conversions specific to an export format
 - **Team Manager**: User who manages crew members and boat registrations
 - **Crew Member**: Individual rower or coxswain registered by a team manager
 - **Boat Registration**: A boat entry with assigned crew members for a specific race
+- **Race Number**: Sequential number assigned to each race that has eligible boats
+- **Bow Number**: Sequential number assigned to each boat for identification during the race
+- **Eligible Boat**: A boat with status complete, paid, or free that is not marked as forfait
+- **Short Name**: Abbreviated race name used in exports (e.g., "MW4X+Y" for Master Women 4X+ Yolette)
+- **Display Order**: Numeric field on races that determines the order in which races are processed for numbering
+- **Event Program**: Multi-sheet Excel export containing crew member list and race schedule for race day printing
+- **Stroke Seat**: The highest position rower in a boat (not the coxswain)
 
 ## Requirements
 
@@ -46,21 +53,26 @@ This specification defines the refactoring of the admin export API endpoints to 
 
 #### Acceptance Criteria
 
-1. WHEN an administrator requests race export THEN the Export API SHALL return all races, boats, crew members, and system configuration as JSON
-2. WHEN the Export API returns race data THEN the data SHALL include complete race details with boat type, distance, age category, and gender category
+1. WHEN an administrator requests race export THEN the Export API SHALL return all races, boats, crew members, team managers, and system configuration as JSON
+2. WHEN the Export API returns race data THEN the data SHALL include complete race details with boat type, distance, age category, gender category, short name, and display order
 3. WHEN the Export API returns race data THEN the data SHALL include all boats regardless of status (complete, paid, free, incomplete, or forfait)
 4. WHEN the Export API returns boat data THEN each boat SHALL include registration status, boat type, event type, race ID, forfait flag, and crew composition details
 5. WHEN the Export API returns boat data THEN each boat SHALL include calculated fields such as age category, gender category, average age, and filled seat count
 6. WHEN the Export API returns boat data THEN each boat SHALL include complete seat assignments with crew member IDs, positions, and seat types
 7. WHEN the Export API returns race data THEN the data SHALL include all crew members with personal details including name, date of birth, gender, and license number
-8. WHEN the Frontend Formatter receives race JSON data THEN the Frontend Formatter SHALL apply CrewTimer-specific transformations including race name formatting, event numbering, and bow numbering
-9. WHEN the Frontend Formatter formats semi-marathon race names THEN the Frontend Formatter SHALL use the pattern: boat_type [Y if yolette] age_category gender_category
-10. WHEN the Frontend Formatter formats marathon race names THEN the Frontend Formatter SHALL use the original race name from the database
-11. WHEN the Frontend Formatter assigns event numbers THEN the Frontend Formatter SHALL increment event number only when starting a new race
-12. WHEN the Frontend Formatter assigns bow numbers THEN the Frontend Formatter SHALL increment bow number globally across all boats in all races
-13. WHEN the Frontend Formatter sorts races THEN the Frontend Formatter SHALL place marathon races before semi-marathon races
-14. WHEN the Frontend Formatter filters boats for CrewTimer export THEN the Frontend Formatter SHALL include only boats with status complete, paid, or free and exclude boats marked as forfait
-15. WHEN the Frontend Formatter has access to all boat details THEN the Frontend Formatter SHALL be able to display or export any field including age category, gender category, club affiliation, and crew composition
+8. WHEN the Export API returns system configuration THEN the configuration SHALL include marathon_start_time, semi_marathon_start_time, semi_marathon_interval_seconds, marathon_bow_start, and semi_marathon_bow_start
+9. WHEN the Frontend Formatter receives race JSON data THEN the Frontend Formatter SHALL apply CrewTimer-specific transformations including race name formatting, event numbering, and bow numbering
+10. WHEN the Frontend Formatter formats race names THEN the Frontend Formatter SHALL use the race's short_name field if available
+11. WHEN the Frontend Formatter formats race names for French locale THEN the Frontend Formatter SHALL translate gender markers in short_name (W→F for femme, X→M for mixte, M→H for homme)
+12. WHEN the Frontend Formatter assigns event numbers THEN the Frontend Formatter SHALL increment event number only when starting a new race
+13. WHEN the Frontend Formatter assigns bow numbers for marathon races THEN the Frontend Formatter SHALL use sequential numbering starting from marathon_bow_start configuration value
+14. WHEN the Frontend Formatter assigns bow numbers for semi-marathon races THEN the Frontend Formatter SHALL use sequential numbering starting from semi_marathon_bow_start configuration value
+15. WHEN the Frontend Formatter sorts races THEN the Frontend Formatter SHALL sort by display_order field
+16. WHEN the Frontend Formatter filters boats for CrewTimer export THEN the Frontend Formatter SHALL include only boats with status complete, paid, or free and exclude boats marked as forfait
+17. WHEN the Frontend Formatter calculates start times for marathon boats THEN all boats in the same marathon race SHALL have the same start time
+18. WHEN the Frontend Formatter calculates start times for semi-marathon boats THEN each boat SHALL have a start time incremented by semi_marathon_interval_seconds from the previous boat
+19. WHEN the Frontend Formatter formats event times THEN the Frontend Formatter SHALL convert 24-hour time to 12-hour format with AM/PM
+20. WHEN the Frontend Formatter has access to all boat details THEN the Frontend Formatter SHALL be able to display or export any field including age category, gender category, club affiliation, and crew composition
 
 ### Requirement 4
 
@@ -100,6 +112,24 @@ This specification defines the refactoring of the admin export API endpoints to 
 6. WHEN frontend formatters are implemented THEN unit tests SHALL verify format-specific rules like CrewTimer race name formatting
 
 ### Requirement 7
+
+**User Story:** As an administrator, I want to export an event program with crew member list and race schedule, so that I can print race day materials for participants and organizers.
+
+#### Acceptance Criteria
+
+1. WHEN an administrator requests event program export THEN the Frontend Formatter SHALL generate an Excel file with multiple sheets
+2. WHEN the Frontend Formatter generates the crew member list sheet THEN the sheet SHALL include columns for last name, first name, club, race abbreviation, race name, race number, stroke seat, and bow number
+3. WHEN the Frontend Formatter generates the crew member list THEN crew members SHALL be sorted alphabetically by last name
+4. WHEN the Frontend Formatter generates the crew member list THEN only crew members from eligible boats (complete/paid/free, not forfait) SHALL be included
+5. WHEN the Frontend Formatter generates the race schedule sheet THEN the sheet SHALL include columns for race abbreviation, race name, race number, and start time
+6. WHEN the Frontend Formatter generates the race schedule THEN races SHALL be sorted by race number
+7. WHEN the Frontend Formatter generates the race schedule THEN only races with at least one eligible boat SHALL be included
+8. WHEN the Frontend Formatter formats times in the race schedule THEN times SHALL be displayed in 24-hour format (HH:MM)
+9. WHEN the Frontend Formatter generates the event program for French locale THEN sheet names SHALL be in French ("Liste des équipiers" and "Programme des courses")
+10. WHEN the Frontend Formatter generates the event program for English locale THEN sheet names SHALL be in English ("Crew Member List" and "Race Schedule")
+11. WHEN the Frontend Formatter generates the event program THEN race and bow number assignments SHALL use the same shared logic as CrewTimer export to ensure consistency
+
+### Requirement 8
 
 **User Story:** As an administrator, I want backward compatibility during the refactoring, so that existing export functionality continues to work while new endpoints are developed.
 

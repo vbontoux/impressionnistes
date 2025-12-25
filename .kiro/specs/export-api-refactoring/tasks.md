@@ -110,7 +110,7 @@
   - Implement date formatting utility
   - _Requirements: 4.5_
 
-- [ ] 4. Write frontend unit tests
+- [x] 4. Write frontend unit tests
   - Test CSV generation and formatting
   - Test CrewTimer transformations
   - Test edge cases and error handling

@@ -6,51 +6,95 @@
     </div>
 
     <div class="export-sections">
-      <!-- CrewTimer Export Section -->
-      <div class="export-card crewtimer-card">
-        <div class="export-header">
-          <div class="export-title-row">
-            <img 
-              src="https://crewtimer.com/favicon.ico" 
-              alt="CrewTimer" 
-              class="crewtimer-icon"
-              @error="handleIconError"
-            />
-            <h2>{{ $t('admin.dataExport.crewTimerExport') }}</h2>
+      <!-- Primary Exports Row (Side by Side) -->
+      <div class="primary-exports-row">
+        <!-- CrewTimer Export Section -->
+        <div class="export-card crewtimer-card">
+          <div class="export-header">
+            <div class="export-title-row">
+              <img 
+                src="https://crewtimer.com/favicon.ico" 
+                alt="CrewTimer" 
+                class="crewtimer-icon"
+                @error="handleIconError"
+              />
+              <h2>{{ $t('admin.dataExport.crewTimerExport') }}</h2>
+            </div>
+            <p class="export-description">{{ $t('admin.dataExport.crewTimerDescription') }}</p>
           </div>
-          <p class="export-description">{{ $t('admin.dataExport.crewTimerDescription') }}</p>
-        </div>
-        
-        <div class="export-actions">
-          <button 
-            @click="exportCrewTimer" 
-            class="btn btn-primary"
-            :disabled="loadingCrewTimer"
-          >
-            <span v-if="!loadingCrewTimer">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="btn-icon">
-                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <line x1="12" y1="18" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <polyline points="9 15 12 18 15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              {{ $t('admin.dataExport.exportToCrewTimer') }}
-            </span>
-            <span v-else>
-              <span class="spinner"></span>
-              {{ $t('admin.dataExport.exporting') }}
-            </span>
-          </button>
+          
+          <div class="export-actions">
+            <button 
+              @click="exportCrewTimer" 
+              class="btn btn-primary"
+              :disabled="loadingCrewTimer"
+            >
+              <span v-if="!loadingCrewTimer">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="btn-icon">
+                  <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <line x1="12" y1="18" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="9 15 12 18 15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                {{ $t('admin.dataExport.exportToCrewTimer') }}
+              </span>
+              <span v-else>
+                <span class="spinner"></span>
+                {{ $t('admin.dataExport.exporting') }}
+              </span>
+            </button>
+          </div>
+
+          <div v-if="crewTimerStats" class="export-stats">
+            <div class="stat-item">
+              <span class="stat-label">{{ $t('admin.dataExport.totalRaces') }}:</span>
+              <span class="stat-value">{{ crewTimerStats.totalRaces }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">{{ $t('admin.dataExport.totalBoats') }}:</span>
+              <span class="stat-value">{{ crewTimerStats.totalBoats }}</span>
+            </div>
+          </div>
         </div>
 
-        <div v-if="crewTimerStats" class="export-stats">
-          <div class="stat-item">
-            <span class="stat-label">{{ $t('admin.dataExport.totalRaces') }}:</span>
-            <span class="stat-value">{{ crewTimerStats.totalRaces }}</span>
+        <!-- Event Program Export Section -->
+        <div class="export-card event-program-card">
+          <div class="export-header">
+            <h2>{{ $t('admin.dataExport.eventProgramExport') }}</h2>
+            <p class="export-description">{{ $t('admin.dataExport.eventProgramDescription') }}</p>
           </div>
-          <div class="stat-item">
-            <span class="stat-label">{{ $t('admin.dataExport.totalBoats') }}:</span>
-            <span class="stat-value">{{ crewTimerStats.totalBoats }}</span>
+          
+          <div class="export-actions">
+            <button 
+              @click="exportEventProgram" 
+              class="btn btn-primary"
+              :disabled="loadingEventProgram"
+            >
+              <span v-if="!loadingEventProgram">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="btn-icon">
+                  <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <line x1="12" y1="18" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="9 15 12 18 15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                {{ $t('admin.dataExport.exportEventProgram') }}
+              </span>
+              <span v-else>
+                <span class="spinner"></span>
+                {{ $t('admin.dataExport.exporting') }}
+              </span>
+            </button>
+          </div>
+
+          <div v-if="eventProgramStats" class="export-stats">
+            <div class="stat-item">
+              <span class="stat-label">{{ $t('admin.dataExport.totalCrewMembers') }}:</span>
+              <span class="stat-value">{{ eventProgramStats.totalCrewMembers }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">{{ $t('admin.dataExport.totalRaces') }}:</span>
+              <span class="stat-value">{{ eventProgramStats.totalRaces }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -142,15 +186,18 @@ import {
   downloadBoatRegistrationsCSV,
   downloadCrewTimerExcel
 } from '../../utils/exportFormatters';
+import { downloadEventProgramExcel } from '../../utils/exportFormatters/eventProgramFormatter';
 
 const { t, locale } = useI18n();
 
 const loadingCrewTimer = ref(false);
+const loadingEventProgram = ref(false);
 const loadingCrewMembers = ref(false);
 const loadingBoatRegistrations = ref(false);
 const error = ref(null);
 const success = ref(null);
 const crewTimerStats = ref(null);
+const eventProgramStats = ref(null);
 
 const handleIconError = (event) => {
   // Fallback to a generic icon if CrewTimer icon fails to load
@@ -194,6 +241,64 @@ const exportCrewTimer = async () => {
     error.value = err.response?.data?.error?.message || t('admin.dataExport.exportError');
   } finally {
     loadingCrewTimer.value = false;
+  }
+};
+
+const exportEventProgram = async () => {
+  clearMessages();
+  loadingEventProgram.value = true;
+  
+  try {
+    const response = await apiClient.get('/admin/export/races-json');
+    
+    if (response.data && response.data.success) {
+      const jsonData = response.data.data;
+      
+      // Count unique crew members in eligible boats
+      const eligibleBoats = (jsonData.boats || []).filter(boat => {
+        const status = boat.registration_status
+        const isForfait = boat.forfait === true
+        return (status === 'complete' || status === 'paid' || status === 'free') && !isForfait
+      });
+      
+      const uniqueCrewMembers = new Set();
+      for (const boat of eligibleBoats) {
+        for (const seat of (boat.seats || [])) {
+          if (seat.crew_member_id) {
+            uniqueCrewMembers.add(seat.crew_member_id);
+          }
+        }
+      }
+      
+      // Count races with boats
+      const racesWithBoats = new Set();
+      for (const boat of eligibleBoats) {
+        if (boat.race_id) {
+          racesWithBoats.add(boat.race_id);
+        }
+      }
+      
+      // Update stats
+      eventProgramStats.value = {
+        totalCrewMembers: uniqueCrewMembers.size,
+        totalRaces: racesWithBoats.size
+      };
+      
+      // Use formatter to generate and download Excel file
+      downloadEventProgramExcel(response.data, null, locale.value, t);
+      
+      success.value = t('admin.dataExport.exportSuccess');
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        success.value = null;
+      }, 5000);
+    }
+  } catch (err) {
+    console.error('Failed to export Event Program data:', err);
+    error.value = err.response?.data?.error?.message || t('admin.dataExport.exportError');
+  } finally {
+    loadingEventProgram.value = false;
   }
 };
 
@@ -281,6 +386,12 @@ const exportBoatRegistrations = async () => {
   gap: 2rem;
 }
 
+.primary-exports-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
 .export-card {
   background: white;
   border-radius: 12px;
@@ -291,6 +402,11 @@ const exportBoatRegistrations = async () => {
 .crewtimer-card {
   border: 2px solid #3498db;
   background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.event-program-card {
+  border: 2px solid #27ae60;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fff8 100%);
 }
 
 .export-header {
@@ -459,6 +575,11 @@ const exportBoatRegistrations = async () => {
   }
 
   .export-sections {
+    gap: 1.5rem;
+  }
+
+  .primary-exports-row {
+    grid-template-columns: 1fr;
     gap: 1.5rem;
   }
 
