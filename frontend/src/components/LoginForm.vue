@@ -1,7 +1,7 @@
 <template>
   <div class="login-form">
     <div class="form-header">
-      <img src="../assets/rcpm-logo.png" alt="RCPM Logo" class="form-logo" />
+      <img src="../assets/impressionnistes-logo.jpg" alt="Course des Impressionnistes Logo" class="form-logo" />
       <h2>{{ $t('auth.login.title') }}</h2>
     </div>
     

@@ -19,7 +19,7 @@
       </button>
       
       <router-link to="/" class="logo">
-        <img src="./assets/rcpm-logo.png" alt="RCPM Logo" class="logo-image" />
+        <img src="./assets/impressionnistes-logo.jpg" alt="Course des Impressionnistes Logo" class="logo-image" />
         <span class="logo-text">Course des Impressionnistes</span>
       </router-link>
 

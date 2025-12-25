@@ -1,7 +1,7 @@
 <template>
   <div class="verify-email">
     <div class="form-header">
-      <img src="../assets/rcpm-logo.png" alt="RCPM Logo" class="form-logo" />
+      <img src="../assets/impressionnistes-logo.jpg" alt="Course des Impressionnistes Logo" class="form-logo" />
       <h2>{{ $t('auth.verify.title') }}</h2>
       <p class="subtitle">{{ $t('auth.verify.subtitle') }}</p>
     </div>
