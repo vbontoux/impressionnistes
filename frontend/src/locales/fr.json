@@ -32,7 +32,7 @@
     "register": "Inscription",
     "dashboard": "Tableau de bord",
     "crew": "Équipiers",
-    "boats": "Bateaux",
+    "boats": "Équipages",
     "boatRentals": "Location de bateaux",
     "payment": "Paiement",
     "profile": "Profil",
@@ -43,14 +43,14 @@
     "pricingConfig": "Configuration Tarifs",
     "boatInventory": "Bateaux à louer",
     "crewMembers": "Équipiers",
-    "boatRegistrations": "Bateaux",
+    "boatRegistrations": "Équipages",
     "dataExports": "Exports de Données"
   },
   "admin": {
     "dashboard": {
       "subtitle": "Gérer la configuration du système et les inscriptions",
       "totalCrewMembers": "Équipiers inscrits",
-      "totalBoatRegistrations": "Bateaux inscrits",
+      "totalBoatRegistrations": "Équipages inscrits",
       "totalPayments": "Paiements effectués",
       "rentalBoatsReserved": "Bateaux de location réservés",
       "configuration": "Configuration",
@@ -62,28 +62,28 @@
       "boatInventoryDesc": "Gérer les bateaux disponibles à la location",
       "crewMembers": "Gérer les équipiers",
       "crewMembersDesc": "Voir et gérer tous les équipiers",
-      "boatRegistrations": "Gérer les bateaux",
-      "boatRegistrationsDesc": "Voir et gérer toutes les inscriptions de bateaux",
+      "boatRegistrations": "Gérer les équipages",
+      "boatRegistrationsDesc": "Voir et gérer tous les équipages",
       "dataExports": "Exports de données",
-      "dataExportsDesc": "Exporter les équipiers et les inscriptions de bateaux"
+      "dataExportsDesc": "Exporter les équipiers et les équipages"
     },
     "dataExport": {
       "subtitle": "Exporter les données pour l'analyse et les applications tierces",
       "crewTimerExport": "Export CrewTimer",
-      "crewTimerDescription": "Exporter les courses et les bateaux au format CrewTimer.com pour la gestion des chronométrages. Inclut uniquement les bateaux complets, payés ou gratuits (non forfaits).",
+      "crewTimerDescription": "Exporter les courses et les équipages au format CrewTimer.com pour la gestion des chronométrages. Inclut uniquement les équipages complets, payés ou gratuits (non forfaits).",
       "exportToCrewTimer": "Exporter vers CrewTimer",
       "eventProgramExport": "Programme de l'événement",
-      "eventProgramDescription": "Exporter la liste des équipiers et le programme des courses pour impression le jour de la course. Inclut uniquement les bateaux complets, payés ou gratuits (non forfaits).",
+      "eventProgramDescription": "Exporter la liste des équipiers et le programme des courses pour impression le jour de la course. Inclut uniquement les équipages complets, payés ou gratuits (non forfaits).",
       "exportEventProgram": "Exporter le programme",
       "standardExports": "Exports standards",
-      "standardDescription": "Exporter les équipiers et les inscriptions de bateaux au format CSV",
+      "standardDescription": "Exporter les équipiers et les équipages au format CSV",
       "exportCrewMembers": "Exporter les équipiers",
-      "exportBoatRegistrations": "Exporter les inscriptions",
+      "exportBoatRegistrations": "Exporter les équipages",
       "exporting": "Export en cours...",
       "exportSuccess": "Export réussi ! Le fichier a été téléchargé.",
       "exportError": "Erreur lors de l'export. Veuillez réessayer.",
       "totalRaces": "Courses totales",
-      "totalBoats": "Bateaux totaux",
+      "totalBoats": "Équipages totaux",
       "totalCrewMembers": "Équipiers totaux"
     },
     "eventConfig": {
@@ -227,9 +227,9 @@
       "deleteError": "Échec de la suppression de l'équipier. Veuillez réessayer."
     },
     "boats": {
-      "title": "Toutes les inscriptions de bateaux",
-      "subtitle": "Voir et gérer les inscriptions de bateaux de tous les gestionnaires d'équipe",
-      "searchPlaceholder": "Rechercher par épreuve, type de bateau ou gestionnaire...",
+      "title": "Tous les équipages",
+      "subtitle": "Voir et gérer les équipages de tous les gestionnaires d'équipe",
+      "searchPlaceholder": "Rechercher par épreuve, type d'équipage ou gestionnaire...",
       "filterByClub": "Filtrer par club",
       "clubPlaceholder": "Entrez le nom du club...",
       "filterByTeamManager": "Filtrer par gestionnaire",
@@ -237,23 +237,23 @@
       "filterByStatus": "Filtrer par statut",
       "allStatuses": "Tous les statuts",
       "clearFilters": "Effacer les filtres",
-      "addBoat": "Ajouter un bateau",
-      "totalCount": "{count} inscriptions de bateaux",
+      "addBoat": "Ajouter un équipage",
+      "totalCount": "{count} équipages",
       "teamManager": "Gestionnaire d'équipe",
       "club": "Club",
       "forfait": "Forfait",
       "setForfait": "Forfait",
       "removeForfait": "Annuler forfait",
-      "confirmSetForfait": "Êtes-vous sûr de vouloir marquer ce bateau comme forfait ?",
-      "confirmRemoveForfait": "Êtes-vous sûr de vouloir retirer le statut forfait de ce bateau ?",
-      "confirmDelete": "Êtes-vous sûr de vouloir supprimer {boat} ? Cette action est irréversible.",
-      "editBoat": "Modifier le bateau",
-      "modalInfo": "Gestion des bateaux par l'administrateur",
-      "useTeamManagerInterface": "Pour créer ou modifier des bateaux, veuillez utiliser l'interface du gestionnaire d'équipe en consultant les détails du bateau.",
-      "viewNotAvailable": "La vue détaillée des bateaux d'autres gestionnaires n'est pas encore disponible. Bateau : {boat}, Gestionnaire : {teamManager}",
-      "fetchError": "Échec du chargement des bateaux. Veuillez réessayer.",
-      "updateError": "Échec de la mise à jour du bateau. Veuillez réessayer.",
-      "deleteError": "Échec de la suppression du bateau. Veuillez réessayer."
+      "confirmSetForfait": "Êtes-vous sûr de vouloir marquer cet équipage comme forfait ?",
+      "confirmRemoveForfait": "Êtes-vous sûr de vouloir retirer le statut forfait de cet équipage ?",
+      "confirmDelete": "Êtes-vous sûr de vouloir supprimer l'équipage {boat} ? Cette action est irréversible.",
+      "editBoat": "Modifier l'équipage",
+      "modalInfo": "Gestion des équipages par l'administrateur",
+      "useTeamManagerInterface": "Pour créer ou modifier des équipages, veuillez utiliser l'interface du gestionnaire d'équipe en consultant les détails de l'équipage.",
+      "viewNotAvailable": "La vue détaillée des équipages d'autres gestionnaires n'est pas encore disponible. Équipage : {boat}, Gestionnaire : {teamManager}",
+      "fetchError": "Échec du chargement des équipages. Veuillez réessayer.",
+      "updateError": "Échec de la mise à jour de l'équipage. Veuillez réessayer.",
+      "deleteError": "Échec de la suppression de l'équipage. Veuillez réessayer."
     }
   },
   "session": {
@@ -398,10 +398,10 @@
     }
   },
   "boat": {
-    "addNew": "Ajouter un bateau",
-    "createFirst": "Créer votre première inscription de bateau",
-    "noBoats": "Aucune inscription de bateau pour le moment",
-    "confirmDelete": "Êtes-vous sûr de vouloir supprimer {name} ?",
+    "addNew": "Ajouter un équipage",
+    "createFirst": "Créer votre premier équipage",
+    "noBoats": "Aucun équipage pour le moment",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer l'équipage {name} ?",
     "rental": "Location",
     "multiClub": "RCPM+",
     "firstRower": "Chef de nage",
@@ -414,7 +414,7 @@
       "paid": "Payé",
       "forfait": "Forfait"
     },
-    "createRegistration": "Créer une inscription de bateau",
+    "createRegistration": "Créer un équipage",
     "eventType": "Type d'événement",
     "selectEvent": "Sélectionner un événement",
     "semiMarathon": "Semi-Marathon",
@@ -427,7 +427,7 @@
     "eightWithCox": "Huit avec barreur (pointe ou couple)",
     "rentBoat": "Louer un bateau du RCPM",
     "rentalInfo": "Des frais de location de bateau s'appliquent",
-    "createError": "Échec de la création de l'inscription du bateau",
+    "createError": "Échec de la création de l'équipage",
     "seatAssignment": "Attribution des places",
     "position": "Position",
     "coxswain": "Barreur",
@@ -455,27 +455,27 @@
     "j18": "Junior 18",
     "senior": "Senior",
     "master": "Master",
-    "boatInformation": "Informations du bateau",
+    "boatInformation": "Informations de l'équipage",
     "flaggedIssues": "Problèmes signalés",
     "flaggedAt": "Signalé le",
     "resolved": "Résolu",
-    "loadError": "Échec du chargement de l'inscription du bateau",
-    "saveError": "Échec de l'enregistrement de l'inscription du bateau",
+    "loadError": "Échec du chargement de l'équipage",
+    "saveError": "Échec de l'enregistrement de l'équipage",
     "seats": "Places",
     "flags": "Indicateurs",
-    "cannotDeletePaid": "Impossible de supprimer un bateau payé. Veuillez contacter le support si vous devez apporter des modifications.",
+    "cannotDeletePaid": "Impossible de supprimer un équipage payé. Veuillez contacter le support si vous devez apporter des modifications.",
     "paidOn": "Payé le",
     "selectRaceToSave": "Veuillez sélectionner une course avant d'enregistrer",
     "selectRaceRequired": "Une course doit être sélectionnée lorsque toutes les places sont remplies",
     "filter": {
-      "all": "Tous les bateaux",
-      "search": "Rechercher par chef de nage, type de bateau, événement ou course...",
+      "all": "Tous les équipages",
+      "search": "Rechercher par chef de nage, type d'équipage, événement ou course...",
       "allEvents": "Tous les événements",
       "allBoatTypes": "Tous les types de bateaux",
       "sortBy": "Trier par",
       "dateAdded": "Date d'ajout"
     },
-    "searchPlaceholder": "Rechercher par chef de nage, type de bateau, événement ou course...",
+    "searchPlaceholder": "Rechercher par chef de nage, type d'équipage, événement ou course...",
     "types": {
       "skiff": "Skiff",
       "4-": "Quatre sans barreur",
@@ -617,13 +617,13 @@
     "noBoatsReadyDescription": "Complétez vos inscriptions de bateaux pour procéder au paiement",
     "goToBoats": "Aller aux bateaux",
     "rentalBoats": "Bateaux de location",
-    "boatRegistrations": "Inscriptions de bateaux",
+    "boatRegistrations": "Équipages",
     "rentalBoatsAvailable": "{count} location disponible | {count} locations disponibles",
     "rentalBoatsSelected": "{count} location sélectionnée | {count} locations sélectionnées",
     "selectAll": "Tout sélectionner",
     "deselectAll": "Tout désélectionner",
-    "boatsAvailable": "{count} bateau disponible | {count} bateaux disponibles",
-    "boatsSelected": "{count} bateau sélectionné | {count} bateaux sélectionnés",
+    "boatsAvailable": "{count} équipage disponible | {count} équipages disponibles",
+    "boatsSelected": "{count} équipage sélectionné | {count} équipages sélectionnés",
     "selectedCount": "{count} sur {total} sélectionné(s)",
     "seats": "place(s)",
     "rental": "Location",
@@ -650,8 +650,8 @@
       "processing": "Traitement...",
       "securePayment": "Paiement sécurisé avec Stripe",
       "backToPayment": "Retour au paiement",
-      "noSelection": "Aucun bateau sélectionné",
-      "noSelectionDescription": "Veuillez sélectionner des bateaux à payer avant de procéder au paiement",
+      "noSelection": "Aucun équipage sélectionné",
+      "noSelectionDescription": "Veuillez sélectionner des équipages à payer avant de procéder au paiement",
       "errors": {
         "stripeInit": "Échec de l'initialisation du système de paiement. Veuillez actualiser la page.",
         "generic": "Le paiement a échoué. Veuillez réessayer.",
@@ -661,7 +661,7 @@
     },
     "success": {
       "title": "Paiement réussi !",
-      "message": "Votre paiement a été traité avec succès. Vos bateaux sont maintenant enregistrés et payés.",
+      "message": "Votre paiement a été traité avec succès. Vos équipages sont maintenant enregistrés et payés.",
       "details": "Détails du paiement",
       "paymentId": "ID de paiement",
       "viewBoats": "Voir mes bateaux",
@@ -671,13 +671,13 @@
   },
   "dashboard": {
     "welcome": "Bienvenue",
-    "subtitle": "Gérez vos inscriptions d'équipage pour la Course des Impressionnistes",
+    "subtitle": "Gérez vos équipages pour la Course des Impressionnistes",
     "quickStats": "Statistiques rapides",
     "stats": {
       "crewMembers": "Membres d'équipage",
-      "boats": "Total de bateaux",
+      "boats": "Total d'équipages",
       "completeBoats": "Prêts pour paiement",
-      "paidBoats": "Bateaux payés"
+      "paidBoats": "Équipages payés"
     },
     "quickActions": "Actions rapides",
     "actions": {
@@ -686,8 +686,8 @@
         "description": "Ajouter et gérer vos membres d'équipage"
       },
       "manageBoats": {
-        "title": "Gérer les bateaux",
-        "description": "Inscrire et configurer vos inscriptions de bateaux"
+        "title": "Gérer les équipages",
+        "description": "Inscrire et configurer vos équipages"
       },
       "manageRentals": {
         "title": "Gérer vos locations de bateaux",
@@ -706,7 +706,7 @@
     },
     "emptyState": {
       "title": "Commencez votre inscription",
-      "description": "Commencez par ajouter des membres d'équipage à votre liste, puis créez des inscriptions de bateaux.",
+      "description": "Commencez par ajouter des membres d'équipage à votre liste, puis créez vos équipages.",
       "getStarted": "Ajouter votre premier membre d'équipage"
     }
   },
@@ -736,17 +736,17 @@
         "title": "Période d'inscription ouverte",
         "date": "Du 19 mars au 19 avril",
         "rule1": "Inscrire et supprimer des équipiers librement",
-        "rule2": "Créer et supprimer des inscriptions de bateaux",
-        "rule3": "Payer les bateaux à tout moment",
-        "rule4": "Après paiement : Vous pouvez modifier les bateaux mais pas les supprimer"
+        "rule2": "Créer et supprimer des équipages",
+        "rule3": "Payer les équipages à tout moment",
+        "rule4": "Après paiement : Vous pouvez modifier les équipages mais pas les supprimer"
       },
       "phase2": {
         "title": "Inscriptions closes - Fenêtre de paiement",
         "date": "Du 19 avril au 25 avril",
-        "rule1": "Impossible de supprimer des bateaux",
-        "rule2": "Possibilité de payer les bateaux inscrits",
-        "rule3": "Possibilité de modifier les détails des bateaux existants",
-        "rule4": "Après paiement : Vous pouvez toujours modifier les bateaux mais pas les supprimer",
+        "rule1": "Impossible de supprimer des équipages",
+        "rule2": "Possibilité de payer les équipages inscrits",
+        "rule3": "Possibilité de modifier les détails des équipages existants",
+        "rule4": "Après paiement : Vous pouvez toujours modifier les équipages mais pas les supprimer",
         "rule5": "Remboursements possibles : contactez-nous"
       },
       "phase3": {
@@ -754,13 +754,13 @@
         "date": "Après le 25 avril",
         "rule1": "Aucune modification possible",
         "rule2": "Aucun nouveau paiement accepté",
-        "rule3": "Seuls les bateaux payés pourront participer à la course",
-        "rule4": "Seuls les bateaux dont tous les équipiers ont des licences de compétition valides seront autorisés à participer",
+        "rule3": "Seuls les équipages payés pourront participer à la course",
+        "rule4": "Seuls les équipages dont tous les équipiers ont des licences de compétition valides seront autorisés à participer",
         "rule5": "Aucun remboursement ne sera possible"
       },
       "notice": {
         "title": "Avis important",
-        "message": "Assurez-vous de finaliser votre paiement avant la date limite ! Seuls les bateaux avec un paiement confirmé seront autorisés à participer à la compétition. Les paiements tardifs ne peuvent pas être acceptés."
+        "message": "Assurez-vous de finaliser votre paiement avant la date limite ! Seuls les équipages avec un paiement confirmé seront autorisés à participer à la compétition. Les paiements tardifs ne peuvent pas être acceptés."
       }
     },
     "events": {
@@ -796,8 +796,8 @@
         "description": "Ajoutez tous les participants potentiels à la liste de votre club avec leurs informations essentielles : nom, date de naissance, genre et numéro de licence FFA."
       },
       "step3": {
-        "title": "Créez vos inscriptions de bateaux",
-        "description": "Sélectionnez les courses et configurez chaque inscription de bateau en choisissant le type de bateau, l'armement (pointe ou couple) et en assignant des membres d'équipage spécifiques aux positions de rameur et de barreur."
+        "title": "Créez vos équipages",
+        "description": "Sélectionnez les courses et configurez chaque équipage en choisissant le type de bateau, l'armement (pointe ou couple) et en assignant des membres d'équipage spécifiques aux positions de rameur et de barreur."
       },
       "step4": {
         "title": "Gérez vos besoins en équipement",

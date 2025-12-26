@@ -6,13 +6,30 @@ The Course des Impressionnistes Registration System is a web application that en
 
 ## Glossary
 
+### Terminology Mapping: Database/API vs UI
+
+**IMPORTANT:** The system uses different terminology in the database/API layer versus the user interface to maintain consistency with existing code while providing clear, user-friendly language in the UI.
+
+| Database/API Term | UI Term (English) | UI Term (French) | Description |
+|-------------------|-------------------|------------------|-------------|
+| `boat` | Crew | Équipage | A team of rowers registered for a race. In the database and API, this is called "boat" (e.g., `boat_id`, `boat_registration`), but displayed as "Crew" in the UI. |
+| `boat_registration` | Crew / Crew Registration | Équipage / Inscription d'équipage | A complete registration entry. Database uses `boat_registration`, UI shows "Crew". |
+| `boat_type` | Boat Type | Type de bateau | The physical boat type (skiff, four, eight). This remains "boat" in both database and UI as it refers to equipment. |
+| `boat_rental` | Boat Rental | Location de bateau | Renting physical boats. This remains "boat" in both database and UI as it refers to equipment. |
+
+**Key Principle:** 
+- **"Boat" in database/API** = **"Crew" in UI** (when referring to the team/registration)
+- **"Boat" in database/API** = **"Boat" in UI** (when referring to physical equipment)
+
+### Standard Glossary Terms
+
 - **RCPM** : Rowing Club de Port Marly
 - **Registration_System**: The complete web application for managing rowing competition registrations
 - **Team_Manager**: A user representing a rowing club who registers boats and crews for the competition
 - **Admin_User**: RCPM organization staff member who manages system configuration and validates registrations
 - **DevOps_User**: Technical staff responsible for deploying and maintaining the serverless infrastructure
 - **Crew_Member**: An individual rower or coxswain registered to participate in a boat
-- **Boat_Registration**: A complete registration entry containing boat configuration and assigned crew members
+- **Boat_Registration**: A complete registration entry containing boat configuration and assigned crew members (displayed as "Crew" in UI)
 - **Registration_Period**: The time window during which team managers can create and modify registrations
 - **Payment_Period**: The time window during which team managers can make payments
 - **Seat_Assignment**: The association of a crew member to a specific position (rowing or cox) in a boat

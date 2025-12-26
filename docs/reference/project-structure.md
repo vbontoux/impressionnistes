@@ -4,6 +4,17 @@
 
 Simplified project structure for the Course des Impressionnistes Registration System.
 
+## Terminology Note
+
+> **Important:** In the codebase (API, database, backend), "boat" refers to a crew registration (the team of rowers). In the user interface, this is displayed as "Crew" (English) or "Équipage" (French). The term "boat" is only used in the UI when referring to physical equipment (boat types, boat rentals).
+>
+> **Examples:**
+> - `boat_registration` (database) → "Crew" (UI)
+> - `boat_id` (API) → Internal identifier, not shown in UI
+> - `boat_type` (database/UI) → "Boat Type" (refers to physical boat: skiff, four, eight)
+>
+> See the [Requirements Document](../../.kiro/specs/impressionnistes-registration-system/requirements.md#terminology-mapping-databaseapi-vs-ui) for complete details.
+
 ## Directory Structure
 
 ```
@@ -24,9 +35,9 @@ impressionnistes/
 │   │   ├── forgot_password.py
 │   │   └── confirm_password_reset.py
 │   │
-│   ├── crew/                # Crew member management (future)
-│   ├── boat/                # Boat registration (future)
-│   ├── payment/             # Payment processing (future)
+│   ├── crew/                # Crew member management
+│   ├── boat/                # Boat registration (crew registration in UI)
+│   ├── payment/             # Payment processing
 │   ├── admin/               # Admin operations (future)
 │   ├── health/              # Health check endpoint
 │   │   └── health_check.py

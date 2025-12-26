@@ -32,7 +32,7 @@
     "register": "Register",
     "dashboard": "Dashboard",
     "crew": "Crew Members",
-    "boats": "Boats",
+    "boats": "Crews",
     "boatRentals": "Boat Rentals",
     "payment": "Payment",
     "profile": "Profile",
@@ -43,14 +43,14 @@
     "pricingConfig": "Pricing Configuration",
     "boatInventory": "Rental Boats",
     "crewMembers": "Crew Members",
-    "boatRegistrations": "Boats",
+    "boatRegistrations": "Crews",
     "dataExports": "Data Exports"
   },
   "admin": {
     "dashboard": {
       "subtitle": "Manage system configuration and registrations",
       "totalCrewMembers": "Registered Crew Members",
-      "totalBoatRegistrations": "Registered Boats",
+      "totalBoatRegistrations": "Registered Crews",
       "totalPayments": "Completed Payments",
       "rentalBoatsReserved": "Reserved Rental Boats",
       "configuration": "Configuration",
@@ -62,28 +62,28 @@
       "boatInventoryDesc": "Manage boats available for rental",
       "crewMembers": "Manage Crew Members",
       "crewMembersDesc": "View and manage all crew members",
-      "boatRegistrations": "Manage Boats",
-      "boatRegistrationsDesc": "View and manage all boat registrations",
+      "boatRegistrations": "Manage Crews",
+      "boatRegistrationsDesc": "View and manage all crews",
       "dataExports": "Data Exports",
-      "dataExportsDesc": "Export crew members and boat registrations"
+      "dataExportsDesc": "Export crew members and crews"
     },
     "dataExport": {
       "subtitle": "Export data for analysis and third-party applications",
       "crewTimerExport": "CrewTimer Export",
-      "crewTimerDescription": "Export races and boats in CrewTimer.com format for timing management. Includes only complete, paid, or free boats (not forfeited).",
+      "crewTimerDescription": "Export races and crews in CrewTimer.com format for timing management. Includes only complete, paid, or free crews (not forfeited).",
       "exportToCrewTimer": "Export to CrewTimer",
       "eventProgramExport": "Event Program",
-      "eventProgramDescription": "Export crew member list and race schedule for race day printing. Includes only complete, paid, or free boats (not forfeited).",
+      "eventProgramDescription": "Export crew member list and race schedule for race day printing. Includes only complete, paid, or free crews (not forfeited).",
       "exportEventProgram": "Export Program",
       "standardExports": "Standard Exports",
-      "standardDescription": "Export crew members and boat registrations in CSV format",
+      "standardDescription": "Export crew members and crews in CSV format",
       "exportCrewMembers": "Export Crew Members",
-      "exportBoatRegistrations": "Export Boat Registrations",
+      "exportBoatRegistrations": "Export Crews",
       "exporting": "Exporting...",
       "exportSuccess": "Export successful! File has been downloaded.",
       "exportError": "Export failed. Please try again.",
       "totalRaces": "Total Races",
-      "totalBoats": "Total Boats",
+      "totalBoats": "Total Crews",
       "totalCrewMembers": "Total Crew Members"
     },
     "eventConfig": {
@@ -227,9 +227,9 @@
       "deleteError": "Failed to delete crew member. Please try again."
     },
     "boats": {
-      "title": "All Boat Registrations",
-      "subtitle": "View and manage boat registrations for all team managers",
-      "searchPlaceholder": "Search by event, boat type, or team manager...",
+      "title": "All Crews",
+      "subtitle": "View and manage crews for all team managers",
+      "searchPlaceholder": "Search by event, crew type, or team manager...",
       "filterByClub": "Filter by Club",
       "clubPlaceholder": "Enter club name...",
       "filterByTeamManager": "Filter by Team Manager",
@@ -237,23 +237,23 @@
       "filterByStatus": "Filter by Status",
       "allStatuses": "All statuses",
       "clearFilters": "Clear Filters",
-      "addBoat": "Add Boat",
-      "totalCount": "{count} boat registrations",
+      "addBoat": "Add Crew",
+      "totalCount": "{count} crews",
       "teamManager": "Team Manager",
       "club": "Club",
       "forfait": "Forfait (Out)",
       "setForfait": "Set forfait",
       "removeForfait": "Remove forfait",
-      "confirmSetForfait": "Are you sure you want to mark this boat as forfait (out)?",
-      "confirmRemoveForfait": "Are you sure you want to remove the forfait status from this boat?",
-      "confirmDelete": "Are you sure you want to delete {boat}? This action cannot be undone.",
-      "editBoat": "Edit Boat",
-      "modalInfo": "Admin boat management",
-      "useTeamManagerInterface": "To create or edit boats, please use the team manager interface by viewing the boat details.",
-      "viewNotAvailable": "Boat detail view for other team managers is not yet available. Boat: {boat}, Team Manager: {teamManager}",
-      "fetchError": "Failed to load boats. Please try again.",
-      "updateError": "Failed to update boat. Please try again.",
-      "deleteError": "Failed to delete boat. Please try again."
+      "confirmSetForfait": "Are you sure you want to mark this crew as forfait (out)?",
+      "confirmRemoveForfait": "Are you sure you want to remove the forfait status from this crew?",
+      "confirmDelete": "Are you sure you want to delete crew {boat}? This action cannot be undone.",
+      "editBoat": "Edit Crew",
+      "modalInfo": "Admin crew management",
+      "useTeamManagerInterface": "To create or edit crews, please use the team manager interface by viewing the crew details.",
+      "viewNotAvailable": "Crew detail view for other team managers is not yet available. Crew: {boat}, Team Manager: {teamManager}",
+      "fetchError": "Failed to load crews. Please try again.",
+      "updateError": "Failed to update crew. Please try again.",
+      "deleteError": "Failed to delete crew. Please try again."
     }
   },
   "session": {
@@ -398,10 +398,10 @@
     }
   },
   "boat": {
-    "addNew": "Add Boat",
-    "createFirst": "Create your first boat registration",
-    "noBoats": "No boat registrations yet",
-    "confirmDelete": "Are you sure you want to delete {name}?",
+    "addNew": "Add Crew",
+    "createFirst": "Create your first crew",
+    "noBoats": "No crews yet",
+    "confirmDelete": "Are you sure you want to delete crew {name}?",
     "rental": "Rental",
     "multiClub": "RCPM+",
     "firstRower": "Stroke Seat",
@@ -414,7 +414,7 @@
       "paid": "Paid",
       "forfait": "Forfait"
     },
-    "createRegistration": "Create Boat Registration",
+    "createRegistration": "Create Crew",
     "eventType": "Event Type",
     "selectEvent": "Select event",
     "semiMarathon": "Semi-Marathon",
@@ -427,7 +427,7 @@
     "eightWithCox": "Eight with coxswain (sweep or scull)",
     "rentBoat": "Rent boat from RCPM",
     "rentalInfo": "Boat rental fees apply",
-    "createError": "Failed to create boat registration",
+    "createError": "Failed to create crew",
     "seatAssignment": "Seat Assignment",
     "position": "Position",
     "coxswain": "Coxswain",
@@ -455,27 +455,27 @@
     "j18": "Junior 18",
     "senior": "Senior",
     "master": "Master",
-    "boatInformation": "Boat Information",
+    "boatInformation": "Crew Information",
     "flaggedIssues": "Flagged Issues",
     "flaggedAt": "Flagged at",
     "resolved": "Resolved",
-    "loadError": "Failed to load boat registration",
-    "saveError": "Failed to save boat registration",
+    "loadError": "Failed to load crew",
+    "saveError": "Failed to save crew",
     "seats": "Seats",
     "flags": "Flags",
-    "cannotDeletePaid": "Cannot delete a paid boat. Please contact support if you need to make changes.",
+    "cannotDeletePaid": "Cannot delete a paid crew. Please contact support if you need to make changes.",
     "paidOn": "Paid on",
     "selectRaceToSave": "Please select a race before saving",
     "selectRaceRequired": "A race must be selected when all seats are filled",
     "filter": {
-      "all": "All Boats",
-      "search": "Search by stroke rower, boat type, event or race...",
+      "all": "All Crews",
+      "search": "Search by stroke rower, crew type, event or race...",
       "allEvents": "All Events",
       "allBoatTypes": "All Boat Types",
       "sortBy": "Sort by",
       "dateAdded": "Date Added"
     },
-    "searchPlaceholder": "Search by stroke rower, boat type, event or race...",
+    "searchPlaceholder": "Search by stroke rower, crew type, event or race...",
     "types": {
       "skiff": "Skiff",
       "4-": "Four without coxswain",
@@ -617,13 +617,13 @@
     "noBoatsReadyDescription": "Complete your boat registrations to proceed with payment",
     "goToBoats": "Go to Boats",
     "rentalBoats": "Rental Boats",
-    "boatRegistrations": "Boat Registrations",
+    "boatRegistrations": "Crews",
     "rentalBoatsAvailable": "{count} rental available | {count} rentals available",
     "rentalBoatsSelected": "{count} rental selected | {count} rentals selected",
     "selectAll": "Select All",
     "deselectAll": "Deselect All",
-    "boatsAvailable": "{count} boat(s) available | {count} boats available",
-    "boatsSelected": "{count} boat(s) selected | {count} boats selected",
+    "boatsAvailable": "{count} crew(s) available | {count} crews available",
+    "boatsSelected": "{count} crew(s) selected | {count} crews selected",
     "selectedCount": "{count} of {total} selected",
     "seats": "seat(s)",
     "rental": "Rental",
@@ -650,8 +650,8 @@
       "processing": "Processing...",
       "securePayment": "Secure payment with Stripe",
       "backToPayment": "Back to Payment",
-      "noSelection": "No boats selected",
-      "noSelectionDescription": "Please select boats to pay for before proceeding to checkout",
+      "noSelection": "No crews selected",
+      "noSelectionDescription": "Please select crews to pay for before proceeding to checkout",
       "errors": {
         "stripeInit": "Failed to initialize payment system. Please refresh the page.",
         "generic": "Payment failed. Please try again.",
@@ -661,7 +661,7 @@
     },
     "success": {
       "title": "Payment Successful!",
-      "message": "Your payment has been processed successfully. Your boats are now registered and paid.",
+      "message": "Your payment has been processed successfully. Your crews are now registered and paid.",
       "details": "Payment Details",
       "paymentId": "Payment ID",
       "viewBoats": "View My Boats",
@@ -671,13 +671,13 @@
   },
   "dashboard": {
     "welcome": "Welcome",
-    "subtitle": "Manage your crew registrations for Course des Impressionnistes",
+    "subtitle": "Manage your crews for Course des Impressionnistes",
     "quickStats": "Quick Stats",
     "stats": {
       "crewMembers": "Crew Members",
-      "boats": "Total Boats",
+      "boats": "Total Crews",
       "completeBoats": "Ready for Payment",
-      "paidBoats": "Paid Boats"
+      "paidBoats": "Paid Crews"
     },
     "quickActions": "Quick Actions",
     "actions": {
@@ -686,8 +686,8 @@
         "description": "Add and manage your crew members"
       },
       "manageBoats": {
-        "title": "Manage Boats",
-        "description": "Register and configure your boat entries"
+        "title": "Manage Crews",
+        "description": "Register and configure your crews"
       },
       "manageRentals": {
         "title": "Manage Boat Rentals",
@@ -706,7 +706,7 @@
     },
     "emptyState": {
       "title": "Get Started with Your Registration",
-      "description": "Start by adding crew members to your roster, then create boat registrations.",
+      "description": "Start by adding crew members to your roster, then create your crews.",
       "getStarted": "Add Your First Crew Member"
     }
   },
@@ -736,17 +736,17 @@
         "title": "Registration Period Open",
         "date": "From March 19 to April 19",
         "rule1": "Register and delete team members freely",
-        "rule2": "Create and delete boat registrations",
-        "rule3": "Pay for boats at any time",
-        "rule4": "After payment: You can modify boats but cannot delete them"
+        "rule2": "Create and delete crews",
+        "rule3": "Pay for crews at any time",
+        "rule4": "After payment: You can modify crews but cannot delete them"
       },
       "phase2": {
         "title": "Registration Closed - Payment Window",
         "date": "From April 19 to April 25",
-        "rule1": "Cannot delete boats anymore",
-        "rule2": "Can still pay for registered boats",
-        "rule3": "Can modify existing boat details",
-        "rule4": "After payment: You can still modify boats but cannot delete them",
+        "rule1": "Cannot delete crews anymore",
+        "rule2": "Can still pay for registered crews",
+        "rule3": "Can modify existing crew details",
+        "rule4": "After payment: You can still modify crews but cannot delete them",
         "rule5": "Refunds possible: contact us"
       },
       "phase3": {
@@ -754,13 +754,13 @@
         "date": "After April 25",
         "rule1": "No changes possible at all",
         "rule2": "No new payments accepted",
-        "rule3": "Only paid boats will be able to race",
-        "rule4": "Only boats with all crew members having valid competition licenses will be allowed to race",
+        "rule3": "Only paid crews will be able to race",
+        "rule4": "Only crews with all crew members having valid competition licenses will be allowed to race",
         "rule5": "No refunds will be possible"
       },
       "notice": {
         "title": "Important Notice",
-        "message": "Make sure to complete your payment before the deadline! Only boats with confirmed payment will be allowed to participate in the competition. Late payments cannot be accepted."
+        "message": "Make sure to complete your payment before the deadline! Only crews with confirmed payment will be allowed to participate in the competition. Late payments cannot be accepted."
       }
     },
     "events": {
@@ -796,8 +796,8 @@
         "description": "Add all potential participants to your club's roster with their essential information: name, birth date, gender, and FFA license number."
       },
       "step3": {
-        "title": "Create Boat Entries",
-        "description": "Select races and configure each boat entry by choosing the boat type, rigging (sweep or scull), and assigning specific crew members to rowing and coxswain positions."
+        "title": "Create Your Crews",
+        "description": "Select races and configure each crew by choosing the boat type, rigging (sweep or scull), and assigning specific crew members to rowing and coxswain positions."
       },
       "step4": {
         "title": "Handle Equipment Needs",

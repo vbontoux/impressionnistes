@@ -4,6 +4,79 @@
 
 The Course des Impressionnistes Registration System is a serverless web application built on AWS that enables rowing club team managers to register crews and boats for the RCPM Competition. The system provides multilingual support (French/English), secure payment processing via Stripe, and comprehensive administrative tools for validation and management.
 
+## Terminology Mapping: Database/API vs UI
+
+**CRITICAL DESIGN NOTE:** The system uses different terminology in the database/API layer versus the user interface. This is intentional to maintain consistency with existing code while providing clear, user-friendly language.
+
+### Database/API Layer (Backend)
+- Uses **"boat"** to refer to crew registrations
+- Examples: `boat_id`, `boat_registration`, `create_boat`, `update_boat`, `list_boats`
+- Database table fields: `boat_type`, `boat_status`, `assigned_boat_id`
+- API endpoints: `/boats`, `/boats/{boat_id}`
+
+### User Interface Layer (Frontend)
+- Uses **"Crew"** (English) / **"Équipage"** (French) to refer to crew registrations
+- Examples: "Create Crew", "Manage Crews", "Crew Information"
+- Translation keys: `boat.createRegistration` → "Create Crew"
+
+### When "Boat" Stays "Boat"
+The term "boat" is used in BOTH layers when referring to physical equipment:
+- **Boat Type**: Physical boat types (skiff, four, eight)
+- **Boat Rental**: Renting physical boats from RCPM
+- **Rental Boats**: Physical boat inventory
+
+### Mapping Table
+
+| Context | Database/API | UI (English) | UI (French) |
+|---------|--------------|--------------|-------------|
+| Team registration | `boat`, `boat_registration` | Crew | Équipage |
+| Database ID | `boat_id` | (internal, not shown) | (internal, not shown) |
+| Create action | `create_boat_registration()` | "Create Crew" | "Créer un équipage" |
+| List view | `list_boats()` | "Crews" | "Équipages" |
+| Physical boat type | `boat_type` | "Boat Type" | "Type de bateau" |
+| Equipment rental | `boat_rental` | "Boat Rental" | "Location de bateau" |
+
+### Implementation Guidelines
+
+1. **Backend Code**: Continue using "boat" terminology in all Python code, database schemas, and API responses
+2. **Frontend Code**: Use "boat" in variable names and API calls, but display "Crew/Équipage" in UI
+3. **Translation Files**: Map "boat" keys to "Crew/Équipage" translations
+4. **Documentation**: Clearly indicate when "boat" means crew vs. physical equipment
+
+**Example:**
+```python
+# Backend API (unchanged)
+def create_boat_registration(user_id, boat_data):
+    boat_id = generate_id()
+    boat = {
+        "boat_id": boat_id,
+        "boat_type": boat_data["boat_type"],
+        "status": "incomplete"
+    }
+    return boat
+```
+
+```javascript
+// Frontend (variable names use "boat", UI shows "Crew")
+async function createCrew(crewData) {
+    const response = await api.post('/boats', crewData)  // API uses "boats"
+    const boat = response.data  // Variable uses "boat"
+    showNotification(t('boat.createSuccess'))  // Translation: "Crew created successfully!"
+    return boat
+}
+```
+
+```json
+// Translation file
+{
+  "boat": {
+    "createRegistration": "Create Crew",
+    "addNew": "Add Crew",
+    "boatType": "Boat Type"  // Physical boat type stays "Boat"
+  }
+}
+```
+
 ## Architecture
 
 ### High-Level Architecture

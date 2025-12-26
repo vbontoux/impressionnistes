@@ -2,13 +2,15 @@
 
 ## Overview
 
-The CrewTimer export generates an Excel file compatible with [CrewTimer.com](https://crewtimer.com) timing software. The export includes race information, boat registrations, crew details, and supports full internationalization (English/French).
+The CrewTimer export generates an Excel file compatible with [CrewTimer.com](https://crewtimer.com) timing software. The export includes race information, crew registrations (boat registrations in the database), crew details, and supports full internationalization (English/French).
+
+> **Terminology Note:** In the database and API, crew registrations are called "boat registrations" or "boats". In the user interface, these are displayed as "Crews" or "Équipages". This documentation uses both terms interchangeably to match the codebase.
 
 ## Features
 
 - **Internationalization**: Full race name and short name translation (English/French)
 - **Smart Sorting**: Uses database `display_order` column for consistent race ordering
-- **Boat Filtering**: Exports only complete, paid, or free boats (excludes forfeits and incomplete registrations)
+- **Crew Filtering**: Exports only complete, paid, or free crews (excludes forfeits and incomplete registrations)
 - **Crew Information**: Includes stroke seat names and average crew age
 - **Club Affiliation**: Automatically includes team manager club information
 

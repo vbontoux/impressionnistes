@@ -388,9 +388,11 @@ curl -X GET $API_URL/auth/profile \
 
 ## Boat Registration Endpoints
 
+> **Terminology Note:** In the API and database, "boat" refers to a crew registration (the team of rowers). In the user interface, this is displayed as "Crew" (English) or "Équipage" (French). The term "boat" is only used in the UI when referring to physical equipment (boat types, boat rentals). See the [Requirements Document](../../.kiro/specs/impressionnistes-registration-system/requirements.md#terminology-mapping-databaseapi-vs-ui) for the complete terminology mapping.
+
 ### POST /boat
 
-Create a new boat registration.
+Create a new boat registration (crew).
 
 **Authentication**: Required (Cognito JWT token)
 
@@ -454,7 +456,7 @@ curl -X POST https://your-api-url/dev/boat \
 
 ### GET /boat
 
-List all boat registrations for the authenticated team manager.
+List all boat registrations (crews) for the authenticated team manager.
 
 **Authentication**: Required (Cognito JWT token)
 
@@ -499,7 +501,7 @@ curl -X GET https://your-api-url/dev/boat \
 
 ### GET /boat/{boat_registration_id}
 
-Get a specific boat registration.
+Get a specific boat registration (crew).
 
 **Authentication**: Required (Cognito JWT token)
 
@@ -546,7 +548,7 @@ curl -X GET https://your-api-url/dev/boat/BOAT_ID \
 
 ### PUT /boat/{boat_registration_id}
 
-Update a boat registration.
+Update a boat registration (crew).
 
 **Authentication**: Required (Cognito JWT token)
 
@@ -597,7 +599,7 @@ curl -X PUT https://your-api-url/dev/boat/BOAT_ID \
 
 ### DELETE /boat/{boat_registration_id}
 
-Delete a boat registration.
+Delete a boat registration (crew).
 
 **Authentication**: Required (Cognito JWT token)
 
