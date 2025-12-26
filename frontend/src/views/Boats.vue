@@ -2,6 +2,7 @@
   <div class="boats-view">
     <ListHeader
       :title="$t('nav.boats')"
+      :subtitle="$t('boat.subtitle')"
       v-model:viewMode="viewMode"
       :actionLabel="$t('boat.addNew')"
       @action="showCreateForm = true"

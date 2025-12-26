@@ -2,6 +2,7 @@
   <div class="crew-member-list">
     <ListHeader
       :title="$t('crew.list.title')"
+      :subtitle="$t('crew.list.subtitle')"
       v-model:viewMode="viewMode"
       :actionLabel="$t('crew.list.addNew')"
       @action="showCreateForm = true"
