@@ -12,11 +12,11 @@ Nouveau sur le projet ? Commencez ici :
 
 ## 📖 Aperçu
 
-Le Système d'Inscription Course des Impressionnistes permet aux responsables d'équipe des clubs d'aviron d'inscrire des équipages et des bateaux pour la Compétition RCPM.
+Le Système d'Inscription Course des Impressionnistes permet aux managers de club d'aviron d'inscrire des équipages et des bateaux pour la Compétition RCPM.
 
 ### Fonctionnalités Principales
 
-**Pour les Responsables d'Équipe :**
+**Pour les Managers de Club :**
 - Inscrire et gérer les membres d'équipage
 - Créer des inscriptions de bateaux avec attribution des places
 - Demander la location de bateaux au RCPM
@@ -206,7 +206,7 @@ make test ARGS="tests/integration/test_crew_member_api.py"  # Exécuter un test 
 - Toutes les données chiffrées au repos (DynamoDB)
 - HTTPS/TLS pour toutes les communications
 - Authentification Cognito avec support MFA
-- Contrôle d'accès basé sur les rôles (Responsables d'Équipe, Administrateurs)
+- Contrôle d'accès basé sur les rôles (Managers de Club, Administrateurs)
 - Assainissement et validation des entrées
 - Fonctionnalités de conformité RGPD
 

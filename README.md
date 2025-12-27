@@ -12,11 +12,11 @@ New to the project? Start here:
 
 ## 📖 Overview
 
-The Course des Impressionnistes Registration System enables rowing club team managers to register crews and boats for the RCPM Competition.
+The Course des Impressionnistes Registration System enables rowing club managers to register crews and boats for the RCPM Competition.
 
 ### Key Features
 
-**For Team Managers:**
+**For Club Managers:**
 - Register and manage crew members
 - Create boat registrations with seat assignments
 - Request boat rentals from RCPM
@@ -206,7 +206,7 @@ make test ARGS="tests/integration/test_crew_member_api.py"  # Run specific test
 - All data encrypted at rest (DynamoDB)
 - HTTPS/TLS for all communications
 - Cognito authentication with MFA support
-- Role-based access control (Team Managers, Admins)
+- Role-based access control (Club Managers, Admins)
 - Input sanitization and validation
 - GDPR compliance features
 

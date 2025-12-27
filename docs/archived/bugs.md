@@ -132,7 +132,7 @@ None currently
 1. **Forfaits Management** - Allow declaring forfaits and modifying crews after forfait
 2. **Password Policy Feedback** - Show green indicator when password meets requirements
 3. **Club Dropdown** - Standardized club list for statistics
-4. **Default Club** - Pre-fill team manager's club instead of leaving empty
+4. **Default Club** - Pre-fill club manager's club instead of leaving empty
 5. **Display Age Category** - Show calculated age category for crew members
 6. **License Simplification** - Use medical certificate date + competition checkbox
 7. **Position Labels** - Add "avant" for position 1, "nage" for position 4/8

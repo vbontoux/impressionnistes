@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Course des Impressionnistes Registration System is a serverless web application built on AWS that enables rowing club team managers to register crews and boats for the RCPM Competition. The system provides multilingual support (French/English), secure payment processing via Stripe, and comprehensive administrative tools for validation and management.
+The Course des Impressionnistes Registration System is a serverless web application built on AWS that enables rowing club club managers to register crews and boats for the RCPM Competition. The system provides multilingual support (French/English), secure payment processing via Stripe, and comprehensive administrative tools for validation and management.
 
 ## Terminology Mapping: Database/API vs UI
 
@@ -223,7 +223,7 @@ Using a single DynamoDB table with the following access patterns:
 
 | Entity | PK | SK | Attributes |
 |--------|----|----|------------|
-| Team Manager | `USER#{user_id}` | `PROFILE` | first_name, last_name, email, club_affiliation, mobile_number, created_at |
+| Club Manager | `USER#{user_id}` | `PROFILE` | first_name, last_name, email, club_affiliation, mobile_number, created_at |
 | Crew Member | `USER#{user_id}` | `CREW#{crew_id}` | first_name, last_name, date_of_birth, gender, license_number, club_affiliation, is_rcpm_member, assigned_boat_id, flagged_issues |
 | Boat Registration | `USER#{user_id}` | `BOAT#{boat_id}` | event_type, boat_type, race_id, seats, crew_assignments, status, created_at, updated_at |
 | Payment | `USER#{user_id}` | `PAYMENT#{payment_id}` | stripe_payment_intent_id, amount, status, boat_registrations, created_at |
@@ -650,7 +650,7 @@ crew_member_schema = {
     "date_of_birth": {"type": "date", "required": True},
     "gender": {"type": "string", "allowed": ["M", "F"], "required": True},
     "license_number": {"type": "string", "regex": "^[A-Z0-9]{6,12}$", "required": True},
-    "club_affiliation": {"type": "string", "required": False, "maxlength": 100},  # Optional, defaults to team manager's club
+    "club_affiliation": {"type": "string", "required": False, "maxlength": 100},  # Optional, defaults to club manager's club
     "is_rcpm_member": {"type": "boolean", "required": False, "default": False}  # Calculated based on club_affiliation
 }
 ```
@@ -676,15 +676,15 @@ seat_schema = {
 
 #### Multi_Club_Crew Detection Logic
 ```python
-def detect_multi_club_crew(boat_registration, crew_members, team_manager):
+def detect_multi_club_crew(boat_registration, crew_members, club_manager):
     """
     Determine if a boat registration is a Multi_Club_Crew
     
     A Multi_Club_Crew is identified when:
     - The boat contains crew members from different clubs
-    - At least one crew member has a different club_affiliation than the team manager
+    - At least one crew member has a different club_affiliation than the club manager
     """
-    team_manager_club = team_manager['club_affiliation']
+    club_manager_club = club_manager['club_affiliation']
     
     # Get all crew members assigned to this boat
     assigned_crew_ids = [
@@ -700,13 +700,13 @@ def detect_multi_club_crew(boat_registration, crew_members, team_manager):
     
     # Check if any crew member is from a different club
     has_external_members = any(
-        crew.get('club_affiliation', team_manager_club) != team_manager_club
+        crew.get('club_affiliation', club_manager_club) != club_manager_club
         for crew in assigned_crew
     )
     
     return has_external_members
 
-def calculate_boat_registration_price(boat_registration, crew_members, team_manager, pricing_config):
+def calculate_boat_registration_price(boat_registration, crew_members, club_manager, pricing_config):
     """
     Calculate the total price for a boat registration
     
@@ -716,8 +716,8 @@ def calculate_boat_registration_price(boat_registration, crew_members, team_mana
     - Boat rental (if applicable): 2.5x Base_Seat_Price for skiffs, Base_Seat_Price per seat for crew boats
     """
     base_seat_price = pricing_config['base_seat_price']
-    team_manager_club = team_manager['club_affiliation']
-    is_rcpm = team_manager_club == 'RCPM'
+    club_manager_club = club_manager['club_affiliation']
+    is_rcpm = club_manager_club == 'RCPM'
     
     total_price = 0.0
     seat_breakdown = []
@@ -736,7 +736,7 @@ def calculate_boat_registration_price(boat_registration, crew_members, team_mana
     
     # Calculate price per seat
     for crew in assigned_crew:
-        crew_club = crew.get('club_affiliation', team_manager_club)
+        crew_club = crew.get('club_affiliation', club_manager_club)
         is_crew_rcpm = crew_club == 'RCPM'
         
         if is_crew_rcpm:
@@ -782,7 +782,7 @@ def calculate_boat_registration_price(boat_registration, crew_members, team_mana
     return {
         'total_price': total_price,
         'breakdown': seat_breakdown,
-        'is_multi_club_crew': detect_multi_club_crew(boat_registration, crew_members, team_manager)
+        'is_multi_club_crew': detect_multi_club_crew(boat_registration, crew_members, club_manager)
     }
 ```
 
@@ -806,7 +806,7 @@ def calculate_boat_registration_price(boat_registration, crew_members, team_mana
 - Generate random crew members with random license numbers
 - Attempt to add a second crew member with the same license number
 - Verify the system rejects the duplicate and returns the appropriate error
-- Test across different team managers to ensure uniqueness is competition-wide, not per-manager
+- Test across different club managers to ensure uniqueness is competition-wide, not per-manager
 
 ## Error Handling
 
@@ -1262,8 +1262,8 @@ def test_create_crew_member_validation_error():
 ```python
 # Example: test_registration_flow.py
 def test_complete_registration_flow():
-    # 1. Create team manager
-    manager = create_team_manager()
+    # 1. Create club manager
+    manager = create_club_manager()
     
     # 2. Create crew members
     crew_members = [create_crew_member(manager.id) for _ in range(4)]
@@ -2047,11 +2047,11 @@ The system sends real-time Slack notifications to Admin and DevOps channels for 
 ### Notification Events
 
 #### Admin Channel Notifications
-- **New Boat Registration**: When a team manager completes a boat registration
+- **New Boat Registration**: When a club manager completes a boat registration
 - **Payment Completed**: When a payment is successfully processed
 - **Boat Rental Request**: When an external club requests a boat rental
 - **Registration Issue Flagged**: When an admin flags an issue with a registration
-- **Registration Issue Resolved**: When a team manager marks an issue as resolved
+- **Registration Issue Resolved**: When a club manager marks an issue as resolved
 - **Registration Period Milestones**: Daily summary of registrations and payments
 
 #### DevOps Channel Notifications
@@ -2146,7 +2146,7 @@ def build_registration_blocks(data):
             "fields": [
                 {
                     "type": "mrkdwn",
-                    "text": f"*Team Manager:*\n{data['team_manager_name']}"
+                    "text": f"*Club Manager:*\n{data['club_manager_name']}"
                 },
                 {
                     "type": "mrkdwn",
@@ -2197,7 +2197,7 @@ def build_payment_blocks(data):
             "fields": [
                 {
                     "type": "mrkdwn",
-                    "text": f"*Team Manager:*\n{data['team_manager_name']}"
+                    "text": f"*Club Manager:*\n{data['club_manager_name']}"
                 },
                 {
                     "type": "mrkdwn",
@@ -2240,7 +2240,7 @@ def build_rental_blocks(data):
             "fields": [
                 {
                     "type": "mrkdwn",
-                    "text": f"*Team Manager:*\n{data['team_manager_name']}"
+                    "text": f"*Club Manager:*\n{data['club_manager_name']}"
                 },
                 {
                     "type": "mrkdwn",
@@ -2402,7 +2402,7 @@ def lambda_handler(event, context):
                 webhook_url=config['slack_webhook_admin'],
                 message_data={
                     'event_type': 'new_registration',
-                    'team_manager_name': registration['team_manager_name'],
+                    'club_manager_name': registration['club_manager_name'],
                     'club_name': registration['club_name'],
                     'boat_type': registration['boat_type'],
                     'race_name': registration['race_name'],

@@ -19,7 +19,7 @@
 ### 2. Authentication and User Management ✅ COMPLETED
 
 - [x] 2.1 Implement Amazon Cognito user pool and authentication
-- [x] 2.2 Create team manager registration and profile management
+- [x] 2.2 Create club manager registration and profile management
 - [x] 2.3 Build frontend authentication components
 
 ### 3. Crew Member Management ✅ PARTIALLY COMPLETED
@@ -127,7 +127,7 @@
 - [x] 8.3 Create payment data model
   - Design payment record structure in DynamoDB
   - Store: payment_id, stripe_payment_intent_id, amount, currency
-  - Store: boat_registration_ids (array), team_manager_id
+  - Store: boat_registration_ids (array), club_manager_id
   - Store: paid_at timestamp, stripe_receipt_url
   - Add payment status tracking (pending, succeeded, failed)
   - _Requirements: FR-4.3, FR-4.4_
@@ -265,19 +265,19 @@
   - Add help text (French: "Poids moyen recommandé des rameurs", English: "Recommended average rower weight")
   - _Requirements: FR-8.12_
 
-- [x] 11.3 Create team manager boat rental Lambda functions
-  - Implement list_available_rental_boats Lambda (team manager accessible)
+- [x] 11.3 Create club manager boat rental Lambda functions
+  - Implement list_available_rental_boats Lambda (club manager accessible)
     - Return boats with status "available" or "new"
     - Exclude boats with status "requested", "confirmed", or "paid"
     - Include boat_type, boat_name, rower_weight_range, status
-  - Implement request_rental_boat Lambda (team manager accessible)
+  - Implement request_rental_boat Lambda (club manager accessible)
     - Validate boat is available (status is "available" or "new")
     - Update rental_boat status to "requested"
-    - Store requester (team_manager_id) on rental_boat
+    - Store requester (club_manager_id) on rental_boat
     - Store requested_at timestamp
     - Return confirmation with boat details
-  - Implement get_my_rental_requests Lambda (team manager accessible)
-    - Query boats where requester = authenticated team_manager_id
+  - Implement get_my_rental_requests Lambda (club manager accessible)
+    - Query boats where requester = authenticated club_manager_id
     - Return list with boat details and current status
   - _Requirements: FR-8.1, FR-8.2, FR-8.3, FR-8.4_
 
@@ -286,25 +286,25 @@
   - Implement confirm_rental_request Lambda (admin only)
     - Update rental_boat status from "requested" to "confirmed"
     - Store confirmed_by admin_user_id and confirmed_at timestamp
-    - Trigger notification to team manager (requester)
+    - Trigger notification to club manager (requester)
   - Implement reject_rental_request Lambda (admin only)
     - Update rental_boat status back to "available"
     - Clear requester field
     - Clear requested_at timestamp
-    - Trigger notification to team manager
+    - Trigger notification to club manager
   - _Requirements: FR-8.7, FR-8.10_
 
 - [x] 11.5 Add API Gateway routes for boat rental
-  - Add GET /rental/boats (team manager) - list available boats
-  - Add POST /rental/request (team manager) - request a boat (boat_id in request body)
-  - Add GET /rental/my-requests (team manager) - get my rental requests
+  - Add GET /rental/boats (club manager) - list available boats
+  - Add POST /rental/request (club manager) - request a boat (boat_id in request body)
+  - Add GET /rental/my-requests (club manager) - get my rental requests
   - Add PUT /admin/rental-boats/{boat_id}/confirm (admin) - confirm request
   - Add PUT /admin/rental-boats/{boat_id}/reject (admin) - reject request
   - Configure Cognito authorization for all routes
   - _Requirements: FR-8.1, FR-8.2, FR-8.7, FR-8.10_
 
-- [x] 11.6 Build team manager boat rental frontend
-  - Create BoatRentalPage.vue for team managers
+- [x] 11.6 Build club manager boat rental frontend
+  - Create BoatRentalPage.vue for club managers
   - Display list of available rental boats with filters (boat type)
   - Show boat details: type, name, weight capacity (portance), status
   - Add "Request Boat" button for each available boat
@@ -327,7 +327,7 @@
 - [x] 11.8 Add boat rental payment to payment page
   - Display confirmed rental boats in payment page alongside boat registrations
   - Calculate rental fee: 2.5x Base_Seat_Price for skiffs, Base_Seat_Price per seat for crew boats
-  - Allow team managers to select confirmed rentals for payment
+  - Allow club managers to select confirmed rentals for payment
   - Display rental fees separately in payment breakdown
   - Include rental fees in total payment calculation
   - Update payment confirmation to mark rental boat status as "paid" and set paid_at timestamp
@@ -386,7 +386,7 @@
 
 - [x] 15.2 Create main application views ✅ COMPLETED
   - Build HomePage.vue for public landing page ✅
-  - Create DashboardView.vue for team managers ✅
+  - Create DashboardView.vue for club managers ✅
   - Build boat registration workflow (BoatDetail.vue) ✅
   - Implement responsive layouts for mobile/tablet/desktop ✅
   - Add loading states and error boundaries ✅
@@ -463,7 +463,7 @@
   - Generate random crew members with random license numbers
   - Attempt to add a second crew member with the same license number
   - Verify the system rejects the duplicate and returns 409 Conflict error
-  - Test across different team managers to ensure competition-wide uniqueness
+  - Test across different club managers to ensure competition-wide uniqueness
   - **Validates: Requirements FR-2.4, FR-2.5**
 
 ### 10. Admin Mode - Configuration Management (Remaining)
@@ -495,14 +495,14 @@
 
 - [x] 10.11
   - Add an Admin page to view all the crew members for all teams managers
-  - In filter zone, allow to sort or filter by team manager or club
-  - allow the admin to modify / add any crew member at any time regardless or the date limits (registration end date or payment end date) that apply to team managers.
+  - In filter zone, allow to sort or filter by club manager or club
+  - allow the admin to modify / add any crew member at any time regardless or the date limits (registration end date or payment end date) that apply to club managers.
 
 - [x] 10.12
   - add an admin page to view all the boats registered for all teams managers
   - Make the page similar to the boats page 
-  - add the search and filter zone to allow to sort or filter by team manager or club
-  - allow the admin to delete / modify / add any boat at any time regardless or the date limits (registration end date or payment end date) that apply to team managers
+  - add the search and filter zone to allow to sort or filter by club manager or club
+  - allow the admin to delete / modify / add any boat at any time regardless or the date limits (registration end date or payment end date) that apply to club managers
   - Add an attribute to the boat that allows the admin to set the boat to "out" (forfait in french)
 
 <!-- - [ ] 10.13
@@ -650,7 +650,7 @@
 - [ ] 25.1 Implement registration validation Lambda functions
   - Create get_all_registrations Lambda for admin review
   - Implement flag_registration_issue Lambda with notification trigger
-  - Create resolve_flagged_issue Lambda for team manager actions
+  - Create resolve_flagged_issue Lambda for club manager actions
   - Implement grant_editing_access Lambda with time limits
   - Add manual registration editing for admins
   - _Requirements: FR-6.1, FR-6.2, FR-6.3, FR-6.4, FR-6.5, FR-6.6_

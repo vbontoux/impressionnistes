@@ -35,7 +35,7 @@ The mobile responsiveness implementation for the Course des Impressionnistes reg
 
 All 32 tasks have been completed, all pages have been tested across multiple viewport sizes and orientations, comprehensive documentation has been created, and the system meets all accessibility and performance requirements.
 
-The application now provides an excellent mobile experience for team managers and administrators, enabling them to manage registrations comfortably from their mobile devices.
+The application now provides an excellent mobile experience for club managers and administrators, enabling them to manage registrations comfortably from their mobile devices.
 
 ---
 

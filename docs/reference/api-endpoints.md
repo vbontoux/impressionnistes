@@ -17,7 +17,7 @@ Or from CDK output after deployment.
 
 ### POST /auth/register
 
-Register a new team manager account.
+Register a new club manager account.
 
 **Authentication**: None required
 
@@ -456,7 +456,7 @@ curl -X POST https://your-api-url/dev/boat \
 
 ### GET /boat
 
-List all boat registrations (crews) for the authenticated team manager.
+List all boat registrations (crews) for the authenticated club manager.
 
 **Authentication**: Required (Cognito JWT token)
 

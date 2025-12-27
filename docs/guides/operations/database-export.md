@@ -136,7 +136,7 @@ Current entity types in the database:
 
 - **CONFIG** - System configuration (SYSTEM, PRICING, NOTIFICATION)
 - **RACE** - Race definitions (42 races total)
-- **USER** - Team manager profiles (added in later tasks)
+- **USER** - Club manager profiles (added in later tasks)
 - **CREW** - Crew members (added in later tasks)
 - **BOAT** - Boat registrations (added in later tasks)
 - **PAYMENT** - Payment records (added in later tasks)

@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Course des Impressionnistes Registration System is a web application that enables rowing club team managers to register crews and boats for the RCPM Competition, while providing administrative tools for validation and management. The system supports multilingual interfaces, payment processing, and comprehensive registration management throughout the Competition lifecycle.
+The Course des Impressionnistes Registration System is a web application that enables rowing club managers to register crews and boats for the RCPM Competition, while providing administrative tools for validation and management. The system supports multilingual interfaces, payment processing, and comprehensive registration management throughout the Competition lifecycle.
 
 ## Glossary
 
@@ -25,13 +25,13 @@ The Course des Impressionnistes Registration System is a web application that en
 
 - **RCPM** : Rowing Club de Port Marly
 - **Registration_System**: The complete web application for managing rowing competition registrations
-- **Team_Manager**: A user representing a rowing club who registers boats and crews for the competition
+- **Club_Manager**: A user representing a rowing club who registers boats and crews for the competition
 - **Admin_User**: RCPM organization staff member who manages system configuration and validates registrations
 - **DevOps_User**: Technical staff responsible for deploying and maintaining the serverless infrastructure
 - **Crew_Member**: An individual rower or coxswain registered to participate in a boat
 - **Boat_Registration**: A complete registration entry containing boat configuration and assigned crew members (displayed as "Crew" in UI)
-- **Registration_Period**: The time window during which team managers can create and modify registrations
-- **Payment_Period**: The time window during which team managers can make payments
+- **Registration_Period**: The time window during which club managers can create and modify registrations
+- **Payment_Period**: The time window during which club managers can make payments
 - **Seat_Assignment**: The association of a crew member to a specific position (rowing or cox) in a boat
 - **Payment_Gateway**: Stripe integration for processing registration fees
 - **Validation_Process**: Admin review and approval of crew member licenses and registration details
@@ -50,68 +50,68 @@ The Course des Impressionnistes Registration System is a web application that en
 
 These requirements define what the system does from a business and user perspective.
 
-### FR-1: Team Manager Authentication
+### FR-1: Club Manager Authentication
 
-**User Story:** As a team manager, I want to register and authenticate securely, so that I can manage my club's boat registrations for the competition.
+**User Story:** As a club manager, I want to register and authenticate securely, so that I can manage my club's boat registrations for the competition.
 
 #### Acceptance Criteria
 
-1. WHEN a team manager accesses the registration portal, THE Registration_System SHALL display authentication options including email/password and social login providers
-2. WHEN a team manager provides valid credentials, THE Registration_System SHALL authenticate the user and establish a secure session
-3. WHEN a team manager remains inactive for 30 minutes, THE Registration_System SHALL automatically log out the user for security
-4. WHEN a team manager requests password recovery, THE Registration_System SHALL send a secure reset link via email
-5. THE Registration_System SHALL store team manager profile information including first and last name, email, a rowing club affiliation, and a mobile number (required for emergency contact)
+1. WHEN a club manager accesses the registration portal, THE Registration_System SHALL display authentication options including email/password and social login providers
+2. WHEN a club manager provides valid credentials, THE Registration_System SHALL authenticate the user and establish a secure session
+3. WHEN a club manager remains inactive for 30 minutes, THE Registration_System SHALL automatically log out the user for security
+4. WHEN a club manager requests password recovery, THE Registration_System SHALL send a secure reset link via email
+5. THE Registration_System SHALL store club manager profile information including first and last name, email, a rowing club affiliation, and a mobile number (required for emergency contact)
 
 ### FR-2: Crew Member Management
 
-**User Story:** As a team manager, I want to manage crew member information, so that I can maintain accurate records of all participants from my club.
+**User Story:** As a club manager, I want to manage crew member information, so that I can maintain accurate records of all participants from my club.
 
 #### Acceptance Criteria
 
-1. WHEN a team manager adds a crew member, THE Registration_System SHALL require first and last name, date of birth, gender, license number, rowing club affiliation if different from the rowing club affiliation of the team manager
-2. WHILE the registration period is active, THE Registration_System SHALL allow team managers to edit crew member information or to delete a crew member
-3. WHEN a team manager enters a license number, THE Registration_System SHALL validate the alphanumeric format
-4. WHEN a team manager enters a license number, THE Registration_System SHALL verify that the license number is unique across all crew members in the competition
-5. IF a team manager attempts to add a crew member with a license number that already exists, THEN THE Registration_System SHALL prevent the addition and display an error message indicating the license number is already in use
-6. WHILE a crew member registration is incomplete, THE Registration_System SHALL allow team managers to save partial configurations and return later
+1. WHEN a club manager adds a crew member, THE Registration_System SHALL require first and last name, date of birth, gender, license number, rowing club affiliation if different from the rowing club affiliation of the club manager
+2. WHILE the registration period is active, THE Registration_System SHALL allow club managers to edit crew member information or to delete a crew member
+3. WHEN a club manager enters a license number, THE Registration_System SHALL validate the alphanumeric format
+4. WHEN a club manager enters a license number, THE Registration_System SHALL verify that the license number is unique across all crew members in the competition
+5. IF a club manager attempts to add a crew member with a license number that already exists, THEN THE Registration_System SHALL prevent the addition and display an error message indicating the license number is already in use
+6. WHILE a crew member registration is incomplete, THE Registration_System SHALL allow club managers to save partial configurations and return later
 7. THE Registration_System SHALL persist crew member information throughout and after the registration period
-8. WHEN the registration period ends, THE Registration_System SHALL prevent team managers from editing crew member information unless granted by the Admin_User
+8. WHEN the registration period ends, THE Registration_System SHALL prevent club managers from editing crew member information unless granted by the Admin_User
 
 ### FR-3: Boat Registration and Seat Assignment
 
-**User Story:** As a team manager, I want to configure boat registrations with seat assignments, so that I can register complete crews for specific race categories.
+**User Story:** As a club manager, I want to configure boat registrations with seat assignments, so that I can register complete crews for specific race categories.
 
 #### Acceptance Criteria
 
-1. WHEN a team manager creates a boat registration, THE Registration_System SHALL propose two different events (21 or 42 km races)
-2. WHEN a team manager selects an event, THE Registration_System SHALL display the possible boat types: skiff for the 42km event; 4 without cox or 4 with cox or 8 with cox for the 21 km event
-3. WHEN a team manager selects a boat type, THE Registration_System SHALL display available seats for crew member assignment
-4. WHEN a team manager has assigned crew members to each seat, THE Registration_System SHALL display all possible races among the 14 marathon races or 41 semi-marathon races (see appendix), filtering out races that are not compatible with crew members' age and gender and boat configuration (sweep vs scull), allowing the team manager to select the race
-5. WHILE a boat registration is incomplete, THE Registration_System SHALL allow team managers to save partial configurations and return later
-6. WHILE the registration period is active, THE Registration_System SHALL allow team managers to edit boat registration information or to delete a boat registration
+1. WHEN a club manager creates a boat registration, THE Registration_System SHALL propose two different events (21 or 42 km races)
+2. WHEN a club manager selects an event, THE Registration_System SHALL display the possible boat types: skiff for the 42km event; 4 without cox or 4 with cox or 8 with cox for the 21 km event
+3. WHEN a club manager selects a boat type, THE Registration_System SHALL display available seats for crew member assignment
+4. WHEN a club manager has assigned crew members to each seat, THE Registration_System SHALL display all possible races among the 14 marathon races or 41 semi-marathon races (see appendix), filtering out races that are not compatible with crew members' age and gender and boat configuration (sweep vs scull), allowing the club manager to select the race
+5. WHILE a boat registration is incomplete, THE Registration_System SHALL allow club managers to save partial configurations and return later
+6. WHILE the registration period is active, THE Registration_System SHALL allow club managers to edit boat registration information or to delete a boat registration
 7. WHEN crew members are assigned to all required seats and a race is selected, THE Registration_System SHALL mark the boat registration as complete
 8. WHEN a crew member is assigned a seat, THE Registration_System SHALL mark the crew member as assigned to a boat
-9. IF a crew member is already assigned to a seat, THEN THE Registration_System SHALL not allow the team manager to assign the crew member to another boat seat
-10. IF a crew member is flagged with issues (by the Admin_User), THEN THE Registration_System SHALL allow the team manager to mark the flagged issue as resolved
+9. IF a crew member is already assigned to a seat, THEN THE Registration_System SHALL not allow the club manager to assign the crew member to another boat seat
+10. IF a crew member is flagged with issues (by the Admin_User), THEN THE Registration_System SHALL allow the club manager to mark the flagged issue as resolved
 11. WHEN a race has been selected and the boat has a coxswain, THE Registration_System SHALL display crew members who can substitute as coxswain during the race while maintaining crew compatibility with the selected race
 12. THE Registration_System SHALL display seat assignments with crew member names in a clear visual format with links to boat registration or crew member information and with potential flagged issues
-13. THE Registration_System SHALL log all team manager changes with timestamps and user identification
+13. THE Registration_System SHALL log all club manager changes with timestamps and user identification
 
 ### FR-4: Payment Processing
 
-**User Story:** As a team manager, I want to process payments for my registrations, so that I can secure my club's participation in the competition.
+**User Story:** As a club manager, I want to process payments for my registrations, so that I can secure my club's participation in the competition.
 
 #### Acceptance Criteria
 
-1. WHILE the Payment_Period is active, THE Registration_System SHALL allow team managers to initiate and complete payments for their registrations
-2. WHEN a team manager initiates payment, THE Registration_System SHALL calculate total fees based on Base_Seat_Price for all seats, applying zero cost for RCPM_Member seats and Base_Seat_Price for external club member seats
+1. WHILE the Payment_Period is active, THE Registration_System SHALL allow club managers to initiate and complete payments for their registrations
+2. WHEN a club manager initiates payment, THE Registration_System SHALL calculate total fees based on Base_Seat_Price for all seats, applying zero cost for RCPM_Member seats and Base_Seat_Price for external club member seats
 3. WHEN determining RCPM_Member status for pricing, THE Registration_System SHALL identify crew members as RCPM_Members if their club_affiliation contains "RCPM" or "Port-Marly" or "Port Marly" in any combination of uppercase and lowercase letters
-4. THE Registration_System SHALL track partial payments and display payment status to team managers by showing the balance between the number of paid seats and the number of seats registered
+4. THE Registration_System SHALL track partial payments and display payment status to club managers by showing the balance between the number of paid seats and the number of seats registered
 5. THE Registration_System SHALL allow modifications to crew members, seat assignments, and race selection for boat registrations even after payment, but SHALL prevent deletion of paid boat registrations
 6. THE Registration_System SHALL NOT allow reimbursement in case balance in favor of RCPM (in such case the situation will be fixed afterwards by email)
 7. WHEN payment processing occurs, THE Registration_System SHALL integrate with Stripe Payment_Gateway for secure transaction handling
 8. WHEN payment is completed, THE Registration_System SHALL send confirmation via email and update registration status
-9. IF payment is not completed before the Payment_Period ends, THEN THE Registration_System SHALL notify the team manager that payment is required to secure participation
+9. IF payment is not completed before the Payment_Period ends, THEN THE Registration_System SHALL notify the club manager that payment is required to secure participation
 10. IF there are flagged issues for some crew members, THEN THE Registration_System SHALL still allow payment processing
 
 ### FR-5: System Configuration Management
@@ -133,10 +133,10 @@ These requirements define what the system does from a business and user perspect
 #### Acceptance Criteria
 
 1. WHEN an Admin_User reviews registrations, THE Registration_System SHALL display crew member information with validation status indicators
-2. WHEN an Admin_User identifies registration issues, THE Registration_System SHALL allow flagging of problems visible to the corresponding team manager who will be notified immediately through the predefined channels and repeatedly based on the Notification Frequency
-3. IF a team manager has resolved a flagged issue, THE Registration_System SHALL display the flagged issue as resolved by the team manager
-4. WHILE the registration period is active, THE Registration_System SHALL enable team managers to correct flagged issues autonomously
-5. WHEN the registration period ends, THE Registration_System SHALL allow Admin_Users to manually edit registration information or grant temporary editing access to relevant team managers
+2. WHEN an Admin_User identifies registration issues, THE Registration_System SHALL allow flagging of problems visible to the corresponding club manager who will be notified immediately through the predefined channels and repeatedly based on the Notification Frequency
+3. IF a club manager has resolved a flagged issue, THE Registration_System SHALL display the flagged issue as resolved by the club manager
+4. WHILE the registration period is active, THE Registration_System SHALL enable club managers to correct flagged issues autonomously
+5. WHEN the registration period ends, THE Registration_System SHALL allow Admin_Users to manually edit registration information or grant temporary editing access to relevant club managers
 6. WHEN an Admin_User grants editing exceptions, THE Registration_System SHALL apply a configurable time limit with automatic expiration
 
 ### FR-7: Reporting and Analytics
@@ -148,11 +148,11 @@ These requirements define what the system does from a business and user perspect
 1. WHEN an Admin_User accesses the dashboard, THE Registration_System SHALL display real-time statistics including participant counts and boats per category
 2. WHEN an Admin_User requests data export, THE Registration_System SHALL provide JSON API endpoints that return raw data for client-side formatting into CSV or Excel files
 3. THE Registration_System SHALL provide three separate export endpoints:
-   - `/admin/export/crew-members-json` - Returns all crew members with team manager information, age calculations, and sorting by team manager name then crew member last name
-   - `/admin/export/boat-registrations-json` - Returns all boat registrations (regardless of status) with race names, team manager information, crew details, and seat assignments
-   - `/admin/export/races-json` - Returns comprehensive race data including system configuration, all races, all boats, all crew members, and all team managers for CrewTimer integration
-4. WHEN an Admin_User exports crew members, THE Registration_System SHALL format the data as CSV with columns for team manager name, club affiliation, crew member details (first name, last name, gender, date of birth, age), and license number
-5. WHEN an Admin_User exports boat registrations, THE Registration_System SHALL format the data as CSV with columns for team manager name, club affiliation, event type, boat type, race name, registration status, forfait status, payment status, and detailed crew composition with seat positions
+   - `/admin/export/crew-members-json` - Returns all crew members with club manager information, age calculations, and sorting by club manager name then crew member last name
+   - `/admin/export/boat-registrations-json` - Returns all boat registrations (regardless of status) with race names, club manager information, crew details, and seat assignments
+   - `/admin/export/races-json` - Returns comprehensive race data including system configuration, all races, all boats, all crew members, and all club managers for CrewTimer integration
+4. WHEN an Admin_User exports crew members, THE Registration_System SHALL format the data as CSV with columns for club manager name, club affiliation, crew member details (first name, last name, gender, date of birth, age), and license number
+5. WHEN an Admin_User exports boat registrations, THE Registration_System SHALL format the data as CSV with columns for club manager name, club affiliation, event type, boat type, race name, registration status, forfait status, payment status, and detailed crew composition with seat positions
 6. WHEN an Admin_User exports races for CrewTimer, THE Registration_System SHALL format the data as Excel (XLSX) following the CrewTimer import specification with columns for Event, Crew, Bow, and individual rower details
 7. THE Registration_System SHALL provide Admin_Users with financial reports showing the ratio of paid seats to registered seats
 8. THE Registration_System SHALL track and display registration metrics including total participants and category distribution
@@ -162,31 +162,31 @@ These requirements define what the system does from a business and user perspect
 
 ### FR-8: Boat Rental Management
 
-**User Story:** As a team manager from an external club, I want to request boat rentals from RCPM, so that my crews can participate in the competition using available boats.
+**User Story:** As a club manager from an external club, I want to request boat rentals from RCPM, so that my crews can participate in the competition using available boats.
 
 #### Acceptance Criteria
 
-1. WHEN a Team_Manager accesses boat rental options, THE Registration_System SHALL display all RCPM rental boats with boat type, name, recommended rower weight range in kilograms, and current availability status
-2. WHEN a Team_Manager views available boats, THE Registration_System SHALL show only boats with status "available" that are not currently requested by another team manager
-3. WHEN a Team_Manager requests a Boat_Rental, THE Registration_System SHALL record the request with selected boat, boat type, races, team manager contact information, and set the boat status to "requested"
-4. WHEN a boat status is "requested" by one Team_Manager, THE Registration_System SHALL prevent other team managers from requesting the same boat
+1. WHEN a Club_Manager accesses boat rental options, THE Registration_System SHALL display all RCPM rental boats with boat type, name, recommended rower weight range in kilograms, and current availability status
+2. WHEN a Club_Manager views available boats, THE Registration_System SHALL show only boats with status "available" that are not currently requested by another club manager
+3. WHEN a Club_Manager requests a Boat_Rental, THE Registration_System SHALL record the request with selected boat, boat type, races, club manager contact information, and set the boat status to "requested"
+4. WHEN a boat status is "requested" by one Club_Manager, THE Registration_System SHALL prevent other club managers from requesting the same boat
 5. WHILE the Rental_Priority_Period is active, THE Registration_System SHALL reserve requested boats for RCPM_Members and mark external rental requests as pending
 6. WHEN the Rental_Priority_Period expires, THE Registration_System SHALL automatically confirm pending External_Club rental requests for unreserved boats
-7. WHEN an Admin_User changes a Boat_Rental status to "confirmed", THE Registration_System SHALL update the boat status and notify the Team_Manager via the defined channels
+7. WHEN an Admin_User changes a Boat_Rental status to "confirmed", THE Registration_System SHALL update the boat status and notify the Club_Manager via the defined channels
 8. WHEN a Boat_Rental is confirmed, THE Registration_System SHALL update the boat availability status to prevent additional requests
 9. THE Registration_System SHALL calculate rental fees at 2.5 times the Base_Seat_Price for individual boats (skiffs) and Base_Seat_Price per seat for crew boats
 10. WHEN an Admin_User manages boat rentals, THE Registration_System SHALL allow the admin to change boat status (to confirm requests by changing status to "confirmed", or to reject by changing status back to "available") and view requester information
-11. THE Registration_System SHALL display confirmed boat rentals in the payment page alongside boat registrations, allowing team managers to pay for rentals separately from boat registrations
-12. WHEN an Admin_User creates or updates a rental boat, THE Registration_System SHALL allow entry of recommended rower weight range in kilograms as a text field for informational purposes to help team managers select appropriate boats for their crew
+11. THE Registration_System SHALL display confirmed boat rentals in the payment page alongside boat registrations, allowing club managers to pay for rentals separately from boat registrations
+12. WHEN an Admin_User creates or updates a rental boat, THE Registration_System SHALL allow entry of recommended rower weight range in kilograms as a text field for informational purposes to help club managers select appropriate boats for their crew
 13. WHEN a rental boat status changes to "paid", THE Registration_System SHALL record the payment timestamp in the paid_at field to track when the rental was paid
 
 ### FR-9: Seat Rental for Multi_Club_Crews
 
-**User Story:** As a team manager, I want to manage seat rental fees for external club members in Multi_Club_Crews, so that I can properly account for all participation costs.
+**User Story:** As a club manager, I want to manage seat rental fees for external club members in Multi_Club_Crews, so that I can properly account for all participation costs.
 
 #### Acceptance Criteria
 
-1. WHEN a Team_Manager creates a Multi_Club_Crew registration, THE Registration_System SHALL identify external club members rowing with RCPM_Members using the club_affiliation detection logic
+1. WHEN a Club_Manager creates a Multi_Club_Crew registration, THE Registration_System SHALL identify external club members rowing with RCPM_Members using the club_affiliation detection logic
 2. WHEN external club members are assigned to seats in Multi_Club_Crews, THE Registration_System SHALL automatically apply Seat_Rental fees to the registration
 3. THE Registration_System SHALL calculate Seat_Rental fees at the Base_Seat_Price for each external club member in a Multi_Club_Crew and a price of zero for RCPM_Members
 4. WHEN payment is processed for Multi_Club_Crews, THE Registration_System SHALL include Seat_Rental fees in the total amount due
@@ -240,35 +240,35 @@ These requirements define what the system does from a business and user perspect
 
 ### FR-13: Admin Crew Member Management
 
-**User Story:** As an admin user, I want to view and manage all crew members across all team managers, so that I can oversee registrations and make corrections regardless of date restrictions.
+**User Story:** As an admin user, I want to view and manage all crew members across all club managers, so that I can oversee registrations and make corrections regardless of date restrictions.
 
 #### Acceptance Criteria
 
-1. WHEN an Admin_User accesses the crew member management interface, THE Registration_System SHALL display all crew members from all team managers with their associated team manager information
-2. THE Registration_System SHALL allow Admin_Users to filter crew members by team manager, club affiliation, or search by name and license number
-3. WHEN an Admin_User creates a crew member, THE Registration_System SHALL allow selection of any team manager and bypass registration period date restrictions
+1. WHEN an Admin_User accesses the crew member management interface, THE Registration_System SHALL display all crew members from all club managers with their associated club manager information
+2. THE Registration_System SHALL allow Admin_Users to filter crew members by club manager, club affiliation, or search by name and license number
+3. WHEN an Admin_User creates a crew member, THE Registration_System SHALL allow selection of any club manager and bypass registration period date restrictions
 4. WHEN an Admin_User updates a crew member, THE Registration_System SHALL allow modifications regardless of registration period or payment deadline restrictions
 5. WHEN an Admin_User deletes a crew member, THE Registration_System SHALL allow deletion regardless of date restrictions, provided the crew member is not assigned to a boat
-6. THE Registration_System SHALL display crew member details including first name, last name, age, gender, license number, club affiliation, and associated team manager
-7. THE Registration_System SHALL provide sorting capabilities by name, club, team manager, and other relevant fields
+6. THE Registration_System SHALL display crew member details including first name, last name, age, gender, license number, club affiliation, and associated club manager
+7. THE Registration_System SHALL provide sorting capabilities by name, club, club manager, and other relevant fields
 8. THE Registration_System SHALL log all Admin_User actions on crew members with timestamps and user identification for audit purposes
 
 ### FR-14: Admin Boat Registration Management
 
-**User Story:** As an admin user, I want to view and manage all boat registrations across all team managers, so that I can oversee the competition and handle special cases like forfaits.
+**User Story:** As an admin user, I want to view and manage all boat registrations across all club managers, so that I can oversee the competition and handle special cases like forfaits.
 
 #### Acceptance Criteria
 
-1. WHEN an Admin_User accesses the boat registration management interface, THE Registration_System SHALL display all boat registrations from all team managers with their associated team manager information
-2. THE Registration_System SHALL allow Admin_Users to filter boats by team manager, club affiliation, registration status, or search by event type and boat type
-3. WHEN an Admin_User views boat registrations, THE Registration_System SHALL display event type, boat type, crew composition, registration status, team manager name, and club affiliation
+1. WHEN an Admin_User accesses the boat registration management interface, THE Registration_System SHALL display all boat registrations from all club managers with their associated club manager information
+2. THE Registration_System SHALL allow Admin_Users to filter boats by club manager, club affiliation, registration status, or search by event type and boat type
+3. WHEN an Admin_User views boat registrations, THE Registration_System SHALL display event type, boat type, crew composition, registration status, club manager name, and club affiliation
 4. WHEN an Admin_User marks a boat as forfait, THE Registration_System SHALL update the boat status to indicate withdrawal from the competition
 5. WHEN an Admin_User removes forfait status from a boat, THE Registration_System SHALL restore the boat to its previous registration status
 6. THE Registration_System SHALL visually distinguish forfait boats from active registrations in the admin interface
 7. WHEN an Admin_User deletes a boat registration, THE Registration_System SHALL allow deletion regardless of date restrictions, except for boats with paid status
 8. THE Registration_System SHALL prevent deletion of paid boat registrations to maintain payment integrity
 9. THE Registration_System SHALL display paid and complete boat registrations with consistent visual styling to indicate finalized status
-10. THE Registration_System SHALL provide sorting capabilities by event type, boat type, team manager, club, and registration status
+10. THE Registration_System SHALL provide sorting capabilities by event type, boat type, club manager, club, and registration status
 11. THE Registration_System SHALL log all Admin_User actions on boat registrations with timestamps and user identification for audit purposes
 
 ---
@@ -330,7 +330,7 @@ These requirements define how the system performs and quality attributes.
 
 1. WHEN registration events occur, THE Registration_System SHALL send notifications (according to defined notification channels) for confirmations, issues, and deadline reminders
 2. THE Registration_System SHALL repeat notifications (according to defined notification channels) on a regular basis (based on notification frequency parameter) if there are ongoing issues
-3. WHEN approaching registration deadlines, THE Registration_System SHALL notify team managers (according to defined notification channels) and highlight issues in the registration (missing information, information tagged as wrong, ...)
+3. WHEN approaching registration deadlines, THE Registration_System SHALL notify club managers (according to defined notification channels) and highlight issues in the registration (missing information, information tagged as wrong, ...)
 4. THE Registration_System SHALL provide a notification center within the web application for users to review message history
 5. THE Registration_System SHALL ensure all notifications are delivered in the user's selected language preference
 6. WHEN significant registration events occur (new registrations, payments, boat rentals), THE Registration_System SHALL send real-time notifications to Admin_Users and DevOps_Users via Slack
@@ -402,7 +402,7 @@ These requirements define the mandatory technical architecture and implementatio
 2. THE Registration_System SHALL provide separate export endpoints for different data entities (crew members, boat registrations, races) to enable targeted data retrieval
 3. THE Registration_System SHALL implement client-side formatting in the frontend application to convert JSON data into CSV or Excel formats
 4. WHEN export data volumes are large, THE Registration_System SHALL implement pagination handling in the Lambda functions to retrieve all records across multiple DynamoDB scan operations
-5. THE Registration_System SHALL cache frequently accessed data (team managers, crew members) during export operations to minimize database queries and improve performance
+5. THE Registration_System SHALL cache frequently accessed data (club managers, crew members) during export operations to minimize database queries and improve performance
 6. THE Registration_System SHALL convert DynamoDB Decimal types to standard float/integer types before returning JSON responses to ensure compatibility with frontend JavaScript
 7. THE Registration_System SHALL set Lambda function timeouts to 60 seconds for export operations to accommodate large dataset processing
 8. THE Registration_System SHALL include metadata in export responses (total count, export timestamp) to provide context for the exported data
@@ -687,14 +687,14 @@ The Course des Impressionnistes is a rowing regatta featuring two distinct event
 - Late changes: Crew substitutions and withdrawals accepted after closure
 
 **Who Can Register**
-- Rowing club team managers register on behalf of their clubs
+- Rowing club club managers register on behalf of their clubs
 - Multiple managers per club allowed (e.g., individual marathon participants)
 - All participants must hold valid French Rowing Federation licenses
 
-**Registration Flow for Team Managers**
+**Registration Flow for Club Managers**
 
 **Getting Started**
-Team managers register their club and crews through a simple online process. Each club can have multiple managers, and the system guides you through every step.
+Club managers register their club and crews through a simple online process. Each club can have multiple managers, and the system guides you through every step.
 
 **The Registration Journey**
 

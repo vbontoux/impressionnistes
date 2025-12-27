@@ -112,20 +112,20 @@ In Live mode, you can further customize:
   - No email restrictions
   
 - **Our implementation**: 
-  - ✅ We now pass the team manager's email to Stripe
+  - ✅ We now pass the club manager's email to Stripe
   - ✅ Receipt email will be sent in live mode
   - ✅ In test mode, you can manually send receipts from Dashboard
 
 ## Step 5: Add Customer Email to Payments (Optional Enhancement)
 
-To send receipts to the actual customer (team manager), you need to pass their email when creating the payment intent.
+To send receipts to the actual customer (club manager), you need to pass their email when creating the payment intent.
 
 ### Backend Update (Optional)
 
 Update `functions/payment/create_payment_intent.py`:
 
 ```python
-# Get team manager email
+# Get club manager email
 team_manager = db.get_item(
     pk=f'USER#{team_manager_id}',
     sk=f'PROFILE#{team_manager_id}'
@@ -142,7 +142,7 @@ payment_intent = stripe_create_payment_intent(
 )
 ```
 
-This will send the receipt to the team manager's email address.
+This will send the receipt to the club manager's email address.
 
 ## What's Included in Receipt Emails
 

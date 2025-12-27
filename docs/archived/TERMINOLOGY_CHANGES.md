@@ -241,3 +241,139 @@ This documentation ensures that:
 - The distinction between database/API and UI terminology is clear
 - Future maintainers can easily understand why "boat" in code maps to "crew" in UI
 - The system maintains consistency while providing user-friendly language
+
+
+---
+
+# UI Terminology Change: "Team Manager" → "Club Manager" / "Gestionnaire d'équipe" → "Manager de Club"
+
+## Date
+December 27, 2025
+
+## Summary
+Updated user-facing terminology to use "Club Manager" instead of "Team Manager" for better clarity and alignment with the club-based nature of the registration system.
+
+## Rationale
+- "Club Manager" more accurately reflects the role - managing club registrations
+- More intuitive for users who are managing their rowing club's entries
+- Aligns better with the club-centric nature of the system
+
+## Changes Made
+
+### English Translations (en.json)
+Updated all user-facing references from "Team Manager" to "Club Manager":
+
+#### Registration & Authentication
+- `auth.register.subtitle`: "Create your team manager account" → "Create your club manager account"
+
+#### Crew Member Management
+- `crew.form.clubHint`: "Leave empty to use team manager's club" → "Leave empty to use club manager's club"
+
+#### Admin Section - Crew Members
+- `admin.crewMembers.subtitle`: "View and manage crew members for all team managers" → "View and manage crew members for all club managers"
+- `admin.crewMembers.searchPlaceholder`: "Search by name, license, or team manager..." → "Search by name, license, or club manager..."
+- `admin.crewMembers.filterByTeamManager`: "Filter by Team Manager" → "Filter by Club Manager"
+- `admin.crewMembers.allTeamManagers`: "All team managers" → "All club managers"
+- `admin.crewMembers.teamManager`: "Team Manager" → "Club Manager"
+- `admin.crewMembers.selectTeamManager`: "Team Manager" → "Club Manager"
+- `admin.crewMembers.selectTeamManagerPlaceholder`: "Select a team manager..." → "Select a club manager..."
+
+#### Admin Section - Crews
+- `admin.boats.subtitle`: "View and manage crews for all team managers" → "View and manage crews for all club managers"
+- `admin.boats.searchPlaceholder`: "Search by event, crew type, or team manager..." → "Search by event, crew type, or club manager..."
+- `admin.boats.filterByTeamManager`: "Filter by Team Manager" → "Filter by Club Manager"
+- `admin.boats.allTeamManagers`: "All team managers" → "All club managers"
+- `admin.boats.teamManager`: "Team Manager" → "Club Manager"
+- `admin.boats.useTeamManagerInterface`: "To create or edit crews, please use the team manager interface..." → "To create or edit crews, please use the club manager interface..."
+- `admin.boats.viewNotAvailable`: "...Team Manager: {teamManager}" → "...Club Manager: {teamManager}"
+
+#### Home Page - Process
+- `home.process.intro`: "Team managers register their club and crews..." → "Club managers register their club and crews..."
+
+### French Translations (fr.json)
+Updated all user-facing references from "Gestionnaire d'équipe" to "Manager de Club":
+
+#### Registration & Authentication
+- `auth.register.subtitle`: "Créez votre compte de gestionnaire d'équipe" → "Créez votre compte de manager de club"
+
+#### Crew Member Management
+- `crew.form.clubHint`: "Laissez vide pour utiliser le club du gestionnaire d'équipe" → "Laissez vide pour utiliser le club du manager de club"
+
+#### Admin Section - Crew Members
+- `admin.crewMembers.subtitle`: "Voir et gérer les équipiers de tous les gestionnaires d'équipe" → "Voir et gérer les équipiers de tous les managers de club"
+- `admin.crewMembers.searchPlaceholder`: "Rechercher par nom, licence ou gestionnaire..." → "Rechercher par nom, licence ou manager..."
+- `admin.crewMembers.filterByTeamManager`: "Filtrer par gestionnaire" → "Filtrer par manager"
+- `admin.crewMembers.allTeamManagers`: "Tous les gestionnaires" → "Tous les managers"
+- `admin.crewMembers.teamManager`: "Gestionnaire d'équipe" → "Manager de Club"
+- `admin.crewMembers.selectTeamManager`: "Gestionnaire d'équipe" → "Manager de Club"
+- `admin.crewMembers.selectTeamManagerPlaceholder`: "Sélectionner un gestionnaire..." → "Sélectionner un manager..."
+
+#### Admin Section - Crews
+- `admin.boats.subtitle`: "Voir et gérer les équipages de tous les gestionnaires d'équipe" → "Voir et gérer les équipages de tous les managers de club"
+- `admin.boats.searchPlaceholder`: "Rechercher par épreuve, type d'équipage ou gestionnaire..." → "Rechercher par épreuve, type d'équipage ou manager..."
+- `admin.boats.filterByTeamManager`: "Filtrer par gestionnaire" → "Filtrer par manager"
+- `admin.boats.allTeamManagers`: "Tous les gestionnaires" → "Tous les managers"
+- `admin.boats.teamManager`: "Gestionnaire d'équipe" → "Manager de Club"
+- `admin.boats.useTeamManagerInterface`: "...l'interface du gestionnaire d'équipe..." → "...l'interface du manager de club..."
+- `admin.boats.viewNotAvailable`: "...Gestionnaire : {teamManager}" → "...Manager : {teamManager}"
+
+#### Home Page - Process
+- `home.process.intro`: "Les gestionnaires d'équipe inscrivent leur club..." → "Les managers de club inscrivent leur club..."
+- `home.process.step1.description`: "Créez votre compte de gestionnaire..." → "Créez votre compte de manager..."
+
+### Documentation (README.md)
+Updated references in the main README:
+
+- Line 15: "...enables rowing club team managers to register..." → "...enables rowing club managers to register..."
+- Line 19: "**For Team Managers:**" → "**For Club Managers:**"
+- Line 209: "Role-based access control (Team Managers, Admins)" → "Role-based access control (Club Managers, Admins)"
+
+## What Was NOT Changed
+
+### Backend Code & Database
+✅ **No changes to backend logic or database:**
+- Database field names remain: `team_manager_id`, `PK='TEAM#...'`, etc.
+- API parameter names remain: `team_manager_id`
+- Python function parameters remain: `team_manager_id`
+- DynamoDB partition keys remain: `TEAM#...`
+
+**Rationale:** Changing these would break the entire system. The terminology change is UI-only.
+
+### Backend Comments (Optional)
+⚠️ Backend Python file comments and docstrings can optionally be updated for consistency, but this is not critical since they don't affect functionality.
+
+## Files Modified
+1. `frontend/src/locales/en.json` - ~20 keys updated
+2. `frontend/src/locales/fr.json` - ~20 keys updated
+3. `README.md` - 3 references updated
+4. `TERMINOLOGY_CHANGES.md` - This documentation
+
+## Key Terminology Mapping
+
+| Layer | English | French |
+|-------|---------|--------|
+| **UI (User-facing)** | Club Manager | Manager de Club |
+| **Database/API** | team_manager_id | team_manager_id |
+| **Code Variables** | team_manager_id | team_manager_id |
+
+## Benefits
+1. **Clearer role definition** - "Club Manager" is more descriptive than "Team Manager"
+2. **Better user understanding** - Users immediately understand they're managing club registrations
+3. **Consistent with domain** - Aligns with rowing club terminology
+4. **No breaking changes** - Backend remains unchanged, only UI text updated
+
+## Testing Recommendations
+1. ✅ Verify registration page shows "Create your club manager account"
+2. ✅ Check admin crew members page - filters and labels should say "Club Manager"
+3. ✅ Check admin crews page - filters and labels should say "Club Manager"
+4. ✅ Verify crew member form hint text references "club manager"
+5. ✅ Check home page process section mentions "club managers"
+6. ✅ Verify all dropdowns and selects use "Club Manager" / "Manager de Club"
+7. ✅ Test search functionality still works (backend uses team_manager_id)
+8. ✅ Verify French translations display correctly
+
+## Impact
+- **User-facing**: All UI text now uses "Club Manager" terminology
+- **Backend**: No impact - all APIs and database remain unchanged
+- **Compatibility**: Fully backward compatible - only translation strings changed
+- **UX**: Improved clarity and better alignment with user mental model

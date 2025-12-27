@@ -2,13 +2,13 @@
 
 ## Overview
 
-This document describes the authentication Lambda functions for team manager registration and profile management.
+This document describes the authentication Lambda functions for club manager registration and profile management.
 
 ## Lambda Functions
 
 ### 1. Register (`functions/auth/register.py`)
 
-Creates a new team manager account in Cognito and stores profile in DynamoDB.
+Creates a new club manager account in Cognito and stores profile in DynamoDB.
 
 **Handler**: `auth.register.lambda_handler`
 

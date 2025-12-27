@@ -193,9 +193,9 @@ Now that API Gateway is ready, you can:
 
 ### POST /crew - Create Crew Member
 
-Create a new crew member for the authenticated team manager.
+Create a new crew member for the authenticated club manager.
 
-**Authentication**: Required (Team Manager)
+**Authentication**: Required (Club Manager)
 
 **Request Body**:
 ```json
@@ -249,20 +249,20 @@ curl -X POST $API_URL/crew \
 - `date_of_birth`: Required, YYYY-MM-DD format
 - `gender`: Required, "M" or "F"
 - `license_number`: Required, alphanumeric 6-12 characters
-- `club_affiliation`: Optional, defaults to team manager's club, max 100 characters
+- `club_affiliation`: Optional, defaults to club manager's club, max 100 characters
 
 **Notes**:
 - `is_rcpm_member` is automatically calculated based on club_affiliation
-- If club_affiliation is not provided, it defaults to the team manager's club
+- If club_affiliation is not provided, it defaults to the club manager's club
 - License number is automatically converted to uppercase
 
 ---
 
 ### GET /crew - List Crew Members
 
-Get all crew members for the authenticated team manager.
+Get all crew members for the authenticated club manager.
 
-**Authentication**: Required (Team Manager)
+**Authentication**: Required (Club Manager)
 
 **Response** (200 OK):
 ```json
@@ -314,7 +314,7 @@ curl -X GET $API_URL/crew \
 
 Get details of a specific crew member.
 
-**Authentication**: Required (Team Manager)
+**Authentication**: Required (Club Manager)
 
 **Path Parameters**:
 - `crew_member_id`: UUID of the crew member
@@ -345,7 +345,7 @@ curl -X GET $API_URL/crew/550e8400-e29b-41d4-a716-446655440000 \
 ```
 
 **Error Responses**:
-- `404 Not Found`: Crew member doesn't exist or doesn't belong to the team manager
+- `404 Not Found`: Crew member doesn't exist or doesn't belong to the club manager
 
 ---
 
@@ -353,7 +353,7 @@ curl -X GET $API_URL/crew/550e8400-e29b-41d4-a716-446655440000 \
 
 Update an existing crew member's information.
 
-**Authentication**: Required (Team Manager)
+**Authentication**: Required (Club Manager)
 
 **Path Parameters**:
 - `crew_member_id`: UUID of the crew member
@@ -416,7 +416,7 @@ curl -X PUT $API_URL/crew/550e8400-e29b-41d4-a716-446655440000 \
 
 Delete a crew member (only if not assigned to a boat).
 
-**Authentication**: Required (Team Manager)
+**Authentication**: Required (Club Manager)
 
 **Path Parameters**:
 - `crew_member_id`: UUID of the crew member

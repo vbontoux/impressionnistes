@@ -12,7 +12,7 @@ The CrewTimer export generates an Excel file compatible with [CrewTimer.com](htt
 - **Smart Sorting**: Uses database `display_order` column for consistent race ordering
 - **Crew Filtering**: Exports only complete, paid, or free crews (excludes forfeits and incomplete registrations)
 - **Crew Information**: Includes stroke seat names and average crew age
-- **Club Affiliation**: Automatically includes team manager club information
+- **Club Affiliation**: Automatically includes club manager club information
 
 ## Export Format
 
