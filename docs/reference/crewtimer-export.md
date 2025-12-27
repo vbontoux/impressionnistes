@@ -62,6 +62,14 @@ Races are sorted by the `display_order` column (1-55):
 
 If `display_order` is not available, falls back to distance-based sorting (marathon first, then semi-marathon).
 
+### Boat Sorting Within Races
+
+Within each race, boats (crews) are sorted by:
+1. **Average age (descending)**: Oldest crews start first
+2. **Registration order**: If ages are equal, boats maintain their registration order (by boat_registration_id)
+
+This ordering ensures that older crews have priority positioning within their race category, which is a common practice in master rowing competitions.
+
 ## Internationalization
 
 ### Short Name Translation
@@ -237,6 +245,11 @@ Average age is calculated by the backend in the `crew_composition` object:
 - [Project Structure](./project-structure.md)
 
 ## Change History
+
+### 2024-12-27: Boat Ordering Within Races
+- Added sorting of boats within each race by average age (oldest first)
+- Maintains registration order as secondary sort criterion when ages are equal
+- Ensures consistent and fair positioning for master categories
 
 ### 2024-12-24: Use Pre-calculated Average Age
 - Optimized to use `boat.crew_composition.avg_age` from backend instead of recalculating

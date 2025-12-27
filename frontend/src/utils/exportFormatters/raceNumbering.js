@@ -33,6 +33,22 @@ export function assignRaceAndBowNumbers(races, boats, config) {
     }
   }
   
+  // Sort boats within each race by average age (oldest first), then by registration order
+  for (const raceId in boatsByRace) {
+    boatsByRace[raceId].sort((a, b) => {
+      const avgAgeA = a.crew_composition?.avg_age || 0
+      const avgAgeB = b.crew_composition?.avg_age || 0
+      
+      // Sort by age descending (oldest first)
+      if (avgAgeB !== avgAgeA) {
+        return avgAgeB - avgAgeA
+      }
+      
+      // If ages are equal, maintain registration order (by boat_registration_id)
+      return (a.boat_registration_id || '').localeCompare(b.boat_registration_id || '')
+    })
+  }
+  
   // Sort races by display_order
   const sortedRaces = [...races].sort((a, b) => {
     const orderA = a.display_order !== undefined && a.display_order !== null ? a.display_order : 999
