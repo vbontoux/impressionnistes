@@ -1,6 +1,22 @@
 # Implementation Plan - Course des Impressionnistes Registration System
 
-## COMPLETED TASKS ✅
+## Overview
+
+This implementation plan is organized into two versions:
+- **V1 (Tasks 1-99)**: Core MVP features required for production launch
+- **V2 (Tasks 100+)**: Enhanced features and optimizations for future releases
+
+Tasks are marked with status:
+- ✅ **COMPLETED**: Fully implemented and tested
+- 🔄 **IN PROGRESS**: Currently being worked on
+- ⏸️ **PARTIALLY COMPLETED**: Some sub-tasks done, others remaining
+- ⏳ **PENDING**: Not yet started
+
+---
+
+## V1 - PRODUCTION MVP
+
+### COMPLETED TASKS ✅
 
 ### 0. Prerequisites and Local Development Setup ✅ COMPLETED
 
@@ -454,9 +470,9 @@
 
 ---
 
-## PENDING TASKS
+## V1 - REMAINING TASKS ⏳
 
-### 3. Crew Member Management (Remaining)
+### 3. Crew Member Management (Remaining) ⏸️
 
 - [x] 3.5 Write property test for license number uniqueness
   - **Feature: impressionnistes-registration-system, Property 1: License Number Uniqueness**
@@ -466,58 +482,135 @@
   - Test across different club managers to ensure competition-wide uniqueness
   - **Validates: Requirements FR-2.4, FR-2.5**
 
-### 10. Admin Mode - Configuration Management (Remaining)
+### 14. CrewTimer Export Enhancement ✅ COMPLETED
 
-- [ ] 10.8 Backend: Data export for admin
-  - Create export_crew_members Lambda (admin only) - CSV with all crew details
-  - Create export_boat_registrations Lambda (admin only) - CSV with boat and race details
-  - Add filtering options (by event, by race, by payment status)
-  - Implement CSV generation with proper formatting
-  - Return downloadable file or S3 URL
-  - _Requirements: FR-7.2, FR-10.5_
+- [x] 14.1 Add CrewTimer export button to admin export page ✅ COMPLETED
+  - Added CrewTimer.com icon (favicon from crewtimer.com)
+  - Added button to trigger CrewTimer export
+  - Added translations for CrewTimer export button (French/English)
+  - Implemented in AdminDataExport.vue with prominent card layout
+  - _Requirements: FR-7.6_
 
-- [ ] 10.9 Frontend: Data export interface
-  - Create AdminDataExport.vue component
-  - Add export type selector (crew members, boat registrations)
-  - Implement filter options (event, race, payment status)
-  - Add "Export" button that triggers download
-  - Show export progress/loading state
-  - Display success message with download link
-  - _Requirements: FR-7.2, FR-10.5_
+- [x] 14.2 Implement CrewTimer export backend ✅ COMPLETED
+  - Created export_races_json Lambda (admin only)
+  - Queries database to retrieve races with all boats that are complete, paid, or free (excludes forfait)
+  - Returns JSON data with comprehensive race information
+  - Backend provides raw data; frontend handles Excel generation
+  - Implemented in functions/admin/export_races_json.py
+  - _Requirements: FR-7.6_
 
-- [x] 10.10 Create admin dashboard landing page
-  - Create AdminDashboard.vue as main admin page
-  - Add navigation to all admin sections (events, pricing, boats, exports)
-  - Display quick stats (total registrations, total payments, boats available)
-  - Add links to configuration sections
-  - Show recent activity or alerts
-  - _Requirements: FR-10.1_
+- [x] 14.3 Update frontend to download CrewTimer export ✅ COMPLETED
+  - Added API call to fetch CrewTimer export data
+  - Implemented crewTimerFormatter.js to convert JSON to Excel format
+  - Generates Excel file following CrewTimer import specification
+  - Maps columns correctly:
+    - Event time: empty
+    - Event Num: incremental integer (marathon races first, then semi-marathon)
+    - Event name: race name
+    - Event Abbrev: abbreviated race name
+    - Crew: club name
+    - Crew Abbrev: abbreviated club name (unique)
+    - Stroke: stroke seat crew member last name
+    - Bow: incremental bow numbers
+    - Race info: "Sprint" for marathon, "Head" for semi-marathon
+    - Status: empty
+    - Age: average boat age
+  - Triggers file download when button is clicked
+  - Shows loading state during export generation
+  - Displays success/error messages
+  - Implemented in frontend/src/utils/exportFormatters/crewTimerFormatter.js
+  - _Requirements: FR-7.6_
 
-- [x] 10.11
-  - Add an Admin page to view all the crew members for all teams managers
-  - In filter zone, allow to sort or filter by club manager or club
-  - allow the admin to modify / add any crew member at any time regardless or the date limits (registration end date or payment end date) that apply to club managers.
+### 18. Marathon Skiff Registration Limit ⏳
 
-- [x] 10.12
-  - add an admin page to view all the boats registered for all teams managers
-  - Make the page similar to the boats page 
-  - add the search and filter zone to allow to sort or filter by club manager or club
-  - allow the admin to delete / modify / add any boat at any time regardless or the date limits (registration end date or payment end date) that apply to club managers
-  - Add an attribute to the boat that allows the admin to set the boat to "out" (forfait in french)
+- [ ] 18.1 Implement skiff registration limit backend
+  - Add configuration parameter for maximum marathon skiff registrations (default: 40)
+  - Update boat registration Lambda to check current marathon skiff count
+  - Prevent new marathon skiff registrations when limit is reached
+  - Return clear error message when limit is reached
+  - Allow admins to bypass limit
+  - _Requirements: FR-3.1, FR-10.8_
 
-<!-- - [ ] 10.13
-  - add an admin page to view all the races with all boats
-  - allow to apply filters by club or race or boat type -->
+- [ ] 18.2 Implement skiff registration limit frontend
+  - Display current marathon skiff registration count
+  - Show warning when approaching limit (e.g., "35/40 skiffs registered")
+  - Display error message when limit is reached
+  - Disable marathon skiff selection when limit is reached
+  - Show informational message explaining the limit
+  - _Requirements: FR-3.1, FR-10.8_
 
-### 14. Additional Data Export Features (Beyond Admin Exports)
+### 19. Boat Registration Form Clarity ⏳
 
-- [ ] from the export admin page add one button to export to the timer application (CrewTimer.com). we must add the crewtimer.com icone to make it clear this is a specific format for that application
-  - [ ] when we click on the button we request the db to retreive the races with all boats that are complete, or payed, free and not forfait.
-  - [ ] the an Excel file is downloaded following the format in raw-file/CrewTimer_Example_for_Head_or_Sprint_racing.xlsx. We must map the columns as follows: Event time will be empty for now - Event Num will be incremental integer for all races (starting with all marathon races, then all the Semi marathon races) - event name is the race name - Event Abrev is the race name that we will abreviate on the fly - Crew will be the club name - crew abrev will be the club name abreviated on the fly (unique) - stroke will be the stroke seat crew member last name  - Bow will be will be incremental integer for all races (starting with all marathon races, then all the Semi marathon races) - race info will be "Head" - Status will be empty - Age will be the average boat age.
+- [ ] 19.1 Improve boat registration form messaging
+  - When a club manager selects a boat type with no matching races, display clear message
+  - Example: "No races available for J16 4- (Junior 16 years old, Four without coxswain)"
+  - Explain why no races are available (age category, gender, boat type)
+  - Suggest alternative boat types or age categories
+  - Add help text explaining race eligibility rules
+  - _Requirements: FR-3.4, NFR-5.2_
 
-### 18. Basic Email Notifications (Essential Only)
+### 20. Mixed Club Display Enhancement ⏳
 
-- [ ] 18.1 Set up AWS SES for email delivery
+- [ ] 20.1 Improve mixed club crew display
+  - Display club manager's club name prominently
+  - Add "Mixed Club" badge or indicator when crew contains external members
+  - Show breakdown of clubs represented in the crew
+  - Display seat rental fees clearly for external members
+  - Add tooltip explaining mixed club pricing
+  - _Requirements: FR-9.1, FR-9.5, FR-9.6_
+
+### 21. Registration Period Enforcement ⏳
+
+- [ ] 21.1 Implement registration period date enforcement backend
+  - Update boat registration Lambda functions to check registration period dates
+  - Prevent deletion of boats after registration period ends
+  - Prevent addition of new boats after registration period ends
+  - Allow modifications to existing boats after registration period ends (race changes, crew changes, seat assignments)
+  - Return clear error messages when operations are blocked
+  - _Requirements: FR-2.2, FR-3.6, FR-10.2_
+
+- [ ] 21.2 Implement registration period date enforcement frontend
+  - Hide "Delete" button for boats after registration period ends
+  - Hide "Add New Boat" button after registration period ends
+  - Show informational message when registration period has ended
+  - Allow editing of existing boats (race selection, crew assignment, seat assignment)
+  - Display registration period dates prominently
+  - _Requirements: FR-2.2, FR-3.6, FR-10.2_
+
+- [ ] 21.3 Implement payment period date enforcement backend
+  - Update boat registration Lambda functions to check payment period dates
+  - Prevent all modifications to boats after payment period ends (unless admin)
+  - Prevent new payments after payment period ends
+  - Return clear error messages when operations are blocked
+  - _Requirements: FR-4.1, FR-4.9, FR-10.2_
+
+- [ ] 21.4 Implement payment period date enforcement frontend
+  - Disable all edit buttons for boats after payment period ends
+  - Hide payment page or show "Payment period ended" message
+  - Display payment period dates prominently
+  - Show informational message explaining that modifications require admin assistance
+  - _Requirements: FR-4.1, FR-4.9, FR-10.2_
+
+### 22. Admin Impersonation and Date Override ⏳
+
+- [ ] 22.1 Implement admin impersonation backend
+  - Add admin override flag to bypass date restrictions
+  - Allow admins to modify boats at any time (before, during, after registration/payment periods)
+  - Allow admins to delete boats at any time (except paid boats)
+  - Allow admins to add new boats at any time
+  - Log all admin actions with timestamps and user identification
+  - _Requirements: FR-6.5, FR-10.1_
+
+- [ ] 22.2 Implement admin impersonation frontend
+  - Show all edit/delete/add buttons for admins regardless of dates
+  - Add visual indicator when admin is bypassing date restrictions
+  - Display warning message when admin performs actions outside normal periods
+  - Ensure admin can access all functionality at all times
+  - _Requirements: FR-6.5, FR-10.1_
+
+### 23. Basic Email Notifications (Essential Only) ⏳
+
+- [ ] 23.1 Set up AWS SES for email delivery
   - Configure SES domain verification
   - Create essential email templates (registration confirmation, payment confirmation)
   - Implement multilingual email templates (French/English)
@@ -525,16 +618,16 @@
   - Configure bounce and complaint handling
   - _Requirements: NFR-6.1, NFR-6.5_
 
-- [ ] 18.2 Implement essential notification Lambda functions
+- [ ] 23.2 Implement essential notification Lambda functions
   - Create send_notification Lambda for immediate notifications
   - Implement payment confirmation emails
   - Add registration confirmation emails
   - Implement notification tracking in DynamoDB
   - _Requirements: NFR-6.1_
 
-### 19. Error Handling and Resilience
+### 24. Error Handling and Resilience ⏳
 
-- [ ] 19.1 Implement comprehensive error handling
+- [ ] 24.1 Implement comprehensive error handling
   - Create standardized error response format
   - Implement frontend global error handler
   - Add backend Lambda error handling wrappers
@@ -542,7 +635,7 @@
   - Implement error logging and tracking
   - _Requirements: NFR-5.2_
 
-- [ ] 19.2 Add retry logic and circuit breakers
+- [ ] 24.2 Add retry logic and circuit breakers
   - Implement exponential backoff for API retries
   - Add circuit breaker for external service calls (Stripe)
   - Create fallback mechanisms for service failures
@@ -550,39 +643,40 @@
   - Add timeout handling for long-running operations
   - _Requirements: NFR-5.3, NFR-5.4_
 
-### 20. Security Implementation
+### 25. Security Implementation ⏳
 
-- [ ] 20.1 Implement input sanitization and validation
+- [ ] 25.1 Implement input sanitization and validation
   - Create input sanitization utilities to prevent XSS
   - Add CSRF protection for state-changing operations
   - Create rate limiting for API endpoints
   - Implement request size limits
   - _Requirements: NFR-3.1, NFR-3.2_
 
-- [ ] 20.2 Configure encryption and secure communication
+- [ ] 25.2 Configure encryption and secure communication
   - Verify DynamoDB encryption at rest
   - Ensure all API Gateway endpoints use HTTPS
   - Implement secure environment variable management
   - Add Secrets Manager for sensitive credentials (Stripe keys)
   - _Requirements: NFR-3.1, NFR-3.2_
 
-### 21. Testing and Quality Assurance
+### 26. Testing and Quality Assurance ⏳
 
-- [ ] 21.1 Create integration test suite
+- [ ] 26.1 Create integration test suite
   - Write integration tests for complete registration flow
   - Create payment processing integration tests
   - Add boat rental workflow integration tests
   - _Requirements: General quality assurance_
 
-- [ ] 21.2 Perform load and performance testing
+- [ ] 26.2 Perform load and performance testing
   - Create load testing scenarios
   - Test concurrent user scenarios (100-200 users)
   - Validate payment processing under load
   - Test DynamoDB throughput
   - _Requirements: NFR-1.1, NFR-1.3, NFR-2.1_
 
-### 22. Production Deployment (V1)
-- [x] 22.1 Production environment setup
+### 27. Production Deployment (V1) ⏸️
+
+- [x] 27.1 Production environment setup
   - Create production AWS environment
   - Configure production domain and SSL certificates
   - Set up production Stripe account
@@ -590,14 +684,14 @@
   - Deploy production infrastructure with CDK
   - _Requirements: TC-1.1, TC-2.1_
 
-- [ ] 22.2 Production monitoring and backup
+- [ ] 27.2 Production monitoring and backup
   - Configure production CloudWatch dashboards
   - Set up critical alarms for Lambda errors, DynamoDB throttling
   - Verify DynamoDB point-in-time recovery is enabled
   - Test backup restoration procedures
   - _Requirements: TC-3.1, TC-3.2, TC-2.2_
 
-- [ ] 22.3 Production launch
+- [ ] 27.3 Production launch
   - Conduct UAT with RCPM stakeholders
   - Create user training materials
   - Perform production smoke tests
@@ -607,11 +701,28 @@
 
 ---
 
-## VERSION 2 - Enhanced Features
+## V2 - ENHANCED FEATURES (Tasks 100+)
 
-### 23. Payment History and Advanced Features
+### 100. Age Calculation Based on Competition Year ⏳
 
-- [ ] 23.1 Implement payment history page
+- [ ] 100.1 Update age calculation logic
+  - Modify age calculation to use competition year instead of current year
+  - Update backend race_eligibility.py to use configured competition date
+  - Update frontend raceEligibility.js to use configured competition date
+  - Ensure both backend and frontend use the same calculation
+  - Test with crew members born in different years
+  - _Requirements: FR-3.4, FR-7.10_
+
+- [ ] 100.2 Update age display throughout application
+  - Update crew member display to show age as of competition date
+  - Update boat registration display to show correct ages
+  - Update admin exports to use competition-year-based ages
+  - Add tooltip explaining age calculation (e.g., "Age on May 1, 2025")
+  - _Requirements: FR-3.4, FR-7.10_
+
+### 101. Payment History and Advanced Features ⏳
+
+- [ ] 101.1 Implement payment history page
   - Create PaymentHistory.vue to display all payments
   - Show payment date, amount, boats included
   - Add download receipt functionality
@@ -619,7 +730,7 @@
   - Implement filtering by date range
   - _Requirements: FR-4.3, FR-4.7_
 
-- [ ] 23.2 Add payment receipt generation
+- [ ] 101.2 Add payment receipt generation
   - Create receipt PDF generation Lambda
   - Include itemized breakdown in receipt
   - Add RCPM branding to receipts
@@ -627,27 +738,29 @@
   - Implement receipt email sending (beyond Stripe)
   - _Requirements: FR-4.7_
 
-### 24. Advanced Admin Configuration (V2)
+### 102. Advanced Admin Configuration ✅ COMPLETED (Moved from V2)
 
-- [ ] 24.1 Implement admin configuration Lambda functions
-  - Create get_configuration Lambda for retrieving all config types
-  - Implement update_configuration Lambda with validation
-  - Add configuration change audit logging
-  - Create configuration validation rules (date ranges, pricing)
-  - Implement admin confirmation for impactful changes
-  - _Requirements: FR-5.1, FR-5.2, FR-5.4, FR-5.5, FR-10.1-FR-10.8_
+**Note:** This task was originally planned for V2 but was actually completed in V1 as Task 10 (Admin Mode - Configuration Management). The following features are already implemented:
 
-- [ ] 24.2 Build admin configuration frontend interface
-  - Create ConfigurationPanel.vue with tabbed sections
-  - Add system configuration editor (dates, periods)
-  - Create pricing configuration editor
-  - Add race configuration management
-  - Display configuration change history
+- [x] 102.1 Admin configuration Lambda functions ✅ COMPLETED
+  - Event date configuration (get/update event config)
+  - Pricing configuration (get/update pricing config)
+  - Boat inventory management (create/update/delete/list boats)
+  - Configuration validation and audit logging
+  - _Implemented in: Task 10.2, 10.4, 10.6_
+  - _Requirements: FR-5.1, FR-5.2, FR-10.1-FR-10.8_
+
+- [x] 102.2 Admin configuration frontend interface ✅ COMPLETED
+  - AdminEventConfig.vue for event dates and periods
+  - AdminPricingConfig.vue for pricing configuration
+  - AdminBoatInventory.vue for boat inventory management
+  - AdminDashboard.vue with navigation to all admin sections
+  - _Implemented in: Task 10.3, 10.5, 10.7, 10.10_
   - _Requirements: FR-5.1, FR-5.2, FR-10.1, FR-10.2, FR-10.3_
 
-### 25. Registration Validation and Admin Management
+### 103. Registration Validation and Admin Management ⏳
 
-- [ ] 25.1 Implement registration validation Lambda functions
+- [ ] 103.1 Implement registration validation Lambda functions
   - Create get_all_registrations Lambda for admin review
   - Implement flag_registration_issue Lambda with notification trigger
   - Create resolve_flagged_issue Lambda for club manager actions
@@ -655,7 +768,7 @@
   - Add manual registration editing for admins
   - _Requirements: FR-6.1, FR-6.2, FR-6.3, FR-6.4, FR-6.5, FR-6.6_
 
-- [ ] 25.2 Build admin validation frontend interface
+- [ ] 103.2 Build admin validation frontend interface
   - Create RegistrationValidation.vue with filterable list
   - Add issue flagging interface with notification preview
   - Create editing access grant interface with time limits
@@ -664,7 +777,7 @@
   - Add bulk operations for common admin tasks
   - _Requirements: FR-6.1, FR-6.2, FR-6.5, FR-6.6_
 
-- [ ] 25.3 Create admin dashboard with real-time statistics
+- [ ] 103.3 Create admin dashboard with real-time statistics
   - Implement get_dashboard_stats Lambda with aggregations
   - Create Dashboard.vue with key metrics display
   - Add participant counts by category
@@ -673,16 +786,16 @@
   - Add boat rental status overview
   - _Requirements: FR-7.1, FR-7.3, FR-7.4_
 
-### 26. Advanced Reporting and Analytics
+### 104. Advanced Reporting and Analytics ⏳
 
-- [ ] 26.1 Implement advanced reporting Lambda functions
+- [ ] 104.1 Implement advanced reporting Lambda functions
   - Create export_payments Lambda for financial reports
   - Implement multi_club_crew revenue reporting
   - Add financial reports with revenue breakdown
   - Create audit log export functionality
   - _Requirements: FR-7.2, FR-9.7_
 
-- [ ] 26.2 Build advanced reporting frontend interface
+- [ ] 104.2 Build advanced reporting frontend interface
   - Create AdvancedReports.vue with multiple report types
   - Add date range filtering for reports
   - Display multi_club_crew statistics
@@ -690,16 +803,16 @@
   - Create financial dashboards
   - _Requirements: FR-7.2, FR-7.5, FR-9.6, FR-9.7_
 
-### 27. Enhanced Notification System
+### 105. Enhanced Notification System ⏳
 
-- [ ] 27.1 Implement advanced notification features
+- [ ] 105.1 Implement advanced notification features
   - Create schedule_notifications Lambda for recurring alerts
   - Implement process_notification_queue Lambda for batch processing
   - Add notification frequency management
   - Create notification preferences interface
   - _Requirements: NFR-6.2, NFR-6.3, NFR-6.4_
 
-- [ ] 27.2 Set up EventBridge schedulers for automated notifications
+- [ ] 105.2 Set up EventBridge schedulers for automated notifications
   - Create daily notification check scheduler
   - Implement payment reminder scheduler
   - Add deadline warning scheduler
@@ -707,23 +820,23 @@
   - Implement daily summary scheduler
   - _Requirements: NFR-6.2, NFR-6.3_
 
-- [ ] 27.3 Build notification center frontend component
+- [ ] 105.3 Build notification center frontend component
   - Create NotificationCenter.vue with message history
   - Add unread notification counter in navigation
   - Implement notification filtering and search
   - Add real-time notification updates
   - _Requirements: NFR-6.4, FR-11.7_
 
-### 28. Slack Integration for Admin and DevOps
+### 106. Slack Integration for Admin and DevOps ⏳
 
-- [ ] 28.1 Implement Slack webhook configuration
+- [ ] 106.1 Implement Slack webhook configuration
   - Add Slack webhook URL fields to notification config
   - Create webhook validation and testing functionality
   - Implement secure storage of webhook URLs
   - Add test notification sending capability
   - _Requirements: NFR-6.6, NFR-6.7_
 
-- [ ] 28.2 Implement Slack notification Lambda function
+- [ ] 106.2 Implement Slack notification Lambda function
   - Create send_slack_notification function with webhook integration
   - Implement Slack message block builders for different event types
   - Add rate limiting to prevent API abuse
@@ -731,7 +844,7 @@
   - Implement error handling and fallback mechanisms
   - _Requirements: NFR-6.6, NFR-6.7_
 
-- [ ] 28.3 Integrate Slack notifications into event handlers
+- [ ] 106.3 Integrate Slack notifications into event handlers
   - Add Slack notifications to boat registration events
   - Implement payment completion Slack alerts
   - Create boat rental request notifications
@@ -739,9 +852,9 @@
   - Implement daily summary Slack messages
   - _Requirements: NFR-6.6, NFR-6.7_
 
-### 29. Contact Us Feature
+### 107. Contact Us Feature ⏳
 
-- [ ] 29.1 Implement contact form Lambda function
+- [ ] 107.1 Implement contact form Lambda function
   - Create submit_contact_form Lambda with validation
   - Implement email sending to admin contact address
   - Add auto-reply email to user
@@ -749,7 +862,7 @@
   - Implement contact form logging in DynamoDB
   - _Requirements: FR-12.1, FR-12.2, FR-12.3, FR-12.4, FR-12.5, FR-12.6_
 
-- [ ] 29.2 Build contact form frontend component
+- [ ] 107.2 Build contact form frontend component
   - Create ContactForm.vue with all required fields
   - Add subject selection dropdown
   - Implement form validation and error handling
@@ -758,9 +871,9 @@
   - Display contact information and alternative contact methods
   - _Requirements: FR-12.1, FR-12.7, FR-12.8_
 
-### 30. GDPR Compliance Features
+### 108. GDPR Compliance Features ⏳
 
-- [ ] 30.1 Implement GDPR compliance features
+- [ ] 108.1 Implement GDPR compliance features
   - Create data deletion request handler
   - Implement user data anonymization
   - Add data export functionality for user requests
@@ -768,16 +881,16 @@
   - Implement audit logging for data access
   - _Requirements: NFR-3.4_
 
-- [ ] 30.2 Create privacy and legal pages
+- [ ] 108.2 Create privacy and legal pages
   - Create privacy policy and terms of service
   - Set up cookie consent management
   - Implement data retention policies
   - Document compliance procedures
   - _Requirements: NFR-3.4_
 
-### 31. Performance Optimization
+### 109. Performance Optimization ⏳
 
-- [ ] 31.1 Implement frontend performance optimizations
+- [ ] 109.1 Implement frontend performance optimizations
   - Add code splitting for route-based lazy loading
   - Implement component lazy loading
   - Create service worker for offline support
@@ -786,7 +899,7 @@
   - Optimize images and assets
   - _Requirements: NFR-1.1, NFR-1.2_
 
-- [ ] 31.2 Optimize backend Lambda functions
+- [ ] 109.2 Optimize backend Lambda functions
   - Implement connection pooling for DynamoDB
   - Add Lambda function warming to reduce cold starts
   - Optimize Lambda memory allocation
@@ -794,7 +907,7 @@
   - Add batch operations for bulk updates
   - _Requirements: NFR-1.2, NFR-1.3, NFR-2.1_
 
-- [ ] 31.3 Implement DynamoDB query optimization
+- [ ] 109.3 Implement DynamoDB query optimization
   - Use GSI indexes for efficient queries
   - Implement pagination for large result sets
   - Add DynamoDB query result caching
@@ -802,9 +915,9 @@
   - Implement batch get operations
   - _Requirements: NFR-1.2, NFR-2.3_
 
-### 32. Advanced Testing
+### 110. Advanced Testing ⏳
 
-- [ ] 32.1 Implement end-to-end testing
+- [ ] 110.1 Implement end-to-end testing
   - Set up Cypress for E2E testing
   - Create E2E tests for user registration and login
   - Write E2E tests for crew member and boat registration
@@ -812,16 +925,16 @@
   - Create E2E tests for admin workflows
   - _Requirements: General quality assurance_
 
-- [ ] 32.2 Advanced load testing
+- [ ] 110.2 Advanced load testing
   - Test concurrent user scenarios (1000+ users)
   - Validate system under peak load
   - Measure and optimize page load times
   - Test DynamoDB auto-scaling
   - _Requirements: NFR-1.1, NFR-1.3, NFR-2.1_
 
-### 33. DevOps Utilities and Tools
+### 111. DevOps Utilities and Tools ⏳
 
-- [ ] 33.1 Create DevOps configuration access tools
+- [ ] 111.1 Create DevOps configuration access tools
   - Build CLI tool for emergency configuration updates
   - Implement configuration backup and restore scripts
   - Create database query utilities for DevOps
@@ -829,16 +942,16 @@
   - Implement log analysis tools
   - _Requirements: TC-4.5, TC-4.6_
 
-- [ ] 33.2 Set up advanced deployment automation
+- [ ] 111.2 Set up advanced deployment automation
   - Implement blue-green deployment strategy
   - Add rollback procedures and scripts
   - Create deployment validation tests
   - Implement automated smoke tests post-deployment
   - _Requirements: TC-2.1, TC-2.4_
 
-### 34. Documentation
+### 112. Documentation ⏳
 
-- [ ] 34.1 Create comprehensive API documentation
+- [ ] 112.1 Create comprehensive API documentation
   - Document all API endpoints with request/response examples
   - Create authentication flow documentation
   - Add error code reference guide
@@ -846,7 +959,7 @@
   - Create integration examples
   - _Requirements: General best practice_
 
-- [ ] 34.2 Write deployment and operations guides
+- [ ] 112.2 Write deployment and operations guides
   - Create infrastructure deployment guide
   - Write configuration management guide
   - Document backup and restore procedures
@@ -858,39 +971,86 @@
 
 ## Notes
 
-### V1 Scope (MVP)
-V1 focuses on the core registration system with essential features:
-- User authentication and crew/boat management
-- Race eligibility and seat assignment
-- Payment processing with Stripe
-- **Admin mode (PRIORITY before boat rental):**
-  - Event date configuration
-  - Pricing configuration
-  - Boat inventory management
-  - Data exports (crew members, boat registrations)
-- Boat rental management (depends on admin boat inventory)
-- Basic home page with contact email link
-- Frontend deployment
-- Essential email notifications only
-- Basic security and error handling
+### V1 Scope (MVP - Tasks 1-99)
+V1 focuses on the core registration system with essential features for production launch:
+- ✅ User authentication and crew/boat management (COMPLETED)
+- ✅ Race eligibility and seat assignment (COMPLETED)
+- ✅ Payment processing with Stripe (COMPLETED)
+- ✅ Admin mode with configuration management (COMPLETED)
+- ✅ Boat rental management (COMPLETED)
+- ✅ Basic home page with contact email link (COMPLETED)
+- ✅ Frontend deployment (COMPLETED)
+- ✅ Admin data exports (crew members, boat registrations, CrewTimer format) (COMPLETED)
+- ⏳ CrewTimer export enhancements (IN PROGRESS)
+- ⏳ Registration and payment period enforcement
+- ⏳ Admin impersonation and date override
+- ⏳ Marathon skiff registration limit (40 boats)
+- ⏳ Boat registration form clarity improvements
+- ⏳ Mixed club display enhancements
+- ⏳ Essential email notifications
+- ⏳ Error handling and resilience
+- ⏳ Security implementation
+- ⏳ Testing and quality assurance
+- ⏳ Production monitoring and launch
 
-### V2 Scope (Enhancements)
-V2 adds advanced features and optimizations:
-- Admin configuration management
-- Advanced validation and admin tools
-- Enhanced reporting and analytics
+### V2 Scope (Enhanced Features - Tasks 100+)
+V2 adds advanced features and optimizations after V1 launch:
+- Age calculation based on competition year (not current year)
+- Payment history and advanced receipt generation
+- Advanced admin configuration management
+- Enhanced validation and admin tools
+- Advanced reporting and analytics
 - Full notification system with scheduling
-- Slack integration
+- Slack integration for admin/DevOps
 - Contact form feature
 - GDPR compliance features
 - Performance optimizations
-- Advanced testing
-- DevOps tools
+- Advanced testing (E2E, load testing)
+- DevOps tools and automation
 - Comprehensive documentation
 
+### Key V1 Remaining Tasks Summary
+
+**Critical for Production:**
+1. **Registration Period Enforcement** (Tasks 18.1-18.4)
+   - Prevent boat deletion/addition after registration period ends
+   - Prevent all modifications after payment period ends
+   
+2. **Admin Impersonation** (Tasks 19.1-19.2)
+   - Allow admins to bypass date restrictions
+   - Enable admin modifications at any time
+
+3. **Marathon Skiff Limit** (Tasks 20.1-20.2)
+   - Enforce 40 skiff maximum for marathon event
+   - Display count and warnings to users
+
+4. **CrewTimer Export** (Tasks 14.1-14.3)
+   - Complete CrewTimer.com export format
+   - Ensure proper race ordering and data mapping
+
+**Important for User Experience:**
+5. **Form Clarity** (Task 21.1)
+   - Clear messaging when no races match boat configuration
+   
+6. **Mixed Club Display** (Task 22.1)
+   - Better visualization of mixed club crews and pricing
+
+**Essential for Operations:**
+7. **Email Notifications** (Tasks 23.1-23.2)
+   - Payment and registration confirmations
+   
+8. **Error Handling** (Tasks 24.1-24.2)
+   - Comprehensive error handling and user-friendly messages
+
+9. **Security** (Tasks 25.1-25.2)
+   - Input sanitization, rate limiting, encryption verification
+
+10. **Testing & Launch** (Tasks 26.1-27.3)
+    - Integration tests, load testing, production monitoring, UAT
+
 ### Migration Notes
-- All completed tasks remain marked as completed
-- API Gateway routes fully completed (auth, crew, boat, races, payment, and rentals all done)
-- Frontend structure fully completed (Vite setup, main views, and components all done)
-- Tasks reorganized with completed tasks at top, pending tasks at bottom
-- V2 tasks can be implemented incrementally after V1 launch
+- All completed tasks clearly marked with ✅
+- V1 tasks numbered 1-99 for easy insertion of new tasks
+- V2 tasks start at 100 to avoid renumbering
+- Tasks organized by priority and dependencies
+- Production-ready checklist integrated into task structure
