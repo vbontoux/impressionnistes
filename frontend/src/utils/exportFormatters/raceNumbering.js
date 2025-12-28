@@ -60,7 +60,7 @@ export function assignRaceAndBowNumbers(races, boats, config) {
   const raceAssignments = {} // race_id -> { raceNumber, startTime, isMarathon }
   const boatAssignments = {} // boat_registration_id -> { raceNumber, bowNumber, startTime }
   
-  let raceNumber = 0
+  let semiMarathonRaceNumber = 2 // Counter for semi-marathon races starts at 2
   let marathonBowNum = marathon_bow_start
   let semiMarathonBowNum = semi_marathon_bow_start
   let semiMarathonBoatCount = 0
@@ -73,12 +73,18 @@ export function assignRaceAndBowNumbers(races, boats, config) {
       continue // Skip races with no boats
     }
     
-    // Increment race number
-    raceNumber += 1
-    
     // Determine if this is a marathon or semi-marathon race
     const isMarathon = race.distance === 42 || race.event_type === '42km'
     const startTime = isMarathon ? marathon_start_time : semi_marathon_start_time
+    
+    // Assign race number: marathon races always get 1, semi-marathon races get incremental numbers starting at 2
+    let raceNumber
+    if (isMarathon) {
+      raceNumber = 1 // All marathon races use race number 1
+    } else {
+      raceNumber = semiMarathonRaceNumber
+      semiMarathonRaceNumber += 1
+    }
     
     // Track the first boat's start time for this race
     let firstBoatStartTime = ''
