@@ -599,10 +599,18 @@ Tasks are marked with status:
 
 - [ ] 21.4 Implement frontend date enforcement with temporary access display
   - Check if current user has active temporary access (`temporary_access_expires_at` > now)
-  - If temporary access active: Show banner "You have temporary editing access until [date/time]", enable all buttons
-  - If no temporary access and registration period ended: Hide "Delete" and "Add New Boat" buttons, show info message
-  - If no temporary access and payment period ended: Disable all edit buttons, show "Contact admin for access" message
-  - Display registration/payment period dates prominently
+  - **If temporary access active**: Show banner "You have temporary editing access until [date/time]", enable all buttons (full access)
+  - **If no temporary access, follow these rules**:
+    - **After registration period ends** (`registration_end_date` passed):
+      - Hide "Delete Boat" button (cannot delete boats)
+      - Hide "Add New Boat" button (cannot add new boats)
+      - Allow all other modifications (edit crew, change race, modify seats)
+      - Show info message: "Registration period ended. You can still modify existing boats but cannot add or delete boats."
+    - **After payment deadline** (`payment_deadline` passed):
+      - Disable all edit buttons (no modifications allowed)
+      - Hide payment page or show "Payment period ended" message (no new payments)
+      - Show message: "Payment period ended. Contact admin for any changes."
+  - Display registration period dates and payment deadline prominently
   - _Requirements: FR-2.2, FR-3.6, FR-4.1, FR-4.9, FR-10.2_
 
 ### 22. Admin Impersonation and Date Override ⏳
