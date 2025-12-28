@@ -539,14 +539,16 @@ Tasks are marked with status:
   - Show informational message explaining the limit
   - _Requirements: FR-3.1, FR-10.8_
 
-### 19. Boat Registration Form Clarity ⏳
+### 19. Boat Registration Form Clarity ✅ COMPLETED
 
-- [ ] 19.1 Improve boat registration form messaging
-  - When a club manager selects a boat type with no matching races, display clear message
-  - Example: "No races available for J16 4- (Junior 16 years old, Four without coxswain)"
-  - Explain why no races are available (age category, gender, boat type)
-  - Suggest alternative boat types or age categories
-  - Add help text explaining race eligibility rules
+- [x] 19.1 Improve boat registration form messaging ✅ COMPLETED
+  - When a club manager selects a boat type with no matching races, displays clear detailed message
+  - Example: Shows specific reason like "Your crew is women, but only men, mixed races are available for this boat type and event"
+  - Explains why no races are available (age category, gender, boat type mismatch)
+  - Suggests alternative boat types, event distances, or crew composition adjustments
+  - Added expandable help text explaining race eligibility rules (age categories, gender categories, coxswain rules)
+  - Implemented in RaceSelector.vue component
+  - Added comprehensive translations in English and French
   - _Requirements: FR-3.4, NFR-5.2_
 
 ### 20. Mixed Club Display Enhancement ⏳

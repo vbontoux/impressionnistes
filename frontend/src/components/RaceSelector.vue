@@ -7,8 +7,12 @@
     </div>
 
     <div v-else-if="eligibleRaces.length === 0" class="warning-message">
-      {{ $t('boat.noEligibleRaces') }}
-      <p class="help-text">{{ $t('boat.checkCrewComposition') }}</p>
+      <h4>{{ $t('boat.noEligibleRaces') }}</h4>
+      
+      <!-- Simple reason why no races match -->
+      <div v-if="noRacesReason" class="reason-text">
+        <strong>{{ $t('boat.reason') }}:</strong> {{ noRacesReason }}
+      </div>
     </div>
 
     <div v-else class="race-list">
@@ -106,22 +110,84 @@ export default {
       return variants
     }
 
+    const boatTypeVariants = computed(() => getBoatTypeVariants(props.boatType))
+
+    const crewAnalysis = computed(() => {
+      if (!props.crewMembers || props.crewMembers.length === 0) {
+        return null
+      }
+      return analyzeCrewComposition(props.crewMembers)
+    })
+
     const eligibleRaces = computed(() => {
       if (!props.crewMembers || props.crewMembers.length === 0) {
         return []
       }
 
-
-
       // Filter races by event type and boat type first
       // Also include scull equivalent (e.g., if boat is 4+, also show 4x+)
-      const boatTypeVariants = getBoatTypeVariants(props.boatType)
       const filteredRaces = props.availableRaces.filter(race => {
-        return race.event_type === props.eventType && boatTypeVariants.includes(race.boat_type)
+        return race.event_type === props.eventType && boatTypeVariants.value.includes(race.boat_type)
       })
 
       // Then filter by crew eligibility
       return getEligibleRaces(props.crewMembers, filteredRaces)
+    })
+
+    // Analyze why no races are available and provide specific reason
+    const noRacesReason = computed(() => {
+      if (!crewAnalysis.value || eligibleRaces.value.length > 0) {
+        return null
+      }
+
+      const analysis = crewAnalysis.value
+      
+      // Check if there are any races for this event type and boat type combination
+      const racesForBoatType = props.availableRaces.filter(race => {
+        return race.event_type === props.eventType && boatTypeVariants.value.includes(race.boat_type)
+      })
+
+      if (racesForBoatType.length === 0) {
+        return t('boat.noRacesForBoatType', { 
+          boatType: props.boatType, 
+          eventType: props.eventType 
+        })
+      }
+
+      // Check gender mismatch
+      const availableGenders = [...new Set(racesForBoatType.map(r => r.gender_category))]
+      if (!availableGenders.includes(analysis.genderCategory)) {
+        return t('boat.genderMismatch', {
+          crewGender: t(`boat.${analysis.genderCategory}`),
+          availableGenders: availableGenders.map(g => t(`boat.${g}`)).join(', ')
+        })
+      }
+
+      // Check age category mismatch
+      const availableAges = [...new Set(racesForBoatType.map(r => r.age_category))]
+      if (!availableAges.includes(analysis.ageCategory)) {
+        return t('boat.ageMismatch', {
+          crewAge: t(`boat.${analysis.ageCategory}`),
+          availableAges: availableAges.map(a => t(`boat.${a}`)).join(', ')
+        })
+      }
+
+      // Check master category mismatch
+      if (analysis.ageCategory === 'master' && analysis.masterCategory) {
+        const masterRaces = racesForBoatType.filter(r => 
+          r.age_category === 'master' && r.gender_category === analysis.genderCategory
+        )
+        const availableMasterCats = [...new Set(masterRaces.map(r => r.master_category).filter(Boolean))]
+        
+        if (availableMasterCats.length > 0 && !availableMasterCats.includes(analysis.masterCategory)) {
+          return t('boat.masterCategoryMismatch', {
+            crewCategory: analysis.masterCategory,
+            availableCategories: availableMasterCats.join(', ')
+          })
+        }
+      }
+
+      return t('boat.noMatchingRaces')
     })
 
     const crewDescription = computed(() => {
@@ -150,6 +216,9 @@ export default {
     return {
       eligibleRaces,
       crewDescription,
+      crewAnalysis,
+      boatTypeVariants,
+      noRacesReason,
       selectRace,
       getRaceDisplay,
       getTranslatedRaceName
@@ -182,6 +251,18 @@ export default {
   background-color: #fff3cd;
   border: 1px solid #ffeaa7;
   color: #856404;
+}
+
+.warning-message h4 {
+  margin: 0 0 1rem 0;
+  color: #856404;
+  font-size: 1.1rem;
+}
+
+.reason-text {
+  margin-top: 0.5rem;
+  color: #495057;
+  line-height: 1.5;
 }
 
 .help-text {
