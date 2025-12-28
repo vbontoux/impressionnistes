@@ -521,22 +521,32 @@ Tasks are marked with status:
   - Implemented in frontend/src/utils/exportFormatters/crewTimerFormatter.js
   - _Requirements: FR-7.6_
 
-### 18. Marathon Skiff Registration Limit ⏳
+### 18. Total Participant Limit (400 Max) ⏳
 
-- [ ] 18.1 Implement skiff registration limit backend
-  - Add configuration parameter for maximum marathon skiff registrations (default: 40)
-  - Update boat registration Lambda to check current marathon skiff count
-  - Prevent new marathon skiff registrations when limit is reached
-  - Return clear error message when limit is reached
-  - Allow admins to bypass limit
+- [ ] 18.1 Add max_total_participants to system configuration
+  - Add `max_total_participants` field to system configuration in DynamoDB (default: 400)
+  - Update `init_config.py` to include `max_total_participants: 400` in `initialize_system_config()`
+  - Update `get_event_config` Lambda to return `max_total_participants`
+  - Update `update_event_config` Lambda to allow admins to modify `max_total_participants`
+  - Add validation: must be positive integer, reasonable range (100-1000)
+  - Update AdminEventConfig.vue to display and allow editing of max participants
+  - Add translations for "Maximum Total Participants" field (French: "Nombre maximum de participants")
   - _Requirements: FR-3.1, FR-10.8_
 
-- [ ] 18.2 Implement skiff registration limit frontend
-  - Display current marathon skiff registration count
-  - Show warning when approaching limit (e.g., "35/40 skiffs registered")
-  - Display error message when limit is reached
-  - Disable marathon skiff selection when limit is reached
-  - Show informational message explaining the limit
+- [ ] 18.2 Implement total participant limit backend
+  - Count total crew members in all boats with status "complete", "paid", or "free" (ready to race)
+  - When saving a boat (create or update to complete/paid/free status), check if adding this boat would exceed the limit
+  - Prevent saving the boat if the total would exceed `max_total_participants` from config
+  - Return clear error message: "Cannot save boat: Total participant limit of {max} would be exceeded. Current: {current} participants, this boat adds: {boat_count} participants."
+  - Allow admins to bypass limit (with warning)
+  - _Requirements: FR-3.1, FR-10.8_
+
+- [ ] 18.3 Implement total participant limit frontend
+  - Display current total participant count prominently (e.g., "385/400 participants registered")
+  - Show warning banner when approaching limit (e.g., at 90% = 360 participants)
+  - Display error message when boat cannot be saved due to limit
+  - Show informational message explaining the participant limit
+  - Update count in real-time when boats are added/removed/modified
   - _Requirements: FR-3.1, FR-10.8_
 
 ### 19. Boat Registration Form Clarity ✅ COMPLETED
@@ -561,37 +571,39 @@ Tasks are marked with status:
   - Add tooltip explaining mixed club pricing
   - _Requirements: FR-9.1, FR-9.5, FR-9.6_
 
-### 21. Registration Period Enforcement ⏳
+### 21. Registration Period Enforcement with Temporary Access ⏳
 
-- [ ] 21.1 Implement registration period date enforcement backend
-  - Update boat registration Lambda functions to check registration period dates
-  - Prevent deletion of boats after registration period ends
-  - Prevent addition of new boats after registration period ends
-  - Allow modifications to existing boats after registration period ends (race changes, crew changes, seat assignments)
-  - Return clear error messages when operations are blocked
+- [ ] 21.1 Add temporary access data model
+  - Add `temporary_access_expires_at` field to team manager profile (nullable timestamp)
+  - When set, club manager can bypass all date restrictions until expiration
+  - Store `temporary_access_granted_by` (admin user_id) and `temporary_access_granted_at` for audit
+  - Automatically expires when timestamp is reached (no cleanup needed - just check timestamp)
   - _Requirements: FR-2.2, FR-3.6, FR-10.2_
 
-- [ ] 21.2 Implement registration period date enforcement frontend
-  - Hide "Delete" button for boats after registration period ends
-  - Hide "Add New Boat" button after registration period ends
-  - Show informational message when registration period has ended
-  - Allow editing of existing boats (race selection, crew assignment, seat assignment)
-  - Display registration period dates prominently
-  - _Requirements: FR-2.2, FR-3.6, FR-10.2_
-
-- [ ] 21.3 Implement payment period date enforcement backend
-  - Update boat registration Lambda functions to check payment period dates
-  - Prevent all modifications to boats after payment period ends (unless admin)
-  - Prevent new payments after payment period ends
+- [ ] 21.2 Implement backend date enforcement with temporary access check
+  - Check registration period dates before allowing operations
+  - **Registration period ended**: Prevent deletion of boats, prevent adding new boats, allow modifications
+  - **Payment period ended**: Prevent all modifications (except admin or temporary access)
+  - **Temporary access bypass**: If club manager has `temporary_access_expires_at` > current time, bypass all date restrictions
+  - Respect existing limits (e.g., cannot delete paid boats, even with temporary access)
   - Return clear error messages when operations are blocked
-  - _Requirements: FR-4.1, FR-4.9, FR-10.2_
+  - _Requirements: FR-2.2, FR-3.6, FR-4.1, FR-4.9, FR-10.2_
 
-- [ ] 21.4 Implement payment period date enforcement frontend
-  - Disable all edit buttons for boats after payment period ends
-  - Hide payment page or show "Payment period ended" message
-  - Display payment period dates prominently
-  - Show informational message explaining that modifications require admin assistance
-  - _Requirements: FR-4.1, FR-4.9, FR-10.2_
+- [ ] 21.3 Implement admin UI to grant temporary access
+  - Add "Grant Temporary Access" button in admin view (e.g., on team manager list or boat details)
+  - Simple modal: Select club manager, set expiration (preset options: 24h, 48h, 1 week, or custom date/time)
+  - Update team manager record with `temporary_access_expires_at`, `temporary_access_granted_by`, `temporary_access_granted_at`
+  - Show list of club managers with active temporary access (expires_at > now)
+  - Allow revoking access early (set expires_at to now)
+  - _Requirements: FR-10.2_
+
+- [ ] 21.4 Implement frontend date enforcement with temporary access display
+  - Check if current user has active temporary access (`temporary_access_expires_at` > now)
+  - If temporary access active: Show banner "You have temporary editing access until [date/time]", enable all buttons
+  - If no temporary access and registration period ended: Hide "Delete" and "Add New Boat" buttons, show info message
+  - If no temporary access and payment period ended: Disable all edit buttons, show "Contact admin for access" message
+  - Display registration/payment period dates prominently
+  - _Requirements: FR-2.2, FR-3.6, FR-4.1, FR-4.9, FR-10.2_
 
 ### 22. Admin Impersonation and Date Override ⏳
 
