@@ -172,7 +172,7 @@ def initialize_race_timing_config(table):
         'SK': 'RACE_TIMING',
         'marathon_start_time': '07:45',  # Start time for marathon races (HH:MM format)
         'semi_marathon_start_time': '09:00',  # Start time for semi-marathon races (HH:MM format)
-        'semi_marathon_interval_seconds': 30,  # Time interval between boat starts for semi-marathon (in seconds)
+        'semi_marathon_interval_seconds': 60,  # Time interval between boat starts for semi-marathon (in seconds) - changed from 30 to 60
         'marathon_bow_start': 1,  # Starting bow number for marathon races
         'semi_marathon_bow_start': 41,  # Starting bow number for semi-marathon races
         'created_at': datetime.utcnow().isoformat() + 'Z',
