@@ -346,6 +346,14 @@ class ApiStack(Stack):
             )
         )
         
+        # Grant SES permissions for sending confirmation emails
+        webhook_function.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=['ses:SendEmail', 'ses:SendRawEmail'],
+                resources=['*']  # SES doesn't support resource-level permissions for SendEmail
+            )
+        )
+        
         self.lambda_functions['confirm_payment_webhook'] = webhook_function
         
         # Get payment receipt function

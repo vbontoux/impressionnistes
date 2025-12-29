@@ -12,6 +12,7 @@ import uuid
 from responses import success_response, validation_error, internal_error
 from database import get_db_client
 from stripe_client import verify_webhook_signature, get_webhook_secret, get_charge_receipt_url
+from email_utils import send_payment_confirmation_email
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -141,6 +142,7 @@ def handle_payment_succeeded(event_data: dict, db):
     amount_cents = payment_intent['amount']
     currency = payment_intent['currency']
     metadata = payment_intent.get('metadata', {})
+    receipt_email = payment_intent.get('receipt_email')
     
     # Extract metadata
     team_manager_id = metadata.get('team_manager_id')
@@ -173,6 +175,30 @@ def handle_payment_succeeded(event_data: dict, db):
         db=db
     )
     
+    # Get boat and rental details for email
+    boat_details = []
+    if boat_registration_ids:
+        for boat_id in boat_registration_ids:
+            boat = db.get_item(pk=f'TEAM#{team_manager_id}', sk=f'BOAT#{boat_id}')
+            if boat:
+                boat_details.append(boat)
+    
+    rental_details = []
+    if rental_boat_ids:
+        for rental_id in rental_boat_ids:
+            rental = db.get_item(pk=rental_id, sk='METADATA')
+            if rental:
+                rental_details.append(rental)
+    
+    # Get team manager details
+    team_manager = db.get_item(pk=f'TEAM#{team_manager_id}', sk='METADATA')
+    team_manager_name = 'Cher membre'
+    if team_manager:
+        first_name = team_manager.get('first_name', '')
+        last_name = team_manager.get('last_name', '')
+        if first_name or last_name:
+            team_manager_name = f"{first_name} {last_name}".strip()
+    
     # Update boat registrations to 'paid' status
     if boat_registration_ids:
         update_boat_status_to_paid(
@@ -191,6 +217,31 @@ def handle_payment_succeeded(event_data: dict, db):
         )
     
     logger.info(f"Successfully processed payment {payment_id} for {len(boat_registration_ids)} boats and {len(rental_boat_ids)} rentals")
+    
+    # Send confirmation email
+    if receipt_email:
+        payment_details = {
+            'payment_id': payment_id,
+            'amount': amount,
+            'currency': currency.upper(),
+            'paid_at': datetime.utcnow().isoformat()
+        }
+        
+        email_sent = send_payment_confirmation_email(
+            recipient_email=receipt_email,
+            team_manager_name=team_manager_name,
+            payment_details=payment_details,
+            boat_registrations=boat_details,
+            rental_boats=rental_details,
+            receipt_url=receipt_url
+        )
+        
+        if email_sent:
+            logger.info(f"Confirmation email sent to {receipt_email}")
+        else:
+            logger.warning(f"Failed to send confirmation email to {receipt_email}")
+    else:
+        logger.warning("No receipt_email found in payment intent")
 
 
 def handle_payment_failed(event_data: dict, db):

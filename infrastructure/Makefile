@@ -1,4 +1,4 @@
-.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws list describe-infra costs db-export db-view db-reset db-migrate cognito-create-admin cognito-list-users cognito-add-to-group clean test test-backend test-frontend test-setup test-clean test-coverage
+.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws list describe-infra costs db-export db-view db-reset db-migrate cognito-create-admin cognito-list-users cognito-add-to-group ses-verify-email ses-list-verified ses-check-email ses-get-quota ses-get-statistics ses-request-production ses-verify-domain ses-get-domain-token ses-enable-dkim ses-check-domain secrets-list secrets-get secrets-create secrets-update test-setup test test-coverage test-email cleanoduction clean test test-backend test-frontend test-email test-setup test-clean test-coverage
 
 # Virtual environment paths
 VENV = venv
@@ -74,6 +74,14 @@ help:
 	@echo "  make secrets-show-stripe                             - Show Stripe secrets (partial)"
 	@echo "  make secrets-update-stripe STRIPE_API_KEY=sk_xxx     - Update Stripe API key"
 	@echo ""
+	@echo "Email/SES Management:"
+	@echo "  make ses-verify-email EMAIL=your@email.com           - Verify email address in SES"
+	@echo "  make ses-list-verified                               - List all verified emails"
+	@echo "  make ses-check-email EMAIL=your@email.com            - Check if email is verified"
+	@echo "  make ses-get-quota                                   - Show SES sending quota"
+	@echo "  make ses-get-statistics                              - Show SES sending statistics"
+	@echo "  make ses-request-production                          - Instructions for production access"
+	@echo ""
 	@echo "Boat Payment Management (Debug/Demo):"
 	@echo "  make boat-unpay TEAM_MANAGER_ID=xxx BOAT_ID=xxx      - Reset single boat to unpaid"
 	@echo "  make boat-unpay-all TEAM_MANAGER_ID=xxx              - Reset all boats to unpaid"
@@ -84,6 +92,7 @@ help:
 	@echo "  make test           - Run all tests (backend + frontend)"
 	@echo "  make test-backend   - Run backend integration tests only"
 	@echo "  make test-frontend  - Run frontend formatter tests only"
+	@echo "  make test-email EMAIL=your@email.com - Test email notification system"
 	@echo "  make test-coverage  - Run backend tests with HTML coverage report"
 	@echo "  make test-clean     - Remove test venv and cache files"
 	@echo ""
@@ -959,6 +968,262 @@ db-reset:
 	@echo "  3. Verify races: aws dynamodb query --table-name impressionnistes-registration-$(ENV) --key-condition-expression 'PK = :pk' --expression-attribute-values '{\":pk\":{\"S\":\"RACE\"}}' --query 'Count'"
 
 # ==========================================
+# Email/SES Management Commands
+# ==========================================
+
+ses-verify-email:
+	@echo "=========================================="
+	@echo "Verify Email Address in AWS SES"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@if [ -z "$(EMAIL)" ]; then \
+		echo "❌ Error: EMAIL parameter required"; \
+		echo ""; \
+		echo "Usage:"; \
+		echo "  make ses-verify-email EMAIL=your-email@example.com"; \
+		echo "  make ses-verify-email EMAIL=your-email@example.com ENV=prod"; \
+		echo ""; \
+		echo "Examples:"; \
+		echo "  make ses-verify-email EMAIL=course.impressionnistes@rcpm-aviron.fr"; \
+		echo "  make ses-verify-email EMAIL=vincent.bontoux@outlook.fr ENV=prod"; \
+		echo ""; \
+		exit 1; \
+	fi
+	@echo "Sending verification email to: $(EMAIL)"
+	@echo "Region: eu-west-1"
+	@echo ""
+	@aws ses verify-email-identity \
+		--email-address $(EMAIL) \
+		--region eu-west-1
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ Verification email sent!"
+	@echo ""
+	@echo "Next steps:"
+	@echo "  1. Check inbox for $(EMAIL)"
+	@echo "  2. Click the verification link in the email"
+	@echo "  3. Wait ~1 minute for AWS to process"
+	@echo "  4. Verify status: make ses-list-verified ENV=$(ENV)"
+	@echo "=========================================="
+
+ses-list-verified:
+	@echo "=========================================="
+	@echo "List Verified Email Addresses"
+	@echo "Environment: $(ENV)"
+	@echo "Region: eu-west-1"
+	@echo "=========================================="
+	@echo ""
+	@aws ses list-verified-email-addresses \
+		--region eu-west-1 \
+		--query 'VerifiedEmailAddresses' \
+		--output table
+	@echo ""
+	@echo "To verify a new email: make ses-verify-email EMAIL=your@email.com ENV=$(ENV)"
+
+ses-check-email:
+	@echo "=========================================="
+	@echo "Check Email Verification Status"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@if [ -z "$(EMAIL)" ]; then \
+		echo "❌ Error: EMAIL parameter required"; \
+		echo ""; \
+		echo "Usage:"; \
+		echo "  make ses-check-email EMAIL=your-email@example.com"; \
+		echo "  make ses-check-email EMAIL=your-email@example.com ENV=prod"; \
+		echo ""; \
+		exit 1; \
+	fi
+	@echo "Checking: $(EMAIL)"
+	@echo "Region: eu-west-1"
+	@echo ""
+	@VERIFIED=$$(aws ses list-verified-email-addresses --region eu-west-1 --query 'VerifiedEmailAddresses' --output text | grep -w "$(EMAIL)" || echo ""); \
+	if [ -n "$$VERIFIED" ]; then \
+		echo "✅ $(EMAIL) is VERIFIED"; \
+	else \
+		echo "❌ $(EMAIL) is NOT verified"; \
+		echo ""; \
+		echo "To verify: make ses-verify-email EMAIL=$(EMAIL) ENV=$(ENV)"; \
+	fi
+	@echo ""
+
+ses-get-quota:
+	@echo "=========================================="
+	@echo "AWS SES Sending Quota"
+	@echo "Environment: $(ENV)"
+	@echo "Region: eu-west-1"
+	@echo "=========================================="
+	@echo ""
+	@aws ses get-send-quota \
+		--region eu-west-1 \
+		--output table
+	@echo ""
+	@echo "Note: In sandbox mode, you can only send to verified addresses."
+	@echo "To request production access: make ses-request-production"
+
+ses-get-statistics:
+	@echo "=========================================="
+	@echo "AWS SES Sending Statistics"
+	@echo "Environment: $(ENV)"
+	@echo "Region: eu-west-1"
+	@echo "=========================================="
+	@echo ""
+	@aws ses get-send-statistics \
+		--region eu-west-1 \
+		--query 'SendDataPoints[-10:]' \
+		--output table
+	@echo ""
+	@echo "Showing last 10 data points (15-minute intervals)"
+
+ses-request-production:
+	@echo "=========================================="
+	@echo "Request AWS SES Production Access"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@echo "To move out of sandbox mode and send to any email address:"
+	@echo ""
+	@echo "1. Go to AWS SES Console:"
+	@echo "   https://console.aws.amazon.com/ses/"
+	@echo ""
+	@echo "2. Select region: eu-west-1 (Paris)"
+	@echo ""
+	@echo "3. Navigate to: Account dashboard"
+	@echo ""
+	@echo "4. Click: Request production access"
+	@echo ""
+	@echo "5. Fill out the form:"
+	@echo "   - Mail type: Transactional"
+	@echo "   - Website URL: Your registration website"
+	@echo "   - Use case: Payment confirmation emails for rowing race registrations"
+	@echo "   - Compliance: Explain bounce/complaint handling"
+	@echo ""
+	@echo "6. Submit and wait for approval (usually 24 hours)"
+	@echo ""
+	@echo "=========================================="
+
+ses-verify-domain:
+	@if [ -z "$(DOMAIN)" ]; then \
+		echo "❌ Error: DOMAIN parameter required"; \
+		echo "Usage: make ses-verify-domain DOMAIN=rcpm-aviron.fr ENV=$(ENV)"; \
+		exit 1; \
+	fi
+	@echo "=========================================="
+	@echo "Verify Domain in AWS SES"
+	@echo "Environment: $(ENV)"
+	@echo "Domain: $(DOMAIN)"
+	@echo "=========================================="
+	@echo ""
+	@echo "Starting domain verification..."
+	@aws ses verify-domain-identity --domain $(DOMAIN) --region eu-west-1
+	@echo ""
+	@echo "✅ Domain verification initiated!"
+	@echo ""
+	@echo "Next steps:"
+	@echo "1. Get the verification token:"
+	@echo "   make ses-get-domain-token DOMAIN=$(DOMAIN) ENV=$(ENV)"
+	@echo ""
+	@echo "2. Add TXT record to your DNS:"
+	@echo "   Name: _amazonses.$(DOMAIN)"
+	@echo "   Type: TXT"
+	@echo "   Value: [token from step 1]"
+	@echo ""
+	@echo "3. Enable DKIM (recommended for deliverability):"
+	@echo "   make ses-enable-dkim DOMAIN=$(DOMAIN) ENV=$(ENV)"
+	@echo ""
+	@echo "=========================================="
+
+ses-get-domain-token:
+	@if [ -z "$(DOMAIN)" ]; then \
+		echo "❌ Error: DOMAIN parameter required"; \
+		echo "Usage: make ses-get-domain-token DOMAIN=rcpm-aviron.fr ENV=$(ENV)"; \
+		exit 1; \
+	fi
+	@echo "=========================================="
+	@echo "Get Domain Verification Token"
+	@echo "Environment: $(ENV)"
+	@echo "Domain: $(DOMAIN)"
+	@echo "=========================================="
+	@echo ""
+	@aws ses get-identity-verification-attributes \
+		--identities $(DOMAIN) \
+		--region eu-west-1 \
+		--query 'VerificationAttributes."$(DOMAIN)".VerificationToken' \
+		--output text
+	@echo ""
+	@echo "Add this as a TXT record in your DNS:"
+	@echo "  Name: _amazonses.$(DOMAIN)"
+	@echo "  Type: TXT"
+	@echo "  Value: [token above]"
+	@echo ""
+	@echo "=========================================="
+
+ses-enable-dkim:
+	@if [ -z "$(DOMAIN)" ]; then \
+		echo "❌ Error: DOMAIN parameter required"; \
+		echo "Usage: make ses-enable-dkim DOMAIN=rcpm-aviron.fr ENV=$(ENV)"; \
+		exit 1; \
+	fi
+	@echo "=========================================="
+	@echo "Enable DKIM for Domain"
+	@echo "Environment: $(ENV)"
+	@echo "Domain: $(DOMAIN)"
+	@echo "=========================================="
+	@echo ""
+	@echo "Getting DKIM tokens..."
+	@aws ses verify-domain-dkim \
+		--domain $(DOMAIN) \
+		--region eu-west-1 \
+		--query 'DkimTokens' \
+		--output table
+	@echo ""
+	@echo "✅ DKIM tokens generated!"
+	@echo ""
+	@echo "Add these 3 CNAME records to your DNS:"
+	@echo "For each token above, create:"
+	@echo "  Name: [token]._domainkey.$(DOMAIN)"
+	@echo "  Type: CNAME"
+	@echo "  Value: [token].dkim.amazonses.com"
+	@echo ""
+	@echo "Example for first token:"
+	@FIRST_TOKEN=$$(aws ses verify-domain-dkim --domain $(DOMAIN) --region eu-west-1 --query 'DkimTokens[0]' --output text); \
+	echo "  Name: $$FIRST_TOKEN._domainkey.$(DOMAIN)"; \
+	echo "  Type: CNAME"; \
+	echo "  Value: $$FIRST_TOKEN.dkim.amazonses.com"
+	@echo ""
+	@echo "After adding all 3 CNAME records, DKIM will be automatically enabled."
+	@echo "Check status with: make ses-check-domain DOMAIN=$(DOMAIN) ENV=$(ENV)"
+	@echo ""
+	@echo "=========================================="
+
+ses-check-domain:
+	@if [ -z "$(DOMAIN)" ]; then \
+		echo "❌ Error: DOMAIN parameter required"; \
+		echo "Usage: make ses-check-domain DOMAIN=rcpm-aviron.fr ENV=$(ENV)"; \
+		exit 1; \
+	fi
+	@echo "=========================================="
+	@echo "Check Domain Verification Status"
+	@echo "Environment: $(ENV)"
+	@echo "Domain: $(DOMAIN)"
+	@echo "=========================================="
+	@echo ""
+	@aws ses get-identity-verification-attributes \
+		--identities $(DOMAIN) \
+		--region eu-west-1 \
+		--output table
+	@echo ""
+	@echo "Check DKIM status:"
+	@aws ses get-identity-dkim-attributes \
+		--identities $(DOMAIN) \
+		--region eu-west-1 \
+		--output table
+	@echo ""
+	@echo "=========================================="
+
+# ==========================================
 # Secrets Management Commands
 # ==========================================
 
@@ -1225,6 +1490,62 @@ test-setup:
 	@echo "✓ Test environment ready!"
 	@echo ""
 	@echo "Run tests with: make test"
+	@echo "=========================================="
+
+test-email: test-setup
+	@echo "=========================================="
+	@echo "Testing Email Notification System"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@if [ -z "$(EMAIL)" ]; then \
+		echo "❌ Error: EMAIL parameter required"; \
+		echo ""; \
+		echo "Usage:"; \
+		echo "  make test-email EMAIL=your-email@example.com"; \
+		echo "  make test-email EMAIL=your-email@example.com SENDER=custom@aviron-rcpm.fr"; \
+		echo "  make test-email EMAIL=your-email@example.com ENV=prod"; \
+		echo ""; \
+		echo "Parameters:"; \
+		echo "  EMAIL  - Recipient email address (required)"; \
+		echo "  SENDER - Sender email address (optional, defaults to course.impressionnistes@aviron-rcpm.fr)"; \
+		echo "  ENV    - Environment: dev or prod (optional, defaults to dev)"; \
+		echo ""; \
+		echo "Prerequisites:"; \
+		echo "  1. AWS credentials configured (aws configure)"; \
+		echo "  2. Sender email verified in SES"; \
+		echo "  3. Recipient email verified (if sandbox mode)"; \
+		echo ""; \
+		echo "To verify emails in SES:"; \
+		echo "  make ses-verify-email EMAIL=course.impressionnistes@aviron-rcpm.fr ENV=$(ENV)"; \
+		echo "  make ses-verify-email EMAIL=$(EMAIL) ENV=$(ENV)"; \
+		echo ""; \
+		exit 1; \
+	fi
+	@echo "Testing email sending to: $(EMAIL)"
+	@if [ -n "$(SENDER)" ]; then \
+		echo "Using sender: $(SENDER)"; \
+	else \
+		echo "Using default sender from email_utils.py"; \
+	fi
+	@echo ""
+	@echo "Prerequisites check:"
+	@echo "  ✓ AWS credentials configured"
+	@echo "  ✓ Sender email should be verified in SES"
+	@echo "  ✓ Recipient email should be verified (if sandbox mode)"
+	@echo ""
+	@echo "Running email tests..."
+	@echo ""
+	@if [ -n "$(SENDER)" ]; then \
+		cd .. && $(TEST_PYTHON) functions/shared/test_email_utils.py $(EMAIL) $(SENDER); \
+	else \
+		cd .. && $(TEST_PYTHON) functions/shared/test_email_utils.py $(EMAIL); \
+	fi
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ Email test complete!"
+	@echo ""
+	@echo "Check your inbox (and spam folder) for test emails."
 	@echo "=========================================="
 
 test: test-setup

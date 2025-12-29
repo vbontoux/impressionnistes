@@ -19,6 +19,10 @@ Before testing payments, ensure you have:
    - Copy `.env.example` to `.env`
    - Add your Stripe publishable key
 
+4. **Email System Configured** (for payment confirmations)
+   - Sender email verified: `cd infrastructure && make ses-verify-email EMAIL=course.impressionnistes@rcpm-aviron.fr`
+   - Your email verified (sandbox mode): `make ses-verify-email EMAIL=your-email@example.com`
+
 ## Setup
 
 ### 1. Get Stripe Keys
