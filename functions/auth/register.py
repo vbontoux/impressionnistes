@@ -136,7 +136,6 @@ def lambda_handler(event, context):
         
         # Send Slack notification for new registration
         try:
-            import os
             from slack_utils import notify_new_user_registration, set_webhook_urls
             from secrets_manager import get_slack_admin_webhook
             
