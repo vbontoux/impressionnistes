@@ -3,46 +3,13 @@ Stripe Client Utility
 Handles Stripe API initialization and common operations
 """
 import stripe
-import boto3
-import json
 import logging
 from typing import Dict, Any, Optional, List
 from decimal import Decimal
+from secrets_manager import get_stripe_api_key, get_stripe_webhook_secret
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-# Cache for Stripe API key
-_stripe_api_key = None
-
-
-def get_stripe_api_key() -> str:
-    """
-    Get Stripe API key from AWS Secrets Manager
-    Caches the key for subsequent calls
-    
-    Returns:
-        Stripe API key
-    """
-    global _stripe_api_key
-    
-    if _stripe_api_key:
-        return _stripe_api_key
-    
-    try:
-        secrets_client = boto3.client('secretsmanager')
-        secret_name = 'impressionnistes/stripe/api_key'
-        
-        response = secrets_client.get_secret_value(SecretId=secret_name)
-        secret = json.loads(response['SecretString'])
-        
-        _stripe_api_key = secret['api_key']
-        logger.info("Successfully retrieved Stripe API key from Secrets Manager")
-        
-        return _stripe_api_key
-    except Exception as e:
-        logger.error(f"Failed to retrieve Stripe API key: {str(e)}")
-        raise
 
 
 def initialize_stripe():
@@ -182,18 +149,7 @@ def get_webhook_secret() -> str:
     Returns:
         Webhook signing secret
     """
-    try:
-        secrets_client = boto3.client('secretsmanager')
-        secret_name = 'impressionnistes/stripe/webhook_secret'
-        
-        response = secrets_client.get_secret_value(SecretId=secret_name)
-        secret = json.loads(response['SecretString'])
-        
-        logger.info("Successfully retrieved Stripe webhook secret")
-        return secret['webhook_secret']
-    except Exception as e:
-        logger.error(f"Failed to retrieve Stripe webhook secret: {str(e)}")
-        raise
+    return get_stripe_webhook_secret()
 
 
 def get_charge_receipt_url(payment_intent_id: str) -> Optional[str]:

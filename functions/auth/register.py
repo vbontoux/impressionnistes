@@ -134,6 +134,31 @@ def lambda_handler(event, context):
         db.put_item(profile_item)
         logger.info(f"Profile stored in DynamoDB: {user_sub}")
         
+        # Send Slack notification for new registration
+        try:
+            import os
+            from slack_utils import notify_new_user_registration, set_webhook_urls
+            from secrets_manager import get_slack_admin_webhook
+            
+            # Get Slack webhook from Secrets Manager
+            slack_webhook = get_slack_admin_webhook()
+            
+            if slack_webhook:
+                set_webhook_urls(admin_webhook=slack_webhook)
+                environment = os.environ.get('ENVIRONMENT', 'dev')
+                notify_new_user_registration(
+                    user_name=f"{first_name} {last_name}",
+                    user_email=email,
+                    club_name=club_affiliation if club_affiliation else None,
+                    environment=environment
+                )
+                logger.info("Slack notification sent for new registration")
+            else:
+                logger.info("Slack webhook not configured - skipping notification")
+        except Exception as e:
+            # Don't fail registration if Slack notification fails
+            logger.warning(f"Failed to send Slack notification: {e}")
+        
         # Return success response
         return success_response(
             data={

@@ -12,19 +12,6 @@ from pathlib import Path
 dynamodb = boto3.resource('dynamodb')
 
 
-def load_secrets():
-    """Load secrets from secrets.json file"""
-    secrets_file = Path(__file__).parent.parent.parent / 'infrastructure' / 'secrets.json'
-    
-    if secrets_file.exists():
-        with open(secrets_file, 'r') as f:
-            return json.load(f)
-    
-    # Return empty dict if file doesn't exist (will use empty strings)
-    print("Warning: secrets.json not found, using empty values")
-    return {}
-
-
 def lambda_handler(event, context):
     """
     Initialize default configuration in DynamoDB table
@@ -138,8 +125,8 @@ def initialize_pricing_config(table):
 
 def initialize_notification_config(table):
     """Initialize notification configuration with default values"""
-    # Load secrets from file
-    secrets = load_secrets()
+    # NOTE: Slack webhooks are stored in AWS Secrets Manager, not DynamoDB
+    # They are retrieved at runtime by Lambda functions using secrets_manager.py
     
     notification_config = {
         'PK': 'CONFIG',
@@ -147,9 +134,7 @@ def initialize_notification_config(table):
         'notification_frequency_days': 7,
         'session_timeout_minutes': 30,
         'notification_channels': ['email', 'in_app', 'slack'],
-        'email_from': 'impressionnistes@rcpm-aviron.fr',
-        'slack_webhook_admin': secrets.get('slack_webhook_admin', ''),
-        'slack_webhook_devops': secrets.get('slack_webhook_devops', ''),
+        'email_from': 'impressionnistes@aviron-rcpm.fr',
         'created_at': datetime.utcnow().isoformat() + 'Z',
         'updated_at': datetime.utcnow().isoformat() + 'Z',
         'updated_by': 'system',

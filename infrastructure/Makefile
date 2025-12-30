@@ -72,7 +72,16 @@ help:
 	@echo "  make secrets-list                                    - List all secrets"
 	@echo "  make secrets-show                                    - Show all secret values (⚠️  sensitive!)"
 	@echo "  make secrets-show-stripe                             - Show Stripe secrets (partial)"
-	@echo "  make secrets-update-stripe STRIPE_API_KEY=sk_xxx     - Update Stripe API key"
+	@echo "  make secrets-sync ENV=dev                            - Sync all secrets from secrets.ENV.json to AWS"
+	@echo "  make secrets-sync-dev                                - Sync secrets from secrets.dev.json"
+	@echo "  make secrets-sync-prod                               - Sync secrets from secrets.prod.json (with confirmation)"
+	@echo "  make secrets-delete-all ENV=dev                      - Delete all 4 secrets from AWS (with confirmation)"
+	@echo "  make secrets-delete-all-prod                         - Delete all 4 secrets from PROD (with confirmation)"
+	@echo "  make secrets-update-stripe STRIPE_API_KEY=sk_xxx     - Update Stripe API key manually"
+	@echo ""
+	@echo "Stack Management:"
+	@echo "  make destroy-secrets ENV=dev                         - Destroy Secrets stack (with confirmation)"
+	@echo "  make destroy-secrets-prod                            - Destroy Secrets stack in PROD (with confirmation)"
 	@echo ""
 	@echo "Email/SES Management:"
 	@echo "  make ses-verify-email EMAIL=your@email.com           - Verify email address in SES"
@@ -93,6 +102,7 @@ help:
 	@echo "  make test-backend   - Run backend integration tests only"
 	@echo "  make test-frontend  - Run frontend formatter tests only"
 	@echo "  make test-email EMAIL=your@email.com - Test email notification system"
+	@echo "  make test-slack     - Test Slack notification system"
 	@echo "  make test-coverage  - Run backend tests with HTML coverage report"
 	@echo "  make test-clean     - Remove test venv and cache files"
 	@echo ""
@@ -173,7 +183,7 @@ diff:
 	@echo "Showing changes for $(ENV) environment..."
 	@. $(VENV)/bin/activate && $(CDK) diff --all --context env=$(ENV)
 
-deploy: build-layer build-frontend
+deploy: build-layer 
 	@echo "Deploying to $(ENV) environment..."
 	@. $(VENV)/bin/activate && $(CDK) deploy --all --context env=$(ENV) --require-approval never
 	@echo "✓ Deployment complete"
@@ -1332,6 +1342,144 @@ secrets-update-stripe:
 	@echo "✓ Secrets updated successfully!"
 	@echo "=========================================="
 
+secrets-sync:
+	@echo "=========================================="
+	@echo "Sync Secrets from secrets.$(ENV).json to AWS"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@if [ ! -f "secrets.$(ENV).json" ]; then \
+		echo "❌ Error: secrets.$(ENV).json not found"; \
+		echo ""; \
+		echo "Please create secrets.$(ENV).json with your secrets"; \
+		exit 1; \
+	fi
+	@echo "Reading secrets from secrets.$(ENV).json..."
+	@echo ""
+	@STRIPE_API_KEY=$$(python3 -c "import json; f=open('secrets.$(ENV).json'); data=json.load(f); print(data.get('stripe_secret_key', ''))"); \
+	STRIPE_WEBHOOK=$$(python3 -c "import json; f=open('secrets.$(ENV).json'); data=json.load(f); print(data.get('stripe_webhook_secret', ''))"); \
+	SLACK_ADMIN=$$(python3 -c "import json; f=open('secrets.$(ENV).json'); data=json.load(f); print(data.get('slack_webhook_admin', ''))"); \
+	SLACK_DEVOPS=$$(python3 -c "import json; f=open('secrets.$(ENV).json'); data=json.load(f); print(data.get('slack_webhook_devops', ''))"); \
+	if [ -n "$$STRIPE_API_KEY" ]; then \
+		echo "Updating Stripe API Key..."; \
+		aws secretsmanager update-secret \
+			--secret-id impressionnistes/stripe/api_key \
+			--secret-string "{\"api_key\":\"$$STRIPE_API_KEY\"}" \
+			--output text > /dev/null && echo "  ✓ Stripe API Key updated"; \
+	fi; \
+	if [ -n "$$STRIPE_WEBHOOK" ]; then \
+		echo "Updating Stripe Webhook Secret..."; \
+		aws secretsmanager update-secret \
+			--secret-id impressionnistes/stripe/webhook_secret \
+			--secret-string "{\"webhook_secret\":\"$$STRIPE_WEBHOOK\"}" \
+			--output text > /dev/null && echo "  ✓ Stripe Webhook Secret updated"; \
+	fi; \
+	if [ -n "$$SLACK_ADMIN" ]; then \
+		echo "Updating Slack Admin Webhook..."; \
+		aws secretsmanager update-secret \
+			--secret-id impressionnistes/slack/admin_webhook \
+			--secret-string "{\"webhook_url\":\"$$SLACK_ADMIN\"}" \
+			--output text > /dev/null && echo "  ✓ Slack Admin Webhook updated"; \
+	fi; \
+	if [ -n "$$SLACK_DEVOPS" ]; then \
+		echo "Updating Slack DevOps Webhook..."; \
+		aws secretsmanager update-secret \
+			--secret-id impressionnistes/slack/devops_webhook \
+			--secret-string "{\"webhook_url\":\"$$SLACK_DEVOPS\"}" \
+			--output text > /dev/null && echo "  ✓ Slack DevOps Webhook updated"; \
+	fi
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ All secrets synced from secrets.$(ENV).json!"
+	@echo "=========================================="
+
+secrets-sync-dev:
+	@$(MAKE) secrets-sync ENV=dev
+
+secrets-sync-prod:
+	@echo "⚠️  WARNING: Syncing secrets to PRODUCTION"
+	@read -p "Type 'SYNC PROD' to confirm: " confirm; \
+	if [ "$$confirm" = "SYNC PROD" ]; then \
+		$(MAKE) secrets-sync ENV=prod; \
+	else \
+		echo "Sync cancelled"; \
+		exit 1; \
+	fi
+
+secrets-delete-all:
+	@echo "=========================================="
+	@echo "Delete All Secrets from AWS Secrets Manager"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@echo "⚠️  WARNING: This will delete all 4 secrets:"
+	@echo "  - impressionnistes/stripe/api_key"
+	@echo "  - impressionnistes/stripe/webhook_secret"
+	@echo "  - impressionnistes/slack/admin_webhook"
+	@echo "  - impressionnistes/slack/devops_webhook"
+	@echo ""
+	@if [ "$(ENV)" = "prod" ]; then \
+		echo "⚠️  PRODUCTION ENVIRONMENT"; \
+		read -p "Type 'DELETE PROD SECRETS' to confirm: " confirm; \
+		if [ "$$confirm" != "DELETE PROD SECRETS" ]; then \
+			echo "Deletion cancelled"; \
+			exit 1; \
+		fi; \
+	else \
+		read -p "Type 'DELETE' to confirm: " confirm; \
+		if [ "$$confirm" != "DELETE" ]; then \
+			echo "Deletion cancelled"; \
+			exit 1; \
+		fi; \
+	fi
+	@echo ""
+	@echo "Deleting secrets (force delete, no recovery)..."
+	@for secret in "impressionnistes/stripe/api_key" "impressionnistes/stripe/webhook_secret" "impressionnistes/slack/admin_webhook" "impressionnistes/slack/devops_webhook"; do \
+		echo "Deleting $$secret..."; \
+		aws secretsmanager delete-secret \
+			--secret-id $$secret \
+			--force-delete-without-recovery \
+			--output text > /dev/null 2>&1 && echo "  ✓ Deleted $$secret" || echo "  ⚠️  $$secret not found or already deleted"; \
+	done
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ All secrets deleted!"
+	@echo "=========================================="
+
+secrets-delete-all-prod:
+	@$(MAKE) secrets-delete-all ENV=prod AWS_PROFILE=rcpm
+
+destroy-secrets:
+	@echo "=========================================="
+	@echo "Destroy Secrets Stack"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@if [ "$(ENV)" = "prod" ]; then \
+		echo "⚠️  WARNING: Destroying PRODUCTION Secrets Stack"; \
+		read -p "Type 'DESTROY PROD' to confirm: " confirm; \
+		if [ "$$confirm" != "DESTROY PROD" ]; then \
+			echo "Destruction cancelled"; \
+			exit 1; \
+		fi; \
+	else \
+		read -p "Type 'DESTROY' to confirm: " confirm; \
+		if [ "$$confirm" != "DESTROY" ]; then \
+			echo "Destruction cancelled"; \
+			exit 1; \
+		fi; \
+	fi
+	@echo ""
+	@echo "Destroying ImpressionnistesSecrets-$(ENV) stack..."
+	@. $(VENV)/bin/activate && $(CDK) destroy ImpressionnistesSecrets-$(ENV) --context env=$(ENV) --force
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ Secrets stack destroyed!"
+	@echo "=========================================="
+
+destroy-secrets-prod:
+	@$(MAKE) destroy-secrets ENV=prod
+
 # ==========================================
 # Boat Payment Management (Debug/Demo)
 # ==========================================
@@ -1546,6 +1694,26 @@ test-email: test-setup
 	@echo "✓ Email test complete!"
 	@echo ""
 	@echo "Check your inbox (and spam folder) for test emails."
+	@echo "=========================================="
+
+test-slack: test-setup
+	@echo "=========================================="
+	@echo "Testing Slack Notification System"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@echo "Prerequisites check:"
+	@echo "  ✓ AWS credentials configured"
+	@echo "  ✓ Slack webhooks should be configured in DynamoDB"
+	@echo ""
+	@echo "Running Slack notification tests..."
+	@echo ""
+	@cd .. && ENVIRONMENT=$(ENV) $(TEST_PYTHON) functions/shared/test_slack_utils.py
+	@echo ""
+	@echo "=========================================="
+	@echo "✓ Slack test complete!"
+	@echo ""
+	@echo "Check your Slack channel for test notifications."
 	@echo "=========================================="
 
 test: test-setup

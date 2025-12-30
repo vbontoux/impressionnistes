@@ -155,6 +155,16 @@ class ApiStack(Stack):
             )
         )
         
+        # Grant Secrets Manager permissions for Slack webhooks
+        function.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=['secretsmanager:GetSecretValue'],
+                resources=[
+                    f'arn:aws:secretsmanager:{self.region}:{self.account}:secret:impressionnistes/slack/*'
+                ]
+            )
+        )
+        
         return function
     
     def _create_auth_functions(self):

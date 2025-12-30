@@ -218,6 +218,35 @@ def handle_payment_succeeded(event_data: dict, db):
     
     logger.info(f"Successfully processed payment {payment_id} for {len(boat_registration_ids)} boats and {len(rental_boat_ids)} rentals")
     
+    # Send Slack notification for successful payment
+    try:
+        import os
+        from slack_utils import notify_payment_completed, set_webhook_urls
+        from secrets_manager import get_slack_admin_webhook
+        
+        # Get Slack webhook from Secrets Manager
+        slack_webhook = get_slack_admin_webhook()
+        
+        if slack_webhook and receipt_email:
+            set_webhook_urls(admin_webhook=slack_webhook)
+            environment = os.environ.get('ENVIRONMENT', 'dev')
+            notify_payment_completed(
+                user_name=team_manager_name,
+                user_email=receipt_email,
+                amount=float(amount),
+                currency=currency.upper(),
+                boat_count=len(boat_registration_ids),
+                rental_count=len(rental_boat_ids),
+                payment_id=payment_id,
+                environment=environment
+            )
+            logger.info("Slack notification sent for successful payment")
+        else:
+            logger.info("Slack webhook not configured or no receipt email - skipping notification")
+    except Exception as e:
+        # Don't fail payment processing if Slack notification fails
+        logger.warning(f"Failed to send Slack notification: {e}")
+    
     # Send confirmation email
     if receipt_email:
         payment_details = {
@@ -250,11 +279,57 @@ def handle_payment_failed(event_data: dict, db):
     """
     payment_intent = event_data['object']
     payment_intent_id = payment_intent['id']
+    amount_cents = payment_intent.get('amount', 0)
+    currency = payment_intent.get('currency', 'eur')
     metadata = payment_intent.get('metadata', {})
+    receipt_email = payment_intent.get('receipt_email')
+    last_payment_error = payment_intent.get('last_payment_error', {})
+    error_message = last_payment_error.get('message', 'Unknown error')
     
     team_manager_id = metadata.get('team_manager_id')
     
-    logger.warning(f"Payment failed for payment intent {payment_intent_id}, team manager {team_manager_id}")
+    # Convert amount from cents to decimal
+    amount = Decimal(amount_cents) / 100
+    
+    logger.warning(f"Payment failed for payment intent {payment_intent_id}, team manager {team_manager_id}: {error_message}")
+    
+    # Get team manager details for notification
+    team_manager_name = 'Unknown User'
+    if team_manager_id:
+        team_manager = db.get_item(pk=f'TEAM#{team_manager_id}', sk='METADATA')
+        if team_manager:
+            first_name = team_manager.get('first_name', '')
+            last_name = team_manager.get('last_name', '')
+            if first_name or last_name:
+                team_manager_name = f"{first_name} {last_name}".strip()
+    
+    # Send Slack notification for failed payment
+    try:
+        import os
+        from slack_utils import notify_payment_failed, set_webhook_urls
+        from secrets_manager import get_slack_admin_webhook
+        
+        # Get Slack webhook from Secrets Manager
+        slack_webhook = get_slack_admin_webhook()
+        
+        if slack_webhook and receipt_email:
+            set_webhook_urls(admin_webhook=slack_webhook)
+            environment = os.environ.get('ENVIRONMENT', 'dev')
+            notify_payment_failed(
+                user_name=team_manager_name,
+                user_email=receipt_email,
+                amount=float(amount),
+                currency=currency.upper(),
+                error_message=error_message,
+                payment_id=payment_intent_id,
+                environment=environment
+            )
+            logger.info("Slack notification sent for failed payment")
+        else:
+            logger.info("Slack webhook not configured or no receipt email - skipping notification")
+    except Exception as e:
+        # Don't fail if Slack notification fails
+        logger.warning(f"Failed to send Slack notification: {e}")
     
     # Optionally: Create a failed payment record or send notification
     # For now, we just log it
