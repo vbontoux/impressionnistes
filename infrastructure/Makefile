@@ -201,6 +201,42 @@ deploy-prod:
 		exit 1; \
 	fi
 
+deploy-backend: build-layer
+	@echo "Deploying backend stacks to $(ENV) environment..."
+	@echo "Excluding: ImpressiornistesFrontend-$(ENV)"
+	@. $(VENV)/bin/activate && $(CDK) deploy ImpressionnistesSecrets-$(ENV) ImpressionnistesDatabase-$(ENV) ImpressionnistesAuth-$(ENV) ImpressionnistesApi-$(ENV) ImpressionnistesMonitoring-$(ENV) --context env=$(ENV) --require-approval never
+	@echo "✓ Backend deployment complete"
+
+deploy-backend-dev:
+	@$(MAKE) deploy-backend ENV=dev
+
+deploy-backend-prod:
+	@echo "⚠️  WARNING: Deploying BACKEND to PRODUCTION"
+	@read -p "Type 'DEPLOY BACKEND PROD' to confirm: " confirm; \
+	if [ "$$confirm" = "DEPLOY BACKEND PROD" ]; then \
+		$(MAKE) deploy-backend ENV=prod; \
+	else \
+		echo "Deployment cancelled"; \
+		exit 1; \
+	fi
+
+deploy-frontend:
+	@echo "Deploying frontend stack to $(ENV) environment..."
+	@. $(VENV)/bin/activate && $(CDK) deploy ImpressiornistesFrontend-$(ENV) --context env=$(ENV) --require-approval never
+	@echo "✓ Frontend deployment complete"
+
+deploy-frontend-dev:
+	@$(MAKE) deploy-frontend ENV=dev
+
+deploy-frontend-prod:
+	@echo "⚠️  WARNING: Deploying FRONTEND to PRODUCTION"
+	@read -p "Type 'DEPLOY FRONTEND PROD' to confirm: " confirm; \
+	if [ "$$confirm" = "DEPLOY FRONTEND PROD" ]; then \
+		$(MAKE) deploy-frontend ENV=prod; \
+	else \
+		echo "Deployment cancelled"; \
+		exit 1; \
+	fi
 
 list:
 	@echo "Listing stacks for $(ENV) environment..."
