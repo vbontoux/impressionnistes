@@ -20,7 +20,8 @@ from boat_registration_utils import (
     validate_seat_assignment,
     get_assigned_crew_members,
     detect_multi_club_crew,
-    calculate_registration_status
+    calculate_registration_status,
+    calculate_boat_club_info
 )
 
 logger = logging.getLogger()
@@ -155,8 +156,20 @@ def lambda_handler(event, context):
     # Get assigned crew members
     assigned_members = get_assigned_crew_members(seats, all_crew_members)
     
-    # Detect multi-club crew
+    # Detect multi-club crew (for backward compatibility)
     boat_registration['is_multi_club_crew'] = detect_multi_club_crew(assigned_members)
+    
+    # Get team manager's club affiliation for club field calculation
+    team_manager = db.get_item(
+        pk=f'USER#{team_manager_id}',
+        sk='PROFILE'
+    )
+    team_manager_club = team_manager.get('club_affiliation', '') if team_manager else ''
+    
+    # Recalculate club display fields based on assigned crew
+    club_info = calculate_boat_club_info(assigned_members, team_manager_club)
+    boat_registration['boat_club_display'] = club_info['boat_club_display']
+    boat_registration['club_list'] = club_info['club_list']
     
     # Calculate registration status
     boat_registration['registration_status'] = calculate_registration_status(boat_registration)

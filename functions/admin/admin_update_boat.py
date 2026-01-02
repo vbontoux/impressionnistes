@@ -17,7 +17,8 @@ from auth_utils import require_admin
 from boat_registration_utils import (
     calculate_registration_status,
     detect_multi_club_crew,
-    get_assigned_crew_members
+    get_assigned_crew_members,
+    calculate_boat_club_info
 )
 
 logger = logging.getLogger()
@@ -95,13 +96,29 @@ def lambda_handler(event, context):
             sk_prefix='CREW#'
         )
         
-        # Create temporary boat object for calculation
+        # Get assigned crew members from the updated seats
+        assigned_members = get_assigned_crew_members(update_data['seats'], crew_members)
+        
+        # Detect multi-club crew (for backward compatibility)
+        update_data['is_multi_club_crew'] = detect_multi_club_crew(assigned_members)
+        
+        # Get team manager's club affiliation for club field calculation
+        team_manager = db.get_item(
+            pk=f'USER#{team_manager_id}',
+            sk='PROFILE'
+        )
+        team_manager_club = team_manager.get('club_affiliation', '') if team_manager else ''
+        
+        # Recalculate club display fields based on assigned crew
+        club_info = calculate_boat_club_info(assigned_members, team_manager_club)
+        update_data['boat_club_display'] = club_info['boat_club_display']
+        update_data['club_list'] = club_info['club_list']
+        
+        # Create temporary boat object for status calculation
         temp_boat = {**existing_boat, **update_data}
-        is_multi_club = detect_multi_club_crew(temp_boat, crew_members)
-        update_data['is_multi_club_crew'] = is_multi_club
         
         # Recalculate registration status
-        registration_status = calculate_registration_status(temp_boat)
+        registration_status = calculate_registration_status(temp_boat, assigned_members)
         update_data['registration_status'] = registration_status
     
     # Update timestamp

@@ -185,6 +185,21 @@ boat_registration_schema = {
         'required': False,
         'default': False
     },
+    'boat_club_display': {
+        'type': 'string',
+        'required': False,
+        'nullable': True,
+        'maxlength': 200
+    },
+    'club_list': {
+        'type': 'list',
+        'required': False,
+        'nullable': True,
+        'schema': {
+            'type': 'string',
+            'maxlength': 100
+        }
+    },
     'is_boat_rental': {
         'type': 'boolean',
         'required': False,

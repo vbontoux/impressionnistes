@@ -220,3 +220,94 @@ def test_create_crew_member_validation_error(dynamodb_table, mock_api_gateway_ev
     body = json.loads(response['body'])
     assert body['success'] is False
     assert 'error' in body or 'message' in body
+
+
+def test_update_crew_member_club_recalculates_boat(dynamodb_table, mock_api_gateway_event, mock_lambda_context, test_team_manager_id):
+    """Test that updating a crew member's club recalculates boat club info"""
+    # Create team manager profile
+    dynamodb_table.put_item(Item={
+        'PK': f'USER#{test_team_manager_id}',
+        'SK': f'PROFILE#{test_team_manager_id}',
+        'user_id': test_team_manager_id,
+        'club_affiliation': 'RCPM'
+    })
+    
+    # Create a crew member
+    crew_member_id = 'crew-club-update-test'
+    dynamodb_table.put_item(Item={
+        'PK': f'TEAM#{test_team_manager_id}',
+        'SK': f'CREW#{crew_member_id}',
+        'crew_member_id': crew_member_id,
+        'first_name': 'Test',
+        'last_name': 'Rower',
+        'date_of_birth': '1990-01-01',
+        'gender': 'M',
+        'license_number': 'LIC999',
+        'club_affiliation': 'RCPM',
+        'assigned_boat_id': 'boat-123'
+    })
+    
+    # Create a boat with this crew member assigned
+    boat_id = 'boat-123'
+    dynamodb_table.put_item(Item={
+        'PK': f'TEAM#{test_team_manager_id}',
+        'SK': f'BOAT#{boat_id}',
+        'boat_registration_id': boat_id,
+        'team_manager_id': test_team_manager_id,
+        'boat_club_display': 'RCPM',
+        'club_list': ['RCPM'],
+        'is_multi_club_crew': False,
+        'seats': [
+            {
+                'position': 1,
+                'type': 'rower',
+                'crew_member_id': crew_member_id
+            }
+        ]
+    })
+    
+    # Import Lambda handler
+    from crew.update_crew_member import lambda_handler
+    
+    # Update crew member's club to a different club
+    event = mock_api_gateway_event(
+        http_method='PUT',
+        path=f'/crew/{crew_member_id}',
+        body=json.dumps({
+            'first_name': 'Test',
+            'last_name': 'Rower',
+            'date_of_birth': '1990-01-01',
+            'gender': 'M',
+            'license_number': 'LIC999',
+            'club_affiliation': 'Club Elite'  # Changed from RCPM
+        }),
+        path_parameters={'crew_member_id': crew_member_id},
+        user_id=test_team_manager_id
+    )
+    
+    # Call Lambda handler
+    response = lambda_handler(event, mock_lambda_context)
+    
+    # Assert response
+    assert response['statusCode'] == 200
+    
+    body = json.loads(response['body'])
+    assert body['success'] is True
+    assert body['data']['club_affiliation'] == 'Club Elite'
+    
+    # Verify boat club info was recalculated
+    boat_item = dynamodb_table.get_item(
+        Key={
+            'PK': f'TEAM#{test_team_manager_id}',
+            'SK': f'BOAT#{boat_id}'
+        }
+    )
+    
+    assert 'Item' in boat_item
+    boat = boat_item['Item']
+    
+    # Boat should now show external crew format: "RCPM (Club Elite)"
+    assert boat['boat_club_display'] == 'RCPM (Club Elite)'
+    assert 'Club Elite' in boat['club_list']
+    assert boat['is_multi_club_crew'] is False
+

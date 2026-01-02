@@ -24,7 +24,8 @@ from boat_registration_utils import (
     calculate_registration_status,
     detect_multi_club_crew,
     get_assigned_crew_members,
-    validate_seat_assignment
+    validate_seat_assignment,
+    calculate_boat_club_info
 )
 from race_eligibility import analyze_crew_composition
 
@@ -225,8 +226,20 @@ def lambda_handler(event, context):
             all_crew_members
         )
         
-        # Detect multi-club crew
+        # Detect multi-club crew (for backward compatibility)
         boat_fields_to_validate['is_multi_club_crew'] = detect_multi_club_crew(assigned_members)
+        
+        # Get team manager's club affiliation for club field calculation
+        team_manager = db.get_item(
+            pk=f'USER#{team_manager_id}',
+            sk='PROFILE'
+        )
+        team_manager_club = team_manager.get('club_affiliation', '') if team_manager else ''
+        
+        # Recalculate club display fields based on assigned crew
+        club_info = calculate_boat_club_info(assigned_members, team_manager_club)
+        boat_fields_to_validate['boat_club_display'] = club_info['boat_club_display']
+        boat_fields_to_validate['club_list'] = club_info['club_list']
         
         # Calculate crew composition for race eligibility
         if assigned_members:

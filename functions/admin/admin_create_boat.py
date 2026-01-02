@@ -17,7 +17,8 @@ from auth_utils import require_admin
 from boat_registration_utils import (
     get_required_seats_for_boat_type,
     validate_boat_type_for_event,
-    calculate_registration_status
+    calculate_registration_status,
+    calculate_boat_club_info
 )
 
 logger = logging.getLogger()
@@ -113,6 +114,12 @@ def lambda_handler(event, context):
     # Calculate registration status
     registration_status = calculate_registration_status(boat_data)
     
+    # Get team manager's club affiliation for club field initialization
+    team_manager_club = team_manager.get('club_affiliation', '')
+    
+    # Initialize club display fields
+    club_info = calculate_boat_club_info([], team_manager_club)  # Empty crew at creation
+    
     # Store boat registration in DynamoDB
     boat_registration_item = {
         'PK': f'TEAM#{team_manager_id}',
@@ -125,6 +132,8 @@ def lambda_handler(event, context):
         'seats': boat_data['seats'],
         'is_boat_rental': boat_data['is_boat_rental'],
         'is_multi_club_crew': boat_data['is_multi_club_crew'],
+        'boat_club_display': club_info['boat_club_display'],
+        'club_list': club_info['club_list'],
         'registration_status': registration_status,
         'forfait': boat_data.get('forfait', False),
         'flagged_issues': boat_data.get('flagged_issues', []),

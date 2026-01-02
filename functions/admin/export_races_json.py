@@ -159,6 +159,8 @@ def lambda_handler(event, context):
                 'forfait': boat.get('forfait', False),
                 'team_manager_id': team_manager_id,
                 'club_affiliation': team_manager_cache.get(team_manager_id, {}).get('club_affiliation', ''),
+                'boat_club_display': boat.get('boat_club_display', ''),
+                'club_list': boat.get('club_list', []),
                 'seats': boat.get('seats', []),
                 'crew_composition': boat.get('crew_composition', {}),
                 'is_multi_club_crew': boat.get('is_multi_club_crew', False),

@@ -159,9 +159,8 @@ export function generateCrewMemberList(jsonData, boatAssignments, raceAssignment
     // Get stroke seat name
     const strokeName = getStrokeSeatName(boat.seats || [], crewMembersDict)
     
-    // Get team manager and club
-    const teamManager = teamManagersDict[boat.team_manager_id] || {}
-    const clubName = teamManager.club_affiliation || boat.club_affiliation || ''
+    // Get club from boat_club_display (calculated field)
+    const clubName = boat.boat_club_display || ''
     
     // Process each seat
     for (const seat of (boat.seats || [])) {

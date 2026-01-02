@@ -21,7 +21,8 @@ from boat_registration_utils import (
     validate_boat_type_for_event,
     calculate_registration_status,
     detect_multi_club_crew,
-    get_assigned_crew_members
+    get_assigned_crew_members,
+    calculate_boat_club_info
 )
 
 logger = logging.getLogger()
@@ -104,8 +105,21 @@ def lambda_handler(event, context):
     # Calculate registration status
     registration_status = calculate_registration_status(boat_data)
     
-    # Store boat registration in DynamoDB
+    # Get team manager's club affiliation for club field initialization
     db = get_db_client()
+    team_manager = db.get_item(
+        pk=f'USER#{team_manager_id}',
+        sk='PROFILE'
+    )
+    team_manager_club = team_manager.get('club_affiliation', '') if team_manager else ''
+    
+    # Initialize club fields with team manager's club
+    # When boat is created, no crew is assigned yet, so use team manager's club
+    club_info = calculate_boat_club_info([], team_manager_club)
+    boat_club_display = club_info['boat_club_display']
+    club_list = club_info['club_list']
+    
+    # Store boat registration in DynamoDB
     
     boat_registration_item = {
         'PK': f'TEAM#{team_manager_id}',
@@ -118,6 +132,8 @@ def lambda_handler(event, context):
         'seats': boat_data['seats'],
         'is_boat_rental': boat_data['is_boat_rental'],
         'is_multi_club_crew': boat_data['is_multi_club_crew'],
+        'boat_club_display': boat_club_display,
+        'club_list': club_list,
         'registration_status': registration_status,
         'flagged_issues': boat_data.get('flagged_issues', []),
         'created_at': get_timestamp(),

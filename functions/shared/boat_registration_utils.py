@@ -119,6 +119,97 @@ def detect_multi_club_crew(crew_members: List[Dict[str, Any]]) -> bool:
     return len(clubs) > 1
 
 
+def calculate_boat_club_info(
+    crew_members: List[Dict[str, Any]], 
+    team_manager_club: str
+) -> Dict[str, Any]:
+    """
+    Calculate boat club display and club list from crew members (Option A)
+    
+    This function determines the appropriate club display for a boat, always
+    showing the team manager's club first with additional context about crew
+    composition. The format is:
+    - "{team_manager_club}" - all crew from team manager's club (or no crew)
+    - "{team_manager_club} (Multi-Club)" - crew from multiple clubs
+    - "{team_manager_club} ({crew_club})" - all crew from one different club
+    
+    Args:
+        crew_members: List of assigned crew member objects with club_affiliation
+        team_manager_club: Team manager's club affiliation (always shown)
+    
+    Returns:
+        Dictionary with:
+        - boat_club_display: str (formatted club display)
+        - club_list: List[str] (unique clubs, sorted alphabetically)
+    
+    Examples:
+        >>> calculate_boat_club_info([{'club_affiliation': 'RCPM'}], 'RCPM')
+        {'boat_club_display': 'RCPM', 'club_list': ['RCPM']}
+        
+        >>> calculate_boat_club_info([
+        ...     {'club_affiliation': 'RCPM'},
+        ...     {'club_affiliation': 'Club Elite'}
+        ... ], 'RCPM')
+        {'boat_club_display': 'RCPM (Multi-Club)', 'club_list': ['Club Elite', 'RCPM']}
+        
+        >>> calculate_boat_club_info([{'club_affiliation': 'Club Elite'}], 'RCPM')
+        {'boat_club_display': 'RCPM (Club Elite)', 'club_list': ['Club Elite']}
+        
+        >>> calculate_boat_club_info([], 'RCPM')
+        {'boat_club_display': 'RCPM', 'club_list': ['RCPM']}
+    """
+    # Normalize team manager's club
+    team_manager_club_clean = team_manager_club.strip() if team_manager_club else ''
+    team_manager_club_normalized = team_manager_club_clean.upper() if team_manager_club_clean else ''
+    
+    # Extract club affiliations from crew members
+    # Keep track of both normalized (for comparison) and original (for display)
+    club_map = {}  # normalized -> original
+    
+    for member in crew_members:
+        club_affiliation = member.get('club_affiliation')
+        # Handle None and empty strings
+        if club_affiliation is None:
+            continue
+        club_original = club_affiliation.strip()
+        if club_original:  # Exclude empty or null clubs
+            club_normalized = club_original.upper()
+            # Keep the first occurrence's original case
+            if club_normalized not in club_map:
+                club_map[club_normalized] = club_original
+    
+    # Build club_list (sorted alphabetically, case-insensitive)
+    club_list = sorted(club_map.values(), key=lambda x: x.upper()) if club_map else []
+    
+    # If no crew clubs, include team manager's club in list
+    if not club_list and team_manager_club_clean:
+        club_list = [team_manager_club_clean]
+    
+    # Determine boat_club_display based on crew composition
+    if len(club_map) == 0:
+        # No crew members with clubs, use team manager's club
+        boat_club_display = team_manager_club_clean
+    elif len(club_map) == 1:
+        # Single club - check if it matches team manager's club
+        crew_club_normalized = list(club_map.keys())[0]
+        crew_club_original = list(club_map.values())[0]
+        
+        if crew_club_normalized == team_manager_club_normalized:
+            # All crew from team manager's club
+            boat_club_display = team_manager_club_clean
+        else:
+            # All crew from a different single club
+            boat_club_display = f"{team_manager_club_clean} ({crew_club_original})"
+    else:
+        # Multiple clubs
+        boat_club_display = f"{team_manager_club_clean} (Multi-Club)"
+    
+    return {
+        'boat_club_display': boat_club_display,
+        'club_list': club_list
+    }
+
+
 def get_assigned_crew_members(seats: List[Dict[str, Any]], all_crew_members: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Get the crew member objects for all assigned seats

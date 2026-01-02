@@ -19,6 +19,7 @@ from responses import (
 from validation import validate_team_manager, sanitize_dict
 from database import get_db_client, get_timestamp
 from auth_utils import require_auth, get_user_from_event
+from boat_registration_utils import calculate_boat_club_info
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -145,6 +146,38 @@ def lambda_handler(event, context):
         )
         
         logger.info(f"Profile updated in DynamoDB: {user_id}")
+        
+        # If club_affiliation was updated, recalculate boat club info for empty boats
+        if 'club_affiliation' in updates:
+            logger.info(f"Team manager club changed, recalculating boat club info for empty boats")
+            
+            # Get all boats for this team manager
+            boats = db.query_by_pk(
+                pk=f'TEAM#{user_id}',
+                sk_prefix='BOAT#'
+            )
+            
+            # Filter for boats with no assigned crew
+            empty_boats = []
+            for boat in boats:
+                seats = boat.get('seats', [])
+                has_crew = any(seat.get('crew_member_id') for seat in seats)
+                if not has_crew:
+                    empty_boats.append(boat)
+            
+            # Recalculate club info for each empty boat
+            for boat in empty_boats:
+                # For empty boats, use team manager's club
+                club_info = calculate_boat_club_info([], updates['club_affiliation'])
+                
+                # Update boat with new club info
+                boat['boat_club_display'] = club_info['boat_club_display']
+                boat['club_list'] = club_info['club_list']
+                boat['is_multi_club_crew'] = '(Multi-Club)' in club_info['boat_club_display']
+                boat['updated_at'] = get_timestamp()
+                
+                db.put_item(boat)
+                logger.info(f"Empty boat club info recalculated: {boat['boat_registration_id']} -> {club_info['boat_club_display']}")
         
         # Return updated profile
         return success_response(

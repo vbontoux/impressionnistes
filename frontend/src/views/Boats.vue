@@ -82,6 +82,19 @@
               <span>{{ getCrewAverageAge(boat) }}</span>
             </div>
             <div class="detail-row">
+              <span class="label">{{ $t('admin.boats.club') }}&nbsp;:</span>
+              <span class="club-display">
+                <span v-if="isMultiClub(boat)">
+                  <ClubListPopover :clubs="boat.club_list || []">
+                    <template #trigger>
+                      <span class="club-box multi-club">{{ boat.boat_club_display }}</span>
+                    </template>
+                  </ClubListPopover>
+                </span>
+                <span v-else class="club-box">{{ boat.boat_club_display }}</span>
+              </span>
+            </div>
+            <div class="detail-row">
               <span class="label">{{ $t('boat.filledSeats') }}&nbsp;:</span>
               <span>
                 <span v-if="boat.is_multi_club_crew || boat.registration_status === 'free'" class="multi-club-badge">{{ $t('boat.multiClub') }}</span>
@@ -124,6 +137,7 @@
               <th>{{ $t('boat.firstRower') }}</th>
               <th>{{ $t('boat.gender') }}</th>
               <th>{{ $t('boat.averageAge') }}</th>
+              <th>{{ $t('admin.boats.club') }}</th>
               <th>{{ $t('boat.status.label') }}</th>
               <th>{{ $t('boat.seats') }}</th>
               <th>{{ $t('common.actions') }}</th>
@@ -139,6 +153,16 @@
                 <td>{{ getFirstRowerLastName(boat) }}</td>
                 <td>{{ getCrewGenderCategory(boat) }}</td>
                 <td>{{ getCrewAverageAge(boat) }}</td>
+                <td>
+                  <span v-if="isMultiClub(boat)" class="club-with-popover">
+                    <ClubListPopover :clubs="boat.club_list || []">
+                      <template #trigger>
+                        <span class="club-box multi-club">{{ boat.boat_club_display }}</span>
+                      </template>
+                    </ClubListPopover>
+                  </span>
+                  <span v-else class="club-box">{{ boat.boat_club_display }}</span>
+                </td>
                 <td>
                   <span class="status-badge" :class="`status-${getBoatStatus(boat)}`">
                     {{ getBoatStatusLabel(boat) }}
@@ -163,7 +187,7 @@
                 </td>
               </tr>
               <tr v-if="getRaceName(boat)" class="race-row" :class="`row-status-${boat.registration_status}`">
-                <td colspan="8" class="race-cell">
+                <td colspan="9" class="race-cell">
                   <span class="race-label">{{ $t('boat.selectedRace') }}&nbsp;:</span> {{ getRaceName(boat) }}
                 </td>
               </tr>
@@ -184,13 +208,15 @@ import { useI18n } from 'vue-i18n'
 import BoatRegistrationForm from '../components/BoatRegistrationForm.vue'
 import ListHeader from '../components/shared/ListHeader.vue'
 import ListFilters from '../components/shared/ListFilters.vue'
+import ClubListPopover from '../components/shared/ClubListPopover.vue'
 
 export default {
   name: 'BoatsView',
   components: {
     BoatRegistrationForm,
     ListHeader,
-    ListFilters
+    ListFilters,
+    ClubListPopover
   },
   setup() {
     const router = useRouter()
@@ -263,6 +289,13 @@ export default {
     const getRowClass = (boat) => {
       if (boat.forfait) return 'row-forfait'
       return `row-status-${boat.registration_status || 'incomplete'}`
+    }
+
+    const isMultiClub = (boat) => {
+      // Check if boat_club_display contains "Multi-Club" or if club_list has multiple clubs
+      if (!boat.boat_club_display) return false
+      return boat.boat_club_display.includes('Multi-Club') || 
+             (boat.club_list && boat.club_list.length > 1)
     }
 
     const getCrewGenderCategory = (boat) => {
@@ -346,6 +379,7 @@ export default {
       getBoatStatus,
       getBoatStatusLabel,
       getRowClass,
+      isMultiClub,
       getCrewGenderCategory,
       getCrewAverageAge,
       formatDate,
@@ -597,6 +631,40 @@ export default {
 .multi-club-badge-small {
   background-color: #ffc107;
   color: #000;
+}
+
+.club-box {
+  display: inline-block;
+  max-width: 200px;
+  padding: 0.25rem 0.5rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.club-box.multi-club {
+  background-color: #fff3cd;
+  border-color: #ffc107;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.club-box.multi-club:hover {
+  background-color: #ffe69c;
+}
+
+.club-display {
+  display: inline-flex;
+  align-items: center;
+}
+
+.club-with-popover {
+  display: inline-flex;
+  align-items: center;
 }
 
 .race-name {

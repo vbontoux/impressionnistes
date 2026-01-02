@@ -18,6 +18,7 @@ from validation import validate_crew_member, sanitize_dict, crew_member_schema, 
 from database import get_db_client, get_timestamp
 from auth_utils import get_user_from_event, require_team_manager
 from configuration import ConfigurationManager
+from boat_registration_utils import calculate_boat_club_info
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -140,6 +141,50 @@ def lambda_handler(event, context):
     # Update crew member in DynamoDB
     db.put_item(crew_data)
     logger.info(f"Crew member updated: {crew_member_id}")
+    
+    # If club_affiliation was updated, recalculate boat club info for all assigned boats
+    if 'club_affiliation' in update_data:
+        assigned_boat_id = existing_crew.get('assigned_boat_id')
+        
+        if assigned_boat_id:
+            logger.info(f"Crew member club changed, recalculating boat club info for boat: {assigned_boat_id}")
+            
+            # Get the boat registration
+            boat = db.get_item(
+                pk=f'TEAM#{team_manager_id}',
+                sk=f'BOAT#{assigned_boat_id}'
+            )
+            
+            if boat:
+                # Get all assigned crew members for this boat
+                assigned_crew_members = []
+                for seat in boat.get('seats', []):
+                    if seat.get('crew_member_id'):
+                        crew = db.get_item(
+                            pk=f'TEAM#{team_manager_id}',
+                            sk=f'CREW#{seat["crew_member_id"]}'
+                        )
+                        if crew:
+                            assigned_crew_members.append(crew)
+                
+                # Get team manager's club
+                team_manager = db.get_item(
+                    pk=f'USER#{team_manager_id}',
+                    sk=f'PROFILE#{team_manager_id}'
+                )
+                team_manager_club = team_manager.get('club_affiliation', '') if team_manager else ''
+                
+                # Calculate new club info
+                club_info = calculate_boat_club_info(assigned_crew_members, team_manager_club)
+                
+                # Update boat with new club info
+                boat['boat_club_display'] = club_info['boat_club_display']
+                boat['club_list'] = club_info['club_list']
+                boat['is_multi_club_crew'] = '(Multi-Club)' in club_info['boat_club_display']
+                boat['updated_at'] = get_timestamp()
+                
+                db.put_item(boat)
+                logger.info(f"Boat club info recalculated: {assigned_boat_id} -> {club_info['boat_club_display']}")
     
     # Return success response
     return success_response(data=crew_data)

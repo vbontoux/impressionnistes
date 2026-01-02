@@ -224,7 +224,7 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
     // Get team manager and club
     const teamManagerId = boat.team_manager_id
     const teamManager = teamManagersDict[teamManagerId] || {}
-    const clubName = teamManager.club_affiliation || boat.club_affiliation || 'Unknown'
+    const clubName = boat.boat_club_display || 'Unknown'
     
     // Get average age from boat's crew_composition (pre-calculated by backend)
     const avgAge = boat.crew_composition?.avg_age 

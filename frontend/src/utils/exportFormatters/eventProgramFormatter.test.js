@@ -151,6 +151,148 @@ describe('generateCrewMemberList', () => {
     // Stroke seat is position 2 (highest position rower)
     expect(result[0]['Nage']).toBe('Smith')
   })
+
+  it('should use boat_club_display for single club', () => {
+    const dataWithClubDisplay = {
+      data: {
+        boats: [
+          {
+            boat_registration_id: 'boat1',
+            race_id: 'race1',
+            registration_status: 'complete',
+            forfait: false,
+            team_manager_id: 'user1',
+            boat_club_display: 'RCPM',
+            seats: [
+              { crew_member_id: 'crew1', position: 1, type: 'rower' }
+            ]
+          }
+        ],
+        crew_members: [
+          { crew_member_id: 'crew1', first_name: 'John', last_name: 'Doe' }
+        ],
+        team_managers: []
+      }
+    }
+
+    const races = [
+      { race_id: 'race1', display_order: 1, distance: 42, short_name: 'MW4X+', name: 'Master Women 4X+' }
+    ]
+    const eligibleBoats = filterEligibleBoats(dataWithClubDisplay.data.boats)
+    const { raceAssignments, boatAssignments } = assignRaceAndBowNumbers(races, eligibleBoats, config)
+
+    const result = generateCrewMemberList(dataWithClubDisplay, boatAssignments, raceAssignments, 'fr')
+
+    expect(result[0]['Club']).toBe('RCPM')
+  })
+
+  it('should use boat_club_display for multi-club crews', () => {
+    const dataWithMultiClub = {
+      data: {
+        boats: [
+          {
+            boat_registration_id: 'boat1',
+            race_id: 'race1',
+            registration_status: 'complete',
+            forfait: false,
+            team_manager_id: 'user1',
+            boat_club_display: 'RCPM (Multi-Club)',
+            club_list: ['RCPM', 'Club Elite', 'SN Versailles'],
+            seats: [
+              { crew_member_id: 'crew1', position: 1, type: 'rower' },
+              { crew_member_id: 'crew2', position: 2, type: 'rower' }
+            ]
+          }
+        ],
+        crew_members: [
+          { crew_member_id: 'crew1', first_name: 'John', last_name: 'Doe' },
+          { crew_member_id: 'crew2', first_name: 'Jane', last_name: 'Smith' }
+        ],
+        team_managers: []
+      }
+    }
+
+    const races = [
+      { race_id: 'race1', display_order: 1, distance: 42, short_name: 'MW4X+', name: 'Master Women 4X+' }
+    ]
+    const eligibleBoats = filterEligibleBoats(dataWithMultiClub.data.boats)
+    const { raceAssignments, boatAssignments } = assignRaceAndBowNumbers(races, eligibleBoats, config)
+
+    const result = generateCrewMemberList(dataWithMultiClub, boatAssignments, raceAssignments, 'fr')
+
+    expect(result[0]['Club']).toBe('RCPM (Multi-Club)')
+    expect(result[1]['Club']).toBe('RCPM (Multi-Club)')
+  })
+
+  it('should display boat_club_display in English locale', () => {
+    const dataWithClubDisplay = {
+      data: {
+        boats: [
+          {
+            boat_registration_id: 'boat1',
+            race_id: 'race1',
+            registration_status: 'complete',
+            forfait: false,
+            team_manager_id: 'user1',
+            boat_club_display: 'RCPM (Multi-Club)',
+            seats: [
+              { crew_member_id: 'crew1', position: 1, type: 'rower' }
+            ]
+          }
+        ],
+        crew_members: [
+          { crew_member_id: 'crew1', first_name: 'John', last_name: 'Doe' }
+        ],
+        team_managers: []
+      }
+    }
+
+    const races = [
+      { race_id: 'race1', display_order: 1, distance: 42, short_name: 'MW4X+', name: 'Master Women 4X+' }
+    ]
+    const eligibleBoats = filterEligibleBoats(dataWithClubDisplay.data.boats)
+    const { raceAssignments, boatAssignments } = assignRaceAndBowNumbers(races, eligibleBoats, config)
+
+    const result = generateCrewMemberList(dataWithClubDisplay, boatAssignments, raceAssignments, 'en')
+
+    // "Multi-Club" works in both languages - no translation needed
+    expect(result[0]['Club']).toBe('RCPM (Multi-Club)')
+  })
+
+  it('should use boat_club_display for external crew', () => {
+    const dataWithExternalCrew = {
+      data: {
+        boats: [
+          {
+            boat_registration_id: 'boat1',
+            race_id: 'race1',
+            registration_status: 'complete',
+            forfait: false,
+            team_manager_id: 'user1',
+            boat_club_display: 'RCPM (Club Elite)',
+            club_list: ['Club Elite'],
+            seats: [
+              { crew_member_id: 'crew1', position: 1, type: 'rower' }
+            ]
+          }
+        ],
+        crew_members: [
+          { crew_member_id: 'crew1', first_name: 'John', last_name: 'Doe' }
+        ],
+        team_managers: []
+      }
+    }
+
+    const races = [
+      { race_id: 'race1', display_order: 1, distance: 42, short_name: 'MW4X+', name: 'Master Women 4X+' }
+    ]
+    const eligibleBoats = filterEligibleBoats(dataWithExternalCrew.data.boats)
+    const { raceAssignments, boatAssignments } = assignRaceAndBowNumbers(races, eligibleBoats, config)
+
+    const result = generateCrewMemberList(dataWithExternalCrew, boatAssignments, raceAssignments, 'fr')
+
+    expect(result[0]['Club']).toBe('RCPM (Club Elite)')
+  })
 })
 
 describe('generateRaceSchedule', () => {
