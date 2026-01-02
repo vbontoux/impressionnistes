@@ -31,6 +31,8 @@ The CrewTimer export generates an Excel file compatible with [CrewTimer.com](htt
 | Race Info | Race type | `Head` |
 | Status | Registration status (empty) | |
 | Age | Average age of crew members | 35 |
+| Handicap | Handicap value (reserved for future use) | (empty) |
+| Note | List of clubs in the crew | `RCPM, Club Elite, SN Versailles` |
 
 ### Race Timing
 
@@ -245,6 +247,11 @@ Average age is calculated by the backend in the `crew_composition` object:
 - [Project Structure](./project-structure.md)
 
 ## Change History
+
+### 2026-01-02: Additional Export Columns
+- Added Handicap column (empty, reserved for future use)
+- Added Note column containing comma-separated list of all clubs in the crew
+- Note column uses the `club_list` field from boat data, which includes all unique clubs from crew members
 
 ### 2024-12-27: Boat Ordering Within Races
 - Added sorting of boats within each race by average age (oldest first)

@@ -235,6 +235,10 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
     const seats = boat.seats || []
     const strokeName = getStrokeSeatName(seats, crewMembersDict)
     
+    // Get club list for Note column (comma-separated)
+    const clubList = boat.club_list || []
+    const noteValue = clubList.join(', ')
+    
     // Build row
     const row = {
       'Event Time': eventTime,
@@ -247,7 +251,9 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
       'Bow': assignment.bowNumber,
       'Race Info': 'Head',
       'Status': '',
-      'Age': avgAge
+      'Age': avgAge,
+      'Handicap': '',
+      'Note': noteValue
     }
     
     crewTimerData.push(row)

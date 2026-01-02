@@ -66,10 +66,10 @@ describe('CrewTimer Formatter', () => {
             { race_id: 'M2', name: 'Marathon Race 2', distance: 42, event_type: '42km', boat_type: '4+', display_order: 2 }
           ],
           boats: [
-            { boat_registration_id: 'b1', race_id: 'SM1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 25 } },
-            { boat_registration_id: 'b2', race_id: 'M1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 30 } },
-            { boat_registration_id: 'b3', race_id: 'SM2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 28 } },
-            { boat_registration_id: 'b4', race_id: 'M2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 35 } }
+            { boat_registration_id: 'b1', race_id: 'SM1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 25 }, boat_club_display: 'Club A' },
+            { boat_registration_id: 'b2', race_id: 'M1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 30 }, boat_club_display: 'Club B' },
+            { boat_registration_id: 'b3', race_id: 'SM2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 28 }, boat_club_display: 'Club C' },
+            { boat_registration_id: 'b4', race_id: 'M2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 35 }, boat_club_display: 'Club D' }
           ],
           crew_members: [],
           team_managers: []
@@ -105,11 +105,11 @@ describe('CrewTimer Formatter', () => {
             { race_id: 'R2', name: 'Race 2', distance: 21, event_type: '21km', boat_type: '8+' }
           ],
           boats: [
-            { boat_registration_id: 'b1', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 25 } },
-            { boat_registration_id: 'b2', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 30 } },
-            { boat_registration_id: 'b3', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 28 } },
-            { boat_registration_id: 'b4', race_id: 'R2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 35 } },
-            { boat_registration_id: 'b5', race_id: 'R2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 32 } }
+            { boat_registration_id: 'b1', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 25 }, boat_club_display: 'Club A' },
+            { boat_registration_id: 'b2', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 30 }, boat_club_display: 'Club B' },
+            { boat_registration_id: 'b3', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 28 }, boat_club_display: 'Club C' },
+            { boat_registration_id: 'b4', race_id: 'R2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 35 }, boat_club_display: 'Club D' },
+            { boat_registration_id: 'b5', race_id: 'R2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 32 }, boat_club_display: 'Club E' }
           ],
           crew_members: [],
           team_managers: []
@@ -291,6 +291,8 @@ describe('CrewTimer Formatter', () => {
               registration_status: 'complete', 
               forfait: false,
               team_manager_id: 'tm1',
+              boat_club_display: 'RCPM',
+              club_list: ['RCPM'],
               crew_composition: {
                 avg_age: 35.0,
                 gender_category: 'men',
@@ -306,6 +308,8 @@ describe('CrewTimer Formatter', () => {
               registration_status: 'paid', 
               forfait: false,
               team_manager_id: 'tm2',
+              boat_club_display: 'Club Elite',
+              club_list: ['Club Elite'],
               crew_composition: {
                 avg_age: 16.25,
                 gender_category: 'women',
@@ -352,6 +356,192 @@ describe('CrewTimer Formatter', () => {
       expect(result[1].Stroke).toBe('Wilson');
       expect(result[0].Age).toBe(35);
       expect(result[1].Age).toBe(16);
+      expect(result[0].Handicap).toBe('');
+      expect(result[0].Note).toBe('RCPM');
+      expect(result[1].Handicap).toBe('');
+      expect(result[1].Note).toBe('Club Elite');
+    });
+  });
+
+  describe('Club list in Note column', () => {
+    test('should display single club in Note column', () => {
+      const testData = {
+        success: true,
+        data: {
+          config: { 
+            competition_date: '2025-05-01',
+            marathon_start_time: '07:45',
+            semi_marathon_start_time: '09:00',
+            semi_marathon_interval_seconds: 30,
+            marathon_bow_start: 1,
+            semi_marathon_bow_start: 41
+          },
+          races: [
+            { race_id: 'R1', name: 'Test Race', distance: 21, event_type: '21km', boat_type: '4+' }
+          ],
+          boats: [
+            { 
+              boat_registration_id: 'b1', 
+              race_id: 'R1', 
+              registration_status: 'complete', 
+              forfait: false, 
+              seats: [], 
+              crew_composition: { avg_age: 25 },
+              club_list: ['RCPM']
+            }
+          ],
+          crew_members: [],
+          team_managers: []
+        }
+      };
+
+      const result = formatRacesToCrewTimer(testData);
+      
+      expect(result.length).toBe(1);
+      expect(result[0].Note).toBe('RCPM');
+    });
+
+    test('should display multiple clubs comma-separated in Note column', () => {
+      const testData = {
+        success: true,
+        data: {
+          config: { 
+            competition_date: '2025-05-01',
+            marathon_start_time: '07:45',
+            semi_marathon_start_time: '09:00',
+            semi_marathon_interval_seconds: 30,
+            marathon_bow_start: 1,
+            semi_marathon_bow_start: 41
+          },
+          races: [
+            { race_id: 'R1', name: 'Test Race', distance: 21, event_type: '21km', boat_type: '4+' }
+          ],
+          boats: [
+            { 
+              boat_registration_id: 'b1', 
+              race_id: 'R1', 
+              registration_status: 'complete', 
+              forfait: false, 
+              seats: [], 
+              crew_composition: { avg_age: 25 },
+              club_list: ['Club Elite', 'RCPM', 'SN Versailles']
+            }
+          ],
+          crew_members: [],
+          team_managers: []
+        }
+      };
+
+      const result = formatRacesToCrewTimer(testData);
+      
+      expect(result.length).toBe(1);
+      expect(result[0].Note).toBe('Club Elite, RCPM, SN Versailles');
+    });
+
+    test('should display empty string when club_list is missing', () => {
+      const testData = {
+        success: true,
+        data: {
+          config: { 
+            competition_date: '2025-05-01',
+            marathon_start_time: '07:45',
+            semi_marathon_start_time: '09:00',
+            semi_marathon_interval_seconds: 30,
+            marathon_bow_start: 1,
+            semi_marathon_bow_start: 41
+          },
+          races: [
+            { race_id: 'R1', name: 'Test Race', distance: 21, event_type: '21km', boat_type: '4+' }
+          ],
+          boats: [
+            { 
+              boat_registration_id: 'b1', 
+              race_id: 'R1', 
+              registration_status: 'complete', 
+              forfait: false, 
+              seats: [], 
+              crew_composition: { avg_age: 25 }
+            }
+          ],
+          crew_members: [],
+          team_managers: []
+        }
+      };
+
+      const result = formatRacesToCrewTimer(testData);
+      
+      expect(result.length).toBe(1);
+      expect(result[0].Note).toBe('');
+    });
+
+    test('should display empty string when club_list is empty array', () => {
+      const testData = {
+        success: true,
+        data: {
+          config: { 
+            competition_date: '2025-05-01',
+            marathon_start_time: '07:45',
+            semi_marathon_start_time: '09:00',
+            semi_marathon_interval_seconds: 30,
+            marathon_bow_start: 1,
+            semi_marathon_bow_start: 41
+          },
+          races: [
+            { race_id: 'R1', name: 'Test Race', distance: 21, event_type: '21km', boat_type: '4+' }
+          ],
+          boats: [
+            { 
+              boat_registration_id: 'b1', 
+              race_id: 'R1', 
+              registration_status: 'complete', 
+              forfait: false, 
+              seats: [], 
+              crew_composition: { avg_age: 25 },
+              club_list: []
+            }
+          ],
+          crew_members: [],
+          team_managers: []
+        }
+      };
+
+      const result = formatRacesToCrewTimer(testData);
+      
+      expect(result.length).toBe(1);
+      expect(result[0].Note).toBe('');
+    });
+  });
+
+  describe('Handicap column', () => {
+    test('should have empty Handicap column for all boats', () => {
+      const testData = {
+        success: true,
+        data: {
+          config: { 
+            competition_date: '2025-05-01',
+            marathon_start_time: '07:45',
+            semi_marathon_start_time: '09:00',
+            semi_marathon_interval_seconds: 30,
+            marathon_bow_start: 1,
+            semi_marathon_bow_start: 41
+          },
+          races: [
+            { race_id: 'R1', name: 'Test Race', distance: 21, event_type: '21km', boat_type: '4+' }
+          ],
+          boats: [
+            { boat_registration_id: 'b1', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 25 } },
+            { boat_registration_id: 'b2', race_id: 'R1', registration_status: 'paid', forfait: false, seats: [], crew_composition: { avg_age: 30 } }
+          ],
+          crew_members: [],
+          team_managers: []
+        }
+      };
+
+      const result = formatRacesToCrewTimer(testData);
+      
+      expect(result.length).toBe(2);
+      expect(result[0].Handicap).toBe('');
+      expect(result[1].Handicap).toBe('');
     });
   });
 
