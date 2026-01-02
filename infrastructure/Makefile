@@ -67,6 +67,7 @@ help:
 	@echo "  make cognito-create-admin EMAIL=user@example.com - Create admin user"
 	@echo "  make cognito-list-users                          - List all Cognito users"
 	@echo "  make cognito-add-to-group EMAIL=user@example.com GROUP=admins - Add user to group"
+	@echo "  make delete-team-manager EMAIL=user@example.com  - Delete team manager and all data (⚠️  destructive!)"
 	@echo ""
 	@echo "Secrets Management:"
 	@echo "  make secrets-list                                    - List all secrets"
@@ -881,6 +882,33 @@ cognito-add-to-group:
 	echo ""; \
 	echo "✓ User added to group successfully!"
 	@echo "=========================================="
+
+
+delete-team-manager:
+	@echo "=========================================="
+	@echo "Delete Team Manager Account"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@if [ -z "$(EMAIL)" ]; then \
+		echo "❌ Error: EMAIL parameter required"; \
+		echo "Usage: make delete-team-manager EMAIL=user@example.com"; \
+		echo "       make delete-team-manager EMAIL=user@example.com ENV=prod"; \
+		echo ""; \
+		echo "⚠️  This will delete:"; \
+		echo "  - Cognito user account"; \
+		echo "  - User profile in DynamoDB"; \
+		echo "  - All crew members"; \
+		echo "  - All boat registrations"; \
+		echo "  - All consent records"; \
+		echo "  - All rental requests"; \
+		exit 1; \
+	fi
+	@echo "⚠️  WARNING: This will permanently delete $(EMAIL) and ALL related data!"
+	@echo ""
+	@. venv/bin/activate && \
+		python3 scripts/delete_team_manager.py $(EMAIL) --environment $(ENV)
+	@echo ""
 
 
 db-migrate:

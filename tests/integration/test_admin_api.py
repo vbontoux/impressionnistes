@@ -571,7 +571,7 @@ def test_export_crew_members_json_structure(dynamodb_table, mock_admin_event, mo
     assert member['last_name'] == 'Smith'
     assert member['gender'] == 'F'
     assert member['date_of_birth'] == '1990-01-15'
-    assert member['age'] == 35
+    assert member['age'] == 36  # 2026 - 1990 = 36
     assert member['license_number'] == 'LIC001'
     assert member['club_affiliation'] == 'Test Club'
 
@@ -1436,7 +1436,7 @@ def test_export_races_json_converts_decimals(dynamodb_table, mock_admin_event, m
     # Verify Decimal values are converted to numbers (not strings)
     crew = body['data']['crew_members'][0]
     assert isinstance(crew['age'], (int, float))
-    assert crew['age'] == 35
+    assert crew['age'] == 36  # 2026 - 1990 = 36
     
     boat = body['data']['boats'][0]
     crew_comp = boat['crew_composition']

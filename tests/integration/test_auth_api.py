@@ -11,7 +11,235 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 # Skip all auth tests for now - they require complex Cognito mocking
-pytestmark = pytest.mark.skip(reason="Auth tests require Cognito mocking - to be implemented")
+# NOTE: Consent validation tests below are NOT skipped as they test validation logic
+
+
+# Consent validation tests (not skipped - these test the validation logic)
+@pytest.mark.parametrize("privacy_consent,terms_consent,should_fail", [
+    (False, False, True),   # Both missing
+    (True, False, True),    # Terms missing
+    (False, True, True),    # Privacy missing
+    (True, True, False),    # Both provided - should succeed
+])
+def test_register_consent_validation(dynamodb_table, mock_api_gateway_event, mock_lambda_context, privacy_consent, terms_consent, should_fail):
+    """Test that registration validates consent fields correctly"""
+    from auth.register import lambda_handler
+    
+    # Mock Cognito client
+    with patch('auth.register.cognito') as mock_cognito:
+        # Mock successful Cognito sign_up operation
+        mock_cognito.sign_up.return_value = {
+            'UserSub': 'test-user-sub-123',
+            'UserConfirmed': False
+        }
+        mock_cognito.admin_add_user_to_group.return_value = {}
+        
+        # Set required environment variables
+        with patch.dict('os.environ', {
+            'USER_POOL_ID': 'test-pool-id',
+            'USER_POOL_CLIENT_ID': 'test-client-id'
+        }):
+            # Create registration event
+            event = mock_api_gateway_event(
+                http_method='POST',
+                path='/auth/register',
+                body=json.dumps({
+                    'email': 'newuser@example.com',
+                    'password': 'SecurePass123!',
+                    'first_name': 'John',
+                    'last_name': 'Doe',
+                    'club_affiliation': 'RCPM',
+                    'mobile_number': '+33612345678',
+                    'privacy_consent': privacy_consent,
+                    'terms_consent': terms_consent,
+                    'consent_version': '1.0'
+                })
+            )
+            
+            # Call Lambda handler
+            response = lambda_handler(event, mock_lambda_context)
+            
+            # Assert response
+            if should_fail:
+                assert response['statusCode'] == 400
+                body = json.loads(response['body'])
+                assert body['success'] is False
+                assert 'consent' in body['error']['details']
+            else:
+                assert response['statusCode'] == 201
+                body = json.loads(response['body'])
+                assert body['success'] is True
+
+
+def test_register_without_consent_fields(dynamodb_table, mock_api_gateway_event, mock_lambda_context):
+    """Test that registration fails when consent fields are missing entirely"""
+    from auth.register import lambda_handler
+    
+    # Create registration event without consent fields
+    event = mock_api_gateway_event(
+        http_method='POST',
+        path='/auth/register',
+        body=json.dumps({
+            'email': 'newuser@example.com',
+            'password': 'SecurePass123!',
+            'first_name': 'John',
+            'last_name': 'Doe',
+            'club_affiliation': 'RCPM',
+            'mobile_number': '+33612345678'
+            # No consent fields
+        })
+    )
+    
+    # Call Lambda handler
+    response = lambda_handler(event, mock_lambda_context)
+    
+    # Assert response
+    assert response['statusCode'] == 400
+    body = json.loads(response['body'])
+    assert body['success'] is False
+    assert 'consent' in body['error']['details']
+
+
+def test_register_stores_consent_records(dynamodb_table, mock_api_gateway_event, mock_lambda_context):
+    """Test that registration stores consent records in DynamoDB"""
+    from auth.register import lambda_handler
+    
+    # Mock Cognito client
+    with patch('auth.register.cognito') as mock_cognito:
+        user_sub = 'test-user-sub-456'
+        
+        # Mock successful Cognito sign_up operation
+        mock_cognito.sign_up.return_value = {
+            'UserSub': user_sub,
+            'UserConfirmed': False
+        }
+        mock_cognito.admin_add_user_to_group.return_value = {}
+        
+        # Set required environment variables
+        with patch.dict('os.environ', {
+            'USER_POOL_ID': 'test-pool-id',
+            'USER_POOL_CLIENT_ID': 'test-client-id'
+        }):
+            # Create registration event with consent
+            event = mock_api_gateway_event(
+                http_method='POST',
+                path='/auth/register',
+                body=json.dumps({
+                    'email': 'newuser@example.com',
+                    'password': 'SecurePass123!',
+                    'first_name': 'John',
+                    'last_name': 'Doe',
+                    'club_affiliation': 'RCPM',
+                    'mobile_number': '+33612345678',
+                    'privacy_consent': True,
+                    'terms_consent': True,
+                    'consent_version': '1.0'
+                })
+            )
+            
+            # Add IP address to request context
+            event['requestContext']['identity'] = {
+                'sourceIp': '192.168.1.1'
+            }
+            
+            # Call Lambda handler
+            response = lambda_handler(event, mock_lambda_context)
+            
+            # Assert response
+            assert response['statusCode'] == 201
+            body = json.loads(response['body'])
+            assert body['success'] is True
+            
+            # Query consent records from DynamoDB
+            from boto3.dynamodb.conditions import Key
+            consent_records = dynamodb_table.query(
+                KeyConditionExpression=Key('PK').eq(f'USER#{user_sub}') & Key('SK').begins_with('CONSENT#')
+            )
+            
+            # Assert consent records exist
+            items = consent_records['Items']
+            assert len(items) == 2  # Privacy and Terms consents
+            
+            # Check privacy consent
+            privacy_consent = next((item for item in items if item['consent_type'] == 'privacy_policy'), None)
+            assert privacy_consent is not None
+            assert privacy_consent['consented'] is True
+            assert privacy_consent['consent_version'] == '1.0'
+            assert privacy_consent['ip_address'] == '192.168.1.1'
+            assert 'consented_at' in privacy_consent
+            
+            # Check terms consent
+            terms_consent = next((item for item in items if item['consent_type'] == 'terms_conditions'), None)
+            assert terms_consent is not None
+            assert terms_consent['consented'] is True
+            assert terms_consent['consent_version'] == '1.0'
+            assert terms_consent['ip_address'] == '192.168.1.1'
+            assert 'consented_at' in terms_consent
+
+
+def test_register_captures_ip_address(dynamodb_table, mock_api_gateway_event, mock_lambda_context):
+    """Test that registration captures IP address from request context"""
+    from auth.register import lambda_handler
+    
+    # Mock Cognito client
+    with patch('auth.register.cognito') as mock_cognito:
+        user_sub = 'test-user-sub-789'
+        
+        # Mock successful Cognito sign_up operation
+        mock_cognito.sign_up.return_value = {
+            'UserSub': user_sub,
+            'UserConfirmed': False
+        }
+        mock_cognito.admin_add_user_to_group.return_value = {}
+        
+        # Set required environment variables
+        with patch.dict('os.environ', {
+            'USER_POOL_ID': 'test-pool-id',
+            'USER_POOL_CLIENT_ID': 'test-client-id'
+        }):
+            # Create registration event with consent
+            event = mock_api_gateway_event(
+                http_method='POST',
+                path='/auth/register',
+                body=json.dumps({
+                    'email': 'newuser@example.com',
+                    'password': 'SecurePass123!',
+                    'first_name': 'John',
+                    'last_name': 'Doe',
+                    'club_affiliation': 'RCPM',
+                    'mobile_number': '+33612345678',
+                    'privacy_consent': True,
+                    'terms_consent': True,
+                    'consent_version': '1.0'
+                })
+            )
+            
+            # Add specific IP address to request context
+            test_ip = '203.0.113.42'
+            event['requestContext']['identity'] = {
+                'sourceIp': test_ip
+            }
+            
+            # Call Lambda handler
+            response = lambda_handler(event, mock_lambda_context)
+            
+            # Assert response
+            assert response['statusCode'] == 201
+            
+            # Query consent records from DynamoDB
+            from boto3.dynamodb.conditions import Key
+            consent_records = dynamodb_table.query(
+                KeyConditionExpression=Key('PK').eq(f'USER#{user_sub}') & Key('SK').begins_with('CONSENT#')
+            )
+            
+            # Assert IP address is captured in both consent records
+            items = consent_records['Items']
+            for item in items:
+                assert item['ip_address'] == test_ip
+
+
+# Skip remaining auth tests - they require complex Cognito mocking
+# NOTE: Individual tests below are marked with @pytest.mark.skip
 
 
 @pytest.fixture
@@ -41,6 +269,7 @@ def mock_cognito_client():
         yield cognito_mock
 
 
+@pytest.mark.skip(reason="Auth tests require Cognito mocking - to be implemented")
 def test_register_new_user(dynamodb_table, mock_api_gateway_event, mock_lambda_context, mock_cognito_client):
     """Test user registration"""
     from auth.register import lambda_handler
@@ -69,6 +298,7 @@ def test_register_new_user(dynamodb_table, mock_api_gateway_event, mock_lambda_c
     assert 'user_id' in body['data'] or 'message' in body['data']
 
 
+@pytest.mark.skip(reason="Auth tests require Cognito mocking - to be implemented")
 def test_get_profile(dynamodb_table, mock_api_gateway_event, mock_lambda_context, test_team_manager_id):
     """Test getting user profile"""
     # Seed user profile data
@@ -103,6 +333,7 @@ def test_get_profile(dynamodb_table, mock_api_gateway_event, mock_lambda_context
     assert body['data']['given_name'] == 'Test'
 
 
+@pytest.mark.skip(reason="Auth tests require Cognito mocking - to be implemented")
 def test_update_profile(dynamodb_table, mock_api_gateway_event, mock_lambda_context, test_team_manager_id):
     """Test updating user profile"""
     # Seed existing profile
@@ -142,6 +373,7 @@ def test_update_profile(dynamodb_table, mock_api_gateway_event, mock_lambda_cont
     assert body['data']['family_name'] == 'Name'
 
 
+@pytest.mark.skip(reason="Auth tests require Cognito mocking - to be implemented")
 def test_forgot_password(mock_api_gateway_event, mock_lambda_context, mock_cognito_client):
     """Test forgot password request"""
     from auth.forgot_password import lambda_handler
@@ -165,6 +397,7 @@ def test_forgot_password(mock_api_gateway_event, mock_lambda_context, mock_cogni
     assert body['success'] is True
 
 
+@pytest.mark.skip(reason="Auth tests require Cognito mocking - to be implemented")
 def test_confirm_password_reset(mock_api_gateway_event, mock_lambda_context, mock_cognito_client):
     """Test confirming password reset with code"""
     from auth.confirm_password_reset import lambda_handler

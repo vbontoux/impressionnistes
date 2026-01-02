@@ -158,6 +158,41 @@
         <small class="hint">{{ $t('auth.register.mobileHint') }}</small>
       </div>
 
+      <!-- Consent Checkboxes -->
+      <div class="consent-group">
+        <div class="consent-item">
+          <input
+            id="privacyConsent"
+            v-model="form.privacy_consent"
+            type="checkbox"
+            required
+            :disabled="loading"
+          />
+          <label for="privacyConsent" class="consent-label">
+            {{ $t('auth.register.privacyConsent') }}
+            <router-link to="/privacy-policy" target="_blank" class="consent-link">
+              {{ $t('legal.privacyPolicy') }}
+            </router-link>
+          </label>
+        </div>
+        
+        <div class="consent-item">
+          <input
+            id="termsConsent"
+            v-model="form.terms_consent"
+            type="checkbox"
+            required
+            :disabled="loading"
+          />
+          <label for="termsConsent" class="consent-label">
+            {{ $t('auth.register.termsConsent') }}
+            <router-link to="/terms-conditions" target="_blank" class="consent-link">
+              {{ $t('legal.termsConditions') }}
+            </router-link>
+          </label>
+        </div>
+      </div>
+
       <!-- Error Message -->
       <div v-if="errorMessage" class="alert alert-error">
         {{ errorMessage }}
@@ -201,6 +236,9 @@ const form = reactive({
   last_name: '',
   club_affiliation: '',
   mobile_number: '',
+  privacy_consent: false,
+  terms_consent: false,
+  consent_version: '1.0'
 });
 
 const errors = reactive({});
@@ -357,6 +395,12 @@ const handleSubmit = async () => {
   // Validate all fields
   validateEmail();
   validatePassword();
+
+  // Validate consent
+  if (!form.privacy_consent || !form.terms_consent) {
+    errorMessage.value = t('auth.register.consentRequired');
+    return;
+  }
 
   if (Object.keys(errors).length > 0) {
     return;
@@ -634,5 +678,48 @@ a:hover {
   border: 1px solid #ddd;
   border-top: none;
   border-radius: 0 0 4px 4px;
+}
+
+.consent-group {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+
+.consent-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.consent-item:last-child {
+  margin-bottom: 0;
+}
+
+.consent-item input[type="checkbox"] {
+  width: auto;
+  margin-right: 0.75rem;
+  margin-top: 0.25rem;
+  flex-shrink: 0;
+}
+
+.consent-label {
+  margin-bottom: 0;
+  font-weight: normal;
+  font-size: 0.9rem;
+  color: #333;
+  line-height: 1.5;
+}
+
+.consent-link {
+  color: #4CAF50;
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.consent-link:hover {
+  color: #45a049;
 }
 </style>

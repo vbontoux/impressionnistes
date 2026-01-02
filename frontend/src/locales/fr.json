@@ -292,7 +292,10 @@
       "haveAccount": "Vous avez déjà un compte ?",
       "loginLink": "Se connecter ici",
       "success": "Inscription réussie ! Veuillez vérifier votre email pour activer votre compte.",
-      "error": "L'inscription a échoué. Veuillez réessayer."
+      "error": "L'inscription a échoué. Veuillez réessayer.",
+      "privacyConsent": "J'ai lu et j'accepte la",
+      "termsConsent": "J'ai lu et j'accepte les",
+      "consentRequired": "Vous devez accepter la Politique de confidentialité et les Conditions générales pour vous inscrire"
     },
     "validation": {
       "invalidEmail": "Format d'email invalide",
@@ -320,7 +323,8 @@
       "invalidCode": "Code de vérification invalide",
       "expiredCode": "Le code de vérification a expiré. Veuillez en demander un nouveau.",
       "resendSuccess": "Code de vérification envoyé ! Vérifiez votre email.",
-      "resendError": "Échec de l'envoi du code. Veuillez réessayer."
+      "resendError": "Échec de l'envoi du code. Veuillez réessayer.",
+      "alreadyConfirmed": "Votre email est déjà vérifié ! Redirection vers la connexion..."
     },
     "callback": {
       "processing": "Connexion en cours..."
@@ -856,6 +860,28 @@
     "loadError": "Erreur lors du chargement du profil",
     "saveSuccess": "Profil mis à jour avec succès !",
     "saveError": "Erreur lors de la sauvegarde du profil"
+  },
+  "legal": {
+    "privacyPolicy": "Politique de confidentialité",
+    "termsConditions": "Conditions générales",
+    "cookiePreferences": "Préférences des cookies",
+    "lastUpdated": "Dernière mise à jour",
+    "acceptAll": "Tout accepter",
+    "rejectAll": "Tout refuser",
+    "customize": "Personnaliser",
+    "savePreferences": "Enregistrer les préférences",
+    "essentialCookies": "Cookies essentiels",
+    "analyticsCookies": "Cookies analytiques",
+    "marketingCookies": "Cookies marketing",
+    "essentialCookiesDesc": "Nécessaires au bon fonctionnement du site",
+    "analyticsCookiesDesc": "Nous aident à comprendre comment les visiteurs utilisent notre site",
+    "marketingCookiesDesc": "Utilisés pour diffuser des publicités personnalisées",
+    "cookieBannerText": "Nous utilisons des cookies pour améliorer votre expérience. Les cookies essentiels sont requis pour le fonctionnement du site.",
+    "learnMore": "En savoir plus",
+    "cookieBannerTitle": "Consentement aux cookies",
+    "cookiePreferencesTitle": "Gérer les préférences des cookies",
+    "cookiePreferencesDescription": "Vous pouvez personnaliser les cookies que nous utilisons sur ce site. Les cookies essentiels sont toujours activés car ils sont nécessaires au fonctionnement du site.",
+    "alwaysEnabled": "Toujours activé"
   },
   "races": {
     "1X SENIOR WOMAN": "1X SENIOR FEMME",

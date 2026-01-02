@@ -59,10 +59,27 @@ impressionnistes/
 │
 ├── frontend/                 # Vue.js 3 frontend (future)
 │   └── src/
+│       ├── components/
+│       │   ├── layout/
+│       │   │   └── Footer.vue          # Footer with legal links
+│       │   └── legal/
+│       │       ├── CookieBanner.vue    # Cookie consent banner
+│       │       └── CookiePreferences.vue # Cookie preferences modal
+│       ├── views/
+│       │   └── legal/
+│       │       ├── PrivacyPolicy.vue   # Privacy Policy page
+│       │       └── TermsConditions.vue # Terms & Conditions page
+│       └── locales/
+│           ├── en.json                 # English translations (includes legal)
+│           └── fr.json                 # French translations (includes legal)
 │
 └── .kiro/                   # Kiro spec files
     └── specs/
-        └── impressionnistes-registration-system/
+        ├── impressionnistes-registration-system/
+        │   ├── requirements.md
+        │   ├── design.md
+        │   └── tasks.md
+        └── gdpr-compliance/
             ├── requirements.md
             ├── design.md
             └── tasks.md
@@ -150,3 +167,42 @@ Lambda functions are tested via integration tests after deployment.
 - **Lambda Layer**: `functions/shared/` becomes a Lambda layer
 - **Function Code**: Function handlers in `functions/<category>/`
 - **Clean Structure**: No redundant `backend/` directory
+
+## GDPR Compliance
+
+The system includes comprehensive GDPR compliance features:
+
+### Legal Pages
+- **Privacy Policy**: `/privacy-policy` - Accessible from all pages
+- **Terms & Conditions**: `/terms-conditions` - Accessible from all pages
+- Both pages are fully bilingual (French/English)
+
+### Cookie Consent
+- **Cookie Banner**: Appears on first visit, obtains consent before non-essential cookies
+- **Cookie Preferences**: Modal for customizing cookie preferences
+- Preferences stored in browser localStorage
+
+### Registration Consent
+- Users must explicitly consent to Privacy Policy and Terms & Conditions
+- Consent validated on both frontend and backend
+- Consent records stored in DynamoDB with timestamp and IP address
+
+### Consent Storage Schema
+```
+DynamoDB Record:
+PK: USER#{user_id}
+SK: CONSENT#{consent_type}#{timestamp}
+
+Attributes:
+- consent_type: 'privacy_policy' | 'terms_conditions'
+- consent_version: '1.0'
+- consented_at: ISO timestamp
+- ip_address: Optional, for audit trail
+```
+
+### Documentation
+See [GDPR Compliance Guide](../guides/GDPR_COMPLIANCE.md) for complete documentation.
+
+### Future Phases
+- Phase 2: Data export and account deletion (Right to Access, Right to Erasure)
+- Phase 3: Data retention enforcement and breach notification procedures

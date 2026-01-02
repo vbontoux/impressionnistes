@@ -292,7 +292,10 @@
       "haveAccount": "Already have an account?",
       "loginLink": "Login here",
       "success": "Registration successful! Please check your email to verify your account.",
-      "error": "Registration failed. Please try again."
+      "error": "Registration failed. Please try again.",
+      "privacyConsent": "I have read and accept the",
+      "termsConsent": "I have read and accept the",
+      "consentRequired": "You must accept the Privacy Policy and Terms & Conditions to register"
     },
     "validation": {
       "invalidEmail": "Invalid email format",
@@ -316,6 +319,7 @@
       "submit": "Verify",
       "resend": "Resend Code",
       "success": "Email verified successfully! Redirecting to login...",
+      "alreadyConfirmed": "Your email is already verified! Redirecting to login...",
       "error": "Verification failed. Please try again.",
       "invalidCode": "Invalid verification code",
       "expiredCode": "Verification code has expired. Please request a new one.",
@@ -856,5 +860,27 @@
     "loadError": "Error loading profile",
     "saveSuccess": "Profile updated successfully!",
     "saveError": "Error saving profile"
+  },
+  "legal": {
+    "privacyPolicy": "Privacy Policy",
+    "termsConditions": "Terms & Conditions",
+    "cookiePreferences": "Cookie Preferences",
+    "lastUpdated": "Last updated",
+    "acceptAll": "Accept All",
+    "rejectAll": "Reject All",
+    "customize": "Customize",
+    "savePreferences": "Save Preferences",
+    "essentialCookies": "Essential Cookies",
+    "analyticsCookies": "Analytics Cookies",
+    "marketingCookies": "Marketing Cookies",
+    "essentialCookiesDesc": "Required for the website to function properly",
+    "analyticsCookiesDesc": "Help us understand how visitors use our website",
+    "marketingCookiesDesc": "Used to deliver personalized advertisements",
+    "cookieBannerText": "We use cookies to improve your experience. Essential cookies are required for the site to work.",
+    "learnMore": "Learn more",
+    "cookieBannerTitle": "Cookie Consent",
+    "cookiePreferencesTitle": "Manage Cookie Preferences",
+    "cookiePreferencesDescription": "You can customize which cookies we use on this website. Essential cookies are always enabled as they are necessary for the site to function.",
+    "alwaysEnabled": "Always enabled"
   }
 }

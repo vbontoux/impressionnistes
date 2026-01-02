@@ -29,9 +29,23 @@ Register a new club manager account.
   "first_name": "John",
   "last_name": "Doe",
   "club_affiliation": "Rowing Club Paris",
-  "mobile_number": "+33612345678"
+  "mobile_number": "+33612345678",
+  "privacy_consent": true,
+  "terms_consent": true,
+  "consent_version": "1.0"
 }
 ```
+
+**Required Fields**:
+- `email`: Valid email address
+- `password`: Minimum 8 characters
+- `first_name`: User's first name
+- `last_name`: User's last name
+- `club_affiliation`: Rowing club name
+- `mobile_number`: Phone number with country code
+- `privacy_consent`: Must be `true` (GDPR requirement)
+- `terms_consent`: Must be `true` (GDPR requirement)
+- `consent_version`: Current version (default: "1.0")
 
 **Response (201 Created)**:
 ```json
@@ -59,9 +73,19 @@ curl -X POST https://your-api-url/dev/auth/register \
     "first_name": "Jean",
     "last_name": "Dupont",
     "club_affiliation": "Test Club",
-    "mobile_number": "+33612345678"
+    "mobile_number": "+33612345678",
+    "privacy_consent": true,
+    "terms_consent": true,
+    "consent_version": "1.0"
   }'
 ```
+
+**Consent Records**:
+Upon successful registration, two consent records are automatically created in DynamoDB:
+- Privacy Policy consent record
+- Terms & Conditions consent record
+
+Both records include timestamp and optional IP address for audit trail. See [GDPR Compliance Guide](../guides/GDPR_COMPLIANCE.md#consent-storage-schema) for details.
 
 ---
 
@@ -304,6 +328,21 @@ Authorization: Bearer eyJraWQiOiJ...
   "error": {
     "code": "CONFLICT",
     "message": "An account with this email already exists"
+  },
+  "timestamp": "2024-03-19T10:30:00Z"
+}
+```
+
+### 400 Bad Request - Missing Consent
+```json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "You must accept the Privacy Policy and Terms & Conditions to register",
+    "details": {
+      "consent": "Consent is required"
+    }
   },
   "timestamp": "2024-03-19T10:30:00Z"
 }

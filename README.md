@@ -35,7 +35,7 @@ The Course des Impressionnistes Registration System enables rowing club managers
 - Single-table DynamoDB design for efficiency
 - Multilingual support (French/English)
 - Custom domains with SSL certificates
-- GDPR compliant data handling
+- **GDPR compliant with Privacy Policy, Terms & Conditions, and Cookie Consent**
 - Comprehensive monitoring and logging
 
 ## 🏗️ Architecture
@@ -85,8 +85,13 @@ The Course des Impressionnistes Registration System enables rowing club managers
 
 - **[API Endpoints](docs/reference/api-endpoints.md)** - Complete API reference
 - **[Auth API](docs/reference/auth-api.md)** - Authentication endpoints
+- **[Consent Schema](docs/reference/consent-schema.md)** - GDPR consent storage schema
 - **[Commands](docs/reference/commands.md)** - CLI commands reference
 - **[Project Structure](docs/reference/project-structure.md)** - Codebase organization
+
+### Compliance & Legal
+
+- **[GDPR Compliance Guide](docs/guides/GDPR_COMPLIANCE.md)** - Privacy Policy, Terms & Conditions, Cookie Consent implementation
 
 ### Component-Specific Docs
 
@@ -208,7 +213,11 @@ make test ARGS="tests/integration/test_crew_member_api.py"  # Run specific test
 - Cognito authentication with MFA support
 - Role-based access control (Club Managers, Admins)
 - Input sanitization and validation
-- GDPR compliance features
+- **GDPR compliance with explicit user consent, Privacy Policy, and Terms & Conditions**
+- **Cookie consent management with user preferences**
+- **Immutable consent audit trail in DynamoDB**
+
+**[→ GDPR Compliance Guide](docs/guides/GDPR_COMPLIANCE.md)**
 
 ## 📊 Monitoring
 

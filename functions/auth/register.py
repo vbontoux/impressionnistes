@@ -57,6 +57,23 @@ def lambda_handler(event, context):
     club_affiliation = body.get('club_affiliation', '').strip()
     mobile_number = body.get('mobile_number', '').strip()
     
+    # Extract consent data
+    privacy_consent = body.get('privacy_consent', False)
+    terms_consent = body.get('terms_consent', False)
+    consent_version = body.get('consent_version', '1.0')
+    
+    # Validate consent (GDPR requirement)
+    if not privacy_consent or not terms_consent:
+        return validation_error({
+            'consent': 'You must accept the Privacy Policy and Terms & Conditions to register'
+        })
+    
+    # Validate that consent values are boolean true (not just truthy)
+    if privacy_consent is not True or terms_consent is not True:
+        return validation_error({
+            'consent': 'Consent must be explicitly provided'
+        })
+    
     # Validate profile data
     profile_data = {
         'email': email,
@@ -84,8 +101,10 @@ def lambda_handler(event, context):
         return internal_error("Authentication service not configured")
     
     try:
-        # Create user in Cognito
+        # Create user in Cognito using standard sign_up API
+        # This automatically sends verification email
         logger.info(f"Creating Cognito user: {email}")
+        
         cognito_response = cognito.sign_up(
             ClientId=os.environ.get('USER_POOL_CLIENT_ID'),
             Username=email,
@@ -102,6 +121,7 @@ def lambda_handler(event, context):
         
         user_sub = cognito_response['UserSub']
         logger.info(f"Cognito user created: {user_sub}")
+        logger.info(f"Verification email sent to: {email}")
         
         # Add user to team_managers group
         try:
@@ -133,6 +153,40 @@ def lambda_handler(event, context):
         
         db.put_item(profile_item)
         logger.info(f"Profile stored in DynamoDB: {user_sub}")
+        
+        # Store consent records (GDPR requirement)
+        timestamp = get_timestamp()
+        ip_address = event.get('requestContext', {}).get('identity', {}).get('sourceIp')
+        
+        # Privacy Policy consent
+        privacy_consent_item = {
+            'PK': f'USER#{user_sub}',
+            'SK': f'CONSENT#PRIVACY#{timestamp}',
+            'user_id': user_sub,
+            'consent_type': 'privacy_policy',
+            'consent_version': consent_version,
+            'consented': True,
+            'consented_at': timestamp,
+            'ip_address': ip_address,
+            'created_at': timestamp
+        }
+        db.put_item(privacy_consent_item)
+        logger.info(f"Privacy Policy consent stored for user: {user_sub}")
+        
+        # Terms & Conditions consent
+        terms_consent_item = {
+            'PK': f'USER#{user_sub}',
+            'SK': f'CONSENT#TERMS#{timestamp}',
+            'user_id': user_sub,
+            'consent_type': 'terms_conditions',
+            'consent_version': consent_version,
+            'consented': True,
+            'consented_at': timestamp,
+            'ip_address': ip_address,
+            'created_at': timestamp
+        }
+        db.put_item(terms_consent_item)
+        logger.info(f"Terms & Conditions consent stored for user: {user_sub}")
         
         # Send Slack notification for new registration
         try:

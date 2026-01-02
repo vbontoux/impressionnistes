@@ -146,10 +146,12 @@ class ApiStack(Stack):
             iam.PolicyStatement(
                 actions=[
                     'cognito-idp:AdminCreateUser',
+                    'cognito-idp:AdminSetUserPassword',
                     'cognito-idp:AdminUpdateUserAttributes',
                     'cognito-idp:AdminAddUserToGroup',
                     'cognito-idp:AdminGetUser',
-                    'cognito-idp:ListUsers'
+                    'cognito-idp:ListUsers',
+                    'cognito-idp:ResendConfirmationCode'
                 ],
                 resources=[self.auth_stack.user_pool.user_pool_arn]
             )

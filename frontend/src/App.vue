@@ -255,12 +255,22 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer" :class="{ 'with-sidebar': authStore.isAuthenticated }">
-      <p>
-        {{ copyrightText }} | 
-        <a :href="`mailto:${contactEmail}`" class="footer-link">{{ $t('footer.contactUs') }}</a>
-      </p>
-    </footer>
+    <Footer 
+      :class="{ 'with-sidebar': authStore.isAuthenticated }"
+      @open-cookie-preferences="showCookiePreferences = true"
+    />
+
+    <!-- Cookie Preferences Modal -->
+    <CookiePreferences 
+      :is-open="showCookiePreferences"
+      @close="showCookiePreferences = false"
+    />
+
+    <!-- Cookie Consent Banner -->
+    <CookieBanner 
+      @customize="showCookiePreferences = true"
+      @consent-changed="handleConsentChanged"
+    />
   </div>
 </template>
 
@@ -273,12 +283,16 @@ import { useAuthStore } from './stores/authStore';
 import { useSessionTimeout } from './composables/useSessionTimeout';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
 import SessionTimeoutWarning from './components/SessionTimeoutWarning.vue';
+import Footer from './components/layout/Footer.vue';
+import CookiePreferences from './components/legal/CookiePreferences.vue';
+import CookieBanner from './components/legal/CookieBanner.vue';
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const sidebarOpen = ref(false);
 const userMenuOpen = ref(false);
+const showCookiePreferences = ref(false);
 
 // Initialize session timeout monitoring
 const sessionTimeout = useSessionTimeout();
@@ -317,6 +331,12 @@ const handleLogout = () => {
   router.push('/login');
   closeSidebar();
   closeUserMenu();
+};
+
+const handleConsentChanged = (consent) => {
+  // Handle cookie consent changes
+  // This can be used to enable/disable analytics or marketing cookies
+  console.log('Cookie consent updated:', consent);
 };
 
 // Click outside directive
@@ -765,30 +785,6 @@ h2 {
   margin-left: 0;
 }
 
-/* Footer */
-.footer {
-  background-color: #2c3e50;
-  color: #ecf0f1;
-  padding: 1.5rem;
-  text-align: center;
-  transition: margin-left 0.3s ease;
-}
-
-.footer.with-sidebar {
-  margin-left: 0;
-}
-
-.footer-link {
-  color: #3498db;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.footer-link:hover {
-  color: #5dade2;
-  text-decoration: underline;
-}
-
 /* Tablet and Desktop */
 @media (min-width: 768px) {
   .top-header {
@@ -817,7 +813,8 @@ h2 {
     margin-left: 280px;
   }
 
-  .footer.with-sidebar {
+  /* Footer with sidebar */
+  .site-footer.with-sidebar {
     margin-left: 280px;
   }
 

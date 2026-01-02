@@ -23,6 +23,8 @@ const AdminBoatInventory = () => import('../views/admin/AdminBoatInventory.vue')
 const AdminCrewMembers = () => import('../views/admin/AdminCrewMembers.vue');
 const AdminBoats = () => import('../views/admin/AdminBoats.vue');
 const AdminDataExport = () => import('../views/admin/AdminDataExport.vue');
+const PrivacyPolicy = () => import('../views/legal/PrivacyPolicy.vue');
+const TermsConditions = () => import('../views/legal/TermsConditions.vue');
 
 const routes = [
   {
@@ -52,6 +54,16 @@ const routes = [
     path: '/callback',
     name: 'Callback',
     component: Callback,
+  },
+  {
+    path: '/privacy-policy',
+    name: 'PrivacyPolicy',
+    component: PrivacyPolicy,
+  },
+  {
+    path: '/terms-conditions',
+    name: 'TermsConditions',
+    component: TermsConditions,
   },
   {
     path: '/dashboard',
