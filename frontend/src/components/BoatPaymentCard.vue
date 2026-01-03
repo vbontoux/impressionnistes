@@ -49,10 +49,11 @@
           </svg>
           {{ getFirstRowerName(boat) }}
         </span>
-        <span v-if="boat.is_multi_club_crew || boat.registration_status === 'free'" class="rcpm-indicator">
+        <!-- RCPM+ badge hidden - club info now shown in club name display -->
+        <!-- <span v-if="boat.is_multi_club_crew || boat.registration_status === 'free'" class="rcpm-indicator">
           <span class="separator">•</span>
           <span class="rcpm-badge">{{ $t('boat.multiClub') }}</span>
-        </span>
+        </span> -->
       </div>
 
       <!-- Price Breakdown -->

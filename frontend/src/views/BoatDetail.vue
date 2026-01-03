@@ -33,9 +33,10 @@
             <span class="label">{{ $t('boat.boatType') }}&nbsp;:</span>
             <span>{{ boat.boat_type }}</span>
           </div>
-          <div class="info-item" v-if="boat.is_multi_club_crew || boat.registration_status === 'free'">
+          <!-- RCPM+ badge hidden - club info now shown in club name display -->
+          <!-- <div class="info-item" v-if="boat.is_multi_club_crew || boat.registration_status === 'free'">
             <span class="multi-club-badge">{{ $t('boat.multiClub') }}</span>
-          </div>
+          </div> -->
         </div>
       </div>
 

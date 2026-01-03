@@ -184,7 +184,8 @@
                   </td>
                   <td>
                     {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
-                    <span v-if="boat.is_multi_club_crew" class="multi-club-badge-small">{{ $t('boat.multiClub') }}</span>
+                    <!-- RCPM+ badge hidden - club info now shown in club name display -->
+                    <!-- <span v-if="boat.is_multi_club_crew" class="multi-club-badge-small">{{ $t('boat.multiClub') }}</span> -->
                   </td>
                   <td>{{ boat.team_manager_name }}</td>
                   <td>

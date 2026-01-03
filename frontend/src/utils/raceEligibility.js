@@ -197,6 +197,7 @@ export function analyzeCrewComposition(crewMembers) {
   
   return {
     crewSize,
+    rowerCount: rowerAges.length,  // Number of rowers (excluding cox)
     genders,
     ages,
     ageCategories,
@@ -408,9 +409,9 @@ export function getCrewDescription(crewAnalysis) {
     return "No crew members";
   }
   
-  const { crewSize, genderCategory, ageCategory, masterCategory, avgAge } = crewAnalysis;
+  const { rowerCount, genderCategory, ageCategory, masterCategory, avgAge } = crewAnalysis;
   const masterCat = masterCategory ? ` ${masterCategory}` : '';
-  return `${crewSize} ${genderCategory} ${ageCategory}${masterCat} (avg age: ${formatAverageAge(avgAge)})`;
+  return `${rowerCount} ${genderCategory} ${ageCategory}${masterCat} (avg age: ${formatAverageAge(avgAge)})`;
 }
 
 /**

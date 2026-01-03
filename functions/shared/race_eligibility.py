@@ -194,6 +194,7 @@ def analyze_crew_composition(crew_members: List[Dict[str, Any]]) -> Dict[str, An
     
     return {
         'crew_size': crew_size,
+        'rower_count': len(rower_ages),  # Number of rowers (excluding cox)
         'genders': genders,
         'ages': ages,
         'age_categories': age_categories,
