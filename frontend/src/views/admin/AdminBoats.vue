@@ -87,6 +87,10 @@
               <span>{{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}</span>
             </div>
             <div class="detail-row">
+              <span class="label">{{ $t('boat.averageAge') }}&nbsp;:</span>
+              <span>{{ getCrewAverageAge(boat) }}</span>
+            </div>
+            <div class="detail-row">
               <span class="label">{{ $t('admin.boats.teamManager') }}&nbsp;:</span>
               <span>
                 <div class="team-manager-info">
@@ -152,6 +156,7 @@
                 </th>
                 <th>{{ $t('boat.boatType') }}</th>
                 <th>{{ $t('boat.firstRower') }}</th>
+                <th>{{ $t('boat.averageAge') }}</th>
                 <th>{{ $t('boat.status.label') }}</th>
                 <th>{{ $t('boat.seats') }}</th>
                 <th @click="sortBy('team_manager_name')">
@@ -171,6 +176,7 @@
                   <td>{{ boat.event_type }}</td>
                   <td>{{ boat.boat_type }}</td>
                   <td>{{ getFirstRowerLastName(boat) }}</td>
+                  <td>{{ getCrewAverageAge(boat) }}</td>
                   <td>
                     <span class="status-badge" :class="`status-${getBoatStatus(boat)}`">
                       {{ getBoatStatusLabel(boat) }}
@@ -211,7 +217,7 @@
                   </td>
                 </tr>
                 <tr v-if="getRaceName(boat)" class="race-row" :class="getRowClass(boat)">
-                  <td colspan="8" class="race-cell">
+                  <td colspan="9" class="race-cell">
                     <span class="race-label">{{ $t('boat.selectedRace') }}&nbsp;:</span> {{ getRaceName(boat) }}
                   </td>
                 </tr>
@@ -273,6 +279,7 @@ import TableScrollIndicator from '../../components/TableScrollIndicator.vue'
 import ListHeader from '../../components/shared/ListHeader.vue'
 import ListFilters from '../../components/shared/ListFilters.vue'
 import ClubListPopover from '../../components/shared/ClubListPopover.vue'
+import { formatAverageAge } from '../../utils/formatters'
 
 export default {
   name: 'AdminBoats',
@@ -490,6 +497,11 @@ export default {
              (boat.club_list && boat.club_list.length > 1)
     }
 
+    const getCrewAverageAge = (boat) => {
+      if (!boat.crew_composition || !boat.crew_composition.avg_age) return '-'
+      return formatAverageAge(boat.crew_composition.avg_age)
+    }
+
     // Actions
     const sortBy = (field) => {
       if (sortField.value === field) {
@@ -627,6 +639,7 @@ export default {
       getRowClass,
       getRaceName,
       isMultiClub,
+      getCrewAverageAge,
       sortBy,
       clearFilters,
       toggleForfait,

@@ -3,6 +3,8 @@
  * Determines which races a crew is eligible for based on age and gender composition
  */
 
+import { formatAverageAge } from './formatters.js'
+
 /**
  * Calculate age based on date of birth
  * Age is calculated as the age the person will reach during the current year,
@@ -408,7 +410,7 @@ export function getCrewDescription(crewAnalysis) {
   
   const { crewSize, genderCategory, ageCategory, masterCategory, avgAge } = crewAnalysis;
   const masterCat = masterCategory ? ` ${masterCategory}` : '';
-  return `${crewSize} ${genderCategory} ${ageCategory}${masterCat} (avg age: ${Math.round(avgAge)})`;
+  return `${crewSize} ${genderCategory} ${ageCategory}${masterCat} (avg age: ${formatAverageAge(avgAge)})`;
 }
 
 /**

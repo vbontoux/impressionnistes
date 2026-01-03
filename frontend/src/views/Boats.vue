@@ -209,6 +209,7 @@ import BoatRegistrationForm from '../components/BoatRegistrationForm.vue'
 import ListHeader from '../components/shared/ListHeader.vue'
 import ListFilters from '../components/shared/ListFilters.vue'
 import ClubListPopover from '../components/shared/ClubListPopover.vue'
+import { formatAverageAge } from '../utils/formatters'
 
 export default {
   name: 'BoatsView',
@@ -309,7 +310,7 @@ export default {
 
     const getCrewAverageAge = (boat) => {
       if (!boat.crew_composition || !boat.crew_composition.avg_age) return '-'
-      return Math.round(boat.crew_composition.avg_age)
+      return formatAverageAge(boat.crew_composition.avg_age)
     }
 
     const formatDate = (dateString) => {

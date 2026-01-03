@@ -6,6 +6,7 @@
 import * as XLSX from 'xlsx'
 import { formatDateForFilename } from './shared.js'
 import { assignRaceAndBowNumbers, filterEligibleBoats } from './raceNumbering.js'
+import { formatAverageAge } from '../formatters.js'
 
 /**
  * Format time in 12-hour format with AM/PM (e.g., "7:00:00 AM")
@@ -232,7 +233,7 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
     
     // Get average age from boat's crew_composition (pre-calculated by backend)
     const avgAge = boat.crew_composition?.avg_age 
-      ? Math.round(boat.crew_composition.avg_age) 
+      ? formatAverageAge(boat.crew_composition.avg_age) 
       : 0
     
     // Get stroke seat name
