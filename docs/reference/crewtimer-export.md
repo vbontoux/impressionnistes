@@ -24,15 +24,15 @@ The CrewTimer export generates an Excel file compatible with [CrewTimer.com](htt
 | Event Num | Sequential event number | 1, 2, 3... |
 | Event | Full translated race name | `WOMEN-MASTER-COXED QUAD SCULL YOLETTE` (EN)<br>`FEMMES-MASTER-QUATRE DE COUPLE BARRÉ YOLETTE` (FR) |
 | Event Abbrev | Translated short name code | `MW4X+Y` (EN)<br>`MF4X+Y` (FR) |
-| Crew | Club name | `ROWING CLUB DE PORT MARLY` |
-| Crew Abbrev | Club abbreviation (same as Crew) | `RCPM` |
+| Crew | Comma-separated list of clubs from crew members | `RCPM`, `Club Elite, RCPM, SN Versailles` |
+| Crew Abbrev | Full boat club display (may include Multi-Club or external crew indicators) | `RCPM`, `RCPM (Multi-Club)`, `RCPM (SN Versailles)` |
 | Stroke | Last name of stroke seat rower | `Wilson` |
 | Bow | Global sequential bow number | 1, 2, 3... |
 | Race Info | Race type | `Head` |
 | Status | Registration status (empty) | |
 | Age | Average age of crew members | 35 |
 | Handicap | Handicap value (reserved for future use) | (empty) |
-| Note | List of clubs in the crew | `RCPM, Club Elite, SN Versailles` |
+| Note | Comma-separated list of crew member names | `Alice Martin, Bob Dupont, Charlie Bernard` |
 
 ### Race Timing
 
@@ -223,6 +223,40 @@ The stroke seat is the **highest position rower** (not coxswain):
 - For a skiff (1X): Position 1 is stroke
 - For an eight (8+): Position 8 is stroke
 
+## Club Name Handling
+
+The CrewTimer export uses a specific approach for club names to provide comprehensive information:
+
+**Crew Column:**
+- Contains comma-separated list of all unique clubs from crew members
+- Taken directly from the `club_list` field calculated by the backend
+- Examples:
+  - Single club: `RCPM`
+  - Multi-club: `Club Elite, RCPM, SN Versailles`
+  - Empty if no crew members: (empty)
+
+**Crew Abbrev Column:**
+- Contains the full `boat_club_display` value
+- May include indicators for multi-club or external crews
+- Examples:
+  - Single club: `RCPM`
+  - Multi-club crew: `RCPM (Multi-Club)`
+  - External crew: `RCPM (SN Versailles)`
+
+**Note Column:**
+- Contains comma-separated list of all crew member names
+- Format: `FirstName LastName, FirstName LastName, ...`
+- Includes all crew members from the seats (rowers and coxswains)
+- Examples:
+  - Single rower: `Alice Martin`
+  - Multiple crew: `Alice Martin, Bob Dupont, Charlie Bernard, Diana Petit`
+  - Empty if no crew members: (empty)
+
+This approach ensures that:
+1. The Crew column provides a clean list of participating clubs
+2. The Crew Abbrev column shows the formatted club display with context
+3. The Note column provides complete crew member information for reference
+
 ## Average Age Calculation
 
 Average age is calculated by the backend in the `crew_composition` object:
@@ -247,6 +281,17 @@ Average age is calculated by the backend in the `crew_composition` object:
 - [Project Structure](./project-structure.md)
 
 ## Change History
+
+### 2026-01-02: Crew Member Names in Note Column
+- Changed Note column to contain comma-separated list of crew member names (FirstName LastName)
+- Changed Crew column to contain comma-separated list of clubs from club_list
+- Crew Abbrev remains as boat_club_display for full context
+- Provides complete crew roster information in the export
+
+### 2026-01-02: Club Name Handling for CrewTimer Compatibility
+- Changed Crew column to contain only team manager's club name (for CrewTimer software compatibility)
+- Changed Crew Abbrev column to contain full boat_club_display (including Multi-Club or external crew indicators)
+- This ensures CrewTimer software can properly parse the club name while preserving full club information in Crew Abbrev
 
 ### 2026-01-02: Additional Export Columns
 - Added Handicap column (empty, reserved for future use)

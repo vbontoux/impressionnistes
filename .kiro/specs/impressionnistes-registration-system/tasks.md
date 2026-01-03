@@ -563,7 +563,7 @@ Tasks are marked with status:
 
 ### 20. Mixed Club Display Enhancement ⏳
 
-- [ ] 20.1 Improve mixed club crew display
+- [x] 20.1 Improve mixed club crew display
   - Display club manager's club name prominently
   - Add "Mixed Club" badge or indicator when crew contains external members
   - Show breakdown of clubs represented in the crew

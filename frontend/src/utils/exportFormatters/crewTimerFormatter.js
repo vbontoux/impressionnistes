@@ -224,7 +224,11 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
     // Get team manager and club
     const teamManagerId = boat.team_manager_id
     const teamManager = teamManagersDict[teamManagerId] || {}
-    const clubName = boat.boat_club_display || 'Unknown'
+    const boatClubDisplay = boat.boat_club_display || teamManager.club_affiliation || boat.club_affiliation || 'Unknown'
+    
+    // Get club list for Crew column (comma-separated)
+    const clubList = boat.club_list || []
+    const crewValue = clubList.join(', ')
     
     // Get average age from boat's crew_composition (pre-calculated by backend)
     const avgAge = boat.crew_composition?.avg_age 
@@ -235,9 +239,20 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
     const seats = boat.seats || []
     const strokeName = getStrokeSeatName(seats, crewMembersDict)
     
-    // Get club list for Note column (comma-separated)
-    const clubList = boat.club_list || []
-    const noteValue = clubList.join(', ')
+    // Get crew member names for Note column (comma-separated)
+    const crewMemberNames = []
+    for (const seat of seats) {
+      if (seat.crew_member_id) {
+        const member = crewMembersDict[seat.crew_member_id]
+        if (member) {
+          const fullName = `${member.first_name || ''} ${member.last_name || ''}`.trim()
+          if (fullName) {
+            crewMemberNames.push(fullName)
+          }
+        }
+      }
+    }
+    const noteValue = crewMemberNames.join(', ')
     
     // Build row
     const row = {
@@ -245,8 +260,8 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
       'Event Num': assignment.raceNumber,
       'Event': fullRaceName,
       'Event Abbrev': translatedShortName,
-      'Crew': clubName,
-      'Crew Abbrev': clubName,
+      'Crew': crewValue,
+      'Crew Abbrev': boatClubDisplay,
       'Stroke': strokeName,
       'Bow': assignment.bowNumber,
       'Race Info': 'Head',

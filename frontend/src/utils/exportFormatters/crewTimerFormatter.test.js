@@ -66,10 +66,10 @@ describe('CrewTimer Formatter', () => {
             { race_id: 'M2', name: 'Marathon Race 2', distance: 42, event_type: '42km', boat_type: '4+', display_order: 2 }
           ],
           boats: [
-            { boat_registration_id: 'b1', race_id: 'SM1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 25 }, boat_club_display: 'Club A' },
-            { boat_registration_id: 'b2', race_id: 'M1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 30 }, boat_club_display: 'Club B' },
-            { boat_registration_id: 'b3', race_id: 'SM2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 28 }, boat_club_display: 'Club C' },
-            { boat_registration_id: 'b4', race_id: 'M2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 35 }, boat_club_display: 'Club D' }
+            { boat_registration_id: 'b1', race_id: 'SM1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 25 }, boat_club_display: 'Club A', club_list: ['Club A'] },
+            { boat_registration_id: 'b2', race_id: 'M1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 30 }, boat_club_display: 'Club B', club_list: ['Club B'] },
+            { boat_registration_id: 'b3', race_id: 'SM2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 28 }, boat_club_display: 'Club C', club_list: ['Club C'] },
+            { boat_registration_id: 'b4', race_id: 'M2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 35 }, boat_club_display: 'Club D', club_list: ['Club D'] }
           ],
           crew_members: [],
           team_managers: []
@@ -77,13 +77,16 @@ describe('CrewTimer Formatter', () => {
       };
 
       const result = formatRacesToCrewTimer(testData);
-      const marathonRows = result.filter(r => r['Event Num'] <= 2);
-      const semiRows = result.filter(r => r['Event Num'] > 2);
+      
+      // All marathon races get Event Num 1, semi-marathon races get 2, 3, etc.
+      const marathonRows = result.filter(r => r['Event Num'] === 1);
+      const semiRows = result.filter(r => r['Event Num'] >= 2);
       
       expect(result.length).toBe(4);
       expect(marathonRows.length).toBe(2);
       expect(semiRows.length).toBe(2);
       expect(marathonRows.every(r => r.Event.includes('Marathon Race'))).toBe(true);
+      expect(semiRows.every(r => r.Event.includes('Semi Race'))).toBe(true);
     });
   });
 
@@ -101,15 +104,15 @@ describe('CrewTimer Formatter', () => {
             semi_marathon_bow_start: 41
           },
           races: [
-            { race_id: 'R1', name: 'Race 1', distance: 21, event_type: '21km', boat_type: '4+' },
-            { race_id: 'R2', name: 'Race 2', distance: 21, event_type: '21km', boat_type: '8+' }
+            { race_id: 'R1', name: 'Race 1', distance: 21, event_type: '21km', boat_type: '4+', display_order: 15 },
+            { race_id: 'R2', name: 'Race 2', distance: 21, event_type: '21km', boat_type: '8+', display_order: 16 }
           ],
           boats: [
-            { boat_registration_id: 'b1', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 25 }, boat_club_display: 'Club A' },
-            { boat_registration_id: 'b2', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 30 }, boat_club_display: 'Club B' },
-            { boat_registration_id: 'b3', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 28 }, boat_club_display: 'Club C' },
-            { boat_registration_id: 'b4', race_id: 'R2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 35 }, boat_club_display: 'Club D' },
-            { boat_registration_id: 'b5', race_id: 'R2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 32 }, boat_club_display: 'Club E' }
+            { boat_registration_id: 'b1', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 25 }, boat_club_display: 'Club A', club_list: ['Club A'] },
+            { boat_registration_id: 'b2', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 30 }, boat_club_display: 'Club B', club_list: ['Club B'] },
+            { boat_registration_id: 'b3', race_id: 'R1', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 28 }, boat_club_display: 'Club C', club_list: ['Club C'] },
+            { boat_registration_id: 'b4', race_id: 'R2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 35 }, boat_club_display: 'Club D', club_list: ['Club D'] },
+            { boat_registration_id: 'b5', race_id: 'R2', registration_status: 'complete', forfait: false, seats: [], crew_composition: { avg_age: 32 }, boat_club_display: 'Club E', club_list: ['Club E'] }
           ],
           crew_members: [],
           team_managers: []
@@ -117,11 +120,14 @@ describe('CrewTimer Formatter', () => {
       };
 
       const result = formatRacesToCrewTimer(testData);
+      
+      // Semi-marathon races get Event Num 2, 3, etc. (incrementing)
+      // R1 gets Event Num 2, R2 gets Event Num 3
       const r1Boats = result.filter(r => r.Bow >= 41 && r.Bow <= 43);
       const r2Boats = result.filter(r => r.Bow >= 44 && r.Bow <= 45);
       
-      expect(r1Boats.every(r => r['Event Num'] === 1)).toBe(true);
-      expect(r2Boats.every(r => r['Event Num'] === 2)).toBe(true);
+      expect(r1Boats.every(r => r['Event Num'] === 2)).toBe(true);
+      expect(r2Boats.every(r => r['Event Num'] === 3)).toBe(true);
     });
   });
 
@@ -351,20 +357,65 @@ describe('CrewTimer Formatter', () => {
       expect(result[1].Event).toBe('WOMEN-JUNIOR J16-COXED SWEEP FOUR');
       expect(result[1]['Event Abbrev']).toBe('');
       expect(result[0].Crew).toBe('RCPM');
+      expect(result[0]['Crew Abbrev']).toBe('RCPM');
       expect(result[1].Crew).toBe('Club Elite');
+      expect(result[1]['Crew Abbrev']).toBe('Club Elite');
       expect(result[0].Stroke).toBe('Doe');
       expect(result[1].Stroke).toBe('Wilson');
       expect(result[0].Age).toBe(35);
       expect(result[1].Age).toBe(16);
       expect(result[0].Handicap).toBe('');
-      expect(result[0].Note).toBe('RCPM');
+      expect(result[0].Note).toBe('John Doe');
       expect(result[1].Handicap).toBe('');
-      expect(result[1].Note).toBe('Club Elite');
+      expect(result[1].Note).toBe('Jane Smith, Bob Jones, Alice Brown, Charlie Wilson, Eve Cox');
     });
   });
 
   describe('Club list in Note column', () => {
-    test('should display single club in Note column', () => {
+    test('should display crew member names in Note column', () => {
+      const testData = {
+        success: true,
+        data: {
+          config: { 
+            competition_date: '2025-05-01',
+            marathon_start_time: '07:45',
+            semi_marathon_start_time: '09:00',
+            semi_marathon_interval_seconds: 30,
+            marathon_bow_start: 1,
+            semi_marathon_bow_start: 41
+          },
+          races: [
+            { race_id: 'R1', name: 'Test Race', distance: 21, event_type: '21km', boat_type: '4+' }
+          ],
+          boats: [
+            { 
+              boat_registration_id: 'b1', 
+              race_id: 'R1', 
+              registration_status: 'complete', 
+              forfait: false, 
+              seats: [
+                { position: 1, type: 'rower', crew_member_id: 'crew-1' },
+                { position: 2, type: 'rower', crew_member_id: 'crew-2' }
+              ], 
+              crew_composition: { avg_age: 25 },
+              club_list: ['RCPM']
+            }
+          ],
+          crew_members: [
+            { crew_member_id: 'crew-1', first_name: 'John', last_name: 'Doe' },
+            { crew_member_id: 'crew-2', first_name: 'Jane', last_name: 'Smith' }
+          ],
+          team_managers: []
+        }
+      };
+
+      const result = formatRacesToCrewTimer(testData);
+      
+      expect(result.length).toBe(1);
+      expect(result[0].Note).toBe('John Doe, Jane Smith');
+    });
+
+    test('should display single club in Crew column', () => {
       const testData = {
         success: true,
         data: {
@@ -398,10 +449,10 @@ describe('CrewTimer Formatter', () => {
       const result = formatRacesToCrewTimer(testData);
       
       expect(result.length).toBe(1);
-      expect(result[0].Note).toBe('RCPM');
+      expect(result[0].Crew).toBe('RCPM');
     });
 
-    test('should display multiple clubs comma-separated in Note column', () => {
+    test('should display multiple clubs comma-separated in Crew column', () => {
       const testData = {
         success: true,
         data: {
@@ -435,7 +486,7 @@ describe('CrewTimer Formatter', () => {
       const result = formatRacesToCrewTimer(testData);
       
       expect(result.length).toBe(1);
-      expect(result[0].Note).toBe('Club Elite, RCPM, SN Versailles');
+      expect(result[0].Crew).toBe('Club Elite, RCPM, SN Versailles');
     });
 
     test('should display empty string when club_list is missing', () => {
@@ -471,7 +522,7 @@ describe('CrewTimer Formatter', () => {
       const result = formatRacesToCrewTimer(testData);
       
       expect(result.length).toBe(1);
-      expect(result[0].Note).toBe('');
+      expect(result[0].Crew).toBe('');
     });
 
     test('should display empty string when club_list is empty array', () => {
@@ -508,7 +559,7 @@ describe('CrewTimer Formatter', () => {
       const result = formatRacesToCrewTimer(testData);
       
       expect(result.length).toBe(1);
-      expect(result[0].Note).toBe('');
+      expect(result[0].Crew).toBe('');
     });
   });
 
@@ -542,6 +593,134 @@ describe('CrewTimer Formatter', () => {
       expect(result.length).toBe(2);
       expect(result[0].Handicap).toBe('');
       expect(result[1].Handicap).toBe('');
+    });
+  });
+
+  describe('Crew vs Crew Abbrev columns', () => {
+    test('should use club list for Crew and boat_club_display for Crew Abbrev', () => {
+      const testData = {
+        success: true,
+        data: {
+          config: { 
+            competition_date: '2025-05-01',
+            marathon_start_time: '07:45',
+            semi_marathon_start_time: '09:00',
+            semi_marathon_interval_seconds: 30,
+            marathon_bow_start: 1,
+            semi_marathon_bow_start: 41
+          },
+          races: [
+            { race_id: 'R1', name: 'Test Race', distance: 21, event_type: '21km', boat_type: '4+' }
+          ],
+          boats: [
+            { 
+              boat_registration_id: 'b1', 
+              race_id: 'R1', 
+              registration_status: 'complete', 
+              forfait: false, 
+              team_manager_id: 'tm1',
+              boat_club_display: 'RCPM (Multi-Club)',
+              club_list: ['RCPM', 'Club Elite'],
+              seats: [], 
+              crew_composition: { avg_age: 25 }
+            }
+          ],
+          crew_members: [],
+          team_managers: [
+            { user_id: 'tm1', club_affiliation: 'RCPM', email: 'tm1@example.com' }
+          ]
+        }
+      };
+
+      const result = formatRacesToCrewTimer(testData);
+      
+      expect(result.length).toBe(1);
+      expect(result[0].Crew).toBe('RCPM, Club Elite');
+      expect(result[0]['Crew Abbrev']).toBe('RCPM (Multi-Club)');
+    });
+
+    test('should handle single club boat', () => {
+      const testData = {
+        success: true,
+        data: {
+          config: { 
+            competition_date: '2025-05-01',
+            marathon_start_time: '07:45',
+            semi_marathon_start_time: '09:00',
+            semi_marathon_interval_seconds: 30,
+            marathon_bow_start: 1,
+            semi_marathon_bow_start: 41
+          },
+          races: [
+            { race_id: 'R1', name: 'Test Race', distance: 21, event_type: '21km', boat_type: '4+' }
+          ],
+          boats: [
+            { 
+              boat_registration_id: 'b1', 
+              race_id: 'R1', 
+              registration_status: 'complete', 
+              forfait: false, 
+              team_manager_id: 'tm1',
+              boat_club_display: 'Club Elite',
+              club_list: ['Club Elite'],
+              seats: [], 
+              crew_composition: { avg_age: 25 }
+            }
+          ],
+          crew_members: [],
+          team_managers: [
+            { user_id: 'tm1', club_affiliation: 'Club Elite', email: 'tm1@example.com' }
+          ]
+        }
+      };
+
+      const result = formatRacesToCrewTimer(testData);
+      
+      expect(result.length).toBe(1);
+      expect(result[0].Crew).toBe('Club Elite');
+      expect(result[0]['Crew Abbrev']).toBe('Club Elite');
+    });
+
+    test('should handle external crew boat', () => {
+      const testData = {
+        success: true,
+        data: {
+          config: { 
+            competition_date: '2025-05-01',
+            marathon_start_time: '07:45',
+            semi_marathon_start_time: '09:00',
+            semi_marathon_interval_seconds: 30,
+            marathon_bow_start: 1,
+            semi_marathon_bow_start: 41
+          },
+          races: [
+            { race_id: 'R1', name: 'Test Race', distance: 21, event_type: '21km', boat_type: '4+' }
+          ],
+          boats: [
+            { 
+              boat_registration_id: 'b1', 
+              race_id: 'R1', 
+              registration_status: 'complete', 
+              forfait: false, 
+              team_manager_id: 'tm1',
+              boat_club_display: 'RCPM (SN Versailles)',
+              club_list: ['SN Versailles'],
+              seats: [], 
+              crew_composition: { avg_age: 25 }
+            }
+          ],
+          crew_members: [],
+          team_managers: [
+            { user_id: 'tm1', club_affiliation: 'RCPM', email: 'tm1@example.com' }
+          ]
+        }
+      };
+
+      const result = formatRacesToCrewTimer(testData);
+      
+      expect(result.length).toBe(1);
+      expect(result[0].Crew).toBe('SN Versailles');
+      expect(result[0]['Crew Abbrev']).toBe('RCPM (SN Versailles)');
     });
   });
 
