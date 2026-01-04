@@ -180,7 +180,7 @@ def lambda_handler(event, context):
                 # Update boat with new club info
                 boat['boat_club_display'] = club_info['boat_club_display']
                 boat['club_list'] = club_info['club_list']
-                boat['is_multi_club_crew'] = '(Multi-Club)' in club_info['boat_club_display']
+                boat['is_multi_club_crew'] = club_info['is_multi_club_crew']
                 boat['updated_at'] = get_timestamp()
                 
                 db.put_item(boat)

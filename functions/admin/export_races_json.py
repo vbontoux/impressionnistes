@@ -152,6 +152,7 @@ def lambda_handler(event, context):
             
             simplified_boat = {
                 'boat_registration_id': boat.get('boat_registration_id'),
+                'boat_number': boat.get('boat_number'),
                 'race_id': boat.get('race_id'),
                 'event_type': boat.get('event_type'),
                 'boat_type': boat.get('boat_type'),

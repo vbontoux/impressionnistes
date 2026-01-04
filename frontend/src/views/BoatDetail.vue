@@ -434,16 +434,6 @@ export default {
   color: #666;
 }
 
-.multi-club-badge {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  background-color: #ffc107;
-  color: #000;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
 .issues-list {
   display: flex;
   flex-direction: column;

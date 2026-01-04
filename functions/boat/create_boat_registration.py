@@ -102,11 +102,63 @@ def lambda_handler(event, context):
     # Generate boat registration ID
     boat_registration_id = str(uuid.uuid4())
     
+    # Generate boat_number if race is assigned
+    boat_number = None
+    if boat_data.get('race_id'):
+        try:
+            # Fetch the race to get event_type and display_order
+            db = get_db_client()
+            race = db.get_item(
+                pk='RACE',
+                sk=boat_data['race_id']
+            )
+            
+            if race:
+                event_type = race.get('event_type')
+                display_order = race.get('display_order', 0)
+                
+                if event_type:
+                    if display_order == 0:
+                        logger.warning(f"Race missing display_order: {boat_data['race_id']}, using 0 as fallback")
+                    
+                    # Scan all boats with the same race_id
+                    from boto3.dynamodb.conditions import Attr
+                    response = db.table.scan(
+                        FilterExpression=Attr('race_id').eq(boat_data['race_id']) & Attr('SK').begins_with('BOAT#')
+                    )
+                    all_boats_in_race = response.get('Items', [])
+                    
+                    # Handle pagination
+                    while 'LastEvaluatedKey' in response:
+                        response = db.table.scan(
+                            FilterExpression=Attr('race_id').eq(boat_data['race_id']) & Attr('SK').begins_with('BOAT#'),
+                            ExclusiveStartKey=response['LastEvaluatedKey']
+                        )
+                        all_boats_in_race.extend(response.get('Items', []))
+                    
+                    # Generate boat_number
+                    from boat_registration_utils import generate_boat_number
+                    boat_number = generate_boat_number(
+                        event_type=event_type,
+                        display_order=display_order,
+                        race_id=boat_data['race_id'],
+                        all_boats_in_race=all_boats_in_race
+                    )
+                    logger.info(f"Generated boat_number: {boat_number}")
+                else:
+                    logger.error(f"Race missing event_type: {boat_data['race_id']}")
+            else:
+                logger.error(f"Race not found: {boat_data['race_id']}")
+        except Exception as e:
+            logger.error(f"Failed to generate boat_number: {e}")
+            boat_number = None
+    
     # Calculate registration status
     registration_status = calculate_registration_status(boat_data)
     
     # Get team manager's club affiliation for club field initialization
-    db = get_db_client()
+    if 'db' not in locals():
+        db = get_db_client()
     team_manager = db.get_item(
         pk=f'USER#{team_manager_id}',
         sk='PROFILE'
@@ -129,6 +181,7 @@ def lambda_handler(event, context):
         'event_type': boat_data['event_type'],
         'boat_type': boat_data['boat_type'],
         'race_id': boat_data.get('race_id'),
+        'boat_number': boat_number,
         'seats': boat_data['seats'],
         'is_boat_rental': boat_data['is_boat_rental'],
         'is_multi_club_crew': boat_data['is_multi_club_crew'],

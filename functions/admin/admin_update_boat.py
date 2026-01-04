@@ -18,7 +18,8 @@ from boat_registration_utils import (
     calculate_registration_status,
     detect_multi_club_crew,
     get_assigned_crew_members,
-    calculate_boat_club_info
+    calculate_boat_club_info,
+    generate_boat_number
 )
 
 logger = logging.getLogger()
@@ -87,6 +88,75 @@ def lambda_handler(event, context):
     for field in updatable_fields:
         if field in body:
             update_data[field] = body[field]
+    
+    # Generate or clear boat_number when race_id changes
+    if 'race_id' in update_data:
+        new_race_id = update_data['race_id']
+        old_race_id = existing_boat.get('race_id')
+        
+        # Only regenerate if race actually changed
+        if new_race_id != old_race_id:
+            if new_race_id:
+                # Race assigned - generate boat_number
+                try:
+                    # Fetch the race to get event_type and display_order
+                    race = db.get_item(
+                        pk='RACE',
+                        sk=new_race_id
+                    )
+                    
+                    if not race:
+                        logger.error(f"Race not found: {new_race_id}")
+                        return validation_error({'race_id': 'Race not found'})
+                    
+                    event_type = race.get('event_type')
+                    display_order = race.get('display_order', 0)
+                    
+                    if not event_type:
+                        logger.error(f"Race missing event_type: {new_race_id}")
+                        update_data['boat_number'] = None
+                    else:
+                        if display_order == 0:
+                            logger.warning(f"Race missing display_order: {new_race_id}, using 0 as fallback")
+                        
+                        # Scan all boats with the same race_id
+                        from boto3.dynamodb.conditions import Attr
+                        response = db.table.scan(
+                            FilterExpression=Attr('race_id').eq(new_race_id) & Attr('SK').begins_with('BOAT#')
+                        )
+                        all_boats_in_race = response.get('Items', [])
+                        
+                        # Handle pagination
+                        while 'LastEvaluatedKey' in response:
+                            response = db.table.scan(
+                                FilterExpression=Attr('race_id').eq(new_race_id) & Attr('SK').begins_with('BOAT#'),
+                                ExclusiveStartKey=response['LastEvaluatedKey']
+                            )
+                            all_boats_in_race.extend(response.get('Items', []))
+                        
+                        # Filter out the current boat from the list
+                        all_boats_in_race = [
+                            b for b in all_boats_in_race 
+                            if b.get('boat_registration_id') != boat_registration_id
+                        ]
+                        
+                        # Generate boat_number
+                        boat_number = generate_boat_number(
+                            event_type=event_type,
+                            display_order=display_order,
+                            race_id=new_race_id,
+                            all_boats_in_race=all_boats_in_race
+                        )
+                        update_data['boat_number'] = boat_number
+                        logger.info(f"Generated boat_number: {boat_number}")
+                        
+                except Exception as e:
+                    logger.error(f"Failed to generate boat_number: {e}")
+                    update_data['boat_number'] = None
+            else:
+                # Race cleared - set boat_number to null
+                update_data['boat_number'] = None
+                logger.info("Race cleared, boat_number set to null")
     
     # If seats are updated, recalculate multi-club crew status
     if 'seats' in update_data:

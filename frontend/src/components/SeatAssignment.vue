@@ -88,16 +88,6 @@ export default {
         .map(seat => seat.crew_member_id)
     })
 
-    const isMultiClubCrew = computed(() => {
-      const assignedMembers = props.seats
-        .filter(seat => seat.crew_member_id)
-        .map(seat => getCrewMemberInfo(seat.crew_member_id))
-        .filter(member => member)
-
-      const clubs = new Set(assignedMembers.map(m => m.club_affiliation))
-      return clubs.size > 1
-    })
-
     const availableCrewMembers = (currentSeat) => {
       // Show all crew members except those already assigned to other seats or other boats
       return crewStore.crewMembers.filter(member => {
@@ -191,7 +181,6 @@ export default {
     return {
       error,
       filledSeatsCount,
-      isMultiClubCrew,
       availableCrewMembers,
       getCrewMemberInfo,
       onSeatChange,
@@ -355,15 +344,6 @@ export default {
   padding: 1rem;
   background-color: white;
   border-radius: 4px;
-}
-
-.multi-club-warning {
-  color: #856404;
-  background-color: #fff3cd;
-  padding: 0.5rem;
-  border-radius: 4px;
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
 }
 
 /* Tablet and larger screens */

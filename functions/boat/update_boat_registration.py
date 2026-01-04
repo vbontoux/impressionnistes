@@ -25,7 +25,8 @@ from boat_registration_utils import (
     detect_multi_club_crew,
     get_assigned_crew_members,
     validate_seat_assignment,
-    calculate_boat_club_info
+    calculate_boat_club_info,
+    generate_boat_number
 )
 from race_eligibility import analyze_crew_composition
 
@@ -136,6 +137,16 @@ def lambda_handler(event, context):
         'flagged_issues': existing_boat.get('flagged_issues', [])
     }
     
+    # Convert Decimal types from DynamoDB to appropriate Python types
+    from database import decimal_to_float
+    boat_fields_to_validate = decimal_to_float(boat_fields_to_validate)
+    
+    # Convert float positions back to int (they should be integers)
+    if 'seats' in boat_fields_to_validate:
+        for seat in boat_fields_to_validate['seats']:
+            if 'position' in seat and isinstance(seat['position'], float):
+                seat['position'] = int(seat['position'])
+    
     # Merge with update data
     boat_fields_to_validate.update(update_data)
     boat_fields_to_validate = sanitize_dict(boat_fields_to_validate, boat_registration_schema)
@@ -144,6 +155,75 @@ def lambda_handler(event, context):
     is_valid, errors = validate_boat_registration(boat_fields_to_validate)
     if not is_valid:
         return validation_error(errors)
+    
+    # Generate or clear boat_number when race_id changes
+    if 'race_id' in update_data:
+        new_race_id = update_data['race_id']
+        old_race_id = existing_boat.get('race_id')
+        
+        # Only regenerate if race actually changed
+        if new_race_id != old_race_id:
+            if new_race_id:
+                # Race assigned - generate boat_number
+                try:
+                    # Fetch the race to get event_type and display_order
+                    race = db.get_item(
+                        pk='RACE',
+                        sk=new_race_id
+                    )
+                    
+                    if not race:
+                        logger.error(f"Race not found: {new_race_id}")
+                        return validation_error({'race_id': 'Race not found'})
+                    
+                    event_type = race.get('event_type')
+                    display_order = race.get('display_order', 0)
+                    
+                    if not event_type:
+                        logger.error(f"Race missing event_type: {new_race_id}")
+                        boat_fields_to_validate['boat_number'] = None
+                    else:
+                        if display_order == 0:
+                            logger.warning(f"Race missing display_order: {new_race_id}, using 0 as fallback")
+                        
+                        # Scan all boats with the same race_id
+                        from boto3.dynamodb.conditions import Attr
+                        response = db.table.scan(
+                            FilterExpression=Attr('race_id').eq(new_race_id) & Attr('SK').begins_with('BOAT#')
+                        )
+                        all_boats_in_race = response.get('Items', [])
+                        
+                        # Handle pagination
+                        while 'LastEvaluatedKey' in response:
+                            response = db.table.scan(
+                                FilterExpression=Attr('race_id').eq(new_race_id) & Attr('SK').begins_with('BOAT#'),
+                                ExclusiveStartKey=response['LastEvaluatedKey']
+                            )
+                            all_boats_in_race.extend(response.get('Items', []))
+                        
+                        # Filter out the current boat from the list
+                        all_boats_in_race = [
+                            b for b in all_boats_in_race 
+                            if b.get('boat_registration_id') != boat_registration_id
+                        ]
+                        
+                        # Generate boat_number
+                        boat_number = generate_boat_number(
+                            event_type=event_type,
+                            display_order=display_order,
+                            race_id=new_race_id,
+                            all_boats_in_race=all_boats_in_race
+                        )
+                        boat_fields_to_validate['boat_number'] = boat_number
+                        logger.info(f"Generated boat_number: {boat_number}")
+                        
+                except Exception as e:
+                    logger.error(f"Failed to generate boat_number: {e}")
+                    boat_fields_to_validate['boat_number'] = None
+            else:
+                # Race cleared - set boat_number to null
+                boat_fields_to_validate['boat_number'] = None
+                logger.info("Race cleared, boat_number set to null")
     
     # Calculate multi-club crew status if seats were updated
     if 'seats' in update_data:

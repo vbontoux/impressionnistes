@@ -198,3 +198,81 @@ def mock_lambda_context():
             self.aws_request_id = 'test-request-id'
     
     return MockContext()
+
+
+
+@pytest.fixture
+def test_races(dynamodb_table):
+    """Create test races for boat registration tests"""
+    races = [
+        {
+            'race_id': 'race-1',
+            'event_type': '42km',
+            'boat_type': 'skiff',
+            'age_category': 'master',
+            'gender_category': 'women',
+            'display_order': 1,
+            'name': 'Master Women Skiff',
+            'short_name': 'MW Skiff'
+        },
+        {
+            'race_id': 'race-15',
+            'event_type': '21km',
+            'boat_type': '4-',
+            'age_category': 'senior',
+            'gender_category': 'women',
+            'display_order': 15,
+            'name': 'Senior Women 4-',
+            'short_name': 'SW 4-'
+        },
+        {
+            'race_id': 'race-20',
+            'event_type': '21km',
+            'boat_type': '4-',
+            'age_category': 'master',
+            'gender_category': 'men',
+            'display_order': 20,
+            'name': 'Master Men 4-',
+            'short_name': 'MM 4-'
+        },
+        {
+            'race_id': 'race-30',
+            'event_type': '21km',
+            'boat_type': '4+',
+            'age_category': 'senior',
+            'gender_category': 'mixed',
+            'display_order': 30,
+            'name': 'Senior Mixed 4+',
+            'short_name': 'SMix 4+'
+        }
+    ]
+    
+    for race in races:
+        dynamodb_table.put_item(Item={
+            'PK': 'RACE',
+            'SK': race['race_id'],
+            **race
+        })
+    
+    return races
+
+
+
+@pytest.fixture
+def test_team_manager_profile(dynamodb_table, test_team_manager_id):
+    """Create a test team manager profile"""
+    profile = {
+        'first_name': 'Test',
+        'last_name': 'Manager',
+        'email': f'{test_team_manager_id}@test.com',
+        'club_affiliation': 'RCPM',
+        'phone_number': '+33123456789'
+    }
+    
+    dynamodb_table.put_item(Item={
+        'PK': f'USER#{test_team_manager_id}',
+        'SK': 'PROFILE',
+        **profile
+    })
+    
+    return profile

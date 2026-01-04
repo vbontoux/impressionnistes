@@ -240,6 +240,7 @@
       "clearFilters": "Effacer les filtres",
       "addBoat": "Ajouter un équipage",
       "totalCount": "{count} équipages",
+      "boatNumber": "N° Bateau",
       "teamManager": "Manager de Club",
       "club": "Club",
       "viewClubList": "Voir la liste des clubs",
@@ -414,6 +415,8 @@
     "confirmDelete": "Êtes-vous sûr de vouloir supprimer l'équipage {name} ?",
     "rental": "Location",
     "multiClub": "RCPM+",
+    "boatNumber": "N° Bateau",
+    "noRaceAssigned": "Pas de course",
     "firstRower": "Chef de nage",
     "averageAge": "Âge moyen",
     "status": {

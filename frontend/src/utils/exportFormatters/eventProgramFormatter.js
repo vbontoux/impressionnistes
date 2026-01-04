@@ -19,6 +19,7 @@ function getCrewMemberListHeaders(locale) {
       lastName: 'Last Name',
       firstName: 'First Name',
       club: 'Club',
+      boatNumber: 'Boat #',
       raceShort: 'Race (abbrev)',
       race: 'Race',
       raceNumber: 'Race #',
@@ -31,6 +32,7 @@ function getCrewMemberListHeaders(locale) {
     lastName: 'Nom',
     firstName: 'Prénom',
     club: 'Club',
+    boatNumber: 'N° Bateau',
     raceShort: 'Course (abrégé)',
     race: 'Course',
     raceNumber: 'N° Course',
@@ -159,8 +161,11 @@ export function generateCrewMemberList(jsonData, boatAssignments, raceAssignment
     // Get stroke seat name
     const strokeName = getStrokeSeatName(boat.seats || [], crewMembersDict)
     
-    // Get club from boat_club_display (calculated field)
+    // Get club from boat_club_display (simplified comma-separated format)
     const clubName = boat.boat_club_display || ''
+    
+    // Get boat number (handle null gracefully)
+    const boatNumber = boat.boat_number || (locale === 'en' ? 'TBD' : 'À déterminer')
     
     // Process each seat
     for (const seat of (boat.seats || [])) {
@@ -179,6 +184,7 @@ export function generateCrewMemberList(jsonData, boatAssignments, raceAssignment
         [headers.lastName]: crewMember.last_name || '',
         [headers.firstName]: crewMember.first_name || '',
         [headers.club]: clubName,
+        [headers.boatNumber]: boatNumber,
         [headers.raceShort]: raceShortName,
         [headers.race]: raceName,
         [headers.raceNumber]: assignment.raceNumber,

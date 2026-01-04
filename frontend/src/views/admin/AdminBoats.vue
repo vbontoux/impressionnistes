@@ -79,6 +79,10 @@
 
           <div class="boat-details">
             <div class="detail-row">
+              <span class="label">{{ $t('admin.boats.boatNumber') }}&nbsp;:</span>
+              <span>{{ boat.boat_number || '-' }}</span>
+            </div>
+            <div class="detail-row">
               <span class="label">{{ $t('boat.firstRower') }}&nbsp;:</span>
               <span>{{ getFirstRowerName(boat) }}</span>
             </div>
@@ -101,16 +105,7 @@
             </div>
             <div class="detail-row">
               <span class="label">{{ $t('admin.boats.club') }}&nbsp;:</span>
-              <span class="club-display">
-                <span v-if="isMultiClub(boat)">
-                  <ClubListPopover :clubs="boat.club_list || []">
-                    <template #trigger>
-                      <span class="club-box multi-club">{{ boat.boat_club_display }}</span>
-                    </template>
-                  </ClubListPopover>
-                </span>
-                <span v-else class="club-box">{{ boat.boat_club_display }}</span>
-              </span>
+              <span class="club-box">{{ boat.boat_club_display }}</span>
             </div>
             <div v-if="boat.registration_status === 'paid' && boat.paid_at" class="detail-row">
               <span class="label">{{ $t('boat.paidOn') }}&nbsp;:</span>
@@ -150,6 +145,10 @@
           <table class="boats-table">
             <thead>
               <tr>
+                <th @click="sortBy('boat_number')">
+                  {{ $t('admin.boats.boatNumber') }}
+                  <span v-if="sortField === 'boat_number'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+                </th>
                 <th @click="sortBy('event_type')">
                   {{ $t('boat.eventType') }}
                   <span v-if="sortField === 'event_type'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
@@ -173,6 +172,7 @@
             <tbody>
               <template v-for="boat in paginatedBoats" :key="boat.boat_registration_id">
                 <tr :class="getRowClass(boat)">
+                  <td>{{ boat.boat_number || '-' }}</td>
                   <td>{{ boat.event_type }}</td>
                   <td>{{ boat.boat_type }}</td>
                   <td>{{ getFirstRowerLastName(boat) }}</td>
@@ -188,16 +188,7 @@
                     <!-- <span v-if="boat.is_multi_club_crew" class="multi-club-badge-small">{{ $t('boat.multiClub') }}</span> -->
                   </td>
                   <td>{{ boat.team_manager_name }}</td>
-                  <td>
-                    <span v-if="isMultiClub(boat)" class="club-with-popover">
-                      <ClubListPopover :clubs="boat.club_list || []">
-                        <template #trigger>
-                          <span class="club-box multi-club">{{ boat.boat_club_display }}</span>
-                        </template>
-                      </ClubListPopover>
-                    </span>
-                    <span v-else class="club-box">{{ boat.boat_club_display }}</span>
-                  </td>
+                  <td><span class="club-box">{{ boat.boat_club_display }}</span></td>
                   <td class="actions-cell">
                     <button 
                       @click="toggleForfait(boat)" 
@@ -218,7 +209,7 @@
                   </td>
                 </tr>
                 <tr v-if="getRaceName(boat)" class="race-row" :class="getRowClass(boat)">
-                  <td colspan="9" class="race-cell">
+                  <td colspan="10" class="race-cell">
                     <span class="race-label">{{ $t('boat.selectedRace') }}&nbsp;:</span> {{ getRaceName(boat) }}
                   </td>
                 </tr>
@@ -279,7 +270,6 @@ import { useRaceStore } from '../../stores/raceStore'
 import TableScrollIndicator from '../../components/TableScrollIndicator.vue'
 import ListHeader from '../../components/shared/ListHeader.vue'
 import ListFilters from '../../components/shared/ListFilters.vue'
-import ClubListPopover from '../../components/shared/ClubListPopover.vue'
 import { formatAverageAge } from '../../utils/formatters'
 
 export default {
@@ -287,8 +277,7 @@ export default {
   components: {
     TableScrollIndicator,
     ListHeader,
-    ListFilters,
-    ClubListPopover
+    ListFilters
   },
   setup() {
     const router = useRouter()
@@ -364,7 +353,8 @@ export default {
             boat.boat_type?.toLowerCase().includes(search) ||
             boat.team_manager_name?.toLowerCase().includes(search) ||
             boat.boat_club_display?.toLowerCase().includes(search) ||
-            boat.boat_registration_id?.toLowerCase().includes(search)
+            boat.boat_registration_id?.toLowerCase().includes(search) ||
+            boat.boat_number?.toLowerCase().includes(search)
           
           // Also search in club_list array
           const clubListMatch = boat.club_list?.some(club => 
@@ -406,6 +396,48 @@ export default {
 
       // Apply sorting
       result.sort((a, b) => {
+        // Special handling for boat_number (alphanumeric sorting)
+        if (sortField.value === 'boat_number') {
+          const aNum = a.boat_number || ''
+          const bNum = b.boat_number || ''
+          
+          // Empty values go to the end
+          if (!aNum && !bNum) return 0
+          if (!aNum) return 1
+          if (!bNum) return -1
+          
+          // Parse boat number components: [M/SM].[display_order].[sequence]
+          const parseBoatNumber = (num) => {
+            const parts = num.split('.')
+            if (parts.length !== 3) return { prefix: '', order: 0, seq: 0 }
+            return {
+              prefix: parts[0],
+              order: parseInt(parts[1]) || 0,
+              seq: parseInt(parts[2]) || 0
+            }
+          }
+          
+          const aParsed = parseBoatNumber(aNum)
+          const bParsed = parseBoatNumber(bNum)
+          
+          // Sort by prefix (M before SM)
+          if (aParsed.prefix !== bParsed.prefix) {
+            const prefixOrder = { 'M': 1, 'SM': 2 }
+            const aOrder = prefixOrder[aParsed.prefix] || 999
+            const bOrder = prefixOrder[bParsed.prefix] || 999
+            return sortDirection.value === 'asc' ? aOrder - bOrder : bOrder - aOrder
+          }
+          
+          // Then by display order
+          if (aParsed.order !== bParsed.order) {
+            return sortDirection.value === 'asc' ? aParsed.order - bParsed.order : bParsed.order - aParsed.order
+          }
+          
+          // Finally by sequence
+          return sortDirection.value === 'asc' ? aParsed.seq - bParsed.seq : bParsed.seq - aParsed.seq
+        }
+        
+        // Default sorting for other fields
         let aVal = a[sortField.value] || ''
         let bVal = b[sortField.value] || ''
         
@@ -489,13 +521,6 @@ export default {
     const getRowClass = (boat) => {
       if (boat.forfait) return 'row-forfait'
       return `row-status-${boat.registration_status || 'incomplete'}`
-    }
-
-    const isMultiClub = (boat) => {
-      // Check if boat_club_display contains "Multi-Club" or if club_list has multiple clubs
-      if (!boat.boat_club_display) return false
-      return boat.boat_club_display.includes('Multi-Club') || 
-             (boat.club_list && boat.club_list.length > 1)
     }
 
     const getCrewAverageAge = (boat) => {
@@ -639,7 +664,6 @@ export default {
       getBoatStatusLabel,
       getRowClass,
       getRaceName,
-      isMultiClub,
       getCrewAverageAge,
       sortBy,
       clearFilters,
@@ -850,17 +874,6 @@ export default {
 .status-badge.status-forfait {
   background-color: #dc3545;
   color: white;
-}
-
-.multi-club-badge-small {
-  display: inline-block;
-  margin-left: 0.5rem;
-  padding: 0.125rem 0.375rem;
-  border-radius: 3px;
-  font-size: 0.65rem;
-  font-weight: 500;
-  background-color: #ffc107;
-  color: #000;
 }
 
 .actions-cell {
@@ -1218,17 +1231,6 @@ export default {
   line-height: 1.3;
   word-wrap: break-word;
   overflow-wrap: break-word;
-}
-
-.club-box.multi-club {
-  background-color: #fff3cd;
-  border-color: #ffc107;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.club-box.multi-club:hover {
-  background-color: #ffe69c;
 }
 
 .club-display {

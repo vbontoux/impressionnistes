@@ -50,6 +50,7 @@ export function formatBoatRegistrationsToCSV(jsonData) {
   // Define base CSV headers
   const baseHeaders = [
     'Boat Registration ID',
+    'Boat Number',
     'Event Type',
     'Boat Type',
     'Race Name',
@@ -96,6 +97,7 @@ export function formatBoatRegistrationsToCSV(jsonData) {
     // Base boat information
     const baseRow = [
       escapeCSVField(boat.boat_registration_id || ''),
+      escapeCSVField(boat.boat_number || ''),
       escapeCSVField(boat.event_type || ''),
       escapeCSVField(boat.boat_type || ''),
       escapeCSVField(boat.race_name || ''),
@@ -106,7 +108,7 @@ export function formatBoatRegistrationsToCSV(jsonData) {
       escapeCSVField(crewComp.age_category || ''),
       escapeCSVField(crewComp.avg_age || ''),
       escapeCSVField(formatBoolean(boat.is_multi_club_crew)),
-      escapeCSVField(boat.boat_club_display || boat.team_manager_club || ''),
+      escapeCSVField(boat.boat_club_display || ''),
       escapeCSVField((boat.club_list || []).join('; ')),
       escapeCSVField(boat.team_manager_name || ''),
       escapeCSVField(boat.team_manager_email || ''),

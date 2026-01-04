@@ -240,6 +240,7 @@
       "clearFilters": "Clear Filters",
       "addBoat": "Add Crew",
       "totalCount": "{count} crews",
+      "boatNumber": "Boat #",
       "teamManager": "Club Manager",
       "club": "Club",
       "viewClubList": "View club list",
@@ -414,6 +415,8 @@
     "confirmDelete": "Are you sure you want to delete crew {name}?",
     "rental": "Rental",
     "multiClub": "RCPM+",
+    "boatNumber": "Boat #",
+    "noRaceAssigned": "No race",
     "firstRower": "Stroke Seat",
     "averageAge": "Average Age",
     "status": {

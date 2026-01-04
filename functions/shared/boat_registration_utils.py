@@ -124,44 +124,37 @@ def calculate_boat_club_info(
     team_manager_club: str
 ) -> Dict[str, Any]:
     """
-    Calculate boat club display and club list from crew members (Option A)
+    Calculate simplified boat club display and club list from crew members
     
-    This function determines the appropriate club display for a boat, always
-    showing the team manager's club first with additional context about crew
-    composition. The format is:
-    - "{team_manager_club}" - all crew from team manager's club (or no crew)
-    - "{team_manager_club} (Multi-Club)" - crew from multiple clubs
-    - "{team_manager_club} ({crew_club})" - all crew from one different club
+    This function creates a simple comma-separated list of unique clubs
+    represented in the boat's crew, sorted alphabetically.
     
     Args:
         crew_members: List of assigned crew member objects with club_affiliation
-        team_manager_club: Team manager's club affiliation (always shown)
+        team_manager_club: Team manager's club affiliation (fallback if no crew)
     
     Returns:
         Dictionary with:
-        - boat_club_display: str (formatted club display)
+        - boat_club_display: str (comma-separated list of clubs)
         - club_list: List[str] (unique clubs, sorted alphabetically)
+        - is_multi_club_crew: bool (True if more than one club)
     
     Examples:
         >>> calculate_boat_club_info([{'club_affiliation': 'RCPM'}], 'RCPM')
-        {'boat_club_display': 'RCPM', 'club_list': ['RCPM']}
+        {'boat_club_display': 'RCPM', 'club_list': ['RCPM'], 'is_multi_club_crew': False}
         
         >>> calculate_boat_club_info([
         ...     {'club_affiliation': 'RCPM'},
         ...     {'club_affiliation': 'Club Elite'}
         ... ], 'RCPM')
-        {'boat_club_display': 'RCPM (Multi-Club)', 'club_list': ['Club Elite', 'RCPM']}
+        {'boat_club_display': 'Club Elite, RCPM', 'club_list': ['Club Elite', 'RCPM'], 'is_multi_club_crew': True}
         
         >>> calculate_boat_club_info([{'club_affiliation': 'Club Elite'}], 'RCPM')
-        {'boat_club_display': 'RCPM (Club Elite)', 'club_list': ['Club Elite']}
+        {'boat_club_display': 'Club Elite', 'club_list': ['Club Elite'], 'is_multi_club_crew': False}
         
         >>> calculate_boat_club_info([], 'RCPM')
-        {'boat_club_display': 'RCPM', 'club_list': ['RCPM']}
+        {'boat_club_display': 'RCPM', 'club_list': ['RCPM'], 'is_multi_club_crew': False}
     """
-    # Normalize team manager's club
-    team_manager_club_clean = team_manager_club.strip() if team_manager_club else ''
-    team_manager_club_normalized = team_manager_club_clean.upper() if team_manager_club_clean else ''
-    
     # Extract club affiliations from crew members
     # Keep track of both normalized (for comparison) and original (for display)
     club_map = {}  # normalized -> original
@@ -181,32 +174,22 @@ def calculate_boat_club_info(
     # Build club_list (sorted alphabetically, case-insensitive)
     club_list = sorted(club_map.values(), key=lambda x: x.upper()) if club_map else []
     
-    # If no crew clubs, include team manager's club in list
-    if not club_list and team_manager_club_clean:
-        club_list = [team_manager_club_clean]
+    # If no crew clubs, use team manager's club
+    if not club_list:
+        team_manager_club_clean = team_manager_club.strip() if team_manager_club else ''
+        if team_manager_club_clean:
+            club_list = [team_manager_club_clean]
     
-    # Determine boat_club_display based on crew composition
-    if len(club_map) == 0:
-        # No crew members with clubs, use team manager's club
-        boat_club_display = team_manager_club_clean
-    elif len(club_map) == 1:
-        # Single club - check if it matches team manager's club
-        crew_club_normalized = list(club_map.keys())[0]
-        crew_club_original = list(club_map.values())[0]
-        
-        if crew_club_normalized == team_manager_club_normalized:
-            # All crew from team manager's club
-            boat_club_display = team_manager_club_clean
-        else:
-            # All crew from a different single club
-            boat_club_display = f"{team_manager_club_clean} ({crew_club_original})"
-    else:
-        # Multiple clubs
-        boat_club_display = f"{team_manager_club_clean} (Multi-Club)"
+    # Create comma-separated display
+    boat_club_display = ', '.join(club_list) if club_list else ''
+    
+    # Determine if multi-club
+    is_multi_club_crew = len(club_list) > 1
     
     return {
         'boat_club_display': boat_club_display,
-        'club_list': club_list
+        'club_list': club_list,
+        'is_multi_club_crew': is_multi_club_crew
     }
 
 
@@ -369,6 +352,101 @@ def calculate_registration_status(boat_registration: Dict[str, Any], assigned_cr
         return 'complete'
     
     return 'incomplete'
+
+
+def generate_boat_number(
+    event_type: str,
+    display_order: int,
+    race_id: str,
+    all_boats_in_race: List[Dict[str, Any]]
+) -> Optional[str]:
+    """
+    Generate a unique boat number for a race
+    
+    The boat number format is: [M/SM].[display_order].[sequence]
+    - M for 42km (Marathon)
+    - SM for 21km (Semi-Marathon)
+    - display_order: Race display order (1-55)
+    - sequence: Incrementing number starting at 1 for each race
+    
+    Args:
+        event_type: '42km' or '21km'
+        display_order: Race display order (1-55)
+        race_id: Race ID to generate number for
+        all_boats_in_race: All boats currently in this race
+    
+    Returns:
+        Boat number string (e.g., "M.1.3" or "SM.15.42") or None if generation fails
+    
+    Examples:
+        >>> generate_boat_number('42km', 1, 'race-1', [])
+        'M.1.1'
+        
+        >>> generate_boat_number('21km', 15, 'race-15', [
+        ...     {'boat_number': 'SM.15.1'},
+        ...     {'boat_number': 'SM.15.2'}
+        ... ])
+        'SM.15.3'
+        
+        >>> generate_boat_number('42km', 14, 'race-14', [
+        ...     {'boat_number': 'M.14.1'},
+        ...     {'boat_number': 'M.14.5'},
+        ...     {'boat_number': 'M.14.7'}
+        ... ])
+        'M.14.8'
+    """
+    try:
+        # Validate event_type
+        if not event_type or event_type not in ['42km', '21km']:
+            logger.error(f"Invalid event_type for boat_number generation: {event_type}")
+            return None
+        
+        # Determine prefix based on event type
+        prefix = "M" if event_type == "42km" else "SM"
+        
+        # Handle missing or invalid display_order
+        if display_order is None:
+            logger.error(f"Missing display_order for race {race_id}, cannot generate boat_number")
+            return None
+        
+        # Convert display_order to int if it's not already
+        try:
+            display_order = int(display_order)
+        except (ValueError, TypeError):
+            logger.error(f"Invalid display_order for race {race_id}: {display_order}, cannot generate boat_number")
+            return None
+        
+        # Use 0 as fallback for missing display_order (log warning)
+        if display_order == 0:
+            logger.warning(f"Display order is 0 for race {race_id}, using 0 as fallback")
+        
+        # Find highest sequence number in this race
+        max_sequence = 0
+        for boat in all_boats_in_race:
+            boat_num = boat.get('boat_number', '')
+            if boat_num:
+                # Parse sequence from boat_number (e.g., "SM.15.42" -> 42)
+                parts = boat_num.split('.')
+                if len(parts) == 3:
+                    try:
+                        sequence = int(parts[2])
+                        max_sequence = max(max_sequence, sequence)
+                    except ValueError:
+                        # Invalid format, skip this boat_number
+                        logger.warning(f"Invalid boat_number format: {boat_num}")
+                        pass
+        
+        # Increment for new boat
+        new_sequence = max_sequence + 1
+        
+        # Format: [M/SM].[display_order].[sequence]
+        boat_number = f"{prefix}.{display_order}.{new_sequence}"
+        logger.info(f"Generated boat_number: {boat_number} for race {race_id}")
+        return boat_number
+        
+    except Exception as e:
+        logger.error(f"Unexpected error generating boat_number for race {race_id}: {e}")
+        return None
 
 
 def get_coxswain_substitutes(

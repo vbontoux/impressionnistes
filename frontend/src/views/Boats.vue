@@ -70,6 +70,11 @@
 
           <div class="boat-details">
             <div class="detail-row">
+              <span class="label">{{ $t('boat.boatNumber') }}&nbsp;:</span>
+              <span v-if="boat.boat_number" class="boat-number-text">{{ boat.boat_number }}</span>
+              <span v-else class="no-race-text">{{ $t('boat.noRaceAssigned') }}</span>
+            </div>
+            <div class="detail-row">
               <span class="label">{{ $t('boat.firstRower') }}&nbsp;:</span>
               <span>{{ getFirstRowerLastName(boat) }}</span>
             </div>
@@ -84,21 +89,12 @@
             <div class="detail-row">
               <span class="label">{{ $t('admin.boats.club') }}&nbsp;:</span>
               <span class="club-display">
-                <span v-if="isMultiClub(boat)">
-                  <ClubListPopover :clubs="boat.club_list || []">
-                    <template #trigger>
-                      <span class="club-box multi-club">{{ boat.boat_club_display }}</span>
-                    </template>
-                  </ClubListPopover>
-                </span>
-                <span v-else class="club-box">{{ boat.boat_club_display }}</span>
+                <span class="club-box">{{ boat.boat_club_display }}</span>
               </span>
             </div>
             <div class="detail-row">
               <span class="label">{{ $t('boat.filledSeats') }}&nbsp;:</span>
               <span>
-                <!-- RCPM+ badge hidden - club info now shown in club name display -->
-                <!-- <span v-if="boat.is_multi_club_crew || boat.registration_status === 'free'" class="multi-club-badge">{{ $t('boat.multiClub') }}</span> -->
                 {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
               </span>
             </div>
@@ -133,6 +129,7 @@
         <table class="boat-table">
           <thead>
             <tr>
+              <th>{{ $t('boat.boatNumber') }}</th>
               <th>{{ $t('boat.eventType') }}</th>
               <th>{{ $t('boat.boatType') }}</th>
               <th>{{ $t('boat.firstRower') }}</th>
@@ -149,20 +146,17 @@
               <tr 
                 :class="getRowClass(boat)"
               >
+                <td>
+                  <span v-if="boat.boat_number" class="boat-number-cell">{{ boat.boat_number }}</span>
+                  <span v-else class="no-race-cell">-</span>
+                </td>
                 <td>{{ boat.event_type }}</td>
                 <td>{{ boat.boat_type }}</td>
                 <td>{{ getFirstRowerLastName(boat) }}</td>
                 <td>{{ getCrewGenderCategory(boat) }}</td>
                 <td>{{ getCrewAverageAge(boat) }}</td>
                 <td>
-                  <span v-if="isMultiClub(boat)" class="club-with-popover">
-                    <ClubListPopover :clubs="boat.club_list || []">
-                      <template #trigger>
-                        <span class="club-box multi-club">{{ boat.boat_club_display }}</span>
-                      </template>
-                    </ClubListPopover>
-                  </span>
-                  <span v-else class="club-box">{{ boat.boat_club_display }}</span>
+                  <span class="club-box">{{ boat.boat_club_display }}</span>
                 </td>
                 <td>
                   <span class="status-badge" :class="`status-${getBoatStatus(boat)}`">
@@ -171,8 +165,6 @@
                 </td>
                 <td>
                   {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
-                  <!-- RCPM+ badge hidden - club info now shown in club name display -->
-                  <!-- <span v-if="boat.is_multi_club_crew || boat.registration_status === 'free'" class="multi-club-badge-small">{{ $t('boat.multiClub') }}</span> -->
                 </td>
                 <td class="actions-cell">
                   <button @click="viewBoat(boat)" class="btn-table btn-view-table">
@@ -189,7 +181,7 @@
                 </td>
               </tr>
               <tr v-if="getRaceName(boat)" class="race-row" :class="`row-status-${boat.registration_status}`">
-                <td colspan="9" class="race-cell">
+                <td colspan="10" class="race-cell">
                   <span class="race-label">{{ $t('boat.selectedRace') }}&nbsp;:</span> {{ getRaceName(boat) }}
                 </td>
               </tr>
@@ -210,7 +202,6 @@ import { useI18n } from 'vue-i18n'
 import BoatRegistrationForm from '../components/BoatRegistrationForm.vue'
 import ListHeader from '../components/shared/ListHeader.vue'
 import ListFilters from '../components/shared/ListFilters.vue'
-import ClubListPopover from '../components/shared/ClubListPopover.vue'
 import { formatAverageAge } from '../utils/formatters'
 
 export default {
@@ -218,8 +209,7 @@ export default {
   components: {
     BoatRegistrationForm,
     ListHeader,
-    ListFilters,
-    ClubListPopover
+    ListFilters
   },
   setup() {
     const router = useRouter()
@@ -292,13 +282,6 @@ export default {
     const getRowClass = (boat) => {
       if (boat.forfait) return 'row-forfait'
       return `row-status-${boat.registration_status || 'incomplete'}`
-    }
-
-    const isMultiClub = (boat) => {
-      // Check if boat_club_display contains "Multi-Club" or if club_list has multiple clubs
-      if (!boat.boat_club_display) return false
-      return boat.boat_club_display.includes('Multi-Club') || 
-             (boat.club_list && boat.club_list.length > 1)
     }
 
     const getCrewGenderCategory = (boat) => {
@@ -382,7 +365,6 @@ export default {
       getBoatStatus,
       getBoatStatusLabel,
       getRowClass,
-      isMultiClub,
       getCrewGenderCategory,
       getCrewAverageAge,
       formatDate,
@@ -544,6 +526,26 @@ export default {
   flex: 1;
 }
 
+.boat-number-text {
+  font-weight: 600;
+  color: #007bff;
+}
+
+.no-race-text {
+  color: #6c757d;
+  font-style: italic;
+}
+
+.boat-number-cell {
+  font-weight: 600;
+  color: #007bff;
+}
+
+.no-race-cell {
+  color: #6c757d;
+  font-style: italic;
+}
+
 .status-badge {
   padding: 0.25rem 0.75rem;
   border-radius: 12px;
@@ -602,40 +604,6 @@ export default {
   word-break: break-word;
 }
 
-.rental-badge,
-.multi-club-badge {
-  display: inline-block;
-  margin-left: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.multi-club-badge-small {
-  display: inline-block;
-  margin-left: 0.5rem;
-  padding: 0.125rem 0.375rem;
-  border-radius: 3px;
-  font-size: 0.65rem;
-  font-weight: 500;
-}
-
-.rental-badge {
-  background-color: #17a2b8;
-  color: white;
-}
-
-.multi-club-badge {
-  background-color: #ffc107;
-  color: #000;
-}
-
-.multi-club-badge-small {
-  background-color: #ffc107;
-  color: #000;
-}
-
 .club-box {
   display: inline-block;
   max-width: 200px;
@@ -647,17 +615,6 @@ export default {
   line-height: 1.3;
   word-wrap: break-word;
   overflow-wrap: break-word;
-}
-
-.club-box.multi-club {
-  background-color: #fff3cd;
-  border-color: #ffc107;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.club-box.multi-club:hover {
-  background-color: #ffe69c;
 }
 
 .club-display {

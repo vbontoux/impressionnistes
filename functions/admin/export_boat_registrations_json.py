@@ -163,6 +163,10 @@ def lambda_handler(event, context):
             if 'club_list' not in boat:
                 boat['club_list'] = [boat.get('team_manager_club', '')] if boat.get('team_manager_club') else []
             
+            # Ensure boat_number is present (for backward compatibility during migration)
+            if 'boat_number' not in boat:
+                boat['boat_number'] = None
+            
             # Add race name from lookup
             race_id = boat.get('race_id')
             boat['race_name'] = race_lookup.get(race_id, '') if race_id else ''

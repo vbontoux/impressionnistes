@@ -225,11 +225,12 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
     // Get team manager and club
     const teamManagerId = boat.team_manager_id
     const teamManager = teamManagersDict[teamManagerId] || {}
-    const boatClubDisplay = boat.boat_club_display || teamManager.club_affiliation || boat.club_affiliation || 'Unknown'
     
-    // Get club list for Crew column (comma-separated)
-    const clubList = boat.club_list || []
-    const crewValue = clubList.join(', ')
+    // Use boat_club_display for Crew column (simplified comma-separated clubs)
+    const crewValue = boat.boat_club_display || teamManager.club_affiliation || 'Unknown'
+    
+    // Use boat_number for Crew Abbrev column (e.g., "M.1.3", "SM.15.42")
+    const crewAbbrevValue = boat.boat_number || ''
     
     // Get average age from boat's crew_composition (pre-calculated by backend)
     const avgAge = boat.crew_composition?.avg_age 
@@ -262,7 +263,7 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
       'Event': fullRaceName,
       'Event Abbrev': translatedShortName,
       'Crew': crewValue,
-      'Crew Abbrev': boatClubDisplay,
+      'Crew Abbrev': crewAbbrevValue,
       'Stroke': strokeName,
       'Bow': assignment.bowNumber,
       'Race Info': 'Head',

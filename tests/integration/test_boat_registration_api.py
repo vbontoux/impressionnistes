@@ -619,8 +619,8 @@ def test_assign_seat_recalculates_club_multi_club(dynamodb_table, mock_api_gatew
     body = json.loads(response['body'])
     assert body['success'] is True
     
-    # Should show Multi-Club
-    assert body['data']['boat_club_display'] == 'RCPM (Multi-Club)'
+    # Should show simplified comma-separated format
+    assert body['data']['boat_club_display'] == 'Club Elite, RCPM'  # Alphabetically sorted
     assert len(body['data']['club_list']) == 2
     assert 'RCPM' in body['data']['club_list']
     assert 'Club Elite' in body['data']['club_list']
@@ -928,8 +928,8 @@ def test_update_boat_seats_recalculates_club_multi_club(dynamodb_table, mock_api
     body = json.loads(response['body'])
     assert body['success'] is True
     
-    # Should show Multi-Club
-    assert body['data']['boat_club_display'] == 'RCPM (Multi-Club)'
+    # Should show simplified comma-separated format
+    assert body['data']['boat_club_display'] == 'Aviron Paris, Club Elite, RCPM'  # Alphabetically sorted
     assert len(body['data']['club_list']) == 3
     assert 'RCPM' in body['data']['club_list']
     assert 'Club Elite' in body['data']['club_list']
@@ -1153,3 +1153,264 @@ def test_update_team_manager_club_recalculates_empty_boats(dynamodb_table, mock_
     # Should still show the crew's club, not the updated team manager club
     assert boat_with_crew['boat_club_display'] == 'RCPM (Club Elite)'
     assert 'Club Elite' in boat_with_crew['club_list']
+
+
+
+# ============================================================================
+# Integration Tests for Race Assignment and Boat Number Generation (Task 4.3)
+# ============================================================================
+
+def test_race_assignment_generates_boat_number(dynamodb_table, mock_api_gateway_event, mock_lambda_context, test_team_manager_id, test_team_manager_profile, test_crew_members, test_races):
+    """
+    Integration Test: Assign race to boat, verify boat_number is generated
+    
+    **Validates: Requirements 2.6, 2.7, 2.8, 2.9, 3.1**
+    """
+    from boat.create_boat_registration import lambda_handler as create_handler
+    from boat.update_boat_registration import lambda_handler as update_handler
+    
+    # Create a boat without a race
+    create_event = mock_api_gateway_event(
+        http_method='POST',
+        path='/boat',
+        body=json.dumps({
+            'event_type': '21km',
+            'boat_type': '4-'
+        }),
+        user_id=test_team_manager_id
+    )
+    
+    create_response = create_handler(create_event, mock_lambda_context)
+    assert create_response['statusCode'] == 201
+    
+    create_body = json.loads(create_response['body'])
+    boat_id = create_body['data']['boat_registration_id']
+    
+    # Verify boat has no boat_number initially
+    assert create_body['data'].get('boat_number') is None
+    
+    # Assign a race to the boat
+    update_event = mock_api_gateway_event(
+        http_method='PUT',
+        path=f'/boat/{boat_id}',
+        path_parameters={'boat_registration_id': boat_id},
+        body=json.dumps({
+            'race_id': 'race-15'  # First 21km race
+        }),
+        user_id=test_team_manager_id
+    )
+    
+    update_response = update_handler(update_event, mock_lambda_context)
+    assert update_response['statusCode'] == 200
+    
+    update_body = json.loads(update_response['body'])
+    
+    # Verify boat_number was generated
+    assert update_body['data']['boat_number'] is not None
+    assert update_body['data']['boat_number'].startswith('SM.15.')
+    assert update_body['data']['boat_number'] == 'SM.15.1'  # First boat in this race
+
+
+def test_race_change_updates_boat_number(dynamodb_table, mock_api_gateway_event, mock_lambda_context, test_team_manager_id, test_team_manager_profile, test_crew_members, test_races):
+    """
+    Integration Test: Change boat's race, verify boat_number updates
+    
+    **Validates: Requirements 2.6, 2.7, 2.8, 2.9, 3.1**
+    """
+    from boat.create_boat_registration import lambda_handler as create_handler
+    from boat.update_boat_registration import lambda_handler as update_handler
+    
+    # Create a boat with a race
+    create_event = mock_api_gateway_event(
+        http_method='POST',
+        path='/boat',
+        body=json.dumps({
+            'event_type': '21km',
+            'boat_type': '4-',
+            'race_id': 'race-15'
+        }),
+        user_id=test_team_manager_id
+    )
+    
+    create_response = create_handler(create_event, mock_lambda_context)
+    assert create_response['statusCode'] == 201
+    
+    create_body = json.loads(create_response['body'])
+    boat_id = create_body['data']['boat_registration_id']
+    initial_boat_number = create_body['data'].get('boat_number')
+    
+    # Verify initial boat_number
+    assert initial_boat_number is not None
+    assert initial_boat_number.startswith('SM.15.')
+    
+    # Change to a different race
+    update_event = mock_api_gateway_event(
+        http_method='PUT',
+        path=f'/boat/{boat_id}',
+        path_parameters={'boat_registration_id': boat_id},
+        body=json.dumps({
+            'race_id': 'race-20'  # Different 21km race
+        }),
+        user_id=test_team_manager_id
+    )
+    
+    update_response = update_handler(update_event, mock_lambda_context)
+    assert update_response['statusCode'] == 200
+    
+    update_body = json.loads(update_response['body'])
+    new_boat_number = update_body['data']['boat_number']
+    
+    # Verify boat_number was regenerated
+    assert new_boat_number is not None
+    assert new_boat_number.startswith('SM.20.')
+    assert new_boat_number != initial_boat_number
+    assert new_boat_number == 'SM.20.1'  # First boat in race-20
+
+
+def test_race_removal_clears_boat_number(dynamodb_table, mock_api_gateway_event, mock_lambda_context, test_team_manager_id, test_team_manager_profile, test_crew_members, test_races):
+    """
+    Integration Test: Remove race from boat, verify boat_number is null
+    
+    **Validates: Requirements 2.6, 2.7, 2.8, 2.9, 3.1**
+    """
+    from boat.create_boat_registration import lambda_handler as create_handler
+    from boat.update_boat_registration import lambda_handler as update_handler
+    
+    # Create a boat with a race
+    create_event = mock_api_gateway_event(
+        http_method='POST',
+        path='/boat',
+        body=json.dumps({
+            'event_type': '21km',
+            'boat_type': '4-',
+            'race_id': 'race-15'
+        }),
+        user_id=test_team_manager_id
+    )
+    
+    create_response = create_handler(create_event, mock_lambda_context)
+    assert create_response['statusCode'] == 201
+    
+    create_body = json.loads(create_response['body'])
+    boat_id = create_body['data']['boat_registration_id']
+    
+    # Verify boat has boat_number
+    assert create_body['data'].get('boat_number') is not None
+    
+    # Remove the race
+    update_event = mock_api_gateway_event(
+        http_method='PUT',
+        path=f'/boat/{boat_id}',
+        path_parameters={'boat_registration_id': boat_id},
+        body=json.dumps({
+            'race_id': None  # Clear the race
+        }),
+        user_id=test_team_manager_id
+    )
+    
+    update_response = update_handler(update_event, mock_lambda_context)
+    assert update_response['statusCode'] == 200
+    
+    update_body = json.loads(update_response['body'])
+    
+    # Verify boat_number was cleared
+    assert update_body['data'].get('boat_number') is None
+
+
+def test_multiple_boats_same_race_unique_sequences(dynamodb_table, mock_api_gateway_event, mock_lambda_context, test_team_manager_id, test_team_manager_profile, test_crew_members, test_races):
+    """
+    Integration Test: Assign multiple boats to same race, verify unique sequences
+    
+    **Validates: Requirements 2.6, 2.7, 2.8, 2.9, 3.1**
+    """
+    from boat.create_boat_registration import lambda_handler as create_handler
+    
+    boat_numbers = []
+    
+    # Create 5 boats in the same race
+    for i in range(5):
+        create_event = mock_api_gateway_event(
+            http_method='POST',
+            path='/boat',
+            body=json.dumps({
+                'event_type': '21km',
+                'boat_type': '4-',
+                'race_id': 'race-15'
+            }),
+            user_id=test_team_manager_id
+        )
+        
+        create_response = create_handler(create_event, mock_lambda_context)
+        assert create_response['statusCode'] == 201
+        
+        create_body = json.loads(create_response['body'])
+        boat_number = create_body['data'].get('boat_number')
+        
+        # Verify boat_number was generated
+        assert boat_number is not None
+        assert boat_number.startswith('SM.15.')
+        
+        boat_numbers.append(boat_number)
+    
+    # Verify all boat_numbers are unique
+    assert len(boat_numbers) == len(set(boat_numbers))
+    
+    # Verify sequences are sequential
+    expected_numbers = ['SM.15.1', 'SM.15.2', 'SM.15.3', 'SM.15.4', 'SM.15.5']
+    assert boat_numbers == expected_numbers
+
+
+def test_boat_number_persists_across_updates(dynamodb_table, mock_api_gateway_event, mock_lambda_context, test_team_manager_id, test_team_manager_profile, test_crew_members, test_races):
+    """
+    Integration Test: Boat number persists when updating other fields
+    
+    Verify that boat_number doesn't change when updating fields other than race_id
+    """
+    from boat.create_boat_registration import lambda_handler as create_handler
+    from boat.update_boat_registration import lambda_handler as update_handler
+    
+    # Create a boat with a race
+    create_event = mock_api_gateway_event(
+        http_method='POST',
+        path='/boat',
+        body=json.dumps({
+            'event_type': '21km',
+            'boat_type': '4-',
+            'race_id': 'race-15'
+        }),
+        user_id=test_team_manager_id
+    )
+    
+    create_response = create_handler(create_event, mock_lambda_context)
+    assert create_response['statusCode'] == 201
+    
+    create_body = json.loads(create_response['body'])
+    boat_id = create_body['data']['boat_registration_id']
+    original_boat_number = create_body['data'].get('boat_number')
+    
+    assert original_boat_number is not None
+    
+    # Update seats (not race_id)
+    update_event = mock_api_gateway_event(
+        http_method='PUT',
+        path=f'/boat/{boat_id}',
+        path_parameters={'boat_registration_id': boat_id},
+        body=json.dumps({
+            'seats': [
+                {'position': 1, 'type': 'rower', 'crew_member_id': 'crew-1'},
+                {'position': 2, 'type': 'rower', 'crew_member_id': 'crew-2'},
+                {'position': 3, 'type': 'rower', 'crew_member_id': 'crew-3'},
+                {'position': 4, 'type': 'rower', 'crew_member_id': 'crew-4'}
+            ]
+        }),
+        user_id=test_team_manager_id
+    )
+    
+    update_response = update_handler(update_event, mock_lambda_context)
+    assert update_response['statusCode'] == 200
+    
+    update_body = json.loads(update_response['body'])
+    updated_boat_number = update_body['data'].get('boat_number')
+    
+    # Verify boat_number didn't change
+    assert updated_boat_number == original_boat_number

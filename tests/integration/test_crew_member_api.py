@@ -306,8 +306,8 @@ def test_update_crew_member_club_recalculates_boat(dynamodb_table, mock_api_gate
     assert 'Item' in boat_item
     boat = boat_item['Item']
     
-    # Boat should now show external crew format: "RCPM (Club Elite)"
-    assert boat['boat_club_display'] == 'RCPM (Club Elite)'
+    # Boat should now show simplified format: just "Club Elite"
+    assert boat['boat_club_display'] == 'Club Elite'
     assert 'Club Elite' in boat['club_list']
     assert boat['is_multi_club_crew'] is False
 

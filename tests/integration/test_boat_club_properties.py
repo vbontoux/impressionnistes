@@ -74,9 +74,9 @@ def test_property_2_multi_club_display():
     Property 2: Multi-Club Display
     
     When crew members are from multiple clubs,
-    display should show "{team_manager_club} (Multi-Club)"
+    display should show comma-separated list of clubs
     
-    **Validates: Requirements 1.2**
+    **Validates: Requirements 1.1, 1.2**
     """
     # Test with 2 clubs
     crew_members = [
@@ -84,10 +84,11 @@ def test_property_2_multi_club_display():
         {'crew_member_id': 'member-2', 'club_affiliation': 'Club Elite'}
     ]
     result = calculate_boat_club_info(crew_members, 'RCPM')
-    assert result['boat_club_display'] == 'RCPM (Multi-Club)'
+    assert result['boat_club_display'] == 'Club Elite, RCPM'  # Alphabetically sorted
     assert len(result['club_list']) == 2
     assert 'RCPM' in result['club_list']
     assert 'Club Elite' in result['club_list']
+    assert result['is_multi_club_crew'] is True
     
     # Test with 3 clubs
     crew_members = [
@@ -96,8 +97,9 @@ def test_property_2_multi_club_display():
         {'crew_member_id': 'member-3', 'club_affiliation': 'SN Versailles'}
     ]
     result = calculate_boat_club_info(crew_members, 'RCPM')
-    assert result['boat_club_display'] == 'RCPM (Multi-Club)'
+    assert result['boat_club_display'] == 'Club Elite, RCPM, SN Versailles'  # Alphabetically sorted
     assert len(result['club_list']) == 3
+    assert result['is_multi_club_crew'] is True
 
 
 # Property 3: External Crew Display
@@ -106,9 +108,9 @@ def test_property_3_external_crew_display():
     Property 3: Single Club Display - External Crew
     
     When all crew are from one club different from team manager,
-    display should show "{team_manager_club} ({crew_club})"
+    display should show that club (not team manager's club)
     
-    **Validates: Requirements 1.3**
+    **Validates: Requirements 1.1, 1.3**
     """
     crew_members = [
         {'crew_member_id': 'member-1', 'club_affiliation': 'Club Elite'},
@@ -117,8 +119,9 @@ def test_property_3_external_crew_display():
     ]
     result = calculate_boat_club_info(crew_members, 'RCPM')
     
-    assert result['boat_club_display'] == 'RCPM (Club Elite)'
+    assert result['boat_club_display'] == 'Club Elite'
     assert result['club_list'] == ['Club Elite']
+    assert result['is_multi_club_crew'] is False
 
 
 # Property 4: Empty Boat Fallback
@@ -285,9 +288,10 @@ def test_edge_case_null_vs_empty_string():
     
     result = calculate_boat_club_info(crew_members, 'RCPM')
     
-    # Should show external crew (only Club Elite is valid)
-    assert result['boat_club_display'] == 'RCPM (Club Elite)'
+    # Should show only Club Elite (simplified format)
+    assert result['boat_club_display'] == 'Club Elite'
     assert result['club_list'] == ['Club Elite']
+    assert result['is_multi_club_crew'] is False
 
 
 def test_edge_case_whitespace_trimming():
@@ -328,9 +332,10 @@ def test_edge_case_single_crew_member():
     
     result = calculate_boat_club_info(crew_members, 'RCPM')
     
-    # Should show external crew
-    assert result['boat_club_display'] == 'RCPM (Club Elite)'
+    # Should show only Club Elite (simplified format)
+    assert result['boat_club_display'] == 'Club Elite'
     assert result['club_list'] == ['Club Elite']
+    assert result['is_multi_club_crew'] is False
 
 
 def test_edge_case_empty_team_manager_club():
@@ -380,9 +385,11 @@ def test_edge_case_mixed_case_with_team_manager():
     
     result = calculate_boat_club_info(crew_members, 'RCPM')
     
-    # All should be treated as team manager's club (no suffix)
-    assert result['boat_club_display'] == 'RCPM'
+    # All should be treated as the same club, preserving first occurrence's case
     assert len(result['club_list']) == 1
+    assert result['club_list'][0] == 'rcpm'  # First occurrence's case is preserved
+    assert result['boat_club_display'] == 'rcpm'
+    assert result['is_multi_club_crew'] is False
 
 
 def test_edge_case_special_characters_in_club_names():
@@ -398,11 +405,12 @@ def test_edge_case_special_characters_in_club_names():
     
     result = calculate_boat_club_info(crew_members, 'RCPM')
     
-    # Should handle special characters correctly
-    assert result['boat_club_display'] == 'RCPM (Multi-Club)'
+    # Should handle special characters correctly (simplified format)
+    assert result['boat_club_display'] == "Club d'Aviron, Rowing-Club-Paris"
     assert len(result['club_list']) == 2
     assert "Club d'Aviron" in result['club_list']
     assert 'Rowing-Club-Paris' in result['club_list']
+    assert result['is_multi_club_crew'] is True
 
 
 def test_edge_case_very_long_club_name():
@@ -418,9 +426,10 @@ def test_edge_case_very_long_club_name():
     
     result = calculate_boat_club_info(crew_members, 'RCPM')
     
-    # Should preserve full club name
-    assert result['boat_club_display'] == f'RCPM ({long_club_name})'
+    # Should preserve full club name (simplified format)
+    assert result['boat_club_display'] == long_club_name
     assert result['club_list'] == [long_club_name]
+    assert result['is_multi_club_crew'] is False
 
 
 def test_edge_case_numeric_club_names():
@@ -436,9 +445,10 @@ def test_edge_case_numeric_club_names():
     
     result = calculate_boat_club_info(crew_members, 'RCPM')
     
-    # Should handle numeric club names
-    assert result['boat_club_display'] == 'RCPM (Multi-Club)'
+    # Should handle numeric club names (simplified format)
+    assert result['boat_club_display'] == 'Aviron 2000, Club 42'  # Alphabetically sorted
     assert len(result['club_list']) == 2
+    assert result['is_multi_club_crew'] is True
     # Should be sorted alphabetically
     assert result['club_list'] == ['Aviron 2000', 'Club 42']
 
@@ -699,3 +709,212 @@ def test_schema_club_list_items_respect_max_length():
     is_valid, errors = validate_boat_registration(boat_data)
     assert not is_valid
     assert 'club_list' in errors
+
+
+# ============================================================================
+# Schema Validation Tests - Boat Number
+# ============================================================================
+
+def test_schema_boat_number_accepts_valid_marathon_format():
+    """
+    Test that boat_number accepts valid marathon format
+    
+    **Validates: Requirements 4.1**
+    """
+    boat_data = {
+        'event_type': '42km',
+        'boat_type': 'skiff',
+        'seats': [
+            {'position': 1, 'type': 'rower', 'crew_member_id': None}
+        ],
+        'boat_number': 'M.1.1'
+    }
+    
+    is_valid, errors = validate_boat_registration(boat_data)
+    assert is_valid, f"Validation failed: {errors}"
+    assert 'boat_number' not in errors
+
+
+def test_schema_boat_number_accepts_valid_semi_marathon_format():
+    """
+    Test that boat_number accepts valid semi-marathon format
+    
+    **Validates: Requirements 4.1**
+    """
+    boat_data = {
+        'event_type': '21km',
+        'boat_type': '4-',
+        'seats': [
+            {'position': 1, 'type': 'rower', 'crew_member_id': None},
+            {'position': 2, 'type': 'rower', 'crew_member_id': None},
+            {'position': 3, 'type': 'rower', 'crew_member_id': None},
+            {'position': 4, 'type': 'rower', 'crew_member_id': None}
+        ],
+        'boat_number': 'SM.15.42'
+    }
+    
+    is_valid, errors = validate_boat_registration(boat_data)
+    assert is_valid, f"Validation failed: {errors}"
+    assert 'boat_number' not in errors
+
+
+def test_schema_boat_number_accepts_double_digit_display_order():
+    """
+    Test that boat_number accepts double-digit display orders
+    
+    **Validates: Requirements 4.1**
+    """
+    boat_data = {
+        'event_type': '21km',
+        'boat_type': '4-',
+        'seats': [
+            {'position': 1, 'type': 'rower', 'crew_member_id': None},
+            {'position': 2, 'type': 'rower', 'crew_member_id': None},
+            {'position': 3, 'type': 'rower', 'crew_member_id': None},
+            {'position': 4, 'type': 'rower', 'crew_member_id': None}
+        ],
+        'boat_number': 'SM.55.999'
+    }
+    
+    is_valid, errors = validate_boat_registration(boat_data)
+    assert is_valid, f"Validation failed: {errors}"
+    assert 'boat_number' not in errors
+
+
+def test_schema_boat_number_accepts_four_digit_sequence():
+    """
+    Test that boat_number accepts up to 4-digit sequence numbers
+    
+    **Validates: Requirements 4.1**
+    """
+    boat_data = {
+        'event_type': '42km',
+        'boat_type': 'skiff',
+        'seats': [
+            {'position': 1, 'type': 'rower', 'crew_member_id': None}
+        ],
+        'boat_number': 'M.1.9999'
+    }
+    
+    is_valid, errors = validate_boat_registration(boat_data)
+    assert is_valid, f"Validation failed: {errors}"
+    assert 'boat_number' not in errors
+
+
+def test_schema_boat_number_rejects_invalid_prefix():
+    """
+    Test that boat_number rejects invalid prefixes
+    
+    **Validates: Requirements 4.1**
+    """
+    boat_data = {
+        'event_type': '42km',
+        'boat_type': 'skiff',
+        'seats': [
+            {'position': 1, 'type': 'rower', 'crew_member_id': None}
+        ],
+        'boat_number': 'X.1.1'  # Invalid prefix
+    }
+    
+    is_valid, errors = validate_boat_registration(boat_data)
+    assert not is_valid
+    assert 'boat_number' in errors
+
+
+def test_schema_boat_number_rejects_missing_components():
+    """
+    Test that boat_number rejects formats with missing components
+    
+    **Validates: Requirements 4.1**
+    """
+    boat_data = {
+        'event_type': '42km',
+        'boat_type': 'skiff',
+        'seats': [
+            {'position': 1, 'type': 'rower', 'crew_member_id': None}
+        ],
+        'boat_number': 'M.1'  # Missing sequence
+    }
+    
+    is_valid, errors = validate_boat_registration(boat_data)
+    assert not is_valid
+    assert 'boat_number' in errors
+
+
+def test_schema_boat_number_rejects_non_numeric_components():
+    """
+    Test that boat_number rejects non-numeric display order or sequence
+    
+    **Validates: Requirements 4.1**
+    """
+    boat_data = {
+        'event_type': '42km',
+        'boat_type': 'skiff',
+        'seats': [
+            {'position': 1, 'type': 'rower', 'crew_member_id': None}
+        ],
+        'boat_number': 'M.A.1'  # Non-numeric display order
+    }
+    
+    is_valid, errors = validate_boat_registration(boat_data)
+    assert not is_valid
+    assert 'boat_number' in errors
+
+
+def test_schema_boat_number_is_optional():
+    """
+    Test that boat_number is optional (can be null or omitted)
+    
+    **Validates: Requirements 4.1**
+    """
+    # Test with null
+    boat_data = {
+        'event_type': '42km',
+        'boat_type': 'skiff',
+        'seats': [
+            {'position': 1, 'type': 'rower', 'crew_member_id': None}
+        ],
+        'boat_number': None
+    }
+    
+    is_valid, errors = validate_boat_registration(boat_data)
+    assert is_valid, f"Validation failed: {errors}"
+    assert 'boat_number' not in errors
+    
+    # Test without boat_number field
+    boat_data = {
+        'event_type': '42km',
+        'boat_type': 'skiff',
+        'seats': [
+            {'position': 1, 'type': 'rower', 'crew_member_id': None}
+        ]
+    }
+    
+    is_valid, errors = validate_boat_registration(boat_data)
+    assert is_valid, f"Validation failed: {errors}"
+    assert 'boat_number' not in errors
+
+
+def test_schema_boat_number_respects_max_length():
+    """
+    Test that boat_number respects maximum length of 20 characters
+    
+    **Validates: Requirements 4.1**
+    """
+    boat_data = {
+        'event_type': '42km',
+        'boat_type': 'skiff',
+        'seats': [
+            {'position': 1, 'type': 'rower', 'crew_member_id': None}
+        ],
+        'boat_number': 'M.1.1'  # 5 characters (valid)
+    }
+    
+    is_valid, errors = validate_boat_registration(boat_data)
+    assert is_valid, f"Validation failed: {errors}"
+    
+    # Test with 21 characters (should fail)
+    boat_data['boat_number'] = 'M' * 21
+    is_valid, errors = validate_boat_registration(boat_data)
+    assert not is_valid
+    assert 'boat_number' in errors

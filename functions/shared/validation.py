@@ -200,6 +200,13 @@ boat_registration_schema = {
             'maxlength': 100
         }
     },
+    'boat_number': {
+        'type': 'string',
+        'required': False,
+        'nullable': True,
+        'maxlength': 20,
+        'regex': r'^(M|SM)\.[0-9]{1,2}\.[0-9]{1,4}$'
+    },
     'is_boat_rental': {
         'type': 'boolean',
         'required': False,
