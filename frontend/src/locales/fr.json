@@ -343,9 +343,9 @@
       "male": "Homme",
       "female": "Femme",
       "licenseNumber": "Numéro de licence",
-      "licenseHint": "Alphanumérique, 6-12 caractères",
+      "licenseHint": "6-24 caractères (lettres, chiffres, caractères spéciaux acceptés)",
       "licenseWarningTitle": "AVERTISSEMENT IMPORTANT",
-      "licenseWarningText": "Si le numéro de licence n'est pas valide, vous assumez l'entière responsabilité de toute conséquence. Le rameur ET tous les autres membres de l'équipage ne seront PAS autorisés à participer à la course.",
+      "licenseWarningText": "En validant l'inscription, vous attestez que le rameur ou la rameuse possède une licence compétition valide pour la saison en cours et pour la catégorie dans laquelle vous l'inscrivez à la régate (incluant sur-classement éventuel). En cas de défaut, l'équipage ne pourra pas prendre le départ de la course.",
       "clubAffiliation": "Club d'affiliation",
       "clubPlaceholder": "Laissez vide pour utiliser votre club",
       "clubHint": "Laissez vide pour utiliser le club du manager de club",
@@ -364,7 +364,7 @@
       "dateOfBirthRequired": "La date de naissance est requise",
       "dateInFuture": "La date de naissance ne peut pas être dans le futur",
       "dateTooOld": "Le rameur doit être né en {year} ou avant (âge minimum J14)",
-      "licenseInvalid": "Le numéro de licence doit être alphanumérique et contenir 6-12 caractères",
+      "licenseInvalid": "Le numéro de licence doit contenir entre 6 et 24 caractères",
       "licenseDuplicate": "Ce numéro de licence est déjà utilisé par un autre rameur"
     },
     "card": {

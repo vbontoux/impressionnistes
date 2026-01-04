@@ -72,7 +72,7 @@
             required
             :disabled="loading"
             placeholder="ABC123456"
-            maxlength="12"
+            maxlength="24"
             @blur="validateField('license_number')"
           />
           <small class="hint">{{ $t('crew.form.licenseHint') }}</small>
@@ -381,7 +381,8 @@ const validateField = (field) => {
   }
 
   if (field === 'license_number') {
-    const licenseRegex = /^[A-Z0-9]{6,12}$/i;
+    // Allow letters, numbers, and special characters, 6-24 characters
+    const licenseRegex = /^.{6,24}$/;
     if (!licenseRegex.test(form.license_number)) {
       errors.license_number = t('crew.validation.licenseInvalid');
     }

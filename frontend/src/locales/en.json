@@ -343,9 +343,9 @@
       "male": "Male",
       "female": "Female",
       "licenseNumber": "License Number",
-      "licenseHint": "Alphanumeric, 6-12 characters",
+      "licenseHint": "6-24 characters (letters, numbers, special characters accepted)",
       "licenseWarningTitle": "IMPORTANT WARNING",
-      "licenseWarningText": "If the license number is not valid, you assume full responsibility for any consequences. The rower AND all other crew members in the same boat will NOT be allowed to race.",
+      "licenseWarningText": "By validating this registration, you certify that the rower holds a valid competition license for the current season and for the category in which you are registering them for the regatta (including any applicable up-classification). If this requirement is not met, the crew will not be allowed to start the race.",
       "clubAffiliation": "Club Affiliation",
       "clubPlaceholder": "Leave empty to use your club",
       "clubHint": "Leave empty to use club manager's club",
@@ -364,7 +364,7 @@
       "dateOfBirthRequired": "Date of birth is required",
       "dateInFuture": "Date of birth cannot be in the future",
       "dateTooOld": "Rower must be born in {year} or earlier (minimum age J14)",
-      "licenseInvalid": "License number must be alphanumeric and 6-12 characters",
+      "licenseInvalid": "License number must be between 6 and 24 characters",
       "licenseDuplicate": "This license number is already in use by another rower"
     },
     "card": {

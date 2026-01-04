@@ -38,7 +38,7 @@ def lambda_handler(event, context):
         - last_name: Last name (optional)
         - date_of_birth: Date of birth in YYYY-MM-DD format (optional)
         - gender: M or F (optional)
-        - license_number: Alphanumeric 6-12 characters (optional)
+        - license_number: 6-24 characters (letters, numbers, special characters accepted) (optional)
         - club_affiliation: Rowing club (optional)
     
     Returns:

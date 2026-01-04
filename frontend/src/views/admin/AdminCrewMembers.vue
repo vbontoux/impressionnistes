@@ -248,7 +248,7 @@
 
             <div class="form-group">
               <label>{{ $t('crew.form.licenseNumber') }} *</label>
-              <input v-model="crewForm.license_number" type="text" required class="form-control" maxlength="12" placeholder="ABC123456" />
+              <input v-model="crewForm.license_number" type="text" required class="form-control" maxlength="24" placeholder="ABC123456" />
             </div>
 
             <div class="form-group">

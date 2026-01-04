@@ -17,14 +17,15 @@ class CustomValidator(Validator):
     
     def _validate_license_number(self, constraint, field, value):
         """
-        Validate license number format (alphanumeric, 6-12 characters)
+        Validate license number format (6-24 characters, allows letters, numbers, and special characters)
         
         The rule's arguments are validated against this schema:
         {'type': 'boolean'}
         """
         if constraint and value:
-            if not re.match(r'^[A-Z0-9]{6,12}$', value):
-                self._error(field, "Must be alphanumeric and 6-12 characters")
+            # Allow any characters, just check length (6-24 characters)
+            if not (6 <= len(value) <= 24):
+                self._error(field, "Must be between 6 and 24 characters")
     
     def _validate_date_format(self, constraint, field, value):
         """
