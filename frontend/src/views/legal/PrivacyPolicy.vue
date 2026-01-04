@@ -15,7 +15,7 @@
               The data controller responsible for your personal data is:
             </p>
             <p class="contact-info">
-              <strong>Rowing Club Paris Métropole (RCPM)</strong><br>
+              <strong>Rowing Club de Port Marly (RCPM)</strong><br>
               Course des Impressionnistes<br>
               Email: {{ contactEmail }}<br>
               Website: {{ eventWebsite }}
@@ -63,12 +63,13 @@
             <h2>5. Data Retention</h2>
             <p>We retain your personal data for the following periods:</p>
             <ul>
-              <li><strong>User Accounts:</strong> Active accounts retained indefinitely; inactive accounts (no login for 3 years) flagged for review</li>
-              <li><strong>Event Registrations:</strong> 5 years after the event date (for historical records and dispute resolution)</li>
+              <li><strong>User Accounts:</strong> Generally deleted before reopening registration for the next edition (typically within 1 year). This ensures data freshness and avoids issues with obsolete information, forgotten passwords, or changed contact details.</li>
+              <li><strong>Club Manager Contact Information:</strong> Retained year-to-year to send invitations for subsequent editions of the event</li>
+              <li><strong>Historical Race Results:</strong> Crew member names and race results are preserved indefinitely as part of the event's historical records</li>
               <li><strong>Payment Records:</strong> 7 years (legal requirement for financial records in France)</li>
-              <li><strong>Consent Records:</strong> Duration of processing plus 3 years (proof of consent)</li>
+              <li><strong>Registration Data:</strong> Typically not retained on the registration server for more than 1 year, except for historical results and club manager contact information as noted above</li>
             </ul>
-            <p>After these periods, data will be securely deleted or anonymized.</p>
+            <p>After these periods, data will be securely deleted or anonymized, except for historical race results which are preserved for archival purposes.</p>
           </section>
 
           <section>
@@ -190,7 +191,7 @@
               Le responsable du traitement de vos données personnelles est :
             </p>
             <p class="contact-info">
-              <strong>Rowing Club Paris Métropole (RCPM)</strong><br>
+              <strong>Rowing Club de Port Marly (RCPM)</strong><br>
               Course des Impressionnistes<br>
               Email : {{ contactEmail }}<br>
               Site web : {{ eventWebsite }}
@@ -238,12 +239,13 @@
             <h2>5. Conservation des données</h2>
             <p>Nous conservons vos données personnelles pendant les périodes suivantes :</p>
             <ul>
-              <li><strong>Comptes utilisateurs :</strong> Comptes actifs conservés indéfiniment ; comptes inactifs (aucune connexion pendant 3 ans) signalés pour examen</li>
-              <li><strong>Inscriptions aux événements :</strong> 5 ans après la date de l'événement (pour les archives historiques et la résolution des litiges)</li>
+              <li><strong>Comptes utilisateurs :</strong> Généralement supprimés avant la réouverture des inscriptions pour l'édition suivante (typiquement dans un délai d'un an). Cela garantit la fraîcheur des données et évite les problèmes liés aux informations obsolètes, aux mots de passe oubliés ou aux coordonnées modifiées.</li>
+              <li><strong>Coordonnées des responsables de club :</strong> Conservées d'une année sur l'autre pour envoyer les invitations aux éditions suivantes de l'événement</li>
+              <li><strong>Résultats historiques des courses :</strong> Les noms des membres d'équipage et les résultats des courses sont conservés indéfiniment dans le cadre des archives historiques de l'événement</li>
               <li><strong>Enregistrements de paiement :</strong> 7 ans (exigence légale pour les enregistrements financiers en France)</li>
-              <li><strong>Enregistrements de consentement :</strong> Durée du traitement plus 3 ans (preuve du consentement)</li>
+              <li><strong>Données d'inscription :</strong> Généralement non conservées sur le serveur d'inscription pendant plus d'un an, à l'exception des résultats historiques et des coordonnées des responsables de club comme indiqué ci-dessus</li>
             </ul>
-            <p>Après ces périodes, les données seront supprimées ou anonymisées de manière sécurisée.</p>
+            <p>Après ces périodes, les données seront supprimées ou anonymisées de manière sécurisée, à l'exception des résultats historiques des courses qui sont conservés à des fins d'archivage.</p>
           </section>
 
           <section>

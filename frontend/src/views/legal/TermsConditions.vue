@@ -20,7 +20,7 @@
           <section>
             <h2>2. Service Description</h2>
             <p>
-              The Service provides an online registration platform for the Course des Impressionnistes rowing competition organized by Rowing Club Paris Métropole (RCPM).
+              The Service provides an online registration platform for the Course des Impressionnistes rowing competition organized by Rowing Club de Port Marly (RCPM).
               The Service allows club managers to:
             </p>
             <ul>
@@ -49,10 +49,17 @@
             <p><strong>Crew Member Information:</strong> You must provide accurate information for all crew members, including:</p>
             <ul>
               <li>Full name, date of birth, and gender</li>
-              <li>Valid French Rowing Federation (FFA) license number</li>
+              <li>Valid rowing license number (FFA for French clubs, or equivalent federation for foreign clubs)</li>
               <li>Club affiliation</li>
             </ul>
-            <p><strong>License Verification:</strong> You are responsible for ensuring all crew members have valid FFA licenses. Invalid licenses may result in disqualification.</p>
+            <p><strong>Eligibility:</strong> Registrations are open to:</p>
+            <ul>
+              <li>Rowers from French clubs affiliated with the French Rowing Federation (FFA)</li>
+              <li>Rowers from foreign clubs, who must be licensed with their national rowing federation</li>
+            </ul>
+            <p><strong>License Verification:</strong> You are responsible for ensuring all crew members have valid licenses from their respective rowing federation. Invalid licenses may result in disqualification.</p>
+            <p><strong>Safety Requirements:</strong> All rowers must comply with the safety requirements of our regatta, including possession of a valid medical certificate as specified in the race regulations (Code des Régates).</p>
+            <p><strong>Non-Club Members:</strong> Club managers may register rowers who are not licensed with their club, but must provide the rower's license information and medical certificate details from the rower's actual club.</p>
             <p><strong>Parental Consent:</strong> For junior participants (under 18), you must obtain parental consent before registration.</p>
           </section>
 
@@ -61,7 +68,7 @@
             <p><strong>Registration Fees:</strong> Fees are charged per seat for boat registrations and per boat for rentals, as published on the website.</p>
             <p><strong>Payment Processing:</strong> Payments are processed securely through Stripe. We do not store credit card information.</p>
             <p><strong>Payment Deadline:</strong> All payments must be completed by the published deadline. Late payments will not be accepted.</p>
-            <p><strong>No Refunds:</strong> All payments are final and non-refundable once processed, except as required by law.</p>
+            <p><strong>Refunds:</strong> Crew forfeits declared at least 5 days before the race date are refundable. Forfeits declared less than 5 days before the race are non-refundable. This policy encourages club managers to declare forfeits as early as possible.</p>
             <p><strong>RCPM Members:</strong> RCPM members receive free registration (rental fees still apply).</p>
           </section>
 
@@ -69,8 +76,8 @@
             <h2>6. Cancellation and Modifications</h2>
             <p><strong>Before Payment:</strong> You may modify or delete registrations freely before payment.</p>
             <p><strong>After Payment:</strong> Paid registrations cannot be deleted. Modifications may be allowed at organizer discretion.</p>
-            <p><strong>After Registration Closes:</strong> No modifications or cancellations are permitted after the registration deadline.</p>
-            <p><strong>Forfeit:</strong> If you cannot participate, contact us immediately. No refunds will be provided.</p>
+            <p><strong>After Registration Closes:</strong> No modifications or cancellations are permitted after the registration deadline. Modifications may be allowed at organizer discretion.</p>
+            <p><strong>Crew Forfeits:</strong> If you cannot participate, contact us immediately. Forfeits declared at least 5 days before the race date are eligible for refund. Forfeits declared less than 5 days before the race are non-refundable.</p>
           </section>
 
           <section>
@@ -172,7 +179,7 @@
               If you have any questions about these Terms and Conditions, please contact us:
             </p>
             <p class="contact-info">
-              <strong>Rowing Club Paris Métropole (RCPM)</strong><br>
+              <strong>Rowing Club de Port Marly (RCPM)</strong><br>
               Course des Impressionnistes<br>
               Email: {{ contactEmail }}<br>
               Website: {{ eventWebsite }}
@@ -193,7 +200,7 @@
           <section>
             <h2>2. Description du service</h2>
             <p>
-              Le Service fournit une plateforme d'inscription en ligne pour la compétition d'aviron Course des Impressionnistes organisée par le Rowing Club Paris Métropole (RCPM).
+              Le Service fournit une plateforme d'inscription en ligne pour la compétition d'aviron Course des Impressionnistes organisée par le Rowing Club de Port Marly (RCPM).
               Le Service permet aux managers de club de :
             </p>
             <ul>
@@ -222,10 +229,17 @@
             <p><strong>Informations des équipiers :</strong> Vous devez fournir des informations exactes pour tous les équipiers, y compris :</p>
             <ul>
               <li>Nom complet, date de naissance et genre</li>
-              <li>Numéro de licence valide de la Fédération Française d'Aviron (FFA)</li>
+              <li>Numéro de licence d'aviron valide (FFA pour les clubs français, ou fédération équivalente pour les clubs étrangers)</li>
               <li>Affiliation au club</li>
             </ul>
-            <p><strong>Vérification de licence :</strong> Vous êtes responsable de vous assurer que tous les équipiers ont des licences FFA valides. Les licences invalides peuvent entraîner une disqualification.</p>
+            <p><strong>Éligibilité :</strong> Les inscriptions sont ouvertes aux :</p>
+            <ul>
+              <li>Rameurs de clubs français affiliés à la Fédération Française d'Aviron (FFA)</li>
+              <li>Rameurs de clubs étrangers, qui doivent être licenciés auprès de leur fédération nationale d'aviron</li>
+            </ul>
+            <p><strong>Vérification de licence :</strong> Vous êtes responsable de vous assurer que tous les équipiers ont des licences valides auprès de leur fédération d'aviron respective. Les licences invalides peuvent entraîner une disqualification.</p>
+            <p><strong>Exigences de sécurité :</strong> Tous les rameurs doivent se conformer aux exigences de sécurité de notre régate, y compris la possession d'un certificat médical valide tel que spécifié dans le règlement de la course (Code des Régates).</p>
+            <p><strong>Rameurs non-membres du club :</strong> Les responsables de club peuvent inscrire des rameurs qui ne sont pas licenciés dans leur club, mais doivent fournir les informations de licence et de certificat médical du rameur provenant du club réel du rameur.</p>
             <p><strong>Consentement parental :</strong> Pour les participants juniors (moins de 18 ans), vous devez obtenir le consentement parental avant l'inscription.</p>
           </section>
 
@@ -234,7 +248,7 @@
             <p><strong>Frais d'inscription :</strong> Les frais sont facturés par siège pour les inscriptions de bateaux et par bateau pour les locations, comme publié sur le site web.</p>
             <p><strong>Traitement des paiements :</strong> Les paiements sont traités de manière sécurisée via Stripe. Nous ne stockons pas les informations de carte de crédit.</p>
             <p><strong>Date limite de paiement :</strong> Tous les paiements doivent être effectués avant la date limite publiée. Les paiements tardifs ne seront pas acceptés.</p>
-            <p><strong>Aucun remboursement :</strong> Tous les paiements sont définitifs et non remboursables une fois traités, sauf si la loi l'exige.</p>
+            <p><strong>Remboursements :</strong> Les forfaits d'équipage déclarés au moins 5 jours avant la date de la course sont remboursés. Les forfaits déclarés moins de 5 jours avant la course ne sont pas remboursables. Cette politique encourage les responsables de club à déclarer les forfaits le plus tôt possible.</p>
             <p><strong>Membres RCPM :</strong> Les membres RCPM bénéficient d'une inscription gratuite (les frais de location s'appliquent toujours).</p>
           </section>
 
@@ -242,8 +256,8 @@
             <h2>6. Annulation et modifications</h2>
             <p><strong>Avant le paiement :</strong> Vous pouvez modifier ou supprimer les inscriptions librement avant le paiement.</p>
             <p><strong>Après le paiement :</strong> Les inscriptions payées ne peuvent pas être supprimées. Les modifications peuvent être autorisées à la discrétion de l'organisateur.</p>
-            <p><strong>Après la clôture des inscriptions :</strong> Aucune modification ou annulation n'est autorisée après la date limite d'inscription.</p>
-            <p><strong>Forfait :</strong> Si vous ne pouvez pas participer, contactez-nous immédiatement. Aucun remboursement ne sera fourni.</p>
+            <p><strong>Après la clôture des inscriptions :</strong> Aucune modification ou annulation n'est autorisée après la date limite d'inscription. Les modifications peuvent être autorisées à la discrétion de l'organisateur.</p>
+            <p><strong>Forfaits d'équipage :</strong> Si vous ne pouvez pas participer, contactez-nous immédiatement. Les forfaits déclarés au moins 5 jours avant la date de la course sont éligibles au remboursement. Les forfaits déclarés moins de 5 jours avant la course ne sont pas remboursables.</p>
           </section>
 
           <section>
@@ -345,7 +359,7 @@
               Si vous avez des questions sur ces Conditions générales, veuillez nous contacter :
             </p>
             <p class="contact-info">
-              <strong>Rowing Club Paris Métropole (RCPM)</strong><br>
+              <strong>Rowing Club de Port Marly (RCPM)</strong><br>
               Course des Impressionnistes<br>
               Email : {{ contactEmail }}<br>
               Site web : {{ eventWebsite }}
