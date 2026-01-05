@@ -139,7 +139,10 @@ describe('Cross-Export Consistency', () => {
 
     // Race numbers should be identical
     expect(crewTimerRaceNumbers).toEqual(eventProgramRaceNumbers)
-    expect(Array.from(crewTimerRaceNumbers).sort()).toEqual([1, 2, 3])
+    // With the business rule: all marathons get 1, semi-marathons get 2, 3, 4...
+    // race1 (marathon) = 1, race2 (semi) = 2, race3 (marathon) = 1
+    // So we should have race numbers [1, 2]
+    expect(Array.from(crewTimerRaceNumbers).sort()).toEqual([1, 2])
   })
 
   it('should produce identical bow numbers across both exports', () => {
@@ -198,8 +201,8 @@ describe('Cross-Export Consistency', () => {
   it('should assign marathon bow numbers starting from 1', () => {
     const crewTimerData = formatRacesToCrewTimer(mockJsonData, 'fr')
 
-    // Find marathon boats (race1 and race3)
-    const marathonBoats = crewTimerData.filter(row => row['Event Num'] === 1 || row['Event Num'] === 3)
+    // Find marathon boats (race1 and race3 - both have Event Num 1)
+    const marathonBoats = crewTimerData.filter(row => row['Event Num'] === 1)
 
     // Marathon bow numbers should be 1, 2, 3
     const marathonBowNumbers = marathonBoats.map(row => row['Bow']).sort((a, b) => a - b)
@@ -241,12 +244,12 @@ describe('Cross-Export Consistency', () => {
       customData.data.config
     )
 
-    // Find marathon boats
-    const marathonBoats = crewTimerData.filter(row => row['Event Num'] === 1 || row['Event Num'] === 3)
+    // Find marathon boats (both race1 and race3 have Event Num 1)
+    const marathonBoats = crewTimerData.filter(row => row['Event Num'] === 1)
     const marathonBowNumbers = marathonBoats.map(row => row['Bow']).sort((a, b) => a - b)
     expect(marathonBowNumbers).toEqual([100, 101, 102])
 
-    // Find semi-marathon boats
+    // Find semi-marathon boats (race2 has Event Num 2)
     const semiMarathonBoats = crewTimerData.filter(row => row['Event Num'] === 2)
     const semiMarathonBowNumbers = semiMarathonBoats.map(row => row['Bow']).sort((a, b) => a - b)
     expect(semiMarathonBowNumbers).toEqual([200])
@@ -261,7 +264,7 @@ describe('Cross-Export Consistency', () => {
     }
   })
 
-  it('should produce same race count across both exports', () => {
+  it('should produce race schedule with one row per race', () => {
     const crewTimerData = formatRacesToCrewTimer(mockJsonData, 'fr')
 
     const eligibleBoats = filterEligibleBoats(mockJsonData.data.boats)
@@ -272,13 +275,18 @@ describe('Cross-Export Consistency', () => {
     )
     const raceSchedule = generateRaceSchedule(mockJsonData, raceAssignments, 'fr')
 
-    // Count unique races in CrewTimer export
+    // Count unique race numbers in CrewTimer export
     const crewTimerRaceCount = new Set(crewTimerData.map(row => row['Event Num'])).size
 
-    // Count races in Event Program
+    // Event Program race schedule has one row per race definition
     const eventProgramRaceCount = raceSchedule.length
 
-    expect(crewTimerRaceCount).toBe(eventProgramRaceCount)
-    expect(crewTimerRaceCount).toBe(3)
+    // CrewTimer groups marathons under race number 1, so it has 2 unique numbers
+    expect(crewTimerRaceCount).toBe(2)
+    // Event Program has one row per race definition (3 races)
+    expect(eventProgramRaceCount).toBe(3)
+    
+    // They count different things, so they won't be equal when there are multiple marathons
+    // CrewTimer counts unique race numbers, Event Program counts race definitions
   })
 })

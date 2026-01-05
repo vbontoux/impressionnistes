@@ -16,7 +16,7 @@ from responses import (
 )
 from validation import validate_crew_member, sanitize_dict, crew_member_schema, is_rcpm_member
 from database import get_db_client, get_timestamp
-from auth_utils import get_user_from_event, require_team_manager
+from auth_utils import get_user_from_event, require_team_manager_or_admin_override
 from configuration import ConfigurationManager
 from boat_registration_utils import calculate_boat_club_info
 
@@ -25,7 +25,7 @@ logger.setLevel(logging.INFO)
 
 
 @handle_exceptions
-@require_team_manager
+@require_team_manager_or_admin_override
 def lambda_handler(event, context):
     """
     Update an existing crew member
@@ -46,9 +46,14 @@ def lambda_handler(event, context):
     """
     logger.info("Update crew member request")
     
-    # Get authenticated user
-    user = get_user_from_event(event)
-    team_manager_id = user['user_id']
+    # Get effective user ID (impersonated or real)
+    team_manager_id = event['_effective_user_id']
+    is_admin_override = event['_is_admin_override']
+    
+    # Audit logging for admin override
+    if is_admin_override:
+        admin_id = event['_admin_user_id']
+        logger.info(f"Admin {admin_id} updating crew member for team manager {team_manager_id}")
     
     # Get crew member ID from path
     crew_member_id = event.get('pathParameters', {}).get('crew_member_id')

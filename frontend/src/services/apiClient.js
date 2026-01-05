@@ -47,20 +47,117 @@ function isTokenExpired(token) {
   }
 }
 
+// Store reference to auth store (will be set on first use)
+let authStoreInstance = null;
+
 /**
- * Request interceptor - Add auth token to requests
+ * Get auth store instance
+ * We cache the instance to avoid repeated imports
+ */
+function getAuthStore() {
+  if (authStoreInstance) {
+    return authStoreInstance;
+  }
+  
+  try {
+    // Try to get the store using the mocked version (for tests) or real version
+    if (typeof vi !== 'undefined' && vi.isMockFunction) {
+      // In test environment with mocks
+      const { useAuthStore } = require('../stores/authStore.js');
+      authStoreInstance = useAuthStore();
+    } else {
+      // In production, we need to handle this differently
+      // The store will be available through the global Pinia instance
+      // For now, return null and let the app work without impersonation
+      return null;
+    }
+    return authStoreInstance;
+  } catch (error) {
+    console.warn('Failed to load auth store:', error);
+    return null;
+  }
+}
+
+/**
+ * Set auth store instance (called by the app on initialization)
+ */
+export function setAuthStoreInstance(store) {
+  authStoreInstance = store;
+}
+
+/**
+ * Request interceptor - Add auth token and impersonation parameter to requests
  */
 apiClient.interceptors.request.use(
   (config) => {
+    console.log('🔧 [apiClient] Request interceptor START')
+    console.log('🔧 [apiClient] Timestamp:', Date.now())
+    console.log('🔧 [apiClient] Request URL:', config.url)
+    console.log('🔧 [apiClient] Full window.location.href:', window.location.href)
+    
     // Use ID token for Cognito User Pool authorizer
-    const token = localStorage.getItem('id_token') || 
+    const hasLocalStorage = typeof localStorage !== 'undefined' && typeof localStorage.getItem === 'function'
+    const token = hasLocalStorage ? (localStorage.getItem('id_token') || 
                   localStorage.getItem('access_token') || 
-                  localStorage.getItem('auth_token');
+                  localStorage.getItem('auth_token')) : null
+    
+    console.log('🔧 [apiClient] Token exists:', !!token)
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     
+    // Get team_manager_id from multiple sources (in order of priority):
+    // 1. URL parameter (for page refreshes and URL sharing)
+    // 2. Auth store (for programmatic impersonation changes) - but only if actually impersonating
+    // 3. localStorage (fallback) - but verify it's a valid impersonation state
+    let teamManagerId = null
+    
+    // Check URL first
+    if (typeof window !== 'undefined' && window.location) {
+      const urlParams = new URLSearchParams(window.location.search)
+      teamManagerId = urlParams.get('team_manager_id')
+      console.log('🔧 [apiClient] URL search params:', window.location.search)
+      console.log('🔧 [apiClient] URL team_manager_id:', teamManagerId)
+    }
+    
+    // If not in URL, check auth store (only if actually impersonating)
+    if (!teamManagerId && authStoreInstance) {
+      // Check if we're actually impersonating (not just have a stale ID)
+      if (authStoreInstance.isImpersonating) {
+        teamManagerId = authStoreInstance.impersonatedTeamManagerId
+        console.log('🔧 [apiClient] AuthStore team_manager_id (impersonating):', teamManagerId)
+      } else {
+        console.log('🔧 [apiClient] AuthStore has ID but not impersonating - ignoring')
+      }
+    }
+    
+    // If not in store and not in URL, check localStorage as fallback
+    // (This handles the case where page refreshes before authStore initializes)
+    if (!teamManagerId && hasLocalStorage && !authStoreInstance) {
+      teamManagerId = localStorage.getItem('impersonatedTeamManagerId')
+      console.log('🔧 [apiClient] localStorage team_manager_id (fallback):', teamManagerId)
+    }
+    
+    console.log('🔧 [apiClient] localStorage check:', {
+      impersonatedTeamManagerId: hasLocalStorage ? localStorage.getItem('impersonatedTeamManagerId') : null,
+      impersonatedTeamManager: hasLocalStorage ? localStorage.getItem('impersonatedTeamManager') : null
+    })
+    
+    if (teamManagerId) {
+      // Parse the URL to add query parameter
+      const url = new URL(config.url, config.baseURL || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'));
+      url.searchParams.set('team_manager_id', teamManagerId);
+      
+      // Update config with new URL (pathname + search)
+      config.url = url.pathname + url.search;
+      
+      console.log('🔧 [apiClient] Added team_manager_id parameter, new URL:', config.url);
+    } else {
+      console.log('🔧 [apiClient] No team_manager_id found - using admin context')
+    }
+    
+    console.log('🔧 [apiClient] Request interceptor END')
     return config;
   },
   (error) => {

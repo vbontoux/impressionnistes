@@ -223,6 +223,81 @@ def require_any_role(*allowed_groups):
     return decorator
 
 
+def require_team_manager_or_admin_override(func):
+    """
+    Decorator to require team manager access or admin with override
+    
+    Allows:
+    - Team managers to access their own data
+    - Admins to access their own data
+    - Admins to access any team manager's data via ?team_manager_id parameter
+    
+    Sets event['_effective_user_id'] for use in handler
+    Sets event['_is_admin_override'] to track impersonation
+    Sets event['_admin_user_id'] when impersonating
+    
+    Usage:
+        @require_team_manager_or_admin_override
+        def lambda_handler(event, context):
+            team_manager_id = event['_effective_user_id']
+            is_admin_override = event['_is_admin_override']
+            # Use team_manager_id for data access
+    """
+    @wraps(func)
+    def wrapper(event, context):
+        user_info = get_user_from_event(event)
+        
+        if not user_info or not user_info.get('user_id'):
+            logger.warning("Unauthorized access attempt")
+            return unauthorized_error('Authentication required')
+        
+        # Check for admin override
+        query_params = event.get('queryStringParameters', {}) or {}
+        override_id = query_params.get('team_manager_id')
+        
+        if override_id:
+            # Admin override requested
+            if not is_admin(user_info):
+                logger.warning(
+                    f"Non-admin {user_info.get('email')} (user_id: {user_info.get('user_id')}) "
+                    f"attempted impersonation of team manager {override_id}"
+                )
+                return forbidden_error('Admin access required for impersonation')
+            
+            # Set effective user ID and admin override flag
+            event['_effective_user_id'] = override_id
+            event['_is_admin_override'] = True
+            event['_admin_user_id'] = user_info['user_id']
+            
+            # Audit logging for impersonation
+            logger.info({
+                'event': 'admin_impersonation',
+                'admin_user_id': user_info['user_id'],
+                'admin_email': user_info.get('email'),
+                'impersonated_user_id': override_id,
+                'action': context.function_name,
+                'endpoint': event.get('path'),
+                'method': event.get('httpMethod'),
+                'message': f"Admin {user_info.get('email')} impersonating team manager {override_id}"
+            })
+        else:
+            # Normal access - check team manager or admin permission
+            if not is_team_manager(user_info) and not is_admin(user_info):
+                logger.warning(
+                    f"Forbidden: User {user_info.get('email')} (user_id: {user_info.get('user_id')}) "
+                    f"attempted team manager access without proper permissions"
+                )
+                return forbidden_error('Team manager access required')
+            
+            # Set effective user ID to the authenticated user's ID
+            event['_effective_user_id'] = user_info['user_id']
+            event['_is_admin_override'] = False
+        
+        return func(event, context)
+    
+    return wrapper
+
+
 def check_resource_ownership(user_info, resource_user_id):
     """
     Check if user owns a resource or is an admin

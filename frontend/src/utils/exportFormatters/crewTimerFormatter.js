@@ -226,8 +226,10 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
     const teamManagerId = boat.team_manager_id
     const teamManager = teamManagersDict[teamManagerId] || {}
     
-    // Use boat_club_display for Crew column (simplified comma-separated clubs)
-    const crewValue = boat.boat_club_display || teamManager.club_affiliation || 'Unknown'
+    // Use club_list for Crew column (comma-separated list of all clubs)
+    const crewValue = boat.club_list && boat.club_list.length > 0
+      ? boat.club_list.join(', ')
+      : (teamManager.club_affiliation || '')
     
     // Use boat_number for Crew Abbrev column (e.g., "M.1.3", "SM.15.42")
     const crewAbbrevValue = boat.boat_number || ''

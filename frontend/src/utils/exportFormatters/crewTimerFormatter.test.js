@@ -278,7 +278,8 @@ describe('CrewTimer Formatter', () => {
               event_type: '42km', 
               boat_type: 'skiff',
               age_category: 'senior',
-              gender_category: 'men'
+              gender_category: 'men',
+              display_order: 1
             },
             { 
               race_id: 'SM1', 
@@ -287,7 +288,8 @@ describe('CrewTimer Formatter', () => {
               event_type: '21km', 
               boat_type: '4+',
               age_category: 'j16',
-              gender_category: 'women'
+              gender_category: 'women',
+              display_order: 2
             }
           ],
           boats: [
@@ -298,6 +300,7 @@ describe('CrewTimer Formatter', () => {
               forfait: false,
               team_manager_id: 'tm1',
               boat_club_display: 'RCPM',
+              boat_number: 'M.1.1',
               club_list: ['RCPM'],
               crew_composition: {
                 avg_age: 35.0,
@@ -315,6 +318,7 @@ describe('CrewTimer Formatter', () => {
               forfait: false,
               team_manager_id: 'tm2',
               boat_club_display: 'Club Elite',
+              boat_number: 'SM.2.1',
               club_list: ['Club Elite'],
               crew_composition: {
                 avg_age: 16.25,
@@ -357,9 +361,9 @@ describe('CrewTimer Formatter', () => {
       expect(result[1].Event).toBe('WOMEN-JUNIOR J16-COXED SWEEP FOUR');
       expect(result[1]['Event Abbrev']).toBe('');
       expect(result[0].Crew).toBe('RCPM');
-      expect(result[0]['Crew Abbrev']).toBe('RCPM');
+      expect(result[0]['Crew Abbrev']).toBe('M.1.1');
       expect(result[1].Crew).toBe('Club Elite');
-      expect(result[1]['Crew Abbrev']).toBe('Club Elite');
+      expect(result[1]['Crew Abbrev']).toBe('SM.2.1');
       expect(result[0].Stroke).toBe('Doe');
       expect(result[1].Stroke).toBe('Wilson');
       expect(result[0].Age).toBe(35);
@@ -597,7 +601,7 @@ describe('CrewTimer Formatter', () => {
   });
 
   describe('Crew vs Crew Abbrev columns', () => {
-    test('should use club list for Crew and boat_club_display for Crew Abbrev', () => {
+    test('should use club list for Crew and boat_number for Crew Abbrev', () => {
       const testData = {
         success: true,
         data: {
@@ -610,7 +614,7 @@ describe('CrewTimer Formatter', () => {
             semi_marathon_bow_start: 41
           },
           races: [
-            { race_id: 'R1', name: 'Test Race', distance: 21, event_type: '21km', boat_type: '4+' }
+            { race_id: 'R1', name: 'Test Race', distance: 21, event_type: '21km', boat_type: '4+', display_order: 1 }
           ],
           boats: [
             { 
@@ -620,6 +624,7 @@ describe('CrewTimer Formatter', () => {
               forfait: false, 
               team_manager_id: 'tm1',
               boat_club_display: 'RCPM (Multi-Club)',
+              boat_number: 'SM.1.1',
               club_list: ['RCPM', 'Club Elite'],
               seats: [], 
               crew_composition: { avg_age: 25 }
@@ -636,7 +641,7 @@ describe('CrewTimer Formatter', () => {
       
       expect(result.length).toBe(1);
       expect(result[0].Crew).toBe('RCPM, Club Elite');
-      expect(result[0]['Crew Abbrev']).toBe('RCPM (Multi-Club)');
+      expect(result[0]['Crew Abbrev']).toBe('SM.1.1');
     });
 
     test('should handle single club boat', () => {
@@ -652,7 +657,7 @@ describe('CrewTimer Formatter', () => {
             semi_marathon_bow_start: 41
           },
           races: [
-            { race_id: 'R1', name: 'Test Race', distance: 21, event_type: '21km', boat_type: '4+' }
+            { race_id: 'R1', name: 'Test Race', distance: 21, event_type: '21km', boat_type: '4+', display_order: 1 }
           ],
           boats: [
             { 
@@ -662,6 +667,7 @@ describe('CrewTimer Formatter', () => {
               forfait: false, 
               team_manager_id: 'tm1',
               boat_club_display: 'Club Elite',
+              boat_number: 'SM.1.1',
               club_list: ['Club Elite'],
               seats: [], 
               crew_composition: { avg_age: 25 }
@@ -678,7 +684,7 @@ describe('CrewTimer Formatter', () => {
       
       expect(result.length).toBe(1);
       expect(result[0].Crew).toBe('Club Elite');
-      expect(result[0]['Crew Abbrev']).toBe('Club Elite');
+      expect(result[0]['Crew Abbrev']).toBe('SM.1.1');
     });
 
     test('should handle external crew boat', () => {
@@ -694,7 +700,7 @@ describe('CrewTimer Formatter', () => {
             semi_marathon_bow_start: 41
           },
           races: [
-            { race_id: 'R1', name: 'Test Race', distance: 21, event_type: '21km', boat_type: '4+' }
+            { race_id: 'R1', name: 'Test Race', distance: 21, event_type: '21km', boat_type: '4+', display_order: 1 }
           ],
           boats: [
             { 
@@ -704,6 +710,7 @@ describe('CrewTimer Formatter', () => {
               forfait: false, 
               team_manager_id: 'tm1',
               boat_club_display: 'RCPM (SN Versailles)',
+              boat_number: 'SM.1.1',
               club_list: ['SN Versailles'],
               seats: [], 
               crew_composition: { avg_age: 25 }
@@ -720,7 +727,7 @@ describe('CrewTimer Formatter', () => {
       
       expect(result.length).toBe(1);
       expect(result[0].Crew).toBe('SN Versailles');
-      expect(result[0]['Crew Abbrev']).toBe('RCPM (SN Versailles)');
+      expect(result[0]['Crew Abbrev']).toBe('SM.1.1');
     });
   });
 

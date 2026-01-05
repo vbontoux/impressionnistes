@@ -75,6 +75,9 @@
         </div>
       </div>
 
+      <!-- Admin Impersonation Card -->
+      <AdminImpersonationCard />
+
       <!-- Configuration Sections -->
       <div class="config-sections">
         <h2>{{ $t('admin.dashboard.configuration') }}</h2>
@@ -186,6 +189,7 @@
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import apiClient from '../../services/apiClient';
+import AdminImpersonationCard from '../../components/AdminImpersonationCard.vue';
 
 const { t } = useI18n();
 

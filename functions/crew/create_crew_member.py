@@ -18,14 +18,14 @@ from responses import (
 )
 from validation import validate_crew_member, sanitize_dict, crew_member_schema, is_rcpm_member
 from database import get_db_client, get_timestamp
-from auth_utils import get_user_from_event, require_team_manager
+from auth_utils import get_user_from_event, require_team_manager_or_admin_override
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
 @handle_exceptions
-@require_team_manager
+@require_team_manager_or_admin_override
 def lambda_handler(event, context):
     """
     Create a new crew member
@@ -43,10 +43,22 @@ def lambda_handler(event, context):
     """
     logger.info("Create crew member request")
     
-    # Get authenticated user
-    user = get_user_from_event(event)
-    team_manager_id = user['user_id']
-    team_manager_club = user.get('club_affiliation', '')
+    # Get effective user ID (impersonated or real)
+    team_manager_id = event['_effective_user_id']
+    is_admin_override = event['_is_admin_override']
+    
+    # Audit logging for admin override
+    if is_admin_override:
+        admin_id = event['_admin_user_id']
+        logger.info(f"Admin {admin_id} creating crew member for team manager {team_manager_id}")
+    
+    # Get team manager's club affiliation for default
+    db = get_db_client()
+    team_manager = db.get_item(
+        pk=f'USER#{team_manager_id}',
+        sk='PROFILE'
+    )
+    team_manager_club = team_manager.get('club_affiliation', '') if team_manager else ''
     
     # Parse request body
     try:
@@ -70,7 +82,6 @@ def lambda_handler(event, context):
         return validation_error(errors)
     
     # Check for duplicate license number using GSI3
-    db = get_db_client()
     if db.check_license_number_exists(crew_data['license_number']):
         logger.warning(f"Duplicate license number attempted: {crew_data['license_number']}")
         return {

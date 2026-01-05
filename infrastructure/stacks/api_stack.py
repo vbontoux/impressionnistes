@@ -518,6 +518,13 @@ class ApiStack(Stack):
             'Get confirmed rental boats ready for payment'
         )
         
+        # List team managers function (for admin impersonation)
+        self.lambda_functions['list_team_managers'] = self._create_lambda_function(
+            'ListTeamManagersFunction',
+            'admin/list_team_managers',
+            'List all team managers for admin impersonation'
+        )
+        
         # Export functions (JSON)
         self.lambda_functions['export_crew_members_json'] = self._create_lambda_function(
             'ExportCrewMembersJsonFunction',
@@ -1071,6 +1078,19 @@ class ApiStack(Stack):
         stats_resource.add_method(
             'GET',
             get_stats_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # GET /admin/team-managers - List all team managers (admin only, for impersonation)
+        team_managers_resource = admin_resource.add_resource('team-managers')
+        list_team_managers_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['list_team_managers'],
+            proxy=True
+        )
+        team_managers_resource.add_method(
+            'GET',
+            list_team_managers_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )

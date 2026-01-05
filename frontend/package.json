@@ -28,6 +28,7 @@
     "@vue/test-utils": "^2.4.0",
     "eslint": "^8.55.0",
     "eslint-plugin-vue": "^9.19.0",
+    "fast-check": "^4.5.3",
     "happy-dom": "^12.10.0",
     "sharp": "^0.34.5",
     "vite": "^5.0.0",

@@ -48,6 +48,16 @@
     "dataExports": "Exports de Données"
   },
   "admin": {
+    "impersonation": {
+      "card_title": "Personnifier un Manager de Club",
+      "card_description": "Visualisez et gérez les données comme si vous étiez un autre manager de club. Sélectionnez un manager ci-dessous pour commencer la personnification.",
+      "viewing_as": "MODE ADMIN : Affichage en tant que",
+      "select_prompt": "MODE ADMIN : Sélectionnez un manager de club pour voir ses données",
+      "select_team_manager": "-- Sélectionner un manager de club --",
+      "exit": "Quitter l'emprunt d'identité",
+      "no_team_managers": "Aucun manager de club trouvé",
+      "load_error": "Échec du chargement des managers de club"
+    },
     "dashboard": {
       "subtitle": "Gérer la configuration du système et les inscriptions",
       "totalCrewMembers": "Équipiers inscrits",

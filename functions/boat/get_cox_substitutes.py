@@ -14,7 +14,7 @@ from responses import (
     handle_exceptions
 )
 from database import get_db_client
-from auth_utils import get_user_from_event, require_team_manager
+from auth_utils import get_user_from_event, require_team_manager_or_admin_override
 from boat_registration_utils import get_coxswain_substitutes
 
 logger = logging.getLogger()
@@ -22,7 +22,7 @@ logger.setLevel(logging.INFO)
 
 
 @handle_exceptions
-@require_team_manager
+@require_team_manager_or_admin_override
 def lambda_handler(event, context):
     """
     Get eligible coxswain substitutes for a boat registration
@@ -30,14 +30,21 @@ def lambda_handler(event, context):
     Path parameters:
         - boat_registration_id: ID of the boat registration
     
+    Query parameters (admin only):
+        - team_manager_id: Override to view another team manager's boat (admin only)
+    
     Returns:
         List of crew members who can substitute as coxswain
     """
     logger.info("Get coxswain substitutes request")
     
-    # Get authenticated user
-    user = get_user_from_event(event)
-    team_manager_id = user['user_id']
+    # Get effective user ID (may be overridden by admin impersonation)
+    team_manager_id = event.get('_effective_user_id')
+    
+    if not team_manager_id:
+        # Fallback to authenticated user if no override
+        user = get_user_from_event(event)
+        team_manager_id = user['user_id']
     
     # Get boat registration ID from path
     boat_registration_id = event.get('pathParameters', {}).get('boat_registration_id')

@@ -67,6 +67,7 @@ coverage/
 .coverage
 htmlcov/
 tests/venv/
+.hypothesis/
 
 # Frontend
 frontend/dist/

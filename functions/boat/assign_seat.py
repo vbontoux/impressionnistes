@@ -15,7 +15,7 @@ from responses import (
     handle_exceptions
 )
 from database import get_db_client, get_timestamp
-from auth_utils import get_user_from_event, require_team_manager
+from auth_utils import get_user_from_event, require_team_manager_or_admin_override
 from boat_registration_utils import (
     validate_seat_assignment,
     get_assigned_crew_members,
@@ -29,13 +29,16 @@ logger.setLevel(logging.INFO)
 
 
 @handle_exceptions
-@require_team_manager
+@require_team_manager_or_admin_override
 def lambda_handler(event, context):
     """
     Assign a crew member to a boat seat
     
     Path parameters:
         - boat_registration_id: ID of the boat registration
+    
+    Query parameters (admin only):
+        - team_manager_id: Override to modify another team manager's boat (admin only)
     
     Request body:
         - position: Seat position (1-9)
@@ -46,9 +49,13 @@ def lambda_handler(event, context):
     """
     logger.info("Assign seat request")
     
-    # Get authenticated user
-    user = get_user_from_event(event)
-    team_manager_id = user['user_id']
+    # Get effective user ID (may be overridden by admin impersonation)
+    team_manager_id = event.get('_effective_user_id')
+    
+    if not team_manager_id:
+        # Fallback to authenticated user if no override
+        user = get_user_from_event(event)
+        team_manager_id = user['user_id']
     
     # Get boat registration ID from path
     boat_registration_id = event.get('pathParameters', {}).get('boat_registration_id')

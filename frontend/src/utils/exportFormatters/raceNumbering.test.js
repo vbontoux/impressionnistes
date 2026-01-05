@@ -70,11 +70,11 @@ describe('assignRaceAndBowNumbers', () => {
     semi_marathon_bow_start: 41
   }
 
-  it('should assign sequential race numbers based on display_order', () => {
+  it('should assign race numbers: marathons get 1, semi-marathons get 2, 3, 4...', () => {
     const races = [
-      { race_id: 'race1', display_order: 2, distance: 42 },
-      { race_id: 'race2', display_order: 1, distance: 21 },
-      { race_id: 'race3', display_order: 3, distance: 42 }
+      { race_id: 'race1', display_order: 2, distance: 42 }, // Marathon
+      { race_id: 'race2', display_order: 1, distance: 21 }, // Semi-marathon
+      { race_id: 'race3', display_order: 3, distance: 42 }  // Marathon
     ]
     const boats = [
       { boat_registration_id: 'boat1', race_id: 'race1' },
@@ -84,9 +84,11 @@ describe('assignRaceAndBowNumbers', () => {
 
     const { raceAssignments } = assignRaceAndBowNumbers(races, boats, config)
 
-    expect(raceAssignments['race2'].raceNumber).toBe(1) // display_order 1
-    expect(raceAssignments['race1'].raceNumber).toBe(2) // display_order 2
-    expect(raceAssignments['race3'].raceNumber).toBe(3) // display_order 3
+    // All marathon races get race number 1
+    expect(raceAssignments['race1'].raceNumber).toBe(1) // Marathon
+    expect(raceAssignments['race3'].raceNumber).toBe(1) // Marathon
+    // Semi-marathon races get incremental numbers starting at 2
+    expect(raceAssignments['race2'].raceNumber).toBe(2) // Semi-marathon
   })
 
   it('should assign marathon bow numbers starting from config value', () => {

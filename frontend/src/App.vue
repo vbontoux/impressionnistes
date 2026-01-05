@@ -60,8 +60,11 @@
       </div>
     </header>
 
+    <!-- Admin Impersonation Bar (only visible when actively impersonating) -->
+    <AdminImpersonationBar v-if="authStore.isAdmin && authStore.isImpersonating" />
+
     <!-- Sidebar Navigation (for authenticated users) -->
-    <aside v-if="authStore.isAuthenticated" class="sidebar" @click="closeSidebarOnMobile">
+    <aside v-if="authStore.isAuthenticated" class="sidebar" :class="{ 'with-impersonation': authStore.isImpersonating }" @click="closeSidebarOnMobile">
       <nav class="sidebar-nav">
         <router-link to="/" class="nav-item" @click="closeSidebarOnMobile">
           <span class="nav-icon">
@@ -286,6 +289,8 @@ import SessionTimeoutWarning from './components/SessionTimeoutWarning.vue';
 import Footer from './components/layout/Footer.vue';
 import CookiePreferences from './components/legal/CookiePreferences.vue';
 import CookieBanner from './components/legal/CookieBanner.vue';
+import AdminImpersonationBar from './components/AdminImpersonationBar.vue';
+import apiClient from './services/apiClient';
 
 const router = useRouter();
 const route = useRoute();
@@ -367,6 +372,108 @@ watch(() => authStore.isAuthenticated, (isAuth) => {
     sessionTimeout.startMonitoring();
   } else {
     sessionTimeout.stopMonitoring();
+  }
+}, { immediate: true });
+
+// Navigation guard: Preserve impersonation parameter across all routes
+router.beforeEach((to, from, next) => {
+  // If admin is impersonating, ensure team_manager_id is in ALL routes
+  if (authStore.isAdmin && authStore.impersonatedTeamManagerId) {
+    if (to.query.team_manager_id !== authStore.impersonatedTeamManagerId) {
+      // Add the parameter to the destination route
+      next({
+        ...to,
+        query: {
+          ...to.query,
+          team_manager_id: authStore.impersonatedTeamManagerId
+        }
+      })
+      return
+    }
+  }
+  next()
+})
+
+// Watch route query param → update store (URL → Store sync)
+watch(() => route.query.team_manager_id, async (teamManagerId) => {
+  console.log('🔍 App.vue watcher triggered - team_manager_id:', teamManagerId)
+  console.log('🔍 Current authStore state:', {
+    isAdmin: authStore.isAdmin,
+    impersonatedTeamManagerId: authStore.impersonatedTeamManagerId
+  })
+  
+  // Only process if user is admin
+  if (!authStore.isAdmin) {
+    console.log('🔍 User is not admin, skipping watcher')
+    return;
+  }
+
+  if (teamManagerId && teamManagerId !== authStore.impersonatedTeamManagerId) {
+    console.log('🔍 Need to fetch team manager details for:', teamManagerId)
+    
+    // Fetch team manager details from API
+    try {
+      const response = await apiClient.get('/admin/team-managers');
+      console.log('🔍 Fetched team managers:', response.data)
+      
+      // API returns {success: true, data: {team_managers: [...], count: N}}
+      const teamManagers = response.data?.data?.team_managers || [];
+      console.log('🔍 Team managers array:', teamManagers)
+      
+      const teamManager = teamManagers.find(tm => tm.user_id === teamManagerId);
+      console.log('🔍 Found team manager:', teamManager)
+      
+      if (teamManager) {
+        console.log('🔍 Setting impersonation in store')
+        authStore.setImpersonation(teamManagerId, teamManager);
+      } else {
+        console.warn('🔍 Team manager not found:', teamManagerId);
+        authStore.clearImpersonation();
+      }
+    } catch (error) {
+      console.error('🔍 Failed to fetch team manager details:', error);
+      authStore.clearImpersonation();
+    }
+  } else if (!teamManagerId && authStore.impersonatedTeamManagerId) {
+    console.log('🔍 No team_manager_id in URL but store has one - clearing')
+    // Clear impersonation if parameter is removed
+    authStore.clearImpersonation();
+  } else {
+    console.log('🔍 No action needed - states match')
+  }
+}, { immediate: true });
+
+// Watch store → update route query param (Store → URL sync)
+watch(() => authStore.impersonatedTeamManagerId, (teamManagerId) => {
+  console.log('🔄 Store changed - impersonatedTeamManagerId:', teamManagerId)
+  console.log('🔄 Current route query:', route.query)
+  
+  // Only process if user is admin
+  if (!authStore.isAdmin) {
+    console.log('🔄 User is not admin, skipping')
+    return;
+  }
+
+  const currentQuery = { ...route.query };
+  
+  if (teamManagerId) {
+    // Add or update team_manager_id parameter
+    if (currentQuery.team_manager_id !== teamManagerId) {
+      console.log('🔄 Adding team_manager_id to URL:', teamManagerId)
+      currentQuery.team_manager_id = teamManagerId;
+      router.replace({ query: currentQuery });
+    } else {
+      console.log('🔄 URL already has correct team_manager_id')
+    }
+  } else {
+    // Remove team_manager_id parameter
+    if (currentQuery.team_manager_id) {
+      console.log('🔄 Removing team_manager_id from URL')
+      delete currentQuery.team_manager_id;
+      router.replace({ query: currentQuery });
+    } else {
+      console.log('🔄 URL already has no team_manager_id')
+    }
   }
 }, { immediate: true });
 </script>
@@ -667,6 +774,17 @@ h2 {
 
 .sidebar-open .sidebar {
   left: 0;
+}
+
+/* Add extra padding when impersonation bar is visible */
+.sidebar.with-impersonation {
+  padding-top: 150px; /* 70px header + ~80px impersonation bar */
+}
+
+@media (min-width: 768px) {
+  .sidebar.with-impersonation {
+    padding-top: 160px; /* 80px header + ~80px impersonation bar */
+  }
 }
 
 .sidebar-nav {

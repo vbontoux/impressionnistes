@@ -6,13 +6,37 @@ import { defineStore } from 'pinia';
 import * as authService from '../services/authService';
 
 export const useAuthStore = defineStore('auth', {
-  state: () => ({
-    user: authService.getUser(),
-    token: authService.getToken(),
-    isAuthenticated: authService.isAuthenticated(),
-    loading: false,
-    error: null,
-  }),
+  state: () => {
+    console.log('🏪 [authStore] Initializing state')
+    console.log('🏪 [authStore] Timestamp:', Date.now())
+    
+    // Check if localStorage is available (not available in some test environments)
+    const hasLocalStorage = typeof localStorage !== 'undefined' && typeof localStorage.getItem === 'function'
+    
+    console.log('🏪 [authStore] localStorage check:', {
+      impersonatedTeamManagerId: hasLocalStorage ? localStorage.getItem('impersonatedTeamManagerId') : null,
+      impersonatedTeamManager: hasLocalStorage ? localStorage.getItem('impersonatedTeamManager') : null
+    })
+    
+    const impersonatedId = hasLocalStorage ? (localStorage.getItem('impersonatedTeamManagerId') || null) : null
+    const impersonatedManager = hasLocalStorage ? JSON.parse(localStorage.getItem('impersonatedTeamManager') || 'null') : null
+    
+    console.log('🏪 [authStore] Parsed values:', {
+      impersonatedId,
+      impersonatedManager
+    })
+    
+    return {
+      user: authService.getUser(),
+      token: authService.getToken(),
+      isAuthenticated: authService.isAuthenticated(),
+      loading: false,
+      error: null,
+      // Impersonation state - restore from localStorage
+      impersonatedTeamManagerId: impersonatedId,
+      impersonatedTeamManager: impersonatedManager,
+    }
+  },
 
   getters: {
     /**
@@ -47,6 +71,21 @@ export const useAuthStore = defineStore('auth', {
     fullName: (state) => {
       if (!state.user) return '';
       return `${state.user.first_name} ${state.user.last_name}`;
+    },
+
+    /**
+     * Get the effective user ID for API requests
+     * Returns impersonated ID if impersonating, otherwise admin's ID
+     */
+    effectiveUserId: (state) => {
+      return state.impersonatedTeamManagerId || state.user?.user_id;
+    },
+
+    /**
+     * Check if currently impersonating
+     */
+    isImpersonating: (state) => {
+      return !!(state.user?.groups?.includes('admins') && state.impersonatedTeamManagerId);
     },
   },
 
@@ -221,6 +260,32 @@ export const useAuthStore = defineStore('auth', {
      */
     clearError() {
       this.error = null;
+    },
+
+    /**
+     * Start impersonating a team manager
+     */
+    setImpersonation(teamManagerId, teamManagerInfo) {
+      this.impersonatedTeamManagerId = teamManagerId;
+      this.impersonatedTeamManager = teamManagerInfo;
+      // Persist to localStorage so it survives page reloads (if available)
+      if (typeof localStorage !== 'undefined' && typeof localStorage.setItem === 'function') {
+        localStorage.setItem('impersonatedTeamManagerId', teamManagerId);
+        localStorage.setItem('impersonatedTeamManager', JSON.stringify(teamManagerInfo));
+      }
+    },
+
+    /**
+     * Stop impersonating
+     */
+    clearImpersonation() {
+      this.impersonatedTeamManagerId = null;
+      this.impersonatedTeamManager = null;
+      // Clear from localStorage (if available)
+      if (typeof localStorage !== 'undefined' && typeof localStorage.removeItem === 'function') {
+        localStorage.removeItem('impersonatedTeamManagerId');
+        localStorage.removeItem('impersonatedTeamManager');
+      }
     },
   },
 });

@@ -12,7 +12,7 @@ from responses import (
     handle_exceptions
 )
 from database import get_db_client
-from auth_utils import get_user_from_event, require_team_manager
+from auth_utils import get_user_from_event, require_team_manager_or_admin_override
 from pricing import calculate_boat_pricing
 from configuration import ConfigurationManager
 
@@ -21,7 +21,7 @@ logger.setLevel(logging.INFO)
 
 
 @handle_exceptions
-@require_team_manager
+@require_team_manager_or_admin_override
 def lambda_handler(event, context):
     """
     List all boat registrations for the authenticated team manager
@@ -31,9 +31,14 @@ def lambda_handler(event, context):
     """
     logger.info("List boat registrations request")
     
-    # Get authenticated user
-    user = get_user_from_event(event)
-    team_manager_id = user['user_id']
+    # Get effective user ID (impersonated or real)
+    team_manager_id = event['_effective_user_id']
+    is_admin_override = event['_is_admin_override']
+    
+    # Audit logging for admin override
+    if is_admin_override:
+        admin_id = event['_admin_user_id']
+        logger.info(f"Admin {admin_id} listing boat registrations for team manager {team_manager_id}")
     
     # Query DynamoDB for boat registrations
     db = get_db_client()

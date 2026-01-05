@@ -15,7 +15,7 @@ from responses import (
 )
 from validation import validate_boat_registration, sanitize_dict, boat_registration_schema
 from database import get_db_client, get_timestamp
-from auth_utils import get_user_from_event, require_team_manager
+from auth_utils import get_user_from_event, require_team_manager_or_admin_override
 from boat_registration_utils import (
     get_required_seats_for_boat_type,
     validate_boat_type_for_event,
@@ -30,7 +30,7 @@ logger.setLevel(logging.INFO)
 
 
 @handle_exceptions
-@require_team_manager
+@require_team_manager_or_admin_override
 def lambda_handler(event, context):
     """
     Create a new boat registration
@@ -47,9 +47,14 @@ def lambda_handler(event, context):
     """
     logger.info("Create boat registration request")
     
-    # Get authenticated user
-    user = get_user_from_event(event)
-    team_manager_id = user['user_id']
+    # Get effective user ID (impersonated or real)
+    team_manager_id = event['_effective_user_id']
+    is_admin_override = event['_is_admin_override']
+    
+    # Audit logging for admin override
+    if is_admin_override:
+        admin_id = event['_admin_user_id']
+        logger.info(f"Admin {admin_id} creating boat registration for team manager {team_manager_id}")
     
     # Parse request body
     try:

@@ -48,6 +48,16 @@
     "dataExports": "Data Exports"
   },
   "admin": {
+    "impersonation": {
+      "card_title": "Impersonate Club Manager",
+      "card_description": "View and manage data as if you were another club manager. Select a club manager below to start impersonation.",
+      "viewing_as": "ADMIN MODE: Viewing as",
+      "select_prompt": "ADMIN MODE: Select a club manager to view their data",
+      "select_team_manager": "-- Select Club Manager --",
+      "exit": "Exit Impersonation",
+      "no_team_managers": "No club managers found",
+      "load_error": "Failed to load club managers"
+    },
     "dashboard": {
       "subtitle": "Manage system configuration and registrations",
       "totalCrewMembers": "Registered Crew Members",
