@@ -16,7 +16,6 @@ Welcome to the Course des Impressionnistes Registration System documentation.
 
 ### Guides
 - [GDPR Compliance](guides/GDPR_COMPLIANCE.md) - **NEW** Privacy and consent implementation
-- [Admin Impersonation](guides/admin/admin-impersonation.md) - **NEW** Admin impersonation feature
 - [Email System](guides/EMAIL_SYSTEM_SUMMARY.md) - Email configuration and usage
 - [Payment Testing](guides/PAYMENT_TESTING.md) - Test payment flows
 

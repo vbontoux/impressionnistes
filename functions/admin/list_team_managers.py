@@ -32,7 +32,7 @@ def lambda_handler(event, context):
     impersonate.
     
     Returns:
-        List of team managers with user_id, first_name, last_name, email, club_affiliation
+        List of team managers with user_id, first_name, last_name, email, phone_number, club_affiliation
     """
     logger.info("List team managers request")
     
@@ -86,6 +86,7 @@ def lambda_handler(event, context):
                     'first_name': user.get('first_name', ''),
                     'last_name': user.get('last_name', ''),
                     'email': user.get('email', ''),
+                    'phone_number': user.get('mobile_number', ''),
                     'club_affiliation': user.get('club_affiliation', '')
                 })
         

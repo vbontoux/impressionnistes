@@ -73,6 +73,8 @@
       "boatInventoryDesc": "Manage boats available for rental",
       "crewMembers": "Manage Crew Members",
       "crewMembersDesc": "View and manage all crew members",
+      "clubManagers": "Club Managers",
+      "clubManagersDesc": "View and contact club managers",
       "boatRegistrations": "Manage Crews",
       "boatRegistrationsDesc": "View and manage all crews",
       "dataExports": "Data Exports",
@@ -268,6 +270,25 @@
       "fetchError": "Failed to load crews. Please try again.",
       "updateError": "Failed to update crew. Please try again.",
       "deleteError": "Failed to delete crew. Please try again."
+    },
+    "clubManagers": {
+      "title": "Club Managers",
+      "subtitle": "View and contact club managers",
+      "searchPlaceholder": "Search by name, email, phone, or club...",
+      "totalCount": "{count} club managers",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "clubAffiliation": "Club Affiliation",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "emailSelected": "Email Selected",
+      "selectedCount": "{count} selected",
+      "selectManager": "Select {name}",
+      "noManagers": "No club managers found",
+      "noSearchResults": "No managers match your search",
+      "clearSearch": "Clear Search",
+      "fetchError": "Failed to load club managers. Please try again."
     }
   },
   "session": {

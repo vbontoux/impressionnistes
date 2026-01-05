@@ -23,6 +23,7 @@ const AdminBoatInventory = () => import('../views/admin/AdminBoatInventory.vue')
 const AdminCrewMembers = () => import('../views/admin/AdminCrewMembers.vue');
 const AdminBoats = () => import('../views/admin/AdminBoats.vue');
 const AdminDataExport = () => import('../views/admin/AdminDataExport.vue');
+const AdminClubManagers = () => import('../views/admin/AdminClubManagers.vue');
 const PrivacyPolicy = () => import('../views/legal/PrivacyPolicy.vue');
 const TermsConditions = () => import('../views/legal/TermsConditions.vue');
 
@@ -159,6 +160,12 @@ const routes = [
     path: '/admin/exports',
     name: 'AdminDataExport',
     component: AdminDataExport,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/club-managers',
+    name: 'AdminClubManagers',
+    component: AdminClubManagers,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
 ];

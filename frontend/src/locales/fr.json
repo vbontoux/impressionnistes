@@ -73,6 +73,8 @@
       "boatInventoryDesc": "Gérer les bateaux disponibles à la location",
       "crewMembers": "Gérer les équipiers",
       "crewMembersDesc": "Voir et gérer tous les équipiers",
+      "clubManagers": "Managers de Club",
+      "clubManagersDesc": "Voir et contacter les managers de club",
       "boatRegistrations": "Gérer les équipages",
       "boatRegistrationsDesc": "Voir et gérer tous les équipages",
       "dataExports": "Exports de données",
@@ -268,6 +270,25 @@
       "fetchError": "Échec du chargement des équipages. Veuillez réessayer.",
       "updateError": "Échec de la mise à jour de l'équipage. Veuillez réessayer.",
       "deleteError": "Échec de la suppression de l'équipage. Veuillez réessayer."
+    },
+    "clubManagers": {
+      "title": "Managers de Club",
+      "subtitle": "Voir et contacter les managers de club",
+      "searchPlaceholder": "Rechercher par nom, email, téléphone ou club...",
+      "totalCount": "{count} managers de club",
+      "name": "Nom",
+      "email": "Email",
+      "phone": "Téléphone",
+      "clubAffiliation": "Club",
+      "selectAll": "Tout sélectionner",
+      "deselectAll": "Tout désélectionner",
+      "emailSelected": "Envoyer un email",
+      "selectedCount": "{count} sélectionné(s)",
+      "selectManager": "Sélectionner {name}",
+      "noManagers": "Aucun manager de club trouvé",
+      "noSearchResults": "Aucun manager ne correspond à votre recherche",
+      "clearSearch": "Effacer la recherche",
+      "fetchError": "Échec du chargement des managers de club. Veuillez réessayer."
     }
   },
   "session": {
