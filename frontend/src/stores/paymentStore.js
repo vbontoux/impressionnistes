@@ -33,7 +33,7 @@ export const usePaymentStore = defineStore('payment', {
      */
     selectedRentals: (state) => {
       return state.rentalsReadyForPayment.filter(rental =>
-        state.selectedRentalIds.includes(rental.rental_boat_id)
+        state.selectedRentalIds.includes(rental.rental_request_id)
       )
     },
 
@@ -54,7 +54,7 @@ export const usePaymentStore = defineStore('payment', {
       
       // Calculate rental fees
       const rentalTotal = state.rentalsReadyForPayment
-        .filter(rental => state.selectedRentalIds.includes(rental.rental_boat_id))
+        .filter(rental => state.selectedRentalIds.includes(rental.rental_request_id))
         .reduce((sum, rental) => {
           const pricing = rental.pricing
           if (pricing && pricing.total) {
@@ -98,19 +98,19 @@ export const usePaymentStore = defineStore('payment', {
     },
 
     /**
-     * Fetch confirmed rental boats ready for payment
+     * Fetch confirmed rental requests ready for payment
      */
     async fetchRentalsReadyForPayment() {
       try {
         const response = await boatService.getRentalsForPayment()
         console.log('Rentals API response:', response)
-        this.rentalsReadyForPayment = response.data.rental_boats || []
+        this.rentalsReadyForPayment = response.data.rental_requests || []
 
-        console.log(`Found ${this.rentalsReadyForPayment.length} rentals ready for payment`)
-        console.log('Rentals data:', this.rentalsReadyForPayment)
+        console.log(`Found ${this.rentalsReadyForPayment.length} rental requests ready for payment`)
+        console.log('Rental requests data:', this.rentalsReadyForPayment)
       } catch (error) {
         this.error = getErrorMessage(error)
-        console.error('Failed to fetch rentals for payment:', error)
+        console.error('Failed to fetch rental requests for payment:', error)
         throw error
       }
     },

@@ -59,6 +59,8 @@ help:
 	@echo "  make db-view           - View DynamoDB table contents (default: dev)"
 	@echo "  make db-migrate        - Run database migration (optional, see functions/migrations/)"
 	@echo "  make db-reset          - Reset database to initial state (⚠️  DELETES ALL DATA)"
+	@echo "  make db-cleanup-rental-boats-dry-run - Preview old RENTAL_BOAT records to delete"
+	@echo "  make db-cleanup-rental-boats         - Delete old RENTAL_BOAT records (⚠️  destructive!)"
 	@echo "  make destroy        - Destroy all stacks (default: dev)"
 	@echo "  make destroy-dev    - Destroy dev environment"
 	@echo "  make destroy-prod   - Destroy prod environment (with confirmation)"
@@ -1040,6 +1042,31 @@ db-reset:
 	@echo "  1. Users need to re-register"
 	@echo "  2. Check configuration: make db-view"
 	@echo "  3. Verify races: aws dynamodb query --table-name impressionnistes-registration-$(ENV) --key-condition-expression 'PK = :pk' --expression-attribute-values '{\":pk\":{\"S\":\"RACE\"}}' --query 'Count'"
+
+
+db-cleanup-rental-boats:
+	@echo "=========================================="
+	@echo "Delete Old Rental Boat Records"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@echo "This will delete all RENTAL_BOAT records from the database."
+	@echo "These are old inventory-based rental records that have been"
+	@echo "replaced by the new RENTAL_REQUEST system."
+	@echo ""
+	@chmod +x delete_old_rental_boats.py
+	@$(PYTHON) delete_old_rental_boats.py --env $(ENV)
+	@echo ""
+
+db-cleanup-rental-boats-dry-run:
+	@echo "=========================================="
+	@echo "Preview Old Rental Boat Records (Dry Run)"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@echo ""
+	@chmod +x delete_old_rental_boats.py
+	@$(PYTHON) delete_old_rental_boats.py --env $(ENV) --dry-run
+	@echo ""
 
 # ==========================================
 # Email/SES Management Commands

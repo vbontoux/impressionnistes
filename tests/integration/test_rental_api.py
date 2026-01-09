@@ -1,12 +1,16 @@
 """
 Integration tests for rental boat API endpoints
 Tests Lambda handlers with mock DynamoDB
+
+NOTE: Tests marked with @pytest.mark.skip are for the OLD inventory-based rental system
+which is being deprecated. See .kiro/specs/boat-rental-refactoring/DEPRECATED_FILES.md
 """
 import json
 import pytest
 from decimal import Decimal
 
 
+@pytest.mark.skip(reason="OLD rental boat inventory system - deprecated, see DEPRECATED_FILES.md")
 def test_list_available_rental_boats(dynamodb_table, mock_api_gateway_event, mock_lambda_context, test_team_manager_id):
     """Test listing available rental boats"""
     # Seed rental boats
@@ -66,6 +70,7 @@ def test_list_available_rental_boats(dynamodb_table, mock_api_gateway_event, moc
         assert boat['status'] == 'available'
 
 
+@pytest.mark.skip(reason="OLD rental boat inventory system - deprecated, see DEPRECATED_FILES.md")
 def test_request_rental_boat(dynamodb_table, mock_api_gateway_event, mock_lambda_context, test_team_manager_id):
     """Test requesting a rental boat"""
     # Seed an available rental boat (PK is just the rental_boat_id)
@@ -106,16 +111,19 @@ def test_request_rental_boat(dynamodb_table, mock_api_gateway_event, mock_lambda
 
 def test_get_my_rental_requests(dynamodb_table, mock_api_gateway_event, mock_lambda_context, test_team_manager_id):
     """Test getting user's rental requests"""
-    # Seed rental boat with requester (Lambda scans RENTAL_BOAT# items)
+    # Seed rental request with requester (Lambda scans RENTAL_REQUEST# items)
     dynamodb_table.put_item(Item={
-        'PK': 'RENTAL_BOAT#rental-1',
+        'PK': 'RENTAL_REQUEST#rental-1',
         'SK': 'METADATA',
-        'rental_boat_id': 'rental-1',
+        'rental_request_id': 'RENTAL_REQUEST#rental-1',
         'boat_type': '4-',
-        'boat_name': 'Rental Boat 1',
-        'status': 'requested',
-        'requester': f'{test_team_manager_id}@test.com',  # Matches mock email
-        'requested_at': '2024-12-18T10:00:00Z'
+        'desired_weight_range': '70-90kg',
+        'request_comment': 'Need a 4- for the race',
+        'status': 'pending',
+        'requester_id': test_team_manager_id,
+        'requester_email': f'{test_team_manager_id}@test.com',
+        'created_at': '2024-12-18T10:00:00Z',
+        'updated_at': '2024-12-18T10:00:00Z'
     })
     
     from rental.get_my_rental_requests import lambda_handler
@@ -141,26 +149,29 @@ def test_get_my_rental_requests(dynamodb_table, mock_api_gateway_event, mock_lam
 
 def test_cancel_rental_request(dynamodb_table, mock_api_gateway_event, mock_lambda_context, test_team_manager_id):
     """Test canceling a rental request"""
-    # Seed a rental boat with requester (PK is just rental_boat_id)
-    rental_boat_id = 'rental-cancel-test'
+    # Seed a rental REQUEST (new system) with requester
+    rental_request_id = 'RENTAL_REQUEST#cancel-test'
     dynamodb_table.put_item(Item={
-        'PK': rental_boat_id,
+        'PK': rental_request_id,
         'SK': 'METADATA',
-        'rental_boat_id': rental_boat_id,
+        'rental_request_id': rental_request_id,
         'boat_type': '4-',
-        'boat_name': 'Rental Boat Cancel Test',
-        'status': 'requested',
-        'requester': f'{test_team_manager_id}@test.com',  # Matches mock email
-        'requested_at': '2024-12-18T10:00:00Z'
+        'desired_weight_range': '70-90kg',
+        'request_comment': 'Test rental request',
+        'status': 'pending',
+        'requester_id': test_team_manager_id,
+        'requester_email': f'{test_team_manager_id}@test.com',
+        'created_at': '2024-12-18T10:00:00Z',
+        'updated_at': '2024-12-18T10:00:00Z'
     })
     
     from rental.cancel_rental_request import lambda_handler
     
-    # Create cancel event
+    # Create cancel event (new format uses 'id' as path parameter)
     event = mock_api_gateway_event(
         http_method='DELETE',
-        path=f'/rentals/request/{rental_boat_id}',
-        path_parameters={'rental_boat_id': rental_boat_id},
+        path=f'/rentals/request/{rental_request_id}',
+        path_parameters={'id': rental_request_id},
         user_id=test_team_manager_id
     )
     
@@ -172,3 +183,4 @@ def test_cancel_rental_request(dynamodb_table, mock_api_gateway_event, mock_lamb
     
     body = json.loads(response['body'])
     assert body['success'] is True
+    assert body['data']['status'] == 'cancelled'

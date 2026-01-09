@@ -2,6 +2,11 @@
 Lambda function to delete a rental boat hull from inventory
 Admin only - removes rental boat hulls from the inventory
 Note: This is different from boat_registration which is a team's race registration
+
+⚠️ DEPRECATED: This endpoint is part of the old inventory-based rental system.
+Use reject_rental_request.py instead for the new request-based system.
+This endpoint will be removed after migration is complete.
+See: .kiro/specs/boat-rental-refactoring/design.md
 """
 import json
 import logging

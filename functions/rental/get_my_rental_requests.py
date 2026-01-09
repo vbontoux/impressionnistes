@@ -4,9 +4,10 @@ Team manager accessible - shows their own rental requests
 """
 import json
 import logging
+from boto3.dynamodb.conditions import Attr
 
 from responses import success_response, validation_error, handle_exceptions
-from auth_utils import require_auth, get_user_from_event
+from auth_utils import require_team_manager, get_user_from_event
 from database import get_db_client
 
 logger = logging.getLogger()
@@ -14,68 +15,74 @@ logger.setLevel(logging.INFO)
 
 
 @handle_exceptions
-@require_auth
+@require_team_manager
 def lambda_handler(event, context):
     """
     Get rental requests for the authenticated team manager
     
     Returns:
-        List of rental requests for this team manager
+        List of rental requests for this team manager, sorted by created_at descending
     """
     logger.info("Get my rental requests")
     
     # Get authenticated user
     user_info = get_user_from_event(event)
-    team_manager_id = user_info['user_id']
-    team_manager_email = user_info.get('email', team_manager_id)
+    requester_id = user_info['user_id']
     
-    # Query database for rental boats requested by this team manager
+    # Query database for rental requests by this team manager
     db = get_db_client()
     
     try:
-        # Query all rental boats where requester matches this team manager
-        response = db.table.scan(
-            FilterExpression='begins_with(PK, :pk_prefix) AND SK = :sk AND requester = :requester',
-            ExpressionAttributeValues={
-                ':pk_prefix': 'RENTAL_BOAT#',
-                ':sk': 'METADATA',
-                ':requester': team_manager_email
-            }
+        # Scan for RENTAL_REQUEST records where requester_id matches
+        filter_expression = (
+            Attr('PK').begins_with('RENTAL_REQUEST#') & 
+            Attr('SK').eq('METADATA') & 
+            Attr('requester_id').eq(requester_id)
         )
         
-        rental_requests = response.get('Items', [])
+        rental_requests = db.scan_table(filter_expression=filter_expression)
         
-        # Handle pagination if needed
-        while 'LastEvaluatedKey' in response:
-            response = db.table.scan(
-                FilterExpression='begins_with(PK, :pk_prefix) AND SK = :sk AND requester = :requester',
-                ExpressionAttributeValues={
-                    ':pk_prefix': 'RENTAL_BOAT#',
-                    ':sk': 'METADATA',
-                    ':requester': team_manager_email
-                },
-                ExclusiveStartKey=response['LastEvaluatedKey']
-            )
-            rental_requests.extend(response.get('Items', []))
+        # Sort by created_at (most recent first)
+        rental_requests.sort(key=lambda r: r.get('created_at', ''), reverse=True)
         
-        # Sort by requested_at (most recent first)
-        rental_requests.sort(key=lambda r: r.get('requested_at', ''), reverse=True)
-        
-        # Return relevant fields for team managers
+        # Return all required fields for team managers
         result_requests = []
         for request in rental_requests:
-            result_requests.append({
-                'rental_boat_id': request.get('rental_boat_id') or request.get('PK'),
+            # Strip RENTAL_REQUEST# prefix from ID for frontend
+            full_id = request.get('rental_request_id', '')
+            clean_id = full_id.replace('RENTAL_REQUEST#', '') if full_id else ''
+            
+            result_request = {
+                'rental_request_id': clean_id,
                 'boat_type': request.get('boat_type'),
-                'boat_name': request.get('boat_name'),
-                'rower_weight_range': request.get('rower_weight_range'),
+                'desired_weight_range': request.get('desired_weight_range'),
+                'request_comment': request.get('request_comment'),
                 'status': request.get('status'),
-                'requested_at': request.get('requested_at'),
-                'confirmed_at': request.get('confirmed_at'),
-                'confirmed_by': request.get('confirmed_by')
-            })
+                'created_at': request.get('created_at')
+            }
+            
+            # Add conditional fields based on status
+            if request.get('assignment_details'):
+                result_request['assignment_details'] = request.get('assignment_details')
+            
+            if request.get('accepted_at'):
+                result_request['accepted_at'] = request.get('accepted_at')
+            
+            if request.get('paid_at'):
+                result_request['paid_at'] = request.get('paid_at')
+            
+            if request.get('cancelled_at'):
+                result_request['cancelled_at'] = request.get('cancelled_at')
+            
+            if request.get('rejected_at'):
+                result_request['rejected_at'] = request.get('rejected_at')
+            
+            if request.get('rejection_reason'):
+                result_request['rejection_reason'] = request.get('rejection_reason')
+            
+            result_requests.append(result_request)
         
-        logger.info(f"Retrieved {len(result_requests)} rental requests for team manager {team_manager_id}")
+        logger.info(f"Retrieved {len(result_requests)} rental requests for team manager {requester_id}")
         
         return success_response(
             data={

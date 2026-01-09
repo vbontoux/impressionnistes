@@ -6,15 +6,15 @@ import apiClient from './apiClient'
 
 const paymentService = {
   /**
-   * Create a payment intent for selected boat registrations and/or rental boats
+   * Create a payment intent for selected boat registrations and/or rental requests
    * @param {Array<string>} boatRegistrationIds - Array of boat registration IDs
-   * @param {Array<string>} rentalBoatIds - Array of rental boat IDs
+   * @param {Array<string>} rentalRequestIds - Array of rental request IDs
    * @returns {Promise} Payment intent data with client_secret
    */
-  async createPaymentIntent(boatRegistrationIds, rentalBoatIds = []) {
+  async createPaymentIntent(boatRegistrationIds, rentalRequestIds = []) {
     const response = await apiClient.post('/payment/create-intent', {
       boat_registration_ids: boatRegistrationIds,
-      rental_boat_ids: rentalBoatIds
+      rental_request_ids: rentalRequestIds
     })
     return response.data
   },

@@ -179,7 +179,7 @@ def send_payment_confirmation_email(
                     
                     {receipt_link}
                     
-                    <p>Vos inscriptions sont maintenant confirmées. Vous pouvez consulter vos bateaux inscrits dans votre espace personnel.</p>
+                    <p>Votre paiement a été enregistré avec succès. Vous pouvez consulter les détails dans votre espace personnel.</p>
                     
                     <p>À bientôt sur l'eau !</p>
                     
@@ -205,7 +205,7 @@ Montant payé : {amount_str}
 
 Numéro de paiement : {payment_details.get('payment_id', 'N/A')}
 
-Vos inscriptions sont maintenant confirmées.
+Votre paiement a été enregistré avec succès.
 
 À bientôt sur l'eau !
 

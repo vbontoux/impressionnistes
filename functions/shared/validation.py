@@ -384,6 +384,48 @@ notification_config_schema = {
 }
 
 
+# Rental Request Schema
+rental_request_schema = {
+    'boat_type': {
+        'type': 'string',
+        'required': True,
+        'allowed': ['skiff', '4-', '4+', '4x-', '4x+', '8+', '8x+', '4+yolette', '4x+yolette']
+    },
+    'desired_weight_range': {
+        'type': 'string',
+        'required': True,
+        'minlength': 1,
+        'maxlength': 50,
+        'empty': False
+    },
+    'request_comment': {
+        'type': 'string',
+        'required': True,
+        'minlength': 1,
+        'maxlength': 500,
+        'empty': False
+    },
+    'status': {
+        'type': 'string',
+        'required': False,
+        'allowed': ['pending', 'accepted', 'paid', 'cancelled']
+    },
+    'assignment_details': {
+        'type': 'string',
+        'required': False,
+        'minlength': 1,
+        'maxlength': 1000,
+        'nullable': True
+    },
+    'rejection_reason': {
+        'type': 'string',
+        'required': False,
+        'maxlength': 500,
+        'nullable': True
+    }
+}
+
+
 # Validation functions
 def validate_crew_member(data):
     """
@@ -565,3 +607,70 @@ def is_rcpm_member(club_affiliation):
     return ('rcpm' in club_lower or 
             'port-marly' in club_lower or 
             'port marly' in club_lower)
+
+
+def validate_rental_request(data):
+    """
+    Validate rental request data
+    
+    Args:
+        data: Rental request data to validate
+        
+    Returns:
+        tuple: (is_valid, errors)
+    """
+    v = CustomValidator(rental_request_schema, allow_unknown=True)
+    is_valid = v.validate(data)
+    return is_valid, v.errors
+
+
+def validate_status_transition(current_status, new_status, user_role='team_manager'):
+    """
+    Validate rental request status transitions
+    
+    Valid transitions:
+    - pending → accepted (admin only)
+    - pending → cancelled (team manager or admin)
+    - accepted → paid (payment system)
+    - accepted → cancelled (team manager)
+    - paid → (no transitions - final state)
+    - cancelled → (no transitions - final state)
+    
+    Args:
+        current_status: Current status of the rental request
+        new_status: Desired new status
+        user_role: Role of user making the transition ('team_manager' or 'admin')
+        
+    Returns:
+        tuple: (is_valid, error_message)
+    """
+    # Final states cannot transition
+    if current_status in ['paid', 'cancelled']:
+        return False, f"Cannot transition from final state '{current_status}'"
+    
+    # Define valid transitions
+    valid_transitions = {
+        'pending': {
+            'accepted': ['admin'],  # Only admin can accept
+            'cancelled': ['team_manager', 'admin']  # Both can cancel
+        },
+        'accepted': {
+            'paid': ['system'],  # Only payment system
+            'cancelled': ['team_manager', 'admin']  # Both can cancel
+        }
+    }
+    
+    # Check if transition exists
+    if current_status not in valid_transitions:
+        return False, f"Invalid current status: {current_status}"
+    
+    if new_status not in valid_transitions[current_status]:
+        return False, f"Cannot transition from '{current_status}' to '{new_status}'"
+    
+    # Check if user role is allowed for this transition
+    allowed_roles = valid_transitions[current_status][new_status]
+    if user_role not in allowed_roles:
+        return False, f"Role '{user_role}' cannot transition from '{current_status}' to '{new_status}'"
+    
+    return True, None
+

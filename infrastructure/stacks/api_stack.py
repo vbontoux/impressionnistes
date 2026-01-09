@@ -9,7 +9,6 @@ from aws_cdk import (
     aws_apigateway as apigateway,
     aws_lambda as lambda_,
     aws_iam as iam,
-    aws_logs as logs,
 )
 from constructs import Construct
 import os
@@ -134,8 +133,9 @@ class ApiStack(Stack):
             environment=self.common_env,
             timeout=Duration.seconds(timeout),
             memory_size=256,
-            description=description,
-            log_retention=logs.RetentionDays.ONE_WEEK
+            description=description
+            # log_retention removed to stay under CloudFormation 500 resource limit
+            # Logs will use AWS account default retention (can be set in CloudWatch console)
         )
         
         # Grant DynamoDB permissions
@@ -487,17 +487,26 @@ class ApiStack(Stack):
             'Admin delete boat registration for any team manager'
         )
         
-        # Team manager rental functions
-        self.lambda_functions['list_available_rental_boats'] = self._create_lambda_function(
-            'ListAvailableRentalBoatsFunction',
-            'rental/list_available_rental_boats',
-            'List available rental boats for team managers'
-        )
+        # Team manager rental functions (OLD - DEPRECATED)
+        # COMMENTED OUT: Exceeds CloudFormation 500 resource limit
+        # These old endpoints are not needed since we're deploying the new request-based system
+        # self.lambda_functions['list_available_rental_boats'] = self._create_lambda_function(
+        #     'ListAvailableRentalBoatsFunction',
+        #     'rental/list_available_rental_boats',
+        #     'List available rental boats for team managers'
+        # )
+        # 
+        # self.lambda_functions['request_rental_boat'] = self._create_lambda_function(
+        #     'RequestRentalBoatFunction',
+        #     'rental/request_rental_boat',
+        #     'Request a rental boat for team manager'
+        # )
         
-        self.lambda_functions['request_rental_boat'] = self._create_lambda_function(
-            'RequestRentalBoatFunction',
-            'rental/request_rental_boat',
-            'Request a rental boat for team manager'
+        # Team manager rental request functions (NEW)
+        self.lambda_functions['create_rental_request'] = self._create_lambda_function(
+            'CreateRentalRequestFunction',
+            'rental/create_rental_request',
+            'Create a new rental request'
         )
         
         self.lambda_functions['get_my_rental_requests'] = self._create_lambda_function(
@@ -516,6 +525,37 @@ class ApiStack(Stack):
             'GetRentalsForPaymentFunction',
             'rental/get_rentals_for_payment',
             'Get confirmed rental boats ready for payment'
+        )
+        
+        # Admin rental request management functions (NEW)
+        self.lambda_functions['list_rental_requests'] = self._create_lambda_function(
+            'ListRentalRequestsFunction',
+            'admin/list_rental_requests',
+            'List all rental requests with filtering'
+        )
+        
+        self.lambda_functions['accept_rental_request'] = self._create_lambda_function(
+            'AcceptRentalRequestFunction',
+            'admin/accept_rental_request',
+            'Accept a rental request and provide assignment details'
+        )
+        
+        self.lambda_functions['update_assignment_details'] = self._create_lambda_function(
+            'UpdateAssignmentDetailsFunction',
+            'admin/update_assignment_details',
+            'Update assignment details for an accepted rental request'
+        )
+        
+        self.lambda_functions['reject_rental_request'] = self._create_lambda_function(
+            'RejectRentalRequestFunction',
+            'admin/reject_rental_request',
+            'Reject a rental request'
+        )
+        
+        self.lambda_functions['reset_rental_request'] = self._create_lambda_function(
+            'ResetRentalRequestFunction',
+            'admin/reset_rental_request',
+            'Reset an accepted rental request back to pending'
         )
         
         # List team managers function (for admin impersonation)
@@ -1015,7 +1055,7 @@ class ApiStack(Stack):
             authorization_type=apigateway.AuthorizationType.COGNITO
         )
         
-        # Rental boat inventory management routes
+        # Rental boat inventory management routes (OLD - DEPRECATED)
         rental_boats_resource = admin_resource.add_resource('rental-boats')
         
         # GET /admin/rental-boats - List all rental boats (admin only)
@@ -1065,6 +1105,75 @@ class ApiStack(Stack):
         rental_boat_resource.add_method(
             'DELETE',
             delete_rental_boat_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Rental request management routes (NEW)
+        rental_requests_resource = admin_resource.add_resource('rental-requests')
+        
+        # GET /admin/rental-requests - List all rental requests with filtering (admin only)
+        list_rental_requests_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['list_rental_requests'],
+            proxy=True
+        )
+        rental_requests_resource.add_method(
+            'GET',
+            list_rental_requests_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Single rental request resource /admin/rental-requests/{rental_request_id}
+        rental_request_resource = rental_requests_resource.add_resource('{rental_request_id}')
+        
+        # PUT /admin/rental-requests/{rental_request_id}/accept - Accept a rental request (admin only)
+        accept_resource = rental_request_resource.add_resource('accept')
+        accept_rental_request_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['accept_rental_request'],
+            proxy=True
+        )
+        accept_resource.add_method(
+            'PUT',
+            accept_rental_request_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # PUT /admin/rental-requests/{rental_request_id}/assignment - Update assignment details (admin only)
+        assignment_resource = rental_request_resource.add_resource('assignment')
+        update_assignment_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['update_assignment_details'],
+            proxy=True
+        )
+        assignment_resource.add_method(
+            'PUT',
+            update_assignment_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # DELETE /admin/rental-requests/{rental_request_id} - Reject a rental request (admin only)
+        reject_rental_request_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['reject_rental_request'],
+            proxy=True
+        )
+        rental_request_resource.add_method(
+            'DELETE',
+            reject_rental_request_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # PUT /admin/rental-requests/{rental_request_id}/reset - Reset accepted request to pending (admin only)
+        reset_resource = rental_request_resource.add_resource('reset')
+        reset_rental_request_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['reset_rental_request'],
+            proxy=True
+        )
+        reset_resource.add_method(
+            'PUT',
+            reset_rental_request_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )
@@ -1249,28 +1358,58 @@ class ApiStack(Stack):
         # Create /rental resource (team manager accessible)
         rental_resource = self.api.root.add_resource('rental')
         
-        # GET /rental/boats - List available rental boats (team manager accessible)
-        rental_boats_resource = rental_resource.add_resource('boats')
-        list_available_rental_boats_integration = apigateway.LambdaIntegration(
-            self.lambda_functions['list_available_rental_boats'],
-            proxy=True
-        )
-        rental_boats_resource.add_method(
-            'GET',
-            list_available_rental_boats_integration,
-            authorizer=self.authorizer,
-            authorization_type=apigateway.AuthorizationType.COGNITO
-        )
+        # OLD ENDPOINTS (DEPRECATED - COMMENTED OUT to stay under 500 resource limit)
+        # These are not needed since we're deploying the new request-based system directly
+        # # GET /rental/boats - List available rental boats (team manager accessible)
+        # rental_boats_resource = rental_resource.add_resource('boats')
+        # list_available_rental_boats_integration = apigateway.LambdaIntegration(
+        #     self.lambda_functions['list_available_rental_boats'],
+        #     proxy=True
+        # )
+        # rental_boats_resource.add_method(
+        #     'GET',
+        #     list_available_rental_boats_integration,
+        #     authorizer=self.authorizer,
+        #     authorization_type=apigateway.AuthorizationType.COGNITO
+        # )
+        # 
+        # # POST /rental/request - Request a rental boat (OLD - team manager accessible)
+        # # NOTE: This is the OLD endpoint that will be replaced by the new POST /rental/request
+        # rental_request_old_resource = rental_resource.add_resource('request-old')
+        # request_rental_boat_integration = apigateway.LambdaIntegration(
+        #     self.lambda_functions['request_rental_boat'],
+        #     proxy=True
+        # )
+        # rental_request_old_resource.add_method(
+        #     'POST',
+        #     request_rental_boat_integration,
+        #     authorizer=self.authorizer,
+        #     authorization_type=apigateway.AuthorizationType.COGNITO
+        # )
         
-        # POST /rental/request - Request a rental boat (team manager accessible)
+        # NEW ENDPOINTS (Request-based rental system)
+        # POST /rental/request - Create a new rental request (team manager accessible)
         rental_request_resource = rental_resource.add_resource('request')
-        request_rental_boat_integration = apigateway.LambdaIntegration(
-            self.lambda_functions['request_rental_boat'],
+        create_rental_request_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['create_rental_request'],
             proxy=True
         )
         rental_request_resource.add_method(
             'POST',
-            request_rental_boat_integration,
+            create_rental_request_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # DELETE /rental/request/{rental_request_id} - Cancel a rental request (team manager accessible)
+        rental_request_id_resource = rental_request_resource.add_resource('{rental_request_id}')
+        cancel_rental_request_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['cancel_rental_request'],
+            proxy=True
+        )
+        rental_request_id_resource.add_method(
+            'DELETE',
+            cancel_rental_request_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )
@@ -1288,32 +1427,46 @@ class ApiStack(Stack):
             authorization_type=apigateway.AuthorizationType.COGNITO
         )
         
-        # DELETE /rental/cancel/{rental_boat_id} - Cancel a rental request (team manager accessible)
-        cancel_resource = rental_resource.add_resource('cancel')
-        cancel_rental_id_resource = cancel_resource.add_resource('{rental_boat_id}')
-        cancel_rental_request_integration = apigateway.LambdaIntegration(
-            self.lambda_functions['cancel_rental_request'],
-            proxy=True
-        )
-        cancel_rental_id_resource.add_method(
-            'DELETE',
-            cancel_rental_request_integration,
-            authorizer=self.authorizer,
-            authorization_type=apigateway.AuthorizationType.COGNITO
-        )
-        
-        # GET /rental/for-payment - Get confirmed rentals ready for payment (team manager accessible)
-        for_payment_resource = rental_resource.add_resource('for-payment')
+        # GET /rental/requests-for-payment - Get accepted requests ready for payment (team manager accessible)
+        requests_for_payment_resource = rental_resource.add_resource('requests-for-payment')
         get_rentals_for_payment_integration = apigateway.LambdaIntegration(
             self.lambda_functions['get_rentals_for_payment'],
             proxy=True
         )
-        for_payment_resource.add_method(
+        requests_for_payment_resource.add_method(
             'GET',
             get_rentals_for_payment_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )
+        
+        # OLD ENDPOINTS (DEPRECATED - COMMENTED OUT to stay under 500 resource limit)
+        # # DELETE /rental/cancel/{rental_boat_id} - Cancel a rental request (OLD - team manager accessible)
+        # cancel_resource = rental_resource.add_resource('cancel')
+        # cancel_rental_id_resource = cancel_resource.add_resource('{rental_boat_id}')
+        # cancel_rental_request_old_integration = apigateway.LambdaIntegration(
+        #     self.lambda_functions['cancel_rental_request'],
+        #     proxy=True
+        # )
+        # cancel_rental_id_resource.add_method(
+        #     'DELETE',
+        #     cancel_rental_request_old_integration,
+        #     authorizer=self.authorizer,
+        #     authorization_type=apigateway.AuthorizationType.COGNITO
+        # )
+        # 
+        # # GET /rental/for-payment - Get confirmed rentals ready for payment (OLD - team manager accessible)
+        # for_payment_resource = rental_resource.add_resource('for-payment')
+        # get_rentals_for_payment_old_integration = apigateway.LambdaIntegration(
+        #     self.lambda_functions['get_rentals_for_payment'],
+        #     proxy=True
+        # )
+        # for_payment_resource.add_method(
+        #     'GET',
+        #     get_rentals_for_payment_old_integration,
+        #     authorizer=self.authorizer,
+        #     authorization_type=apigateway.AuthorizationType.COGNITO
+        # )
 
         # Output API URL
         from aws_cdk import CfnOutput

@@ -1,14 +1,12 @@
 """
-Lambda function to cancel a rental boat request
-Team manager can cancel their own rental requests (requested or confirmed status)
-The boat will return to 'available' status
+Lambda function for team managers to cancel their own rental request
+Team manager accessible - cancels a pending or accepted rental request
 """
 import json
 import logging
 from datetime import datetime
-from urllib.parse import unquote
 
-from responses import success_response, validation_error, not_found_error, handle_exceptions
+from responses import success_response, not_found_error, handle_exceptions
 from auth_utils import require_team_manager, get_user_from_event
 from database import get_db_client
 
@@ -20,70 +18,97 @@ logger.setLevel(logging.INFO)
 @require_team_manager
 def lambda_handler(event, context):
     """
-    Cancel a rental boat request
+    Cancel a rental request
     
-    Path parameter:
-        rental_boat_id: ID of the rental boat to cancel
+    Path parameters:
+        rental_request_id: ID of the rental request to cancel
     
     Returns:
-        Success message
+        Updated rental request with cancelled status
     """
     logger.info("Cancel rental request")
     
-    # Get authenticated user
+    # Get authenticated team manager user
     user_info = get_user_from_event(event)
-    team_manager_email = user_info.get('email')
+    team_manager_id = user_info['user_id']
     
-    # Get rental_boat_id from path parameters and URL-decode it
-    rental_boat_id = event.get('pathParameters', {}).get('rental_boat_id')
-    if not rental_boat_id:
-        return validation_error('rental_boat_id is required in path')
+    # Get rental_request_id from path parameters
+    path_params = event.get('pathParameters') or {}
+    rental_request_id_param = path_params.get('rental_request_id')  # Match API Gateway parameter name
     
-    # URL-decode the ID
-    rental_boat_id = unquote(rental_boat_id)
+    if not rental_request_id_param:
+        from responses import error_response
+        return error_response(
+            status_code=400,
+            error_code='VALIDATION_ERROR',
+            message='rental_request_id is required in path'
+        )
     
-    # Get existing rental boat
+    # Reconstruct full DynamoDB key (frontend sends only UUID)
+    rental_request_id = f"RENTAL_REQUEST#{rental_request_id_param}"
+    
+    # Get rental request from database
     db = get_db_client()
-    
     try:
-        rental_boat = db.get_item(rental_boat_id, 'METADATA')
-        if not rental_boat:
-            return not_found_error('rental_boat', rental_boat_id)
-    except Exception as e:
-        logger.error(f"Failed to get rental boat: {str(e)}")
-        return validation_error(f'Failed to get rental boat: {str(e)}')
-    
-    # Verify the rental belongs to this team manager
-    if rental_boat.get('requester') != team_manager_email:
-        return validation_error('You can only cancel your own rental requests')
-    
-    # Check if rental can be cancelled
-    current_status = rental_boat.get('status')
-    
-    if current_status == 'paid':
-        return validation_error('Cannot cancel a paid rental. Please contact the administrator.')
-    
-    if current_status not in ['requested', 'confirmed']:
-        return validation_error(f'Cannot cancel rental with status: {current_status}')
-    
-    # Update rental boat to available status
-    current_time = datetime.utcnow().isoformat() + 'Z'
-    
-    rental_boat['status'] = 'available'
-    rental_boat['requester'] = None
-    rental_boat['requested_at'] = None
-    rental_boat['confirmed_at'] = None
-    rental_boat['updated_at'] = current_time
-    
-    # Save to database
-    try:
-        db.put_item(rental_boat)
-        logger.info(f"Rental request cancelled: {rental_boat_id} - {rental_boat['boat_name']}")
+        rental_request = db.get_item(rental_request_id, 'METADATA')
+        
+        if not rental_request:
+            logger.warning(f"Rental request not found: {rental_request_id}")
+            return not_found_error(f'Rental request not found: {rental_request_id}')
+        
+        # Validate requester_id matches authenticated user
+        requester_id = rental_request.get('requester_id')
+        if requester_id != team_manager_id:
+            logger.warning(
+                f"Team manager {team_manager_id} attempted to cancel request "
+                f"{rental_request_id} owned by {requester_id}"
+            )
+            from responses import error_response
+            return error_response(
+                status_code=403,
+                error_code='FORBIDDEN',
+                message='You can only cancel your own rental requests'
+            )
+        
+        # Validate status is "pending" or "accepted"
+        current_status = rental_request.get('status')
+        if current_status not in ['pending', 'accepted']:
+            logger.warning(
+                f"Cannot cancel request {rental_request_id} with status '{current_status}'"
+            )
+            from responses import error_response
+            return error_response(
+                status_code=400,
+                error_code='VALIDATION_ERROR',
+                message=f"Cannot cancel request with status '{current_status}'. "
+                        f"Only pending or accepted requests can be cancelled."
+            )
+        
+        # Delete the rental request (no need to keep cancelled requests)
+        db.delete_item(rental_request_id, 'METADATA')
+        
+        logger.info(
+            f"Rental request deleted: {rental_request_id} by team manager {team_manager_id} - "
+            f"previous status was '{current_status}'"
+        )
+        
+        # Strip RENTAL_REQUEST# prefix from ID for frontend
+        clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
+        
+        # Return confirmation
+        return success_response(
+            data={
+                'rental_request_id': clean_id,
+                'message': 'Rental request cancelled and removed'
+            },
+            message='Rental request cancelled successfully.'
+        )
+        
     except Exception as e:
         logger.error(f"Failed to cancel rental request: {str(e)}")
-        return validation_error(f'Failed to cancel rental request: {str(e)}')
-    
-    return success_response(
-        data=rental_boat,
-        message='Rental request cancelled successfully'
-    )
+        from responses import error_response
+        return error_response(
+            status_code=500,
+            error_code='INTERNAL_ERROR',
+            message=f'Failed to cancel rental request: {str(e)}'
+        )

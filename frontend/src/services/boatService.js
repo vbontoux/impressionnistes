@@ -45,7 +45,7 @@ const boatService = {
    * Get confirmed rental boats ready for payment
    */
   async getRentalsForPayment() {
-    const response = await apiClient.get('/rental/for-payment')
+    const response = await apiClient.get('/rental/requests-for-payment')
     return response.data
   },
 

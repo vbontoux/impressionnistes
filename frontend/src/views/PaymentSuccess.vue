@@ -14,10 +14,7 @@
       </div>
 
       <div class="success-actions">
-        <router-link to="/boats" class="btn-primary">
-          {{ $t('payment.success.viewBoats') }}
-        </router-link>
-        <router-link to="/dashboard" class="btn-secondary">
+        <router-link to="/dashboard" class="btn-primary">
           {{ $t('payment.success.goToDashboard') }}
         </router-link>
       </div>

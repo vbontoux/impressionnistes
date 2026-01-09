@@ -2,6 +2,11 @@
 Lambda function to create a new rental boat hull in inventory
 Admin only - adds physical boat hulls available for rental
 Note: This is different from boat_registration which is a team's race registration
+
+⚠️ DEPRECATED: This endpoint is part of the old inventory-based rental system.
+In the new request-based system, admins accept requests and provide assignment details instead.
+This endpoint will be removed after migration is complete.
+See: .kiro/specs/boat-rental-refactoring/design.md
 """
 import json
 import logging
@@ -16,7 +21,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 # Valid boat types
-VALID_BOAT_TYPES = ['skiff', '4-', '4+', '4x-', '4x+', '8+', '8x+']
+VALID_BOAT_TYPES = ['skiff', '4-', '4+', '4x-', '4x+', '8+', '8x+', '4+yolette', '4x+yolette']
 
 # Valid statuses
 VALID_STATUSES = ['new', 'available', 'requested', 'confirmed', 'paid']

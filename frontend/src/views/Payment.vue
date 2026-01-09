@@ -62,16 +62,16 @@
         </div>
       </div>
 
-      <!-- Rental Boats Section -->
+      <!-- Rental Requests Section -->
       <div v-if="rentalsReadyForPayment.length > 0" class="payment-section">
-        <h2 class="section-title">{{ $t('payment.rentalBoats') }}</h2>
+        <h2 class="section-title">{{ $t('payment.rentalRequests') }}</h2>
         <div class="boats-list">
           <RentalPaymentCard
             v-for="rental in rentalsReadyForPayment"
-            :key="rental.rental_boat_id"
+            :key="rental.rental_request_id"
             :rental="rental"
-            :selected="isRentalSelected(rental.rental_boat_id)"
-            @toggle="toggleRentalSelection(rental.rental_boat_id)"
+            :selected="isRentalSelected(rental.rental_request_id)"
+            @toggle="toggleRentalSelection(rental.rental_request_id)"
           />
         </div>
       </div>
@@ -118,7 +118,7 @@ const selectedBoats = computed(() =>
 
 const selectedRentals = computed(() => 
   rentalsReadyForPayment.value.filter(rental => 
-    selectedRentalIds.value.has(rental.rental_boat_id)
+    selectedRentalIds.value.has(rental.rental_request_id)
   )
 )
 
@@ -168,7 +168,7 @@ const selectAll = () => {
     boatsReadyForPayment.value.map(boat => boat.boat_registration_id)
   )
   selectedRentalIds.value = new Set(
-    rentalsReadyForPayment.value.map(rental => rental.rental_boat_id)
+    rentalsReadyForPayment.value.map(rental => rental.rental_request_id)
   )
   paymentStore.setSelectedBoats(Array.from(selectedBoatIds.value))
   paymentStore.setSelectedRentals(Array.from(selectedRentalIds.value))

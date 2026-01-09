@@ -6,131 +6,28 @@
           <h1>{{ $t('boatRental.title') }}</h1>
           <p class="subtitle">{{ $t('boatRental.subtitle') }}</p>
         </div>
-        <div class="view-toggle">
-          <button 
-            @click="viewMode = 'table'" 
-            :class="{ active: viewMode === 'table' }"
-            class="btn-view"
-            :title="$t('common.tableView')"
-          >
-            ☰
-          </button>
-          <button 
-            @click="viewMode = 'cards'" 
-            :class="{ active: viewMode === 'cards' }"
-            class="btn-view"
-            :title="$t('common.cardView')"
-          >
-            ⊞
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Available Boats Section -->
-    <div class="section">
-      <div class="section-header">
-        <h2>{{ $t('boatRental.availableBoats') }}</h2>
         <div class="header-actions">
-          <select v-model="boatTypeFilter" class="filter-select">
-            <option value="">{{ $t('boatRental.allTypes') }}</option>
-            <option value="skiff">{{ $t('boat.types.skiff') }}</option>
-            <option value="4-">{{ $t('boat.types.fourWithoutCox') }}</option>
-            <option value="4+">{{ $t('boat.types.fourWithCox') }}</option>
-            <option value="4x-">{{ $t('boat.types.quadWithoutCox') }}</option>
-            <option value="4x+">{{ $t('boat.types.quadWithCox') }}</option>
-            <option value="8+">{{ $t('boat.types.eightWithCox') }}</option>
-            <option value="8x+">{{ $t('boat.types.octaWithCox') }}</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Loading State -->
-      <div v-if="loading" class="loading">
-        {{ $t('common.loading') }}
-      </div>
-
-      <!-- Error State -->
-      <div v-if="error" class="error-message">
-        {{ error }}
-        <button @click="loadAvailableBoats" class="btn-secondary">
-          {{ $t('common.retry') }}
-        </button>
-      </div>
-
-      <!-- Available Boats List -->
-      <div v-if="!loading && !error">
-        <div v-if="filteredAvailableBoats.length === 0" class="empty-state">
-          <p>{{ $t('boatRental.noAvailableBoats') }}</p>
-        </div>
-
-        <!-- Table View -->
-        <div v-else-if="viewMode === 'table'" class="boats-table">
-          <table>
-            <thead>
-              <tr>
-                <th>{{ $t('admin.boatInventory.boatName') }}</th>
-                <th>{{ $t('admin.boatInventory.boatType') }}</th>
-                <th>{{ $t('boatRental.weightCapacity') }}</th>
-                <th>{{ $t('boatRental.status') }}</th>
-                <th>{{ $t('common.actions') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="boat in filteredAvailableBoats" :key="boat.rental_boat_id">
-                <td class="boat-name">{{ boat.boat_name }}</td>
-                <td>{{ $t(`boat.types.${boat.boat_type}`) }}</td>
-                <td>{{ boat.rower_weight_range || $t('boatRental.notSpecified') }}</td>
-                <td>
-                  <span class="status-badge available">{{ $t('boatRental.statusAvailable') }}</span>
-                </td>
-                <td>
-                  <button 
-                    @click="requestBoat(boat)" 
-                    class="btn-primary btn-sm"
-                    :disabled="requesting"
-                  >
-                    {{ requesting ? $t('boatRental.requesting') : $t('boatRental.requestBoat') }}
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Card View -->
-        <div v-else class="boats-grid">
-          <div
-            v-for="boat in filteredAvailableBoats"
-            :key="boat.rental_boat_id"
-            class="boat-card available"
-          >
-            <div class="boat-header">
-              <h3>{{ boat.boat_name }}</h3>
-              <span class="boat-type">{{ $t(`boat.types.${boat.boat_type}`) }}</span>
-            </div>
-
-            <div class="boat-details">
-              <div class="detail-row">
-                <span class="label">{{ $t('boatRental.weightCapacity') }}:</span>
-                <span>{{ boat.rower_weight_range || $t('boatRental.notSpecified') }}</span>
-              </div>
-              <div class="detail-row">
-                <span class="label">{{ $t('boatRental.status') }}:</span>
-                <span class="status-badge available">{{ $t('boatRental.statusAvailable') }}</span>
-              </div>
-            </div>
-
-            <div class="boat-actions">
-              <button 
-                @click="requestBoat(boat)" 
-                class="btn-primary"
-                :disabled="requesting"
-              >
-                {{ requesting ? $t('boatRental.requesting') : $t('boatRental.requestBoat') }}
-              </button>
-            </div>
+          <div class="view-toggle">
+            <button 
+              @click="viewMode = 'table'" 
+              :class="{ active: viewMode === 'table' }"
+              class="btn-view"
+              :title="$t('common.tableView')"
+            >
+              ☰
+            </button>
+            <button 
+              @click="viewMode = 'cards'" 
+              :class="{ active: viewMode === 'cards' }"
+              class="btn-view"
+              :title="$t('common.cardView')"
+            >
+              ⊞
+            </button>
           </div>
+          <button @click="showCreateDialog = true" class="btn-primary btn-create">
+            {{ $t('boatRental.createRequestShort') }}
+          </button>
         </div>
       </div>
     </div>
@@ -139,11 +36,6 @@
     <div class="section">
       <div class="section-header">
         <h2>{{ $t('boatRental.myRequests') }}</h2>
-        <div class="header-actions">
-          <button @click="loadMyRequests" class="btn-secondary">
-            {{ $t('boatRental.refresh') }}
-          </button>
-        </div>
       </div>
 
       <!-- Loading State for Requests -->
@@ -162,36 +54,43 @@
           <table>
             <thead>
               <tr>
-                <th>{{ $t('admin.boatInventory.boatName') }}</th>
                 <th>{{ $t('admin.boatInventory.boatType') }}</th>
-                <th>{{ $t('boatRental.weightCapacity') }}</th>
-                <th>{{ $t('boatRental.status') }}</th>
-                <th>{{ $t('boatRental.requestedAt') }}</th>
-                <th>{{ $t('boatRental.confirmedAt') }}</th>
+                <th>{{ $t('boatRental.desiredWeightRange') }}</th>
+                <th>{{ $t('boatRental.requestComment') }}</th>
+                <th>{{ $t('boatRental.statusLabel') }}</th>
+                <th>{{ $t('boatRental.createdAt') }}</th>
                 <th>{{ $t('common.actions') }}</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="request in myRequests" :key="request.rental_boat_id">
-                <td class="boat-name">{{ request.boat_name }}</td>
+              <tr v-for="request in myRequests" :key="request.rental_request_id">
                 <td>{{ $t(`boat.types.${request.boat_type}`) }}</td>
-                <td>{{ request.rower_weight_range || $t('boatRental.notSpecified') }}</td>
+                <td>{{ request.desired_weight_range }}</td>
+                <td>
+                  <span 
+                    class="comment-preview" 
+                    :title="request.request_comment"
+                  >
+                    {{ truncateComment(request.request_comment) }}
+                  </span>
+                </td>
                 <td>
                   <span class="status-badge" :class="request.status">
                     {{ $t(`boatRental.status.${request.status}`) }}
                   </span>
                 </td>
-                <td>{{ request.requested_at ? formatDate(request.requested_at) : '-' }}</td>
-                <td>{{ request.confirmed_at ? formatDate(request.confirmed_at) : '-' }}</td>
+                <td>{{ formatDate(request.created_at) }}</td>
                 <td>
-                  <button 
-                    v-if="canCancelRequest(request)"
-                    @click="showCancelDialog(request)" 
-                    class="btn-danger btn-sm"
-                    :disabled="cancelling"
-                  >
-                    {{ $t('boatRental.cancelRequest') }}
-                  </button>
+                  <div class="action-buttons">
+                    <button 
+                      v-if="canCancelRequest(request)"
+                      @click="showCancelDialog(request)" 
+                      class="btn-danger btn-sm"
+                      :disabled="cancelling"
+                    >
+                      {{ $t('boatRental.cancelRequest') }}
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -202,38 +101,51 @@
         <div v-else class="boats-grid">
           <div
             v-for="request in myRequests"
-            :key="request.rental_boat_id"
+            :key="request.rental_request_id"
             class="boat-card"
             :class="`status-${request.status}`"
           >
             <div class="boat-header">
-              <h3>{{ request.boat_name }}</h3>
-              <span class="boat-type">{{ $t(`boat.types.${request.boat_type}`) }}</span>
+              <h3>{{ $t(`boat.types.${request.boat_type}`) }}</h3>
+              <span class="status-badge" :class="request.status">
+                {{ $t(`boatRental.status.${request.status}`) }}
+              </span>
             </div>
 
             <div class="boat-details">
               <div class="detail-row">
-                <span class="label">{{ $t('boatRental.weightCapacity') }}:</span>
-                <span>{{ request.rower_weight_range || $t('boatRental.notSpecified') }}</span>
+                <span class="label">{{ $t('boatRental.desiredWeightRange') }}:</span>
+                <span>{{ request.desired_weight_range }}</span>
               </div>
               <div class="detail-row">
-                <span class="label">{{ $t('boatRental.status') }}:</span>
-                <span class="status-badge" :class="request.status">
-                  {{ $t(`boatRental.status.${request.status}`) }}
-                </span>
+                <span class="label">{{ $t('boatRental.requestComment') }}:</span>
+                <span class="comment-text">{{ request.request_comment }}</span>
               </div>
-              <div v-if="request.requested_at" class="detail-row">
-                <span class="label">{{ $t('boatRental.requestedAt') }}:</span>
-                <span>{{ formatDate(request.requested_at) }}</span>
+              <div v-if="request.created_at" class="detail-row">
+                <span class="label">{{ $t('boatRental.createdAt') }}:</span>
+                <span>{{ formatDate(request.created_at) }}</span>
               </div>
-              <div v-if="request.confirmed_at" class="detail-row">
-                <span class="label">{{ $t('boatRental.confirmedAt') }}:</span>
-                <span>{{ formatDate(request.confirmed_at) }}</span>
+              <div v-if="request.assignment_details" class="detail-row assignment-details">
+                <span class="label">{{ $t('boatRental.assignmentDetails') }}:</span>
+                <span class="assignment-text">{{ request.assignment_details }}</span>
+              </div>
+              <div v-if="request.accepted_at" class="detail-row">
+                <span class="label">{{ $t('boatRental.acceptedAt') }}:</span>
+                <span>{{ formatDate(request.accepted_at) }}</span>
+              </div>
+              <div v-if="request.paid_at" class="detail-row">
+                <span class="label">{{ $t('boatRental.paidAt') }}:</span>
+                <span>{{ formatDate(request.paid_at) }}</span>
+              </div>
+              <div v-if="request.rejection_reason" class="detail-row rejection-reason">
+                <span class="label">{{ $t('boatRental.rejectionReason') }}:</span>
+                <span class="rejection-text">{{ request.rejection_reason }}</span>
               </div>
             </div>
 
-            <div class="boat-actions" v-if="canCancelRequest(request)">
+            <div class="boat-actions">
               <button 
+                v-if="canCancelRequest(request)"
                 @click="showCancelDialog(request)" 
                 class="btn-danger"
                 :disabled="cancelling"
@@ -241,36 +153,85 @@
                 {{ $t('boatRental.cancelRequest') }}
               </button>
             </div>
-
-            <div class="status-indicator">
-              <div v-if="request.status === 'requested'" class="status-icon pending">⏳</div>
-              <div v-else-if="request.status === 'confirmed'" class="status-icon confirmed">✅</div>
-              <div v-else-if="request.status === 'available'" class="status-icon rejected">❌</div>
-            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Request Confirmation Dialog -->
-    <div v-if="showConfirmDialog" class="modal-overlay" @click.self="showConfirmDialog = false">
+    <!-- Create Request Dialog -->
+    <div v-if="showCreateDialog" class="modal-overlay" @click.self="showCreateDialog = false">
       <div class="modal-content">
         <div class="modal-header">
-          <h3>{{ $t('boatRental.confirmRequest') }}</h3>
+          <h3>{{ $t('boatRental.createRequest') }}</h3>
         </div>
         <div class="modal-body">
-          <p>{{ $t('boatRental.confirmRequestMessage', { boatName: selectedBoat?.boat_name }) }}</p>
-          <div class="boat-summary">
-            <div><strong>{{ $t('boatRental.boatType') }}:</strong> {{ $t(`boat.types.${selectedBoat?.boat_type}`) }}</div>
-            <div><strong>{{ $t('boatRental.weightCapacity') }}:</strong> {{ selectedBoat?.rower_weight_range || $t('boatRental.notSpecified') }}</div>
+          <div class="request-form">
+            <div class="form-group">
+              <label for="boat-type">{{ $t('boatRental.boatType') }} *</label>
+              <select 
+                id="boat-type"
+                v-model="newRequest.boat_type" 
+                class="form-control"
+                :disabled="submitting"
+              >
+                <option value="">{{ $t('boatRental.selectBoatType') }}</option>
+                <option value="skiff">{{ $t('boat.types.skiff') }}</option>
+                <option value="4-">{{ $t('boat.types.4-') }}</option>
+                <option value="4+">{{ $t('boat.types.4+') }}</option>
+                <option value="4x-">{{ $t('boat.types.4x-') }}</option>
+                <option value="4x+">{{ $t('boat.types.4x+') }}</option>
+                <option value="4+yolette">{{ $t('boat.types.4+yolette') }}</option>
+                <option value="4x+yolette">{{ $t('boat.types.4x+yolette') }}</option>
+                <option value="8+">{{ $t('boat.types.8+') }}</option>
+                <option value="8x+">{{ $t('boat.types.8x+') }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="weight-range">{{ $t('boatRental.desiredWeightRange') }} *</label>
+              <input 
+                id="weight-range"
+                type="text" 
+                v-model="newRequest.desired_weight_range"
+                class="form-control"
+                :placeholder="$t('boatRental.weightRangePlaceholder')"
+                maxlength="50"
+                :disabled="submitting"
+              />
+              <small class="form-hint">{{ $t('boatRental.weightRangeHint') }}</small>
+            </div>
+
+            <div class="form-group">
+              <label for="request-comment">{{ $t('boatRental.requestComment') }} *</label>
+              <textarea 
+                id="request-comment"
+                v-model="newRequest.request_comment"
+                class="form-control"
+                :placeholder="$t('boatRental.requestCommentPlaceholder')"
+                rows="4"
+                maxlength="500"
+                :disabled="submitting"
+              ></textarea>
+              <small class="form-hint">
+                {{ newRequest.request_comment.length }}/500 {{ $t('boatRental.characters') }}
+              </small>
+            </div>
+
+            <div v-if="formError" class="error-message">
+              {{ formError }}
+            </div>
           </div>
         </div>
         <div class="modal-actions">
-          <button @click="showConfirmDialog = false" class="btn-secondary">
+          <button @click="closeCreateDialog" class="btn-secondary" :disabled="submitting">
             {{ $t('common.cancel') }}
           </button>
-          <button @click="confirmRequest" class="btn-primary" :disabled="requesting">
-            {{ requesting ? $t('boatRental.requesting') : $t('boatRental.confirmRequestButton') }}
+          <button 
+            @click="submitRequest" 
+            class="btn-primary"
+            :disabled="!isFormValid || submitting"
+          >
+            {{ submitting ? $t('boatRental.submitting') : $t('boatRental.submitRequest') }}
           </button>
         </div>
       </div>
@@ -283,10 +244,10 @@
           <h3>{{ $t('boatRental.confirmCancel') }}</h3>
         </div>
         <div class="modal-body">
-          <p>{{ $t('boatRental.confirmCancelMessage', { boatName: selectedBoatToCancel?.boat_name }) }}</p>
+          <p>{{ $t('boatRental.confirmCancelRequestMessage') }}</p>
           <div class="boat-summary">
-            <div><strong>{{ $t('boatRental.boatType') }}:</strong> {{ $t(`boat.types.${selectedBoatToCancel?.boat_type}`) }}</div>
-            <div><strong>{{ $t('boatRental.status') }}:</strong> {{ $t(`boatRental.status.${selectedBoatToCancel?.status}`) }}</div>
+            <div><strong>{{ $t('boatRental.boatType') }}:</strong> {{ $t(`boat.types.${selectedRequestToCancel?.boat_type}`) }}</div>
+            <div><strong>{{ $t('boatRental.statusLabel') }}:</strong> {{ $t(`boatRental.status.${selectedRequestToCancel?.status}`) }}</div>
           </div>
         </div>
         <div class="modal-actions">
@@ -305,57 +266,50 @@
 <script>
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import apiClient from '../services/apiClient'
+import { useRouter } from 'vue-router'
+import { 
+  createRentalRequest, 
+  getMyRentalRequests, 
+  cancelRentalRequest 
+} from '../services/apiClient'
 
 export default {
   name: 'BoatRentalPage',
   setup() {
     const { t } = useI18n()
+    const router = useRouter()
     
     // Reactive data
-    const availableBoats = ref([])
     const myRequests = ref([])
-    const boatTypeFilter = ref('')
     const viewMode = ref('table') // 'table' or 'cards'
-    const loading = ref(false)
     const requestsLoading = ref(false)
-    const requesting = ref(false)
+    const submitting = ref(false)
     const cancelling = ref(false)
-    const error = ref('')
-    const showConfirmDialog = ref(false)
+    const formError = ref('')
+    const showCreateDialog = ref(false)
     const showCancelConfirmDialog = ref(false)
-    const selectedBoat = ref(null)
-    const selectedBoatToCancel = ref(null)
+    const selectedRequestToCancel = ref(null)
+
+    // New request form data
+    const newRequest = ref({
+      boat_type: '',
+      desired_weight_range: '',
+      request_comment: ''
+    })
 
     // Computed properties
-    const filteredAvailableBoats = computed(() => {
-      if (!boatTypeFilter.value) {
-        return availableBoats.value
-      }
-      return availableBoats.value.filter(boat => boat.boat_type === boatTypeFilter.value)
+    const isFormValid = computed(() => {
+      return newRequest.value.boat_type && 
+             newRequest.value.desired_weight_range.trim() && 
+             newRequest.value.request_comment.trim()
     })
 
     // Methods
-    const loadAvailableBoats = async () => {
-      loading.value = true
-      error.value = ''
-      
-      try {
-        const response = await apiClient.get('/rental/boats')
-        availableBoats.value = response.data.data?.rental_boats || []
-      } catch (err) {
-        console.error('Failed to load available boats:', err)
-        error.value = err.response?.data?.message || t('boatRental.loadError')
-      } finally {
-        loading.value = false
-      }
-    }
-
     const loadMyRequests = async () => {
       requestsLoading.value = true
       
       try {
-        const response = await apiClient.get('/rental/my-requests')
+        const response = await getMyRentalRequests()
         myRequests.value = response.data.data?.rental_requests || []
       } catch (err) {
         console.error('Failed to load my requests:', err)
@@ -365,68 +319,92 @@ export default {
       }
     }
 
-    const requestBoat = (boat) => {
-      selectedBoat.value = boat
-      showConfirmDialog.value = true
-    }
-
-    const confirmRequest = async () => {
-      if (!selectedBoat.value) return
+    const submitRequest = async () => {
+      if (!isFormValid.value) return
       
-      requesting.value = true
+      formError.value = ''
+      submitting.value = true
       
       try {
-        await apiClient.post('/rental/request', {
-          rental_boat_id: selectedBoat.value.rental_boat_id
+        await createRentalRequest({
+          boat_type: newRequest.value.boat_type,
+          desired_weight_range: newRequest.value.desired_weight_range.trim(),
+          request_comment: newRequest.value.request_comment.trim()
         })
         
-        showConfirmDialog.value = false
-        selectedBoat.value = null
+        // Close dialog and reset form
+        showCreateDialog.value = false
+        newRequest.value = {
+          boat_type: '',
+          desired_weight_range: '',
+          request_comment: ''
+        }
         
-        // Refresh both lists
-        await Promise.all([loadAvailableBoats(), loadMyRequests()])
+        // Reload requests
+        await loadMyRequests()
         
       } catch (err) {
-        console.error('Failed to request boat:', err)
-        alert(err.response?.data?.message || t('boatRental.requestError'))
+        console.error('Failed to create rental request:', err)
+        formError.value = err.response?.data?.message || 
+                         err.userMessage || 
+                         t('boatRental.requestError')
       } finally {
-        requesting.value = false
+        submitting.value = false
       }
     }
 
+    const closeCreateDialog = () => {
+      showCreateDialog.value = false
+      formError.value = ''
+      // Don't reset form data to preserve user input if they accidentally close
+    }
+
+    const truncateComment = (comment) => {
+      if (!comment) return ''
+      const maxLength = 50
+      if (comment.length <= maxLength) return comment
+      return comment.substring(0, maxLength) + '...'
+    }
+
     const canCancelRequest = (request) => {
-      // Can cancel if status is 'requested' or 'confirmed', but not 'paid'
-      return request.status === 'requested' || request.status === 'confirmed'
+      // Can cancel if status is 'pending' or 'accepted', but not 'paid', 'cancelled', or 'rejected'
+      return request.status === 'pending' || request.status === 'accepted'
     }
 
     const showCancelDialog = (request) => {
-      selectedBoatToCancel.value = request
+      selectedRequestToCancel.value = request
       showCancelConfirmDialog.value = true
     }
 
     const confirmCancel = async () => {
-      if (!selectedBoatToCancel.value) return
+      if (!selectedRequestToCancel.value) return
       
       cancelling.value = true
       
       try {
-        const rentalId = selectedBoatToCancel.value.rental_boat_id
-        console.log('Cancelling rental with ID:', rentalId)
+        const requestId = selectedRequestToCancel.value.rental_request_id
+        console.log('Cancelling rental request with ID:', requestId)
         
-        await apiClient.delete(`/rental/cancel/${encodeURIComponent(rentalId)}`)
+        await cancelRentalRequest(requestId)
         
         showCancelConfirmDialog.value = false
-        selectedBoatToCancel.value = null
+        selectedRequestToCancel.value = null
         
-        // Refresh both lists
-        await Promise.all([loadAvailableBoats(), loadMyRequests()])
+        // Refresh requests list
+        await loadMyRequests()
         
       } catch (err) {
         console.error('Failed to cancel rental request:', err)
-        alert(err.response?.data?.message || t('boatRental.cancelError'))
+        alert(err.response?.data?.message || 
+              err.userMessage || 
+              t('boatRental.cancelError'))
       } finally {
         cancelling.value = false
       }
+    }
+
+    const goToPayment = () => {
+      router.push('/payment')
     }
 
     const formatDate = (dateString) => {
@@ -436,32 +414,29 @@ export default {
 
     // Lifecycle
     onMounted(() => {
-      loadAvailableBoats()
       loadMyRequests()
     })
 
     return {
-      availableBoats,
       myRequests,
-      boatTypeFilter,
       viewMode,
-      loading,
       requestsLoading,
-      requesting,
+      submitting,
       cancelling,
-      error,
-      showConfirmDialog,
+      formError,
+      showCreateDialog,
       showCancelConfirmDialog,
-      selectedBoat,
-      selectedBoatToCancel,
-      filteredAvailableBoats,
-      loadAvailableBoats,
+      selectedRequestToCancel,
+      newRequest,
+      isFormValid,
       loadMyRequests,
-      requestBoat,
-      confirmRequest,
+      submitRequest,
+      closeCreateDialog,
+      truncateComment,
       canCancelRequest,
       showCancelDialog,
       confirmCancel,
+      goToPayment,
       formatDate
     }
   }
@@ -491,6 +466,12 @@ export default {
   flex: 1;
 }
 
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
 .header h1 {
   margin: 0 0 0.5rem 0;
   color: #2c3e50;
@@ -508,9 +489,6 @@ export default {
 }
 
 .section-header {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
@@ -520,58 +498,103 @@ export default {
   font-size: 1.25rem;
 }
 
-.header-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  width: 100%;
-  align-items: stretch;
-}
-
 .view-toggle {
   display: flex;
   gap: 0.25rem;
-  border: 1px solid #ddd;
+  background-color: #e9ecef;
   border-radius: 4px;
-  overflow: hidden;
-  width: 100%;
+  padding: 0.25rem;
   flex-shrink: 0;
-  align-self: flex-start;
 }
 
 .btn-view {
-  flex: 1;
-  padding: 0.75rem;
+  padding: 0.5rem 0.75rem;
   border: none;
-  background: white;
+  background: transparent;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   transition: all 0.2s ease;
   min-height: 44px;
   min-width: 44px;
   touch-action: manipulation;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-view:hover {
-  background: #f8f9fa;
+  background: #dee2e6;
 }
 
 .btn-view.active {
-  background: #3498db;
-  color: white;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.filter-select {
+/* Request Form Styles */
+.modal-content .request-form {
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.form-control {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
-  background: white;
   font-size: 16px; /* Prevent iOS zoom */
   min-height: 44px;
   touch-action: manipulation;
+  font-family: inherit;
 }
 
+.form-control:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.form-control:disabled {
+  background: #f8f9fa;
+  cursor: not-allowed;
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-hint {
+  display: block;
+  margin-top: 0.25rem;
+  color: #7f8c8d;
+  font-size: 0.85rem;
+}
+
+.error-message {
+  background: #fdf2f2;
+  color: #e74c3c;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+/* Table Styles */
 .boats-table {
   overflow-x: auto;
   background: white;
@@ -584,7 +607,7 @@ export default {
 .boats-table table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 600px; /* Ensure horizontal scroll on mobile */
+  min-width: 600px;
 }
 
 .boats-table th {
@@ -608,9 +631,19 @@ export default {
   background: #f8f9fa;
 }
 
-.boats-table .boat-name {
-  font-weight: 500;
-  color: #2c3e50;
+.comment-preview {
+  display: inline-block;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: help;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .btn-sm {
@@ -622,9 +655,10 @@ export default {
   white-space: nowrap;
 }
 
+/* Card View Styles */
 .boats-grid {
   display: grid;
-  grid-template-columns: 1fr; /* Single column on mobile */
+  grid-template-columns: 1fr;
   gap: 1rem;
 }
 
@@ -642,24 +676,24 @@ export default {
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-.boat-card.available {
-  border-left: 4px solid #27ae60;
-}
-
-.boat-card.status-requested {
+.boat-card.status-pending {
   border-left: 4px solid #f39c12;
 }
 
-.boat-card.status-confirmed {
+.boat-card.status-accepted {
   border-left: 4px solid #27ae60;
-}
-
-.boat-card.status-available {
-  border-left: 4px solid #e74c3c;
 }
 
 .boat-card.status-paid {
   border-left: 4px solid #2874a6;
+}
+
+.boat-card.status-cancelled {
+  border-left: 4px solid #e74c3c;
+}
+
+.boat-card.status-rejected {
+  border-left: 4px solid #c0392b;
 }
 
 .boat-header {
@@ -673,12 +707,6 @@ export default {
   margin: 0;
   color: #2c3e50;
   font-size: 1.1rem;
-}
-
-.boat-type {
-  font-size: 0.85rem;
-  color: #7f8c8d;
-  font-weight: 500;
 }
 
 .boat-details {
@@ -698,31 +726,74 @@ export default {
   font-size: 0.85rem;
 }
 
-.status-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
+.comment-text {
+  color: #555;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+}
+
+.assignment-details {
+  background: #e8f5e9;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+}
+
+.rejection-reason {
+  background: #fdf2f2;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+  border-left: 3px solid #e74c3c;
+}
+
+.assignment-text {
+  color: #2c3e50;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
   font-weight: 500;
 }
 
-.status-badge.available {
-  background: #d5f4e6;
-  color: #27ae60;
+.rejection-text {
+  color: #c0392b;
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+  font-weight: 500;
 }
 
-.status-badge.requested {
-  background: #fef9e7;
-  color: #f39c12;
+.status-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: inline-block;
 }
 
-.status-badge.confirmed {
-  background: #d5f4e6;
-  color: #27ae60;
+.status-badge.pending {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.status-badge.accepted {
+  background-color: #28a745;
+  color: white;
 }
 
 .status-badge.paid {
-  background: #d6eaf8;
-  color: #2874a6;
+  background-color: #007bff;
+  color: white;
+  font-weight: 600;
+}
+
+.status-badge.cancelled {
+  background-color: #6c757d;
+  color: white;
+}
+
+.status-badge.rejected {
+  background-color: #dc3545;
+  color: white;
+  font-weight: 600;
 }
 
 .boat-actions {
@@ -735,29 +806,10 @@ export default {
   width: 100%;
 }
 
-.status-indicator {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-}
-
-.status-icon {
-  font-size: 1.5rem;
-}
-
 .loading, .empty-state {
   text-align: center;
   padding: 1.5rem;
   color: #7f8c8d;
-  font-size: 0.9rem;
-}
-
-.error-message {
-  background: #fdf2f2;
-  color: #e74c3c;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
   font-size: 0.9rem;
 }
 
@@ -770,7 +822,7 @@ export default {
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
-  align-items: flex-end; /* Slide from bottom on mobile */
+  align-items: flex-end;
   justify-content: center;
   z-index: 1000;
   padding: 0;
@@ -778,7 +830,7 @@ export default {
 
 .modal-content {
   background: white;
-  border-radius: 12px 12px 0 0; /* Rounded top corners only on mobile */
+  border-radius: 12px 12px 0 0;
   padding: 1.5rem;
   width: 100%;
   max-width: 100%;
@@ -825,32 +877,42 @@ export default {
 
 .modal-actions {
   display: flex;
-  flex-direction: column; /* Stack vertically on mobile */
+  flex-direction: column;
   gap: 0.75rem;
   flex-shrink: 0;
 }
 
 /* Button styles - Mobile-first */
 .btn-primary, .btn-secondary, .btn-danger {
-  width: 100%; /* Full-width on mobile */
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s ease;
-  min-height: 44px;
-  font-size: 16px; /* Prevent iOS zoom */
+  min-height: 40px;
+  font-size: 0.875rem;
   touch-action: manipulation;
+  white-space: nowrap;
 }
 
 .btn-primary {
-  background: #3498db;
+  background: #007bff;
   color: white;
 }
 
+.btn-create {
+  padding: 0.75rem 1.5rem !important;
+  font-size: 1rem !important;
+  min-height: 44px !important;
+}
+
 .btn-primary:hover:not(:disabled) {
-  background: #2980b9;
+  background: #0056b3;
+}
+
+.btn-primary:active:not(:disabled) {
+  background: #004085;
 }
 
 .btn-primary:disabled {
@@ -859,12 +921,12 @@ export default {
 }
 
 .btn-secondary {
-  background: #ecf0f1;
-  color: #2c3e50;
+  background: #6c757d;
+  color: white;
 }
 
 .btn-secondary:hover {
-  background: #d5dbdb;
+  background: #545b62;
 }
 
 .btn-danger {
@@ -879,6 +941,33 @@ export default {
 .btn-danger:disabled {
   background: #bdc3c7;
   cursor: not-allowed;
+}
+
+/* Mobile Responsive */
+@media (max-width: 767px) {
+  .header-top {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .header-actions {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .view-toggle {
+    flex-shrink: 0;
+  }
+
+  .btn-view {
+    padding: 0.75rem;
+  }
+
+  .btn-primary {
+    flex-shrink: 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
 }
 
 /* Tablet and desktop enhancements */
@@ -901,33 +990,19 @@ export default {
     font-size: 1rem;
   }
 
-  .view-toggle {
+  .header-actions {
     width: auto;
-  }
-
-  .section-header {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
   }
 
   .section-header h2 {
     font-size: 1.5rem;
   }
 
-  .header-actions {
-    flex-direction: row;
-    align-items: center;
-    width: auto;
-  }
-
-  .filter-select {
-    width: auto;
-    min-width: 200px;
-  }
-
   .btn-view {
-    flex: 0 0 auto;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .btn-primary, .btn-secondary {
     padding: 0.5rem 1rem;
   }
 

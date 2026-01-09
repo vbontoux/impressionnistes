@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-boat-inventory">
+  <div class="admin-rental-requests">
     <div class="page-header">
       <router-link to="/admin" class="back-link">
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -11,8 +11,6 @@
         :title="$t('admin.boatInventory.title')"
         :subtitle="$t('admin.boatInventory.subtitle')"
         v-model:viewMode="viewMode"
-        :actionLabel="$t('admin.boatInventory.addBoat')"
-        @action="showAddBoatModal = true"
       />
     </div>
 
@@ -23,7 +21,7 @@
 
     <div v-else-if="error" class="error-message">
       <p>{{ error }}</p>
-      <button @click="loadBoats" class="btn-secondary">{{ $t('common.retry') }}</button>
+      <button @click="loadRequests" class="btn-secondary">{{ $t('common.retry') }}</button>
     </div>
 
     <div v-else>
@@ -35,246 +33,165 @@
       >
         <template #filters>
           <div class="filter-group">
+            <label>{{ $t('admin.boatInventory.filterByStatus') }}&nbsp;:</label>
+            <select v-model="filterStatus" class="filter-select">
+              <option value="">{{ $t('admin.boatInventory.allStatuses') }}</option>
+              <option value="pending">{{ $t('boatRental.status.pending') }}</option>
+              <option value="accepted">{{ $t('boatRental.status.accepted') }}</option>
+              <option value="paid">{{ $t('boatRental.status.paid') }}</option>
+              <option value="cancelled">{{ $t('boatRental.status.cancelled') }}</option>
+              <option value="rejected">{{ $t('boatRental.status.rejected') }}</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
             <label>{{ $t('admin.boatInventory.filterByType') }}&nbsp;:</label>
-            <select v-model="filterType" class="filter-select">
+            <select v-model="filterBoatType" class="filter-select">
               <option value="">{{ $t('admin.boatInventory.allTypes') }}</option>
               <option v-for="type in boatTypes" :key="type" :value="type">{{ type }}</option>
             </select>
           </div>
 
-          <div class="filter-group">
-            <label>{{ $t('admin.boatInventory.filterByStatus') }}&nbsp;:</label>
-            <select v-model="filterStatus" class="filter-select">
-              <option value="">{{ $t('admin.boatInventory.allStatuses') }}</option>
-              <option v-for="status in allStatuses" :key="status" :value="status">
-                {{ $t(`admin.boatInventory.status.${status}`) }}
-              </option>
-            </select>
-          </div>
-
           <div class="filter-stats">
-            {{ $t('admin.boatInventory.showing') }}: {{ filteredBoats.length }} {{ $t('admin.boatInventory.boats') }}
+            {{ $t('admin.boatInventory.showing') }}: {{ filteredRequests.length }} {{ $t('admin.boatInventory.boats') }}
           </div>
         </template>
       </ListFilters>
 
       <!-- Card View -->
-      <div v-if="viewMode === 'cards'" class="boats-grid">
-        <div v-if="filteredBoats.length === 0" class="empty-state">
+      <div v-if="viewMode === 'cards'" class="requests-grid">
+        <div v-if="filteredRequests.length === 0" class="empty-state">
           {{ $t('admin.boatInventory.noBoats') }}
         </div>
         <div
-          v-for="boat in filteredBoats"
-          :key="boat.rental_boat_id || boat.PK"
-          class="boat-card"
-          :class="`status-${boat.status}`"
+          v-for="request in filteredRequests"
+          :key="request.rental_request_id"
+          class="request-card"
+          :class="`status-${request.status}`"
         >
-          <div class="boat-header">
-            <input
-              v-if="editingBoat === (boat.rental_boat_id || boat.PK)"
-              v-model="editForm.boat_name"
-              type="text"
-              class="inline-edit-input"
-              @keyup.enter="saveEdit(boat)"
-              @keyup.esc="cancelEdit"
-            />
-            <h3 v-else 
-              :class="{ 'editable': boat.status !== 'paid' }" 
-              @click="boat.status !== 'paid' && startEdit(boat)"
-            >
-              {{ boat.boat_name }}
-              <svg v-if="boat.status !== 'paid'" class="edit-hint" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </h3>
-            <span class="boat-type">{{ boat.boat_type }}</span>
+          <div class="request-header">
+            <h3>{{ request.boat_type }}</h3>
+            <span :class="['status-badge', `status-${request.status}`]">
+              {{ $t(`boatRental.status.${request.status}`) }}
+            </span>
           </div>
 
-          <div class="boat-details">
+          <div class="request-details">
             <div class="detail-row">
-              <span class="label">{{ $t('admin.boatInventory.weightCapacity') }}:</span>
-              <input
-                v-if="editingBoat === (boat.rental_boat_id || boat.PK)"
-                v-model="editForm.rower_weight_range"
-                type="text"
-                class="inline-edit-input"
-                :placeholder="$t('admin.boatInventory.weightPlaceholder')"
-                @keyup.enter="saveEdit(boat)"
-                @keyup.esc="cancelEdit"
-              />
-              <span v-else 
-                :class="{ 'editable': boat.status !== 'paid' }" 
-                @click="boat.status !== 'paid' && startEdit(boat)"
-              >
-                {{ boat.rower_weight_range || '-' }}
-                <svg v-if="boat.status !== 'paid'" class="edit-hint" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
+              <span class="label">{{ $t('boatRental.desiredWeightRange') }}:</span>
+              <span>{{ request.desired_weight_range }}</span>
             </div>
             <div class="detail-row">
-              <span class="label">{{ $t('admin.boatInventory.statusLabel') }}:</span>
-              <select
-                v-if="editingBoat === (boat.rental_boat_id || boat.PK)"
-                v-model="editForm.status"
-                class="inline-edit-select"
-                @change="saveEdit(boat)"
-              >
-                <option v-for="status in getAvailableStatuses(boat)" :key="status" :value="status">
-                  {{ $t(`admin.boatInventory.status.${status}`) }}
-                </option>
-              </select>
-              <span v-else 
-                class="status-badge" 
-                :class="[boat.status, { 'editable': boat.status !== 'paid' }]"
-                @click="boat.status !== 'paid' && startEdit(boat)"
-              >
-                {{ $t(`admin.boatInventory.status.${boat.status}`) }}
-                <svg v-if="boat.status !== 'paid'" class="edit-hint" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-            </div>
-            <div v-if="boat.requester" class="detail-row">
               <span class="label">{{ $t('admin.boatInventory.requester') }}:</span>
-              <span>{{ boat.requester }}</span>
+              <span>{{ request.requester_email }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">{{ $t('boatRental.requestComment') }}:</span>
+              <span class="comment-text">{{ request.request_comment }}</span>
+            </div>
+            <div v-if="request.assignment_details" class="detail-row">
+              <span class="label">{{ $t('boatRental.assignmentDetails') }}:</span>
+              <span class="assignment-text">{{ request.assignment_details }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">{{ $t('boatRental.createdAt') }}:</span>
+              <span>{{ formatDate(request.created_at) }}</span>
             </div>
           </div>
 
-          <div class="boat-actions">
+          <div class="request-actions">
             <button
-              v-if="editingBoat === (boat.rental_boat_id || boat.PK)"
-              @click="saveEdit(boat)"
-              class="btn-save"
+              v-if="request.status === 'pending'"
+              @click="openAcceptModal(request)"
+              class="btn-table btn-accept"
             >
-              ✓ {{ $t('common.save') }}
+              {{ $t('admin.boatInventory.acceptRequest') }}
             </button>
             <button
-              v-if="editingBoat === (boat.rental_boat_id || boat.PK)"
-              @click="cancelEdit"
-              class="btn-cancel"
+              v-if="request.status === 'accepted'"
+              @click="openEditAssignmentModal(request)"
+              class="btn-table btn-edit"
             >
-              ✕ {{ $t('common.cancel') }}
+              {{ $t('admin.boatInventory.editAssignment') }}
             </button>
             <button
-              v-if="editingBoat !== (boat.rental_boat_id || boat.PK) && boat.status !== 'paid' && boat.status !== 'confirmed'"
-              @click="deleteBoat(boat)"
-              class="btn-danger"
+              v-if="request.status === 'accepted'"
+              @click="resetRequest(request)"
+              class="btn-table btn-warning"
             >
-              {{ $t('common.delete') }}
+              {{ $t('admin.boatInventory.resetRequest') }}
+            </button>
+            <button
+              v-if="request.status === 'pending' || request.status === 'accepted'"
+              @click="openRejectModal(request)"
+              class="btn-table btn-reject"
+            >
+              {{ $t('admin.boatInventory.rejectRequest') }}
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Boats Table -->
-      <div v-else class="boats-table-container">
-        <table class="boats-table">
+      <!-- Table View -->
+      <div v-else class="requests-table-container">
+        <table class="requests-table">
           <thead>
             <tr>
               <th>{{ $t('admin.boatInventory.boatType') }}</th>
-              <th>{{ $t('admin.boatInventory.boatName') }}</th>
-              <th>{{ $t('admin.boatInventory.weightCapacity') }}</th>
-              <th>{{ $t('admin.boatInventory.statusLabel') }}</th>
+              <th>{{ $t('boatRental.desiredWeightRange') }}</th>
               <th>{{ $t('admin.boatInventory.requester') }}</th>
+              <th>{{ $t('admin.boatInventory.statusLabel') }}</th>
+              <th>{{ $t('boatRental.createdAt') }}</th>
               <th>{{ $t('admin.boatInventory.actions') }}</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-if="filteredBoats.length === 0">
+            <tr v-if="filteredRequests.length === 0">
               <td colspan="6" class="no-data">{{ $t('admin.boatInventory.noBoats') }}</td>
             </tr>
-            <tr v-for="boat in filteredBoats" :key="boat.rental_boat_id || boat.PK" class="boat-row">
+            <tr v-for="request in filteredRequests" :key="request.rental_request_id" class="request-row" :class="`status-${request.status}`">
               <td>
-                <span :class="['boat-type-badge', `boat-type-${getBoatCategory(boat.boat_type)}`]">{{ boat.boat_type }}</span>
-              </td>
-              <td>
-                <input
-                  v-if="editingBoat === (boat.rental_boat_id || boat.PK)"
-                  v-model="editForm.boat_name"
-                  type="text"
-                  class="inline-edit-input"
-                  @keyup.enter="saveEdit(boat)"
-                  @keyup.esc="cancelEdit"
-                />
-                <span v-else class="boat-name" :class="{ 'no-edit': boat.status === 'paid' }" @click="boat.status !== 'paid' && startEdit(boat)">
-                  {{ boat.boat_name }}
-                  <svg v-if="boat.status !== 'paid'" class="edit-hint" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
+                <span :class="['boat-type-badge', `boat-type-${getBoatCategory(request.boat_type)}`]">
+                  {{ request.boat_type }}
                 </span>
               </td>
+              <td>{{ request.desired_weight_range }}</td>
+              <td>{{ request.requester_email }}</td>
               <td>
-                <input
-                  v-if="editingBoat === (boat.rental_boat_id || boat.PK)"
-                  v-model="editForm.rower_weight_range"
-                  type="text"
-                  class="inline-edit-input"
-                  :placeholder="$t('admin.boatInventory.weightPlaceholder')"
-                  @keyup.enter="saveEdit(boat)"
-                  @keyup.esc="cancelEdit"
-                />
-                <span v-else class="weight-range" :class="{ 'no-edit': boat.status === 'paid' }" @click="boat.status !== 'paid' && startEdit(boat)">
-                  {{ boat.rower_weight_range || '-' }}
-                  <svg v-if="boat.status !== 'paid'" class="edit-hint" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
+                <span :class="['status-badge', `status-${request.status}`]">
+                  {{ $t(`boatRental.status.${request.status}`) }}
                 </span>
               </td>
-              <td>
-                <select
-                  v-if="editingBoat === (boat.rental_boat_id || boat.PK)"
-                  v-model="editForm.status"
-                  class="inline-edit-select"
-                  @change="saveEdit(boat)"
-                >
-                  <option v-for="status in getAvailableStatuses(boat)" :key="status" :value="status">
-                    {{ $t(`admin.boatInventory.status.${status}`) }}
-                  </option>
-                </select>
-                <span v-else :class="['status-badge', `status-${boat.status}`, { 'no-edit': boat.status === 'paid' }]" @click="boat.status !== 'paid' && startEdit(boat)">
-                  {{ $t(`admin.boatInventory.status.${boat.status}`) }}
-                  <svg v-if="boat.status !== 'paid'" class="edit-hint" width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M18.5 2.50001C18.8978 2.10219 19.4374 1.87869 20 1.87869C20.5626 1.87869 21.1022 2.10219 21.5 2.50001C21.8978 2.89784 22.1213 3.4374 22.1213 4.00001C22.1213 4.56262 21.8978 5.10219 21.5 5.50001L12 15L8 16L9 12L18.5 2.50001Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </span>
-              </td>
-              <td>
-                <span v-if="boat.requester" class="requester">{{ boat.requester }}</span>
-                <span v-else class="no-requester">-</span>
-              </td>
+              <td>{{ formatDate(request.created_at) }}</td>
               <td>
                 <div class="action-buttons">
                   <button
-                    v-if="editingBoat === (boat.rental_boat_id || boat.PK)"
-                    @click="saveEdit(boat)"
-                    class="btn-icon-small btn-save"
-                    :title="$t('common.save')"
+                    v-if="request.status === 'pending'"
+                    @click="openAcceptModal(request)"
+                    class="btn-table btn-accept"
                   >
-                    ✓
+                    {{ $t('admin.boatInventory.acceptRequest') }}
                   </button>
                   <button
-                    v-if="editingBoat === (boat.rental_boat_id || boat.PK)"
-                    @click="cancelEdit"
-                    class="btn-icon-small btn-cancel"
-                    :title="$t('common.cancel')"
+                    v-if="request.status === 'accepted'"
+                    @click="openEditAssignmentModal(request)"
+                    class="btn-table btn-edit"
                   >
-                    ✕
+                    {{ $t('common.edit') }}
                   </button>
                   <button
-                    v-if="editingBoat !== (boat.rental_boat_id || boat.PK) && boat.status !== 'paid'"
-                    @click="deleteBoat(boat)"
-                    class="btn-table btn-delete-table"
-                    :disabled="boat.status === 'paid' || boat.status === 'confirmed'"
-                    :title="boat.status === 'paid' ? $t('admin.boatInventory.cannotDeletePaid') : boat.status === 'confirmed' ? $t('admin.boatInventory.cannotDeleteConfirmed') : ''"
+                    v-if="request.status === 'accepted'"
+                    @click="resetRequest(request)"
+                    class="btn-table btn-warning"
                   >
-                    {{ $t('common.delete') }}
+                    {{ $t('admin.boatInventory.resetRequestShort') }}
+                  </button>
+                  <button
+                    v-if="request.status === 'pending' || request.status === 'accepted'"
+                    @click="openRejectModal(request)"
+                    class="btn-table btn-reject"
+                  >
+                    {{ $t('admin.boatInventory.rejectRequest') }}
                   </button>
                 </div>
               </td>
@@ -284,70 +201,125 @@
       </div>
     </div>
 
-    <!-- Add Boat Modal -->
-    <div v-if="showAddBoatModal" class="modal-overlay" @click.self="closeAddBoatModal">
+    <!-- Accept Modal -->
+    <div v-if="showAcceptModal" class="modal-overlay" @click.self="closeAcceptModal">
       <div class="modal">
         <div class="modal-header">
-          <h2>{{ $t('admin.boatInventory.addBoat') }}</h2>
-          <button @click="closeAddBoatModal" class="modal-close">✕</button>
+          <h2>{{ $t('admin.boatInventory.acceptRequestTitle') }}</h2>
+          <button @click="closeAcceptModal" class="modal-close">✕</button>
         </div>
 
-        <form @submit.prevent="createBoat" class="modal-form">
+        <form @submit.prevent="acceptRequest" class="modal-form">
+          <div class="request-summary">
+            <p><strong>{{ $t('admin.boatInventory.boatType') }}:</strong> {{ selectedRequest?.boat_type }}</p>
+            <p><strong>{{ $t('boatRental.desiredWeightRange') }}:</strong> {{ selectedRequest?.desired_weight_range }}</p>
+            <p><strong>{{ $t('admin.boatInventory.requester') }}:</strong> {{ selectedRequest?.requester_email }}</p>
+            <p><strong>{{ $t('boatRental.requestComment') }}:</strong> {{ selectedRequest?.request_comment }}</p>
+          </div>
+
           <div class="form-group">
-            <label for="boat_type">{{ $t('admin.boatInventory.boatType') }} *</label>
-            <select
-              id="boat_type"
-              v-model="newBoat.boat_type"
+            <label for="assignment_details">{{ $t('admin.boatInventory.assignmentDetailsLabel') }} *</label>
+            <textarea
+              id="assignment_details"
+              v-model="assignmentForm.assignment_details"
               class="form-control"
-              :class="{ 'error': validationErrors.boat_type }"
+              :class="{ 'error': assignmentError }"
+              :placeholder="$t('admin.boatInventory.assignmentDetailsPlaceholder')"
+              rows="5"
               required
-            >
-              <option value="">{{ $t('admin.boatInventory.selectType') }}</option>
-              <option v-for="type in boatTypes" :key="type" :value="type">{{ type }}</option>
-            </select>
-            <span v-if="validationErrors.boat_type" class="error-text">
-              {{ validationErrors.boat_type }}
-            </span>
+            ></textarea>
+            <small class="form-help">{{ $t('admin.boatInventory.assignmentDetailsHint') }}</small>
+            <span v-if="assignmentError" class="error-text">{{ assignmentError }}</span>
           </div>
 
-          <div class="form-group">
-            <label for="boat_name">{{ $t('admin.boatInventory.boatName') }} *</label>
-            <input
-              id="boat_name"
-              v-model="newBoat.boat_name"
-              type="text"
-              class="form-control"
-              :class="{ 'error': validationErrors.boat_name }"
-              :placeholder="$t('admin.boatInventory.boatNamePlaceholder')"
-              required
-            />
-            <span v-if="validationErrors.boat_name" class="error-text">
-              {{ validationErrors.boat_name }}
-            </span>
-          </div>
-
-          <div class="form-group">
-            <label for="rower_weight_range">{{ $t('admin.boatInventory.weightCapacity') }}</label>
-            <input
-              id="rower_weight_range"
-              v-model="newBoat.rower_weight_range"
-              type="text"
-              class="form-control"
-              :placeholder="$t('admin.boatInventory.weightPlaceholder')"
-            />
-            <small class="form-help">{{ $t('admin.boatInventory.weightHelp') }}</small>
-          </div>
-
-          <div v-if="createError" class="error-message">
-            {{ createError }}
+          <div v-if="acceptError" class="error-message">
+            {{ acceptError }}
           </div>
 
           <div class="modal-actions">
-            <button type="button" @click="closeAddBoatModal" class="btn-secondary" :disabled="creating">
+            <button type="button" @click="closeAcceptModal" class="btn-secondary" :disabled="accepting">
               {{ $t('common.cancel') }}
             </button>
-            <button type="submit" class="btn-primary" :disabled="creating">
-              {{ creating ? $t('common.creating') : $t('common.create') }}
+            <button type="submit" class="btn-primary" :disabled="accepting">
+              {{ accepting ? $t('admin.boatInventory.accepting') : $t('admin.boatInventory.acceptButton') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit Assignment Modal -->
+    <div v-if="showEditModal" class="modal-overlay" @click.self="closeEditModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>{{ $t('admin.boatInventory.editAssignmentTitle') }}</h2>
+          <button @click="closeEditModal" class="modal-close">✕</button>
+        </div>
+
+        <form @submit.prevent="updateAssignment" class="modal-form">
+          <div class="form-group">
+            <label for="edit_assignment_details">{{ $t('admin.boatInventory.assignmentDetailsLabel') }} *</label>
+            <textarea
+              id="edit_assignment_details"
+              v-model="assignmentForm.assignment_details"
+              class="form-control"
+              :class="{ 'error': assignmentError }"
+              :placeholder="$t('admin.boatInventory.assignmentDetailsPlaceholder')"
+              rows="5"
+              required
+            ></textarea>
+            <small class="form-help">{{ $t('admin.boatInventory.assignmentDetailsHint') }}</small>
+            <span v-if="assignmentError" class="error-text">{{ assignmentError }}</span>
+          </div>
+
+          <div v-if="editError" class="error-message">
+            {{ editError }}
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" @click="closeEditModal" class="btn-secondary" :disabled="editing">
+              {{ $t('common.cancel') }}
+            </button>
+            <button type="submit" class="btn-primary" :disabled="editing">
+              {{ editing ? $t('common.saving') : $t('common.save') }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Reject Modal -->
+    <div v-if="showRejectModal" class="modal-overlay" @click.self="closeRejectModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h2>{{ $t('admin.boatInventory.rejectRequestTitle') }}</h2>
+          <button @click="closeRejectModal" class="modal-close">✕</button>
+        </div>
+
+        <form @submit.prevent="rejectRequest" class="modal-form">
+          <p>{{ $t('admin.boatInventory.rejectRequestMessage') }}</p>
+
+          <div class="form-group">
+            <label for="rejection_reason">{{ $t('admin.boatInventory.rejectionReasonLabel') }}</label>
+            <textarea
+              id="rejection_reason"
+              v-model="rejectForm.rejection_reason"
+              class="form-control"
+              :placeholder="$t('admin.boatInventory.rejectionReasonPlaceholder')"
+              rows="3"
+            ></textarea>
+          </div>
+
+          <div v-if="rejectError" class="error-message">
+            {{ rejectError }}
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" @click="closeRejectModal" class="btn-secondary" :disabled="rejecting">
+              {{ $t('common.cancel') }}
+            </button>
+            <button type="submit" class="btn-danger" :disabled="rejecting">
+              {{ rejecting ? $t('admin.boatInventory.rejecting') : $t('admin.boatInventory.rejectButton') }}
             </button>
           </div>
         </form>
@@ -358,101 +330,95 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
-import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import apiClient from '../../services/apiClient';
 import ListHeader from '../../components/shared/ListHeader.vue';
 import ListFilters from '../../components/shared/ListFilters.vue';
 
-const router = useRouter();
 const { t } = useI18n();
 
 const loading = ref(true);
 const error = ref(null);
-const boats = ref([]);
-const viewMode = ref(localStorage.getItem('adminBoatInventoryViewMode') || 'table');
+const requests = ref([]);
+const viewMode = ref(localStorage.getItem('adminRentalRequestsViewMode') || 'table');
 const searchQuery = ref('');
 
 const boatTypes = ['skiff', '4-', '4+', '4x-', '4x+', '8+', '8x+'];
-// All possible statuses (for filtering)
-const allStatuses = ['new', 'available', 'requested', 'confirmed', 'paid'];
-// Statuses that admin can manually set (excluding 'requested' and 'paid' which are system-only)
-const statuses = ['new', 'available', 'confirmed'];
-
-// Get available statuses for a specific boat based on its current state
-const getAvailableStatuses = (boat) => {
-  // If no requester, cannot select 'confirmed'
-  if (!boat.requester) {
-    return statuses.filter(s => s !== 'confirmed');
-  }
-  return statuses;
-};
-
-// Get boat category for color coding
-const getBoatCategory = (boatType) => {
-  if (boatType === 'skiff') return 'skiff';
-  if (boatType.startsWith('4')) return 'four';
-  if (boatType.startsWith('8')) return 'eight';
-  return 'skiff'; // default
-};
 
 // Filters
-const filterType = ref('');
 const filterStatus = ref('');
+const filterBoatType = ref('');
 
-// Add boat modal
-const showAddBoatModal = ref(false);
-const creating = ref(false);
-const createError = ref(null);
-const newBoat = ref({
-  boat_type: '',
-  boat_name: '',
-  rower_weight_range: '',
-  status: 'new'
+// Modals
+const showAcceptModal = ref(false);
+const showEditModal = ref(false);
+const showRejectModal = ref(false);
+const selectedRequest = ref(null);
+
+// Form states
+const accepting = ref(false);
+const editing = ref(false);
+const rejecting = ref(false);
+const acceptError = ref(null);
+const editError = ref(null);
+const rejectError = ref(null);
+const assignmentError = ref(null);
+
+const assignmentForm = ref({
+  assignment_details: ''
 });
-const validationErrors = ref({});
 
-// Inline editing
-const editingBoat = ref(null);
-const editForm = ref({
-  boat_name: '',
-  rower_weight_range: '',
-  status: ''
+const rejectForm = ref({
+  rejection_reason: ''
 });
 
-const filteredBoats = computed(() => {
-  let result = boats.value;
+const filteredRequests = computed(() => {
+  let result = requests.value;
 
   // Apply search filter
   if (searchQuery.value) {
     const search = searchQuery.value.toLowerCase();
-    result = result.filter(boat =>
-      boat.boat_name?.toLowerCase().includes(search) ||
-      boat.boat_type?.toLowerCase().includes(search) ||
-      boat.requester?.toLowerCase().includes(search)
+    result = result.filter(request =>
+      request.boat_type?.toLowerCase().includes(search) ||
+      request.requester_email?.toLowerCase().includes(search) ||
+      request.desired_weight_range?.toLowerCase().includes(search) ||
+      request.request_comment?.toLowerCase().includes(search)
     );
   }
 
-  if (filterType.value) {
-    result = result.filter(b => b.boat_type === filterType.value);
+  if (filterStatus.value) {
+    result = result.filter(r => r.status === filterStatus.value);
   }
 
-  if (filterStatus.value) {
-    result = result.filter(b => b.status === filterStatus.value);
+  if (filterBoatType.value) {
+    result = result.filter(r => r.boat_type === filterBoatType.value);
   }
 
   return result;
 });
 
-const loadBoats = async () => {
+const getBoatCategory = (boatType) => {
+  if (boatType === 'skiff') return 'skiff';
+  if (boatType.startsWith('4')) return 'four';
+  if (boatType.startsWith('8')) return 'eight';
+  return 'skiff';
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};
+
+const loadRequests = async () => {
   loading.value = true;
   error.value = null;
 
   try {
-    const response = await apiClient.get('/admin/rental-boats');
-    boats.value = response.data.data.rental_boats || [];
+    const response = await apiClient.get('/admin/rental-requests');
+    requests.value = response.data.data.rental_requests || [];
   } catch (err) {
-    console.error('Failed to load boats:', err);
+    console.error('Failed to load rental requests:', err);
     error.value = t('admin.boatInventory.loadError');
   } finally {
     loading.value = false;
@@ -460,163 +426,207 @@ const loadBoats = async () => {
 };
 
 const clearFilters = () => {
-  filterType.value = '';
   filterStatus.value = '';
+  filterBoatType.value = '';
   searchQuery.value = '';
 };
 
-const closeAddBoatModal = () => {
-  showAddBoatModal.value = false;
-  newBoat.value = {
-    boat_type: '',
-    boat_name: '',
-    rower_weight_range: '',
-    status: 'new'
-  };
-  validationErrors.value = {};
-  createError.value = null;
+// Accept request
+const openAcceptModal = (request) => {
+  selectedRequest.value = request;
+  assignmentForm.value.assignment_details = '';
+  assignmentError.value = null;
+  acceptError.value = null;
+  showAcceptModal.value = true;
 };
 
-const validateNewBoat = () => {
-  validationErrors.value = {};
-
-  if (!newBoat.value.boat_type) {
-    validationErrors.value.boat_type = t('admin.boatInventory.errors.typeRequired');
-  }
-
-  if (!newBoat.value.boat_name || !newBoat.value.boat_name.trim()) {
-    validationErrors.value.boat_name = t('admin.boatInventory.errors.nameRequired');
-  } else if (newBoat.value.boat_name.length > 100) {
-    validationErrors.value.boat_name = t('admin.boatInventory.errors.nameTooLong');
-  }
-
-  return Object.keys(validationErrors.value).length === 0;
+const closeAcceptModal = () => {
+  showAcceptModal.value = false;
+  selectedRequest.value = null;
+  assignmentForm.value.assignment_details = '';
+  assignmentError.value = null;
+  acceptError.value = null;
 };
 
-const createBoat = async () => {
-  createError.value = null;
+const acceptRequest = async () => {
+  assignmentError.value = null;
+  acceptError.value = null;
 
-  if (!validateNewBoat()) {
+  if (!assignmentForm.value.assignment_details || !assignmentForm.value.assignment_details.trim()) {
+    assignmentError.value = t('admin.boatInventory.errors.assignmentDetailsRequired');
     return;
   }
 
-  creating.value = true;
-
-  try {
-    const response = await apiClient.post('/admin/rental-boats', newBoat.value);
-    boats.value.push(response.data.data);
-    closeAddBoatModal();
-    // Reload to ensure consistency
-    await loadBoats();
-  } catch (err) {
-    console.error('Failed to create boat:', err);
-    createError.value = err.response?.data?.error?.message || t('admin.boatInventory.createError');
-  } finally {
-    creating.value = false;
+  if (assignmentForm.value.assignment_details.length > 1000) {
+    assignmentError.value = t('admin.boatInventory.errors.assignmentDetailsTooLong');
+    return;
   }
-};
 
-const startEdit = (boat) => {
-  const boatId = boat.rental_boat_id || boat.PK;
-  console.log('Starting edit for boat:', boatId, boat);
-  editingBoat.value = boatId;
-  editForm.value = {
-    boat_name: boat.boat_name,
-    rower_weight_range: boat.rower_weight_range || '',
-    status: boat.status
-  };
-};
+  accepting.value = true;
 
-const cancelEdit = () => {
-  editingBoat.value = null;
-  editForm.value = {
-    boat_name: '',
-    rower_weight_range: '',
-    status: ''
-  };
-};
-
-const saveEdit = async (boat) => {
   try {
-    const updates = {};
+    const requestId = selectedRequest.value.rental_request_id;
+    const response = await apiClient.put(
+      `/admin/rental-requests/${encodeURIComponent(requestId)}/accept`,
+      { assignment_details: assignmentForm.value.assignment_details }
+    );
 
-    if (editForm.value.boat_name !== boat.boat_name) {
-      updates.boat_name = editForm.value.boat_name;
-    }
-
-    if (editForm.value.rower_weight_range !== (boat.rower_weight_range || '')) {
-      updates.rower_weight_range = editForm.value.rower_weight_range;
-    }
-
-    if (editForm.value.status !== boat.status) {
-      updates.status = editForm.value.status;
-    }
-
-    if (Object.keys(updates).length === 0) {
-      cancelEdit();
-      return;
-    }
-
-    // Use rental_boat_id or fall back to PK
-    const boatId = boat.rental_boat_id || boat.PK;
-    console.log('Updating boat with ID:', boatId, 'Updates:', updates, 'Full boat object:', boat);
-    // URL-encode the ID to handle special characters like #
-    const response = await apiClient.put(`/admin/rental-boats/${encodeURIComponent(boatId)}`, updates);
-    
-    // Update local boat object
-    const index = boats.value.findIndex(b => (b.rental_boat_id || b.PK) === boatId);
+    // Update local request
+    const index = requests.value.findIndex(r => r.rental_request_id === requestId);
     if (index !== -1) {
-      boats.value[index] = response.data.data;
+      requests.value[index] = response.data.data;
     }
 
-    cancelEdit();
+    closeAcceptModal();
   } catch (err) {
-    console.error('Failed to update boat:', err);
-    alert(err.response?.data?.error?.message || t('admin.boatInventory.updateError'));
-    cancelEdit();
+    console.error('Failed to accept request:', err);
+    acceptError.value = err.response?.data?.error?.message || 'Failed to accept request';
+  } finally {
+    accepting.value = false;
   }
 };
 
-const deleteBoat = async (boat) => {
-  if (boat.status === 'paid') {
-    alert(t('admin.boatInventory.cannotDeletePaid'));
-    return;
-  }
-  
-  if (boat.status === 'confirmed') {
-    alert(t('admin.boatInventory.cannotDeleteConfirmed'));
+// Edit assignment
+const openEditAssignmentModal = (request) => {
+  selectedRequest.value = request;
+  assignmentForm.value.assignment_details = request.assignment_details || '';
+  assignmentError.value = null;
+  editError.value = null;
+  showEditModal.value = true;
+};
+
+const closeEditModal = () => {
+  showEditModal.value = false;
+  selectedRequest.value = null;
+  assignmentForm.value.assignment_details = '';
+  assignmentError.value = null;
+  editError.value = null;
+};
+
+const updateAssignment = async () => {
+  assignmentError.value = null;
+  editError.value = null;
+
+  if (!assignmentForm.value.assignment_details || !assignmentForm.value.assignment_details.trim()) {
+    assignmentError.value = t('admin.boatInventory.errors.assignmentDetailsRequired');
     return;
   }
 
-  if (!confirm(t('admin.boatInventory.confirmDelete', { name: boat.boat_name }))) {
+  if (assignmentForm.value.assignment_details.length > 1000) {
+    assignmentError.value = t('admin.boatInventory.errors.assignmentDetailsTooLong');
+    return;
+  }
+
+  editing.value = true;
+
+  try {
+    const requestId = selectedRequest.value.rental_request_id;
+    const response = await apiClient.put(
+      `/admin/rental-requests/${encodeURIComponent(requestId)}/assignment`,
+      { assignment_details: assignmentForm.value.assignment_details }
+    );
+
+    // Update local request
+    const index = requests.value.findIndex(r => r.rental_request_id === requestId);
+    if (index !== -1) {
+      requests.value[index].assignment_details = response.data.data.assignment_details;
+    }
+
+    closeEditModal();
+  } catch (err) {
+    console.error('Failed to update assignment:', err);
+    editError.value = err.response?.data?.error?.message || 'Failed to update assignment';
+  } finally {
+    editing.value = false;
+  }
+};
+
+// Reject request
+const openRejectModal = (request) => {
+  selectedRequest.value = request;
+  rejectForm.value.rejection_reason = '';
+  rejectError.value = null;
+  showRejectModal.value = true;
+};
+
+const closeRejectModal = () => {
+  showRejectModal.value = false;
+  selectedRequest.value = null;
+  rejectForm.value.rejection_reason = '';
+  rejectError.value = null;
+};
+
+const rejectRequest = async () => {
+  rejectError.value = null;
+  rejecting.value = true;
+
+  try {
+    const requestId = selectedRequest.value.rental_request_id;
+    const payload = rejectForm.value.rejection_reason 
+      ? { rejection_reason: rejectForm.value.rejection_reason }
+      : {};
+
+    await apiClient.delete(
+      `/admin/rental-requests/${encodeURIComponent(requestId)}`,
+      { data: payload }
+    );
+
+    // Update local request
+    const index = requests.value.findIndex(r => r.rental_request_id === requestId);
+    if (index !== -1) {
+      requests.value[index].status = 'cancelled';
+      requests.value[index].cancelled_at = new Date().toISOString();
+      if (rejectForm.value.rejection_reason) {
+        requests.value[index].rejection_reason = rejectForm.value.rejection_reason;
+      }
+    }
+
+    closeRejectModal();
+  } catch (err) {
+    console.error('Failed to reject request:', err);
+    rejectError.value = err.response?.data?.error?.message || 'Failed to reject request';
+  } finally {
+    rejecting.value = false;
+  }
+};
+
+// Reset request to pending
+const resetRequest = async (request) => {
+  if (!confirm('Are you sure you want to reset this request to pending? This will clear the assignment details.')) {
     return;
   }
 
   try {
-    // Use rental_boat_id or fall back to PK
-    const boatId = boat.rental_boat_id || boat.PK;
-    console.log('Deleting boat with ID:', boatId, 'Full boat object:', boat);
-    // URL-encode the ID to handle special characters like #
-    await apiClient.delete(`/admin/rental-boats/${encodeURIComponent(boatId)}`);
-    boats.value = boats.value.filter(b => (b.rental_boat_id || b.PK) !== boatId);
+    const response = await apiClient.put(
+      `/admin/rental-requests/${encodeURIComponent(request.rental_request_id)}/reset`
+    );
+
+    // Update local request
+    const index = requests.value.findIndex(r => r.rental_request_id === request.rental_request_id);
+    if (index !== -1) {
+      requests.value[index].status = 'pending';
+      requests.value[index].assignment_details = null;
+      requests.value[index].accepted_at = null;
+      requests.value[index].accepted_by = null;
+    }
   } catch (err) {
-    console.error('Failed to delete boat:', err);
-    alert(err.response?.data?.error?.message || t('admin.boatInventory.deleteError'));
+    console.error('Failed to reset request:', err);
+    alert(err.response?.data?.error?.message || 'Failed to reset request');
   }
 };
 
 // Watch for view mode changes and save to localStorage
 watch(viewMode, (newMode) => {
-  localStorage.setItem('adminBoatInventoryViewMode', newMode);
+  localStorage.setItem('adminRentalRequestsViewMode', newMode);
 });
 
 onMounted(() => {
-  loadBoats();
+  loadRequests();
 });
 </script>
 
 <style scoped>
-.admin-boat-inventory {
+.admin-rental-requests {
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
@@ -660,6 +670,14 @@ onMounted(() => {
   100% { transform: rotate(360deg); }
 }
 
+.error-message {
+  background-color: #fee;
+  color: #c33;
+  padding: 1rem;
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
 /* Filters */
 .filter-group {
   display: flex;
@@ -696,24 +714,120 @@ onMounted(() => {
   min-width: 200px;
 }
 
-/* Table */
-.boats-table-container {
+/* Card View */
+.requests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  color: #7f8c8d;
+  font-size: 1.1rem;
+}
+
+.request-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-left: 4px solid #dee2e6;
+}
+
+.request-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Status-based left border colors for cards */
+.request-card.status-pending {
+  border-left-color: #ffc107;
+}
+
+.request-card.status-accepted {
+  border-left-color: #28a745;
+}
+
+.request-card.status-paid {
+  border-left-color: #007bff;
+}
+
+.request-card.status-cancelled {
+  border-left-color: #6c757d;
+  background-color: #f8f9fa;
+}
+
+.request-card.status-rejected {
+  border-left-color: #dc3545;
+  background-color: #fff5f5;
+}
+
+.request-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.request-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.3rem;
+}
+
+.request-details {
+  margin-bottom: 1rem;
+}
+
+.detail-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.detail-row .label {
+  font-weight: 600;
+  color: #7f8c8d;
+  min-width: 140px;
+}
+
+.comment-text,
+.assignment-text {
+  color: #2c3e50;
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.request-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Table View */
+.requests-table-container {
   background: white;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
-.boats-table {
+.requests-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.boats-table thead {
+.requests-table thead {
   background-color: #f8f9fa;
 }
 
-.boats-table th {
+.requests-table th {
   padding: 1rem;
   text-align: left;
   font-weight: 600;
@@ -721,13 +835,40 @@ onMounted(() => {
   border-bottom: 2px solid #e0e0e0;
 }
 
-.boats-table td {
+.requests-table td {
   padding: 1rem;
   border-bottom: 1px solid #f0f0f0;
 }
 
-.boat-row:hover {
+.request-row {
+  border-left: 4px solid #dee2e6;
+}
+
+.request-row:hover {
   background-color: #f8f9fa;
+}
+
+/* Status-based left border colors for table rows */
+.request-row.status-pending {
+  border-left-color: #ffc107;
+}
+
+.request-row.status-accepted {
+  border-left-color: #28a745;
+}
+
+.request-row.status-paid {
+  border-left-color: #007bff;
+}
+
+.request-row.status-cancelled {
+  border-left-color: #6c757d;
+  background-color: #f8f9fa;
+}
+
+.request-row.status-rejected {
+  border-left-color: #dc3545;
+  background-color: #fff5f5;
 }
 
 .no-data {
@@ -746,63 +887,15 @@ onMounted(() => {
 }
 
 .boat-type-skiff {
-  background-color: #3498db; /* Blue for skiffs */
+  background-color: #3498db;
 }
 
 .boat-type-four {
-  background-color: #e67e22; /* Orange for fours */
+  background-color: #e67e22;
 }
 
 .boat-type-eight {
-  background-color: #9b59b6; /* Purple for eights */
-}
-
-.boat-name,
-.weight-range {
-  cursor: pointer;
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  border: 1px dashed transparent;
-  transition: all 0.2s;
-}
-
-.boat-name:hover,
-.weight-range:hover {
-  background-color: #f0f0f0;
-  border-color: #3498db;
-}
-
-.boat-name.no-edit,
-.weight-range.no-edit,
-.status-badge.no-edit {
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.boat-name.no-edit:hover,
-.weight-range.no-edit:hover,
-.status-badge.no-edit:hover {
-  background-color: transparent;
-  border-color: transparent;
-}
-
-.weight-range {
-  color: #7f8c8d;
-  font-size: 0.9rem;
-}
-
-.edit-hint {
-  opacity: 0.4;
-  margin-left: 0.5rem;
-  vertical-align: middle;
-  transition: opacity 0.2s;
-  display: inline-block;
-}
-
-.boat-name:hover .edit-hint,
-.status-badge:hover .edit-hint {
-  opacity: 1;
+  background-color: #9b59b6;
 }
 
 .status-badge {
@@ -811,386 +904,87 @@ onMounted(() => {
   border-radius: 12px;
   font-size: 0.85rem;
   font-weight: 500;
-  cursor: pointer;
-  border: 1px dashed transparent;
-  transition: all 0.2s;
 }
 
-.status-badge:hover {
-  opacity: 0.9;
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.status-badge.status-pending {
+  background-color: #ffc107;
+  color: #000;
 }
 
-.status-new {
-  background-color: #e8f4f8;
-  color: #2980b9;
+.status-badge.status-accepted {
+  background-color: #28a745;
+  color: white;
 }
 
-.status-available {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.status-requested {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.status-confirmed {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.status-paid {
-  background-color: #cce5ff;
-  color: #004085;
+.status-badge.status-paid {
+  background-color: #007bff;
+  color: white;
   font-weight: 600;
 }
 
-.requester {
-  color: #2c3e50;
-  font-size: 0.9rem;
+.status-badge.status-cancelled {
+  background-color: #6c757d;
+  color: white;
 }
 
-.no-requester {
-  color: #bdc3c7;
-}
-
-.inline-edit-input,
-.inline-edit-select {
-  padding: 0.35rem 0.5rem;
-  border: 2px solid #3498db;
-  border-radius: 4px;
-  font-size: 0.95rem;
-  width: 100%;
-  max-width: 250px;
-}
-
-.inline-edit-input:focus,
-.inline-edit-select:focus {
-  outline: none;
-  border-color: #2980b9;
+.status-badge.status-rejected {
+  background-color: #dc3545;
+  color: white;
 }
 
 .action-buttons {
   display: flex;
   gap: 0.5rem;
-}
-
-.btn-icon-small {
-  padding: 0.35rem 0.6rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.2s;
-}
-
-.btn-save {
-  background-color: #27ae60;
-  color: white;
-}
-
-.btn-save:hover {
-  background-color: #229954;
-}
-
-.btn-cancel {
-  background-color: #95a5a6;
-  color: white;
-}
-
-.btn-cancel:hover {
-  background-color: #7f8c8d;
-}
-
-.btn-delete {
-  background-color: #e74c3c;
-  color: white;
-}
-
-.btn-delete:hover {
-  background-color: #c0392b;
+  flex-wrap: wrap;
 }
 
 .btn-table {
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 0.8rem !important;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
   transition: all 0.2s;
 }
 
-.btn-delete-table {
+.btn-table.btn-accept {
+  background-color: #28a745;
+  color: white;
+}
+
+.btn-table.btn-accept:hover {
+  background-color: #218838;
+}
+
+.btn-table.btn-edit {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-table.btn-edit:hover {
+  background-color: #0056b3;
+}
+
+.btn-table.btn-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.btn-table.btn-warning:hover {
+  background-color: #e0a800;
+}
+
+.btn-table.btn-reject {
   background-color: #dc3545;
   color: white;
 }
 
-.btn-delete-table:hover:not(:disabled) {
+.btn-table.btn-reject:hover {
   background-color: #c82333;
 }
 
-.btn-delete-table:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-/* Card View Styles */
-.boats-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-}
-
-.boat-card {
-  border: 1px solid #e1e8ed;
-  border-radius: 8px;
-  padding: 1rem;
-  background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.boat-card:hover {
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-.boat-card.status-new {
-  border-left: 4px solid #2980b9;
-}
-
-.boat-card.status-available {
-  border-left: 4px solid #27ae60;
-}
-
-.boat-card.status-requested {
-  border-left: 4px solid #f39c12;
-}
-
-.boat-card.status-confirmed {
-  border-left: 4px solid #e74c3c;
-}
-
-.boat-card.status-paid {
-  border-left: 4px solid #2874a6;
-}
-
-.boat-header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.boat-header h3 {
-  margin: 0;
-  color: #2c3e50;
-  font-size: 1.1rem;
-}
-
-.boat-header h3.editable {
-  cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  border: 1px dashed transparent;
-  transition: all 0.2s;
-}
-
-.boat-header h3.editable:hover {
-  background-color: #f0f0f0;
-  border-color: #3498db;
-}
-
-.boat-header h3.editable:hover .edit-hint {
-  opacity: 1;
-}
-
-.boat-type {
-  font-size: 0.85rem;
-  color: #7f8c8d;
-  font-weight: 500;
-}
-
-.boat-details {
-  margin-bottom: 1rem;
-}
-
-.detail-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 0.75rem;
-}
-
-.detail-row span:not(.label):not(.status-badge) {
-  color: #2c3e50;
-}
-
-.detail-row span.editable {
-  cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  border: 1px dashed transparent;
-  transition: all 0.2s;
-  display: inline-block;
-}
-
-.detail-row span.editable:hover {
-  background-color: #f0f0f0;
-  border-color: #3498db;
-}
-
-.detail-row span.editable:hover .edit-hint {
-  opacity: 1;
-}
-
-.edit-hint {
-  opacity: 0.4;
-  margin-left: 0.5rem;
-  vertical-align: middle;
-  transition: opacity 0.2s;
-  display: inline-block;
-}
-
-.label {
-  font-weight: 500;
-  color: #34495e;
-  font-size: 0.85rem;
-}
-
-.status-badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  display: inline-block;
-}
-
-.status-badge.editable {
-  cursor: pointer;
-  border: 1px dashed transparent;
-  transition: all 0.2s;
-}
-
-.status-badge.editable:hover {
-  opacity: 0.9;
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.status-badge.editable:hover .edit-hint {
-  opacity: 1;
-}
-
-.status-badge.new {
-  background: #e8f4f8;
-  color: #2980b9;
-}
-
-.status-badge.available {
-  background: #d5f4e6;
-  color: #27ae60;
-}
-
-.status-badge.requested {
-  background: #fef9e7;
-  color: #f39c12;
-}
-
-.status-badge.confirmed {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.status-badge.paid {
-  background: #d6eaf8;
-  color: #2874a6;
-}
-
-.boat-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.boat-actions button {
-  width: 100%;
-}
-
-.boat-actions .btn-save {
-  background-color: #27ae60;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s;
-}
-
-.boat-actions .btn-save:hover {
-  background-color: #229954;
-}
-
-.boat-actions .btn-cancel {
-  background-color: #95a5a6;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s;
-}
-
-.boat-actions .btn-cancel:hover {
-  background-color: #7f8c8d;
-}
-
-.boat-actions .btn-danger {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s;
-}
-
-.boat-actions .btn-danger:hover {
-  background-color: #c82333;
-}
-
-.inline-edit-input,
-.inline-edit-select {
-  padding: 0.35rem 0.5rem;
-  border: 2px solid #3498db;
-  border-radius: 4px;
-  font-size: 0.95rem;
-  width: 100%;
-}
-
-.inline-edit-input:focus,
-.inline-edit-select:focus {
-  outline: none;
-  border-color: #2980b9;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 1.5rem;
-  color: #7f8c8d;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* Modal */
+/* Modals */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -1202,19 +996,16 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  padding: 1rem;
 }
 
 .modal {
   background: white;
   border-radius: 8px;
+  max-width: 600px;
   width: 90%;
-  max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  display: flex;
-  flex-direction: column;
 }
 
 .modal-header {
@@ -1223,11 +1014,11 @@ onMounted(() => {
   align-items: center;
   padding: 1.5rem;
   border-bottom: 1px solid #e0e0e0;
-  flex-shrink: 0;
 }
 
 .modal-header h2 {
   margin: 0;
+  font-size: 1.5rem;
   color: #2c3e50;
 }
 
@@ -1238,8 +1029,8 @@ onMounted(() => {
   cursor: pointer;
   color: #7f8c8d;
   padding: 0;
-  width: 44px;
-  height: 44px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1248,12 +1039,22 @@ onMounted(() => {
 
 .modal-close:hover {
   background-color: #f0f0f0;
+  color: #2c3e50;
 }
 
 .modal-form {
   padding: 1.5rem;
-  flex: 1;
-  overflow-y: auto;
+}
+
+.request-summary {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+}
+
+.request-summary p {
+  margin: 0.5rem 0;
 }
 
 .form-group {
@@ -1262,9 +1063,9 @@ onMounted(() => {
 
 .form-group label {
   display: block;
-  font-weight: 500;
-  color: #2c3e50;
   margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #2c3e50;
 }
 
 .form-control {
@@ -1273,174 +1074,157 @@ onMounted(() => {
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
-  transition: border-color 0.3s;
+  font-family: inherit;
 }
 
 .form-control:focus {
   outline: none;
-  border-color: #3498db;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .form-control.error {
-  border-color: #e74c3c;
+  border-color: #dc3545;
 }
 
 .form-help {
   display: block;
-  color: #7f8c8d;
-  font-size: 0.85rem;
   margin-top: 0.25rem;
-  font-style: italic;
+  font-size: 0.85rem;
+  color: #7f8c8d;
 }
 
 .error-text {
   display: block;
-  color: #e74c3c;
-  font-size: 0.85rem;
   margin-top: 0.25rem;
-}
-
-.form-help {
-  display: block;
-  color: #7f8c8d;
   font-size: 0.85rem;
-  margin-top: 0.25rem;
-  font-style: italic;
-}
-
-.error-message {
-  background-color: #fee;
-  border: 1px solid #e74c3c;
-  color: #c0392b;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
+  color: #dc3545;
 }
 
 .modal-actions {
   display: flex;
-  gap: 1rem;
   justify-content: flex-end;
-  margin-top: 2rem;
-  flex-shrink: 0;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
 }
 
 .btn-primary,
-.btn-secondary {
+.btn-secondary,
+.btn-danger,
+.btn-warning {
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 4px;
-  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s;
-  min-height: 44px;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s;
 }
 
 .btn-primary {
-  background-color: #3498db;
+  background-color: #007bff;
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #2980b9;
-}
-
-.btn-primary:disabled {
-  background-color: #bdc3c7;
-  cursor: not-allowed;
+  background-color: #0056b3;
 }
 
 .btn-secondary {
-  background-color: #ecf0f1;
-  color: #2c3e50;
+  background-color: #6c757d;
+  color: white;
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: #d5dbdb;
+  background-color: #545b62;
 }
 
-.btn-secondary:disabled {
-  opacity: 0.5;
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #c82333;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #212529;
+}
+
+.btn-warning:hover:not(:disabled) {
+  background-color: #e0a800;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-danger:disabled,
+.btn-warning:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
+/* Responsive */
 @media (max-width: 768px) {
-  .admin-boat-inventory {
+  .admin-rental-requests {
     padding: 1rem;
   }
 
-  .page-header {
-    margin-bottom: 1rem;
+  .requests-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
-  .modal-overlay {
-    align-items: flex-end;
-    padding: 0;
-  }
-
-  .modal {
-    border-radius: 12px 12px 0 0;
-    width: 100%;
-    max-width: 100%;
-    max-height: 90vh;
-  }
-
-  .modal-header {
+  .request-card {
     padding: 1rem;
   }
 
-  .modal-form {
-    padding: 1rem;
-  }
-
-  .form-control {
-    font-size: 16px;
-    min-height: 44px;
-  }
-
-  .modal-actions {
+  .request-header {
     flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
 
-  .modal-actions .btn-primary,
-  .modal-actions .btn-secondary {
-    width: 100%;
-  }
-
-  .filter-select {
-    font-size: 16px;
-    min-height: 44px;
-  }
-
-  .btn-table {
-    min-height: 44px;
-    min-width: 44px;
-  }
-}
-
-@media (min-width: 768px) {
-  .boats-grid {
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  }
-
-  .boat-header {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+  .request-header h3 {
+    font-size: 1.1rem;
   }
 
   .detail-row {
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
   }
 
-  .boat-actions {
-    flex-direction: row;
+  .detail-row .label {
+    min-width: auto;
+    font-size: 0.8rem;
   }
 
-  .boat-actions button {
-    width: auto;
-    flex: 1;
+  .comment-text,
+  .assignment-text {
+    font-size: 0.85rem;
+  }
+
+  .request-actions {
+    flex-direction: column;
+  }
+
+  .request-actions .btn-table {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .requests-table-container {
+    overflow-x: auto;
+  }
+
+  .requests-table {
+    min-width: 800px;
+  }
+
+  .modal {
+    width: 95%;
   }
 }
 </style>

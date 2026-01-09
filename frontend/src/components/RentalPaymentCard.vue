@@ -14,8 +14,8 @@
         />
       </div>
       <div class="rental-info">
-        <h3 class="rental-name">{{ rental.boat_name }}</h3>
-        <span class="rental-type">{{ $t(`boat.types.${rental.boat_type}`) }}</span>
+        <h3 class="rental-name">{{ $t(`boat.types.${rental.boat_type}`) }}</h3>
+        <span class="rental-type">{{ $t('payment.rentalRequest') }}</span>
       </div>
       <div class="rental-badge">
         <span class="badge rental">{{ $t('payment.rental') }}</span>
@@ -24,9 +24,13 @@
 
     <div class="card-body">
       <div class="rental-details">
-        <div class="detail-row" v-if="rental.rower_weight_range">
-          <span class="label">{{ $t('boatRental.weightCapacity') }}:</span>
-          <span class="value">{{ rental.rower_weight_range }}</span>
+        <div class="detail-row" v-if="rental.desired_weight_range">
+          <span class="label">{{ $t('boatRental.desiredWeightRange') }}:</span>
+          <span class="value">{{ rental.desired_weight_range }}</span>
+        </div>
+        <div class="detail-row" v-if="rental.assignment_details">
+          <span class="label">{{ $t('boatRental.assignmentDetails') }}:</span>
+          <span class="value">{{ rental.assignment_details }}</span>
         </div>
       </div>
 

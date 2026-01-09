@@ -215,3 +215,70 @@ def validate_pricing_config(config: Dict[str, Any]) -> bool:
             return False
     
     return True
+
+
+def calculate_rental_request_pricing(
+    boat_type: str,
+    pricing_config: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """
+    Calculate pricing for a rental request based on boat type
+    
+    Pricing formula per boat type (all use base_seat_price × multiplier):
+    - skiff: base_seat_price × 2.5
+    - 4-, 4x-: base_seat_price × 4
+    - 4+, 4x+: base_seat_price × 5
+    - 8+, 8x+: base_seat_price × 9
+    
+    Args:
+        boat_type: Type of boat (skiff, 4-, 4+, 4x-, 4x+, 8+, 8x+)
+        pricing_config: Optional pricing configuration from DynamoDB
+    
+    Returns:
+        Dictionary with rental fee and total
+    """
+    # Get pricing configuration from database or use defaults
+    base_seat_price = Decimal(str(pricing_config.get('base_seat_price', DEFAULT_BASE_SEAT_PRICE))) if pricing_config else DEFAULT_BASE_SEAT_PRICE
+    rental_multiplier_skiff = Decimal(str(pricing_config.get('boat_rental_multiplier_skiff', DEFAULT_RENTAL_MULTIPLIER_SKIFF))) if pricing_config else DEFAULT_RENTAL_MULTIPLIER_SKIFF
+    
+    # Define multipliers for each boat type (based on seat count)
+    multipliers = {
+        'skiff': rental_multiplier_skiff,  # 2.5 (from config)
+        '4-': Decimal('4'),
+        '4+': Decimal('5'),
+        '4x-': Decimal('4'),
+        '4x+': Decimal('5'),
+        '8+': Decimal('9'),
+        '8x+': Decimal('9'),
+        '4+yolette': Decimal('5'),  # Four sweep with cox (Yolette) - same as 4+
+        '4x+yolette': Decimal('5')  # Quad scull with cox (Yolette) - same as 4x+
+    }
+    
+    # Calculate rental fee based on boat type
+    if boat_type in multipliers:
+        multiplier = multipliers[boat_type]
+        rental_fee = base_seat_price * multiplier
+        pricing = {
+            'rental_fee': rental_fee,
+            'total': rental_fee,
+            'currency': 'EUR',
+            'breakdown': [{
+                'item': f'{boat_type} rental',
+                'unit_price': base_seat_price,
+                'multiplier': float(multiplier),
+                'amount': rental_fee
+            }]
+        }
+    else:
+        logger.error(f"Invalid boat type for rental pricing: {boat_type}")
+        return {
+            'rental_fee': Decimal('0'),
+            'total': Decimal('0'),
+            'currency': 'EUR',
+            'error': f'Invalid boat type: {boat_type}'
+        }
+    
+    logger.info(f"Calculated rental request pricing for {boat_type}: {rental_fee} EUR")
+    
+    return pricing
+

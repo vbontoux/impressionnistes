@@ -1,6 +1,12 @@
 """
 Lambda function to list available rental boats for team managers
 Team manager accessible - shows only boats available for rental
+
+⚠️ DEPRECATED: This endpoint is part of the old inventory-based rental system.
+Team managers now create rental requests directly instead of browsing inventory.
+Use create_rental_request.py instead for the new request-based system.
+This endpoint will be removed after migration is complete.
+See: .kiro/specs/boat-rental-refactoring/design.md
 """
 import json
 import logging
@@ -13,7 +19,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 # Valid boat types for filtering
-VALID_BOAT_TYPES = ['skiff', '4-', '4+', '4x-', '4x+', '8+', '8x+']
+VALID_BOAT_TYPES = ['skiff', '4-', '4+', '4x-', '4x+', '8+', '8x+', '4+yolette', '4x+yolette']
 
 
 @handle_exceptions

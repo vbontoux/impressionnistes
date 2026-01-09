@@ -1,6 +1,11 @@
 """
 Lambda function for team managers to request a rental boat
 Team manager accessible - creates a rental request
+
+⚠️ DEPRECATED: This endpoint is part of the old inventory-based rental system.
+Use create_rental_request.py instead for the new request-based system.
+This endpoint will be removed after migration is complete.
+See: .kiro/specs/boat-rental-refactoring/design.md
 """
 import json
 import logging

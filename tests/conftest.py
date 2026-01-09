@@ -139,6 +139,12 @@ def test_team_manager_id():
 
 
 @pytest.fixture
+def test_admin_id():
+    """Return a test admin ID"""
+    return 'test-admin-456'
+
+
+@pytest.fixture
 def mock_api_gateway_event():
     """Factory fixture to create API Gateway events"""
     def _create_event(
@@ -276,3 +282,21 @@ def test_team_manager_profile(dynamodb_table, test_team_manager_id):
     })
     
     return profile
+
+
+
+# Helper function for rental request ID handling
+def get_rental_request_db_key(rental_request_id):
+    """
+    Convert a rental_request_id (which may be a clean UUID from API response)
+    into the full DynamoDB key format.
+    
+    Args:
+        rental_request_id: Either a clean UUID or a full RENTAL_REQUEST# key
+        
+    Returns:
+        Full DynamoDB key in format RENTAL_REQUEST#<uuid>
+    """
+    if rental_request_id.startswith('RENTAL_REQUEST#'):
+        return rental_request_id
+    return f"RENTAL_REQUEST#{rental_request_id}"

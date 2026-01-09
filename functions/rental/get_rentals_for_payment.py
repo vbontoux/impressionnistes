@@ -1,6 +1,6 @@
 """
-Lambda function to get confirmed rental boats ready for payment
-Team managers can see their confirmed rentals that need payment
+Lambda function to get accepted rental requests ready for payment
+Team managers can see their accepted rental requests that need payment
 """
 import json
 import logging
@@ -14,113 +14,97 @@ from responses import (
 )
 from database import get_db_client
 from auth_utils import get_user_from_event, require_team_manager
-from configuration import ConfigurationManager
+from pricing import calculate_rental_request_pricing
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-
-
-def calculate_rental_price(boat_type: str, base_seat_price: Decimal) -> Decimal:
-    """
-    Calculate rental price based on boat type
-    - Skiffs: 2.5x Base_Seat_Price
-    - Crew boats: Base_Seat_Price per seat
-    """
-    # Skiff pricing
-    if boat_type == 'skiff':
-        return base_seat_price * Decimal('2.5')
-    
-    # Crew boat pricing - Base_Seat_Price per seat
-    seat_counts = {
-        '4-': 4,
-        '4+': 5,  # 4 rowers + 1 cox
-        '4x-': 4,
-        '4x+': 5,  # 4 rowers + 1 cox
-        '8+': 9,  # 8 rowers + 1 cox
-        '8x+': 9   # 8 rowers + 1 cox
-    }
-    
-    seats = seat_counts.get(boat_type, 1)
-    return base_seat_price * Decimal(str(seats))
 
 
 @handle_exceptions
 @require_team_manager
 def lambda_handler(event, context):
     """
-    Get confirmed rental boats for the authenticated team manager
-    Only returns rentals with status 'confirmed' (ready for payment)
+    Get accepted rental requests for the authenticated team manager
+    Only returns requests with status 'accepted' (ready for payment)
     
     Returns:
-        List of confirmed rental boats with pricing information
+        List of accepted rental requests with pricing information
     """
-    logger.info("Get rentals for payment request")
+    logger.info("Get rental requests for payment")
     
     # Get authenticated user
     user = get_user_from_event(event)
     team_manager_id = user['user_id']
     team_manager_email = user.get('email')
     
-    logger.info(f"Getting rentals for payment for team manager: {team_manager_id} ({team_manager_email})")
+    logger.info(f"Getting rental requests for payment for team manager: {team_manager_id} ({team_manager_email})")
     
     # Get database client
     db = get_db_client()
     
-    # Get pricing configuration
-    config_manager = ConfigurationManager()
-    pricing_config = config_manager.get_pricing_config()
-    base_seat_price = Decimal(str(pricing_config.get('base_seat_price', 20)))
-    
-    # Query all rental boats using scan
+    # Query all rental requests using scan
     try:
         response = db.table.scan(
             FilterExpression='begins_with(PK, :pk_prefix) AND SK = :sk',
             ExpressionAttributeValues={
-                ':pk_prefix': 'RENTAL_BOAT#',
+                ':pk_prefix': 'RENTAL_REQUEST#',
                 ':sk': 'METADATA'
             }
         )
         
-        all_rentals = response.get('Items', [])
+        all_requests = response.get('Items', [])
         
         # Handle pagination if needed
         while 'LastEvaluatedKey' in response:
             response = db.table.scan(
                 FilterExpression='begins_with(PK, :pk_prefix) AND SK = :sk',
                 ExpressionAttributeValues={
-                    ':pk_prefix': 'RENTAL_BOAT#',
+                    ':pk_prefix': 'RENTAL_REQUEST#',
                     ':sk': 'METADATA'
                 },
                 ExclusiveStartKey=response['LastEvaluatedKey']
             )
-            all_rentals.extend(response.get('Items', []))
+            all_requests.extend(response.get('Items', []))
     except Exception as e:
-        logger.error(f"Failed to query rental boats: {str(e)}")
-        return internal_error(f"Failed to query rental boats: {str(e)}")
+        logger.error(f"Failed to query rental requests: {str(e)}")
+        return internal_error(f"Failed to query rental requests: {str(e)}")
     
-    # Filter for confirmed rentals belonging to this team manager
-    # Note: requester is stored as email, not user_id
-    confirmed_rentals = []
-    for rental in all_rentals:
-        if (rental.get('status') == 'confirmed' and 
-            rental.get('requester') == team_manager_email):
+    # Filter for accepted requests belonging to this team manager
+    accepted_requests = []
+    for request in all_requests:
+        if (request.get('status') == 'accepted' and 
+            request.get('requester_id') == team_manager_id):
             
             # Calculate rental price
-            boat_type = rental.get('boat_type', 'skiff')
-            rental_price = calculate_rental_price(boat_type, base_seat_price)
+            boat_type = request.get('boat_type', 'skiff')
+            pricing = calculate_rental_request_pricing(boat_type)
             
-            # Add pricing information
-            rental['pricing'] = {
-                'rental_fee': float(rental_price),
-                'total': float(rental_price),
-                'currency': 'EUR'
+            # Strip RENTAL_REQUEST# prefix from ID for frontend
+            full_id = request.get('rental_request_id', '')
+            clean_id = full_id.replace('RENTAL_REQUEST#', '') if full_id else ''
+            
+            # Build response object with clean ID
+            request_data = {
+                'rental_request_id': clean_id,
+                'boat_type': request.get('boat_type'),
+                'desired_weight_range': request.get('desired_weight_range'),
+                'request_comment': request.get('request_comment'),
+                'status': request.get('status'),
+                'assignment_details': request.get('assignment_details'),
+                'accepted_at': request.get('accepted_at'),
+                'created_at': request.get('created_at'),
+                'pricing': {
+                    'rental_fee': float(pricing['rental_fee']),
+                    'total': float(pricing['total']),
+                    'currency': pricing['currency']
+                }
             }
             
-            confirmed_rentals.append(rental)
+            accepted_requests.append(request_data)
     
-    logger.info(f"Found {len(confirmed_rentals)} confirmed rentals for payment")
+    logger.info(f"Found {len(accepted_requests)} accepted rental requests for payment")
     
     return success_response(data={
-        'rental_boats': confirmed_rentals,
-        'count': len(confirmed_rentals)
+        'rental_requests': accepted_requests,
+        'count': len(accepted_requests)
     })
