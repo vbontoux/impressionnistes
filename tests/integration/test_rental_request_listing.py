@@ -155,11 +155,14 @@ def test_property_5_team_manager_isolation(dynamodb_table, context, num_own_requ
     
     # Verify all returned requests belong to this team manager
     returned_ids = [r['rental_request_id'] for r in returned_requests]
+    # Strip prefixes from own_request_ids for comparison
+    own_clean_ids = [rid.replace('RENTAL_REQUEST#', '') for rid in own_request_ids]
     for request_id in returned_ids:
-        assert request_id in own_request_ids, "Returned request must belong to this team manager"
+        assert request_id in own_clean_ids, "Returned request must belong to this team manager"
     
     # Verify no requests from other team managers are returned
-    for request_id in other_request_ids:
+    other_clean_ids = [rid.replace('RENTAL_REQUEST#', '') for rid in other_request_ids]
+    for request_id in other_clean_ids:
         assert request_id not in returned_ids, "Should not return requests from other team managers"
 
 

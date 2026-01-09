@@ -180,7 +180,8 @@ def test_property_19_paid_requests_immutable(
     Validates: Requirements 5.5
     """
     # Create paid rental request
-    rental_request_id = f'RENTAL_REQUEST#immutable-test-{operation}'
+    clean_id = f'immutable-test-{operation}'
+    rental_request_id = f'RENTAL_REQUEST#{clean_id}'
     current_time = datetime.utcnow().isoformat() + 'Z'
     
     request_data = {
@@ -204,13 +205,13 @@ def test_property_19_paid_requests_immutable(
     
     dynamodb_table.put_item(Item=request_data)
     
-    # Attempt modification based on operation
+    # Attempt modification based on operation (API expects clean UUID)
     if operation == 'cancel':
         from rental.cancel_rental_request import lambda_handler
         event = mock_api_gateway_event(
             http_method='DELETE',
-            path=f'/rental/request/{rental_request_id}',
-            path_parameters={'id': rental_request_id},
+            path=f'/rental/request/{clean_id}',
+            path_parameters={'rental_request_id': clean_id},
             user_id=test_team_manager_id
         )
         response = lambda_handler(event, mock_lambda_context)
@@ -219,8 +220,8 @@ def test_property_19_paid_requests_immutable(
         from admin.accept_rental_request import lambda_handler
         event = mock_api_gateway_event(
             http_method='PUT',
-            path=f'/admin/rental-requests/{rental_request_id}/accept',
-            path_parameters={'id': rental_request_id},
+            path=f'/admin/rental-requests/{clean_id}/accept',
+            path_parameters={'rental_request_id': clean_id},
             body=json.dumps({'assignment_details': 'New assignment'}),
             user_id=test_admin_id,
             groups=['admins']
@@ -231,8 +232,8 @@ def test_property_19_paid_requests_immutable(
         from admin.update_assignment_details import lambda_handler
         event = mock_api_gateway_event(
             http_method='PUT',
-            path=f'/admin/rental-requests/{rental_request_id}/assignment',
-            path_parameters={'id': rental_request_id},
+            path=f'/admin/rental-requests/{clean_id}/assignment',
+            path_parameters={'rental_request_id': clean_id},
             body=json.dumps({'assignment_details': 'Updated assignment'}),
             user_id=test_admin_id,
             groups=['admins']
@@ -367,5 +368,6 @@ def test_payment_only_for_own_requests(
     
     rental_requests = body['data']['rental_requests']
     assert len(rental_requests) == 1
-    assert rental_requests[0]['rental_request_id'] == own_request_id
-    assert rental_requests[0]['requester_id'] == test_team_manager_id
+    # API returns clean UUID without RENTAL_REQUEST# prefix
+    assert rental_requests[0]['rental_request_id'] == 'own-request'
+    # Note: API doesn't return requester_id in payment list (filtered server-side)

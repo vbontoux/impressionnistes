@@ -21,13 +21,22 @@ from accept_rental_request import lambda_handler as accept_handler
 from create_rental_request import lambda_handler as create_handler
 
 
+def get_rental_request_db_key(rental_request_id):
+    """Convert a rental_request_id (clean UUID) into the full DynamoDB key format"""
+    if rental_request_id.startswith('RENTAL_REQUEST#'):
+        return rental_request_id
+    return f"RENTAL_REQUEST#{rental_request_id}"
+
+
 @pytest.fixture
 def admin_event_factory():
     """Factory to create admin events with custom rental_request_id and body"""
     def _create_event(rental_request_id, assignment_details):
+        # Strip RENTAL_REQUEST# prefix if present (API expects just UUID)
+        clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
         return {
             'pathParameters': {
-                'id': rental_request_id
+                'rental_request_id': clean_id
             },
             'body': json.dumps({
                 'assignment_details': assignment_details
@@ -115,8 +124,9 @@ def test_property_12_accept_requires_assignment_details(
     # Create admin event with test assignment_details
     if assignment_details is None:
         # Test missing assignment_details
+        clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
         event = {
-            'pathParameters': {'id': rental_request_id},
+            'pathParameters': {'rental_request_id': clean_id},
             'body': json.dumps({}),
             'requestContext': {
                 'authorizer': {
@@ -174,13 +184,15 @@ def test_property_13_accept_transitions_status_correctly(
     # Arrange - create a pending request
     rental_request_id = create_pending_request(dynamodb_table, context, boat_type)
     
-    # Verify initial status is pending
-    item = dynamodb_table.get_item(Key={'PK': rental_request_id, 'SK': 'METADATA'})
+    # Verify initial status is pending (convert clean UUID to DB key format)
+    db_key = get_rental_request_db_key(rental_request_id)
+    item = dynamodb_table.get_item(Key={'PK': db_key, 'SK': 'METADATA'})
     assert item['Item']['status'] == 'pending'
     
     # Create admin event
+    clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
     event = {
-        'pathParameters': {'id': rental_request_id},
+        'pathParameters': {'rental_request_id': clean_id},
         'body': json.dumps({
             'assignment_details': f'Boat assigned for {boat_type}'
         }),
@@ -223,9 +235,11 @@ def test_property_13_accept_transitions_status_correctly(
     # Verify accepted_by is recorded
     assert body['data']['accepted_by'] == admin_id, "accepted_by must record admin user_id"
     
-    # Verify in database
-    item = dynamodb_table.get_item(Key={'PK': rental_request_id, 'SK': 'METADATA'})
-    db_item = item['Item']
+    # Verify in database (convert clean UUID to DB key format)
+    db_key = get_rental_request_db_key(rental_request_id)
+    item_response = dynamodb_table.get_item(Key={'PK': db_key, 'SK': 'METADATA'})
+    assert 'Item' in item_response, f"Item should exist in database after acceptance"
+    db_item = item_response['Item']
     assert db_item['status'] == 'accepted'
     assert db_item['accepted_at'] == accepted_at_str
     assert db_item['accepted_by'] == admin_id
@@ -282,12 +296,14 @@ def test_property_14_accept_only_pending_requests(
     # Arrange - create a pending request
     rental_request_id = create_pending_request(dynamodb_table, context)
     
-    # Change status to non-pending
-    setup_function(dynamodb_table, rental_request_id)
+    # Change status to non-pending (convert clean UUID to DB key format)
+    db_key = get_rental_request_db_key(rental_request_id)
+    setup_function(dynamodb_table, db_key)
     
     # Verify status was changed
-    item = dynamodb_table.get_item(Key={'PK': rental_request_id, 'SK': 'METADATA'})
-    assert item['Item']['status'] == initial_status
+    item_response = dynamodb_table.get_item(Key={'PK': db_key, 'SK': 'METADATA'})
+    assert 'Item' in item_response
+    assert item_response['Item']['status'] == initial_status
     
     # Create admin event to accept
     event = admin_event_factory(rental_request_id, 'Trying to accept non-pending request')
@@ -301,9 +317,11 @@ def test_property_14_accept_only_pending_requests(
     assert body['success'] is False
     assert initial_status in body['error']['message'].lower() or 'pending' in body['error']['message'].lower()
     
-    # Verify status unchanged in database
-    item = dynamodb_table.get_item(Key={'PK': rental_request_id, 'SK': 'METADATA'})
-    assert item['Item']['status'] == initial_status, "Status should remain unchanged after failed accept"
+    # Verify status unchanged in database (convert clean UUID to DB key format)
+    db_key = get_rental_request_db_key(rental_request_id)
+    item_response = dynamodb_table.get_item(Key={'PK': db_key, 'SK': 'METADATA'})
+    assert 'Item' in item_response
+    assert item_response['Item']['status'] == initial_status, "Status should remain unchanged after failed accept"
 
 
 def test_accept_pending_request_success(dynamodb_table, context, admin_event_factory):
@@ -353,10 +371,11 @@ def test_accept_without_admin_role(dynamodb_table, context):
     """
     # Arrange
     rental_request_id = create_pending_request(dynamodb_table, context)
+    clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
     
     # Create event with team_manager role (not admin)
     event = {
-        'pathParameters': {'id': rental_request_id},
+        'pathParameters': {'rental_request_id': clean_id},
         'body': json.dumps({
             'assignment_details': 'Trying to accept as team manager'
         }),
@@ -386,9 +405,10 @@ def test_accept_without_authentication(dynamodb_table, context):
     """
     # Arrange
     rental_request_id = create_pending_request(dynamodb_table, context)
+    clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
     
     event = {
-        'pathParameters': {'id': rental_request_id},
+        'pathParameters': {'rental_request_id': clean_id},
         'body': json.dumps({
             'assignment_details': 'Trying to accept without auth'
         }),
@@ -441,9 +461,10 @@ def test_accept_invalid_json_body(dynamodb_table, context):
     """
     # Arrange
     rental_request_id = create_pending_request(dynamodb_table, context)
+    clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
     
     event = {
-        'pathParameters': {'id': rental_request_id},
+        'pathParameters': {'rental_request_id': clean_id},
         'body': 'invalid json {',
         'requestContext': {
             'authorizer': {

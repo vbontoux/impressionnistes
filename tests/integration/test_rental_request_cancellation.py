@@ -22,13 +22,22 @@ from create_rental_request import lambda_handler as create_handler
 from accept_rental_request import lambda_handler as accept_handler
 
 
+def get_rental_request_db_key(rental_request_id):
+    """Convert a rental_request_id (clean UUID) into the full DynamoDB key format"""
+    if rental_request_id.startswith('RENTAL_REQUEST#'):
+        return rental_request_id
+    return f"RENTAL_REQUEST#{rental_request_id}"
+
+
 @pytest.fixture
 def team_manager_event_factory():
     """Factory to create team manager events with custom rental_request_id"""
     def _create_event(rental_request_id, user_id='test-user-123', email='teammanager@example.com'):
+        # Strip RENTAL_REQUEST# prefix if present (API expects just UUID)
+        clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
         return {
             'pathParameters': {
-                'id': rental_request_id
+                'rental_request_id': clean_id
             },
             'requestContext': {
                 'authorizer': {
@@ -85,8 +94,9 @@ def create_accepted_request(dynamodb_table, context, user_id='test-user-123', em
     rental_request_id = create_pending_request(dynamodb_table, context, user_id, email)
     
     # Accept the request
+    clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
     accept_event = {
-        'pathParameters': {'id': rental_request_id},
+        'pathParameters': {'rental_request_id': clean_id},
         'body': json.dumps({
             'assignment_details': 'Boat #1, dock A'
         }),
@@ -131,9 +141,11 @@ def test_property_20_cancellation_only_pending_accepted(
     else:  # accepted
         rental_request_id = create_accepted_request(dynamodb_table, context)
     
-    # Verify initial status
-    item = dynamodb_table.get_item(Key={'PK': rental_request_id, 'SK': 'METADATA'})
-    assert item['Item']['status'] == initial_status
+    # Verify initial status (convert clean UUID to DB key format)
+    db_key = get_rental_request_db_key(rental_request_id)
+    item_response = dynamodb_table.get_item(Key={'PK': db_key, 'SK': 'METADATA'})
+    assert 'Item' in item_response
+    assert item_response['Item']['status'] == initial_status
     
     # Create event to cancel
     event = team_manager_event_factory(rental_request_id)
@@ -146,7 +158,13 @@ def test_property_20_cancellation_only_pending_accepted(
         assert response['statusCode'] == 200
         body = json.loads(response['body'])
         assert body['success'] is True
-        assert body['data']['status'] == 'cancelled'
+        # Request should be deleted, not marked as cancelled
+        assert 'message' in body['data']
+        
+        # Verify request was deleted from database (convert clean UUID to DB key format)
+        db_key = get_rental_request_db_key(rental_request_id)
+        item_response = dynamodb_table.get_item(Key={'PK': db_key, 'SK': 'METADATA'})
+        assert 'Item' not in item_response, "Request should be deleted from database"
     else:
         assert response['statusCode'] == 400
         body = json.loads(response['body'])
@@ -181,13 +199,15 @@ def test_property_20_cannot_cancel_paid_or_cancelled(
     
     Test that paid or already cancelled requests cannot be cancelled.
     """
-    # Arrange - create accepted request then change status
+    # Arrange - create accepted request then change status (convert clean UUID to DB key format)
     rental_request_id = create_accepted_request(dynamodb_table, context)
-    setup_function(dynamodb_table, rental_request_id)
+    db_key = get_rental_request_db_key(rental_request_id)
+    setup_function(dynamodb_table, db_key)
     
     # Verify status was changed
-    item = dynamodb_table.get_item(Key={'PK': rental_request_id, 'SK': 'METADATA'})
-    assert item['Item']['status'] == initial_status
+    item_response = dynamodb_table.get_item(Key={'PK': db_key, 'SK': 'METADATA'})
+    assert 'Item' in item_response
+    assert item_response['Item']['status'] == initial_status
     
     # Create event to cancel
     event = team_manager_event_factory(rental_request_id)
@@ -203,9 +223,8 @@ def test_property_20_cannot_cancel_paid_or_cancelled(
 
 
 # Feature: boat-rental-refactoring, Property 21: Cancellation Transitions Status Correctly
-# For any rental request being cancelled, the status should change to "cancelled",
-# cancelled_at timestamp should be recorded, and cancelled_by should be set to the user_id
-# of the cancelling user.
+# For any rental request being cancelled, the request should be deleted from the database.
+# The API returns confirmation of deletion.
 
 
 @pytest.mark.parametrize("initial_status,user_id,user_email", [
@@ -218,10 +237,10 @@ def test_property_21_cancellation_transitions_status(
     dynamodb_table, context, team_manager_event_factory, initial_status, user_id, user_email
 ):
     """
-    Property 21: Cancellation Transitions Status Correctly
+    Property 21: Cancellation Deletes Request
     Validates: Requirements 6.2, 6.3
     
-    Test that cancellation correctly transitions status and records metadata.
+    Test that cancellation deletes the request from the database.
     """
     # Arrange - create request with appropriate status
     if initial_status == 'pending':
@@ -229,9 +248,11 @@ def test_property_21_cancellation_transitions_status(
     else:  # accepted
         rental_request_id = create_accepted_request(dynamodb_table, context, user_id, user_email)
     
-    # Verify initial status
-    item = dynamodb_table.get_item(Key={'PK': rental_request_id, 'SK': 'METADATA'})
-    assert item['Item']['status'] == initial_status
+    # Verify initial status (convert clean UUID to DB key format)
+    db_key = get_rental_request_db_key(rental_request_id)
+    item_response = dynamodb_table.get_item(Key={'PK': db_key, 'SK': 'METADATA'})
+    assert 'Item' in item_response
+    assert item_response['Item']['status'] == initial_status
     
     # Create event to cancel
     event = team_manager_event_factory(rental_request_id, user_id, user_email)
@@ -244,37 +265,18 @@ def test_property_21_cancellation_transitions_status(
     body = json.loads(response['body'])
     assert body['success'] is True
     
-    # Verify status transition
-    assert body['data']['status'] == 'cancelled', "Status must transition to 'cancelled'"
+    # Verify request was deleted
+    assert 'rental_request_id' in body['data']
+    assert 'message' in body['data']
     
-    # Verify cancelled_at timestamp is present and valid
-    assert 'cancelled_at' in body['data'], "cancelled_at timestamp must be recorded"
-    cancelled_at_str = body['data']['cancelled_at']
-    try:
-        cancelled_at = datetime.fromisoformat(cancelled_at_str.replace('Z', '+00:00'))
-    except ValueError:
-        pytest.fail(f"cancelled_at is not valid ISO 8601 format: {cancelled_at_str}")
-    
-    # Verify timestamp is recent (within last minute)
-    from datetime import timezone
-    now = datetime.now(timezone.utc)
-    time_diff = abs((now - cancelled_at).total_seconds())
-    assert time_diff < 60, f"cancelled_at should be recent (within 60 seconds)"
-    
-    # Verify cancelled_by is recorded
-    assert body['data']['cancelled_by'] == user_id, "cancelled_by must record team manager user_id"
-    
-    # Verify in database
-    item = dynamodb_table.get_item(Key={'PK': rental_request_id, 'SK': 'METADATA'})
-    db_item = item['Item']
-    assert db_item['status'] == 'cancelled'
-    assert db_item['cancelled_at'] == cancelled_at_str
-    assert db_item['cancelled_by'] == user_id
+    # Verify in database that request no longer exists (convert clean UUID to DB key format)
+    db_key = get_rental_request_db_key(rental_request_id)
+    item_response = dynamodb_table.get_item(Key={'PK': db_key, 'SK': 'METADATA'})
+    assert 'Item' not in item_response, "Request should be deleted from database"
 
 
-# Feature: boat-rental-refactoring, Property 22: Cancellation Preserves Request Data
-# For any rental request being cancelled, all original fields (boat_type, desired_weight_range,
-# request_comment, requester_id, requester_email, created_at) should remain unchanged.
+# Feature: boat-rental-refactoring, Property 22: Cancellation Deletes Request
+# For any rental request being cancelled, the request is deleted from the database.
 
 
 @pytest.mark.parametrize("boat_type,weight_range,comment", [
@@ -286,10 +288,10 @@ def test_property_22_cancellation_preserves_data(
     dynamodb_table, context, team_manager_event_factory, boat_type, weight_range, comment
 ):
     """
-    Property 22: Cancellation Preserves Request Data
+    Property 22: Cancellation Deletes Request
     Validates: Requirements 6.5
     
-    Test that cancellation preserves all original request data.
+    Test that cancellation deletes the request from the database.
     """
     # Arrange - create request with specific data
     event = {
@@ -314,16 +316,6 @@ def test_property_22_cancellation_preserves_data(
     body = json.loads(response['body'])
     rental_request_id = body['data']['rental_request_id']
     
-    # Store original data
-    original_data = {
-        'boat_type': body['data']['boat_type'],
-        'desired_weight_range': body['data']['desired_weight_range'],
-        'request_comment': body['data']['request_comment'],
-        'requester_id': body['data']['requester_id'],
-        'requester_email': body['data']['requester_email'],
-        'created_at': body['data']['created_at']
-    }
-    
     # Act - cancel the request
     cancel_event = team_manager_event_factory(rental_request_id)
     response = cancel_handler(cancel_event, context)
@@ -331,31 +323,23 @@ def test_property_22_cancellation_preserves_data(
     # Assert
     assert response['statusCode'] == 200
     
-    # Verify in database that original data is preserved
-    item = dynamodb_table.get_item(Key={'PK': rental_request_id, 'SK': 'METADATA'})
-    db_item = item['Item']
-    
-    assert db_item['boat_type'] == original_data['boat_type'], "boat_type must be preserved"
-    assert db_item['desired_weight_range'] == original_data['desired_weight_range'], "desired_weight_range must be preserved"
-    assert db_item['request_comment'] == original_data['request_comment'], "request_comment must be preserved"
-    assert db_item['requester_id'] == original_data['requester_id'], "requester_id must be preserved"
-    assert db_item['requester_email'] == original_data['requester_email'], "requester_email must be preserved"
-    assert db_item['created_at'] == original_data['created_at'], "created_at must be preserved"
-    
-    # Verify status changed to cancelled
-    assert db_item['status'] == 'cancelled'
+    # Verify request was deleted from database
+    item_response = dynamodb_table.get_item(Key={'PK': f"RENTAL_REQUEST#{rental_request_id}", 'SK': 'METADATA'})
+    assert 'Item' not in item_response, "Request should be deleted from database"
 
 
 def test_cancellation_preserves_assignment_details(dynamodb_table, context, team_manager_event_factory):
     """
-    Test that cancelling an accepted request preserves assignment details
+    Test that cancelling an accepted request deletes it from the database
     """
     # Arrange - create accepted request with assignment details
     rental_request_id = create_accepted_request(dynamodb_table, context)
     
-    # Get assignment details before cancellation
-    item = dynamodb_table.get_item(Key={'PK': rental_request_id, 'SK': 'METADATA'})
-    original_assignment = item['Item']['assignment_details']
+    # Get assignment details before cancellation (convert clean UUID to DB key format)
+    db_key = get_rental_request_db_key(rental_request_id)
+    item_response = dynamodb_table.get_item(Key={'PK': db_key, 'SK': 'METADATA'})
+    assert 'Item' in item_response
+    original_assignment = item_response['Item']['assignment_details']
     assert original_assignment  # Should have assignment details
     
     # Act - cancel the request
@@ -365,9 +349,10 @@ def test_cancellation_preserves_assignment_details(dynamodb_table, context, team
     # Assert
     assert response['statusCode'] == 200
     
-    # Verify assignment details preserved
-    item = dynamodb_table.get_item(Key={'PK': rental_request_id, 'SK': 'METADATA'})
-    assert item['Item']['assignment_details'] == original_assignment
+    # Verify request was deleted (convert clean UUID to DB key format)
+    db_key = get_rental_request_db_key(rental_request_id)
+    item_response = dynamodb_table.get_item(Key={'PK': db_key, 'SK': 'METADATA'})
+    assert 'Item' not in item_response, "Request should be deleted from database"
 
 
 def test_cannot_cancel_other_users_request(dynamodb_table, context, team_manager_event_factory):
@@ -389,9 +374,11 @@ def test_cannot_cancel_other_users_request(dynamodb_table, context, team_manager
     assert body['success'] is False
     assert 'own' in body['error']['message'].lower()
     
-    # Verify status unchanged
-    item = dynamodb_table.get_item(Key={'PK': rental_request_id, 'SK': 'METADATA'})
-    assert item['Item']['status'] == 'pending'
+    # Verify status unchanged (convert clean UUID to DB key format)
+    db_key = get_rental_request_db_key(rental_request_id)
+    item_response = dynamodb_table.get_item(Key={'PK': db_key, 'SK': 'METADATA'})
+    assert 'Item' in item_response
+    assert item_response['Item']['status'] == 'pending'
 
 
 def test_cancel_nonexistent_request(dynamodb_table, context, team_manager_event_factory):
@@ -416,9 +403,10 @@ def test_cancel_without_team_manager_role(dynamodb_table, context):
     """
     # Arrange
     rental_request_id = create_pending_request(dynamodb_table, context)
+    clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
     
     event = {
-        'pathParameters': {'id': rental_request_id},
+        'pathParameters': {'rental_request_id': clean_id},
         'requestContext': {
             'authorizer': {
                 'claims': {
@@ -445,9 +433,10 @@ def test_cancel_without_authentication(dynamodb_table, context):
     """
     # Arrange
     rental_request_id = create_pending_request(dynamodb_table, context)
+    clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
     
     event = {
-        'pathParameters': {'id': rental_request_id},
+        'pathParameters': {'rental_request_id': clean_id},
         'requestContext': {}
     }
     

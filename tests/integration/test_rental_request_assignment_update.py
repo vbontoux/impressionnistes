@@ -22,13 +22,22 @@ from accept_rental_request import lambda_handler as accept_handler
 from create_rental_request import lambda_handler as create_handler
 
 
+def get_rental_request_db_key(rental_request_id):
+    """Convert a rental_request_id (clean UUID) into the full DynamoDB key format"""
+    if rental_request_id.startswith('RENTAL_REQUEST#'):
+        return rental_request_id
+    return f"RENTAL_REQUEST#{rental_request_id}"
+
+
 @pytest.fixture
 def admin_event_factory():
     """Factory to create admin events with custom rental_request_id and body"""
     def _create_event(rental_request_id, assignment_details, admin_id='admin-user-123'):
+        # Strip RENTAL_REQUEST# prefix if present (API expects just UUID)
+        clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
         return {
             'pathParameters': {
-                'id': rental_request_id
+                'rental_request_id': clean_id
             },
             'body': json.dumps({
                 'assignment_details': assignment_details
@@ -84,8 +93,9 @@ def create_accepted_request(dynamodb_table, context, boat_type='skiff'):
     rental_request_id = body['data']['rental_request_id']
     
     # Accept the request
+    clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
     accept_event = {
-        'pathParameters': {'id': rental_request_id},
+        'pathParameters': {'rental_request_id': clean_id},
         'body': json.dumps({
             'assignment_details': 'Initial assignment: Boat #1'
         }),
@@ -129,8 +139,9 @@ def test_property_15_assignment_update_preserves_status(
     # Arrange - create an accepted request
     rental_request_id = create_accepted_request(dynamodb_table, context)
     
-    # Verify initial state
-    item = dynamodb_table.get_item(Key={'PK': rental_request_id, 'SK': 'METADATA'})
+    # Verify initial state (convert clean UUID to DB key format)
+    db_key = get_rental_request_db_key(rental_request_id)
+    item = dynamodb_table.get_item(Key={'PK': db_key, 'SK': 'METADATA'})
     assert item['Item']['status'] == 'accepted'
     initial_assignment = item['Item']['assignment_details']
     
@@ -156,9 +167,11 @@ def test_property_15_assignment_update_preserves_status(
     assert 'updated_at' in body['data']
     assert 'updated_by' in body['data']
     
-    # Verify in database
-    item = dynamodb_table.get_item(Key={'PK': rental_request_id, 'SK': 'METADATA'})
-    db_item = item['Item']
+    # Verify in database (convert clean UUID to DB key format)
+    db_key = get_rental_request_db_key(rental_request_id)
+    item_response = dynamodb_table.get_item(Key={'PK': db_key, 'SK': 'METADATA'})
+    assert 'Item' in item_response, "Item should exist in database after update"
+    db_item = item_response['Item']
     assert db_item['status'] == 'accepted', "Status must remain 'accepted' in database"
     assert db_item['assignment_details'] == updated_details.strip()
     assert 'updated_at' in db_item
@@ -188,9 +201,11 @@ def test_assignment_update_records_admin(
     body = json.loads(response['body'])
     assert body['data']['updated_by'] == admin_id
     
-    # Verify in database
-    item = dynamodb_table.get_item(Key={'PK': rental_request_id, 'SK': 'METADATA'})
-    assert item['Item']['updated_by'] == admin_id
+    # Verify in database (convert clean UUID to DB key format)
+    db_key = get_rental_request_db_key(rental_request_id)
+    item_response = dynamodb_table.get_item(Key={'PK': db_key, 'SK': 'METADATA'})
+    assert 'Item' in item_response
+    assert item_response['Item']['updated_by'] == admin_id
 
 
 def test_assignment_update_multiple_times(dynamodb_table, context, admin_event_factory):
@@ -250,13 +265,15 @@ def test_assignment_update_only_for_accepted(
     """
     Test that assignment details can only be updated for accepted requests
     """
-    # Arrange - create an accepted request then change its status
+    # Arrange - create an accepted request then change its status (convert clean UUID to DB key format)
     rental_request_id = create_accepted_request(dynamodb_table, context)
-    setup_function(dynamodb_table, rental_request_id)
+    db_key = get_rental_request_db_key(rental_request_id)
+    setup_function(dynamodb_table, db_key)
     
     # Verify status was changed
-    item = dynamodb_table.get_item(Key={'PK': rental_request_id, 'SK': 'METADATA'})
-    assert item['Item']['status'] == initial_status
+    item_response = dynamodb_table.get_item(Key={'PK': db_key, 'SK': 'METADATA'})
+    assert 'Item' in item_response
+    assert item_response['Item']['status'] == initial_status
     
     # Create event to update assignment details
     event = admin_event_factory(rental_request_id, 'Trying to update non-accepted request')
@@ -287,8 +304,9 @@ def test_assignment_update_validation(
     rental_request_id = create_accepted_request(dynamodb_table, context)
     
     if assignment_details is None:
+        clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
         event = {
-            'pathParameters': {'id': rental_request_id},
+            'pathParameters': {'rental_request_id': clean_id},
             'body': json.dumps({}),
             'requestContext': {
                 'authorizer': {
@@ -339,9 +357,10 @@ def test_assignment_update_without_admin_role(dynamodb_table, context):
     """
     # Arrange
     rental_request_id = create_accepted_request(dynamodb_table, context)
+    clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
     
     event = {
-        'pathParameters': {'id': rental_request_id},
+        'pathParameters': {'rental_request_id': clean_id},
         'body': json.dumps({
             'assignment_details': 'Trying to update as team manager'
         }),
@@ -371,9 +390,10 @@ def test_assignment_update_without_authentication(dynamodb_table, context):
     """
     # Arrange
     rental_request_id = create_accepted_request(dynamodb_table, context)
+    clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
     
     event = {
-        'pathParameters': {'id': rental_request_id},
+        'pathParameters': {'rental_request_id': clean_id},
         'body': json.dumps({
             'assignment_details': 'Trying without auth'
         }),
@@ -425,9 +445,10 @@ def test_assignment_update_invalid_json(dynamodb_table, context):
     """
     # Arrange
     rental_request_id = create_accepted_request(dynamodb_table, context)
+    clean_id = rental_request_id.replace('RENTAL_REQUEST#', '')
     
     event = {
-        'pathParameters': {'id': rental_request_id},
+        'pathParameters': {'rental_request_id': clean_id},
         'body': 'invalid json {',
         'requestContext': {
             'authorizer': {

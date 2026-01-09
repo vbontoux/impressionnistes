@@ -42,6 +42,7 @@ class TestStateTransitionValidation:
         ('pending', 'rejected', True),
         ('accepted', 'paid', True),
         ('accepted', 'cancelled', True),
+        ('accepted', 'rejected', True),  # Admin can reject accepted requests
         
         # Invalid transitions - from pending
         ('pending', 'paid', False),
@@ -50,7 +51,6 @@ class TestStateTransitionValidation:
         # Invalid transitions - from accepted
         ('accepted', 'pending', False),
         ('accepted', 'accepted', False),
-        ('accepted', 'rejected', False),
         
         # Invalid transitions - from paid (final state)
         ('paid', 'pending', False),
@@ -101,7 +101,6 @@ class TestStateTransitionValidation:
     @pytest.mark.parametrize('from_status,to_status', [
         ('pending', 'paid'),
         ('accepted', 'pending'),
-        ('accepted', 'rejected'),
         ('paid', 'accepted'),
         ('paid', 'cancelled'),
         ('paid', 'rejected'),

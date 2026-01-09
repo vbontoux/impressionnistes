@@ -149,7 +149,9 @@ def test_property_9_admin_sees_all_requests(dynamodb_table, admin_event, context
     # Verify all requests are returned
     returned_ids = [r['rental_request_id'] for r in returned_requests]
     for request_id in all_request_ids:
-        assert request_id in returned_ids, \
+        # Strip prefix for comparison since API returns clean IDs
+        clean_id = request_id.replace('RENTAL_REQUEST#', '')
+        assert clean_id in returned_ids, \
             "Admin should see requests from all team managers"
     
     # Verify requests from all team managers are present
@@ -245,12 +247,15 @@ def test_property_10_status_filtering(dynamodb_table, admin_event, context,
     # Verify all matching requests are included
     returned_ids = [r['rental_request_id'] for r in returned_requests]
     for request_id in matching_request_ids:
-        assert request_id in returned_ids, \
+        # Strip prefix for comparison since API returns clean IDs
+        clean_id = request_id.replace('RENTAL_REQUEST#', '')
+        assert clean_id in returned_ids, \
             f"All requests with status '{filter_status}' must be included"
     
     # Verify non-matching requests are excluded
     for request_id in non_matching_request_ids:
-        assert request_id not in returned_ids, \
+        clean_id = request_id.replace('RENTAL_REQUEST#', '')
+        assert clean_id not in returned_ids, \
             f"Requests with other statuses must be excluded"
 
 
@@ -326,12 +331,15 @@ def test_property_11_boat_type_filtering(dynamodb_table, admin_event, context,
     # Verify all matching requests are included
     returned_ids = [r['rental_request_id'] for r in returned_requests]
     for request_id in matching_request_ids:
-        assert request_id in returned_ids, \
+        # Strip prefix for comparison since API returns clean IDs
+        clean_id = request_id.replace('RENTAL_REQUEST#', '')
+        assert clean_id in returned_ids, \
             f"All requests with boat_type '{filter_boat_type}' must be included"
     
     # Verify non-matching requests are excluded
     for request_id in non_matching_request_ids:
-        assert request_id not in returned_ids, \
+        clean_id = request_id.replace('RENTAL_REQUEST#', '')
+        assert clean_id not in returned_ids, \
             f"Requests with other boat types must be excluded"
 
 
@@ -387,10 +395,11 @@ def test_combined_status_and_boat_type_filtering(dynamodb_table, admin_event, co
     assert body['data']['count'] == 1, "Should return only requests matching both filters"
     
     returned_ids = [r['rental_request_id'] for r in returned_requests]
-    assert matching_id in returned_ids, "Request matching both filters must be included"
-    assert boat_only_id not in returned_ids, "Request matching only boat_type must be excluded"
-    assert status_only_id not in returned_ids, "Request matching only status must be excluded"
-    assert neither_id not in returned_ids, "Request matching neither filter must be excluded"
+    # Strip prefixes for comparison since API returns clean IDs
+    assert matching_id.replace('RENTAL_REQUEST#', '') in returned_ids, "Request matching both filters must be included"
+    assert boat_only_id.replace('RENTAL_REQUEST#', '') not in returned_ids, "Request matching only boat_type must be excluded"
+    assert status_only_id.replace('RENTAL_REQUEST#', '') not in returned_ids, "Request matching only status must be excluded"
+    assert neither_id.replace('RENTAL_REQUEST#', '') not in returned_ids, "Request matching neither filter must be excluded"
 
 
 def test_invalid_status_filter_rejected(dynamodb_table, admin_event, context):
