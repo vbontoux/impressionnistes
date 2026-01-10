@@ -41,8 +41,27 @@ The Course des Impressionnistes Registration System is a web application that en
 - **External_Club**: Rowing club other than RCPM participating in the competition
 - **Multi_Club_Crew**: Boat crew containing both RCPM members and external club members, where external members pay seat rental fees
 - **Rental_Priority_Period**: The period from registration opening until 15 days before registration closure, during which RCPM members have exclusive access to RCPM boats for rental requests
-- **Base_Seat_Price**: The standard pricing for any seat (rowing or cox) used for all registrations and rental calculations (default: 20 euros)
+- **Base_Seat_Price**: The standard pricing for any seat (rowing or cox) used for all registrations and rental calculations (default: 20 euros). **Note:** In code/database this is `base_seat_price`, but in UI displayed as "Participation Fee" (covers registration, insurance, organization).
+- **Rental_Price**: The fee for using a physical seat in an RCPM-owned boat (default: 20 euros per seat for crew boats). **Note:** In code/database this is `rental_price` or `boat_rental_price_crew`, but in UI displayed as "Boat Rental (per seat)" (equipment rental fee).
 - **Competition**: The Course des Impressionnistes rowing regatta that takes place every year on May 1st, consisting of 2 main events (21 km and 42 km) with multiple races (see races list in appendix)
+
+### Pricing Terminology
+
+**IMPORTANT:** For clarity in user-facing documentation and UI, we use the following terms:
+
+| Code/Database Term | User-Facing Term | What It Covers |
+|-------------------|------------------|----------------|
+| `base_seat_price` | **Participation Fee** | Event registration, insurance, organization costs. Applied to external club members only (RCPM = €0). |
+| `rental_price` / `boat_rental_price_crew` | **Boat Rental (per seat)** | Equipment rental fee for using a physical seat in an RCPM boat. Applied to non-RCPM members only. |
+| `boat_rental_multiplier_skiff` | **Skiff Rental Multiplier** | Multiplier for single-person boats (default: 2.5x participation fee). |
+
+**Pricing Examples:**
+- External club member in own boat: Participation Fee only (€20)
+- External club member in RCPM boat: Participation Fee (€20) + Boat Rental (€20) = €40
+- RCPM member in RCPM boat: €0 (no fees)
+- External club member in RCPM skiff: Participation Fee (€20) + Boat Rental (€50 = 2.5x) = €70
+
+See [Terminology Glossary](../../../docs/TERMINOLOGY_GLOSSARY.md) for complete pricing definitions and examples.
 
 ---
 
@@ -104,7 +123,7 @@ These requirements define what the system does from a business and user perspect
 #### Acceptance Criteria
 
 1. WHILE the Payment_Period is active, THE Registration_System SHALL allow club managers to initiate and complete payments for their registrations
-2. WHEN a club manager initiates payment, THE Registration_System SHALL calculate total fees based on Base_Seat_Price for all seats, applying zero cost for RCPM_Member seats and Base_Seat_Price for external club member seats
+2. WHEN a club manager initiates payment, THE Registration_System SHALL calculate total fees based on the Participation Fee (`base_seat_price`) for all seats, applying zero cost for RCPM_Member seats and the Participation Fee for external club member seats
 3. WHEN determining RCPM_Member status for pricing, THE Registration_System SHALL identify crew members as RCPM_Members if their club_affiliation contains "RCPM" or "Port-Marly" or "Port Marly" in any combination of uppercase and lowercase letters
 4. THE Registration_System SHALL track partial payments and display payment status to club managers by showing the balance between the number of paid seats and the number of seats registered
 5. THE Registration_System SHALL allow modifications to crew members, seat assignments, and race selection for boat registrations even after payment, but SHALL prevent deletion of paid boat registrations
@@ -121,7 +140,7 @@ These requirements define what the system does from a business and user perspect
 #### Acceptance Criteria
 
 1. WHEN an Admin_User accesses the system configuration interface, THE Registration_System SHALL display all configurable parameters (see [Appendix B](#appendix-b-system-configuration-parameters)) in an organized and editable format
-2. WHEN an Admin_User modifies Base_Seat_Price, THE Registration_System SHALL update the seat price for all new registrations
+2. WHEN an Admin_User modifies the Participation Fee (`base_seat_price`), THE Registration_System SHALL update the fee for all new registrations
 3. THE Registration_System SHALL provide Admin_Users with access to the predefined list of races for semi-marathon and marathon races list
 4. WHEN an Admin_User configures Payment_Period dates, THE Registration_System SHALL validate that the Payment_Period extends beyond or equals the Registration_Period
 5. THE Registration_System SHALL log all Admin_User configuration changes with timestamps and user identification
@@ -174,7 +193,7 @@ These requirements define what the system does from a business and user perspect
 6. WHEN the Rental_Priority_Period expires, THE Registration_System SHALL automatically confirm pending External_Club rental requests for unreserved boats
 7. WHEN an Admin_User changes a Boat_Rental status to "confirmed", THE Registration_System SHALL update the boat status and notify the Club_Manager via the defined channels
 8. WHEN a Boat_Rental is confirmed, THE Registration_System SHALL update the boat availability status to prevent additional requests
-9. THE Registration_System SHALL calculate rental fees at 2.5 times the Base_Seat_Price for individual boats (skiffs) and Base_Seat_Price per seat for crew boats
+9. THE Registration_System SHALL calculate rental fees at 2.5 times the Participation Fee (`base_seat_price`) for individual boats (skiffs) and the Boat Rental fee (`rental_price`) per seat for crew boats
 10. WHEN an Admin_User manages boat rentals, THE Registration_System SHALL allow the admin to change boat status (to confirm requests by changing status to "confirmed", or to reject by changing status back to "available") and view requester information
 11. THE Registration_System SHALL display confirmed boat rentals in the payment page alongside boat registrations, allowing club managers to pay for rentals separately from boat registrations
 12. WHEN an Admin_User creates or updates a rental boat, THE Registration_System SHALL allow entry of recommended rower weight range in kilograms as a text field for informational purposes to help club managers select appropriate boats for their crew
@@ -187,10 +206,10 @@ These requirements define what the system does from a business and user perspect
 #### Acceptance Criteria
 
 1. WHEN a Club_Manager creates a Multi_Club_Crew registration, THE Registration_System SHALL identify external club members rowing with RCPM_Members using the club_affiliation detection logic
-2. WHEN external club members are assigned to seats in Multi_Club_Crews, THE Registration_System SHALL automatically apply Seat_Rental fees to the registration
-3. THE Registration_System SHALL calculate Seat_Rental fees at the Base_Seat_Price for each external club member in a Multi_Club_Crew and a price of zero for RCPM_Members
-4. WHEN payment is processed for Multi_Club_Crews, THE Registration_System SHALL include Seat_Rental fees in the total amount due
-5. THE Registration_System SHALL display Seat_Rental charges separately in payment summaries and receipts for transparency
+2. WHEN external club members are assigned to seats in Multi_Club_Crews, THE Registration_System SHALL automatically apply Boat Rental fees (`rental_price`) to the registration
+3. THE Registration_System SHALL calculate Boat Rental fees at the standard rate (`rental_price`) for each external club member in a Multi_Club_Crew and a price of zero for RCPM_Members
+4. WHEN payment is processed for Multi_Club_Crews, THE Registration_System SHALL include Boat Rental fees in the total amount due
+5. THE Registration_System SHALL display Boat Rental charges separately in payment summaries and receipts for transparency
 6. WHEN an Admin_User reviews registrations, THE Registration_System SHALL clearly identify Multi_Club_Crews and associated Seat_Rental fees
 7. THE Registration_System SHALL generate reports showing Seat_Rental revenue to encourage RCPM club crew formation
 
@@ -203,8 +222,8 @@ These requirements define what the system does from a business and user perspect
 1. WHEN an Admin_User accesses the system configuration interface, THE Registration_System SHALL display all configurable parameters in an organized and editable format
 2. WHEN an Admin_User modifies the list of races, THE Registration_System SHALL validate the changes and update the available categories for new boat registrations
 3. WHEN an Admin_User changes registration period or payment period start and end dates, THE Registration_System SHALL validate that the start date is before the end date and that the Payment_Period encompasses or extends beyond the Registration_Period, then apply the changes immediately
-4. WHEN an Admin_User updates Base_Seat_Price configuration, THE Registration_System SHALL apply the new prices to all future registrations while preserving existing registration pricing
-5. WHEN an Admin_User configures Early_Bird_Period dates and pricing, THE Registration_System SHALL validate that the Early_Bird_Period falls within the Registration_Period and that Early_Bird_Pricing is less than Base_Seat_Price
+4. WHEN an Admin_User updates the Participation Fee (`base_seat_price`) configuration, THE Registration_System SHALL apply the new prices to all future registrations while preserving existing registration pricing
+5. WHEN an Admin_User configures Early_Bird_Period dates and pricing, THE Registration_System SHALL validate that the Early_Bird_Period falls within the Registration_Period and that Early_Bird_Pricing is less than the standard Participation Fee (`base_seat_price`)
 6. THE Registration_System SHALL require Admin_User confirmation before applying configuration changes that could affect existing registrations
 7. WHEN configuration changes are applied, THE Registration_System SHALL log all modifications with timestamps, previous values, new values, and Admin_User identification
 8. IF configuration changes fail validation, THEN THE Registration_System SHALL display clear error messages and prevent the invalid changes from being saved
@@ -585,11 +604,11 @@ The races are organized by age category, gender, and boat configuration. Each ra
 1. RCPM boats are available for rental based on availability
 2. RCPM members have exclusive priority from registration opening until 15 days before registration closure
 3. During the final 15 days before registration closure, external clubs have equal access to unreserved boats
-4. Rental pricing: 2.5x Base_Seat_Price for individual boats (skiffs), Base_Seat_Price per seat for crew boats
+4. Rental pricing: 2.5x Participation Fee (`base_seat_price`) for individual boats (skiffs), Boat Rental fee (`rental_price`) per seat for crew boats
 
 #### Seat Rental for Multi_Club_Crews
-- External club members rowing in Multi_Club_Crews with RCPM members pay seat rental fees
-- Seat rental fee equals Base_Seat_Price per external member
+- External club members rowing in Multi_Club_Crews with RCPM members pay Boat Rental fees (`rental_price`)
+- Boat Rental fee equals the standard rate (`rental_price`) per external member
 - RCPM members pay zero for their seats in any boat registration
 - Purpose: Encourage RCPM members to form club-only crews while allowing mixed club participation
 
@@ -606,9 +625,9 @@ This appendix lists all configurable parameters that must be managed through the
 - **Rental Priority Period Duration** (default: 15 days before registration closure)
 
 ### B.2 Pricing Parameters
-- **Base_Seat_Price** (standard price for any seat - rowing or cox - default: 20 euros)
-- **Boat Rental Multiplier for Individual Boats** (default: 2.5x Base_Seat_Price for skiffs)
-- **Boat Rental Price for Crew Boats** (default: Base_Seat_Price per seat)
+- **Base_Seat_Price** (`base_seat_price` in code) - Participation Fee: standard price for any seat - rowing or cox (default: 20 euros). Displayed as "Participation Fee" in UI.
+- **Boat Rental Multiplier for Individual Boats** (`boat_rental_multiplier_skiff` in code) - default: 2.5x Participation Fee for skiffs
+- **Boat Rental Price for Crew Boats** (`boat_rental_price_crew` or `rental_price` in code) - Boat Rental fee per seat (default: 20 euros per seat). Displayed as "Boat Rental (per seat)" in UI.
 
 ### B.3 Notification Parameters
 - **Notification Frequency** (default: weekly for ongoing issues)
@@ -724,9 +743,9 @@ Club managers register their club and crews through a simple online process. Eac
 - Complete registration history and status tracking
 
 **Pricing Structure**
-- Base_Seat_Price for any seat (rowing or cox) - default: 20 euros per seat
-- Boat rental: 2.5x Base_Seat_Price (50 euros) for singles, Base_Seat_Price per seat for crew boats
-- Seat rental: Base_Seat_Price for external club members, zero cost for RCPM members
+- Participation Fee (`base_seat_price` in code) for any seat (rowing or cox) - default: 20 euros per seat. Displayed as "Participation Fee" in UI.
+- Boat rental: 2.5x Participation Fee (50 euros) for singles, Boat Rental fee (`rental_price`) per seat for crew boats. Displayed as "Boat Rental (per seat)" in UI.
+- Seat rental in multi-club crews: Boat Rental fee (`rental_price`) for external club members, zero cost for RCPM members
 - Examples: EIGHT WITH COXSWAIN = 180 euros (9 seats × 20 euros), QUAD WITHOUT COXSWAIN = 80 euros (4 seats × 20 euros)
 
 **Support and Assistance**

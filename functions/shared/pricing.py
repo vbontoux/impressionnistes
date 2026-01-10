@@ -1,6 +1,11 @@
 """
 Pricing Calculation Engine
 Calculates registration fees based on crew composition, boat rental, and multi-club status
+
+Terminology Note:
+- base_seat_price = Participation Fee (covers registration, insurance, organization)
+- rental_price_crew = Boat Rental fee per seat (equipment rental for RCPM boats)
+- These internal names are displayed as "Participation Fee" and "Boat Rental" in the UI
 """
 from decimal import Decimal
 from typing import Dict, List, Any, Optional
@@ -12,9 +17,9 @@ logger.setLevel(logging.INFO)
 
 
 # Default pricing configuration (can be overridden from DynamoDB)
-DEFAULT_BASE_SEAT_PRICE = Decimal('20.00')  # EUR per seat
-DEFAULT_RENTAL_MULTIPLIER_SKIFF = Decimal('2.5')
-DEFAULT_RENTAL_PRICE_CREW = Decimal('20.00')  # EUR per seat for crew boats (Base_Seat_Price)
+DEFAULT_BASE_SEAT_PRICE = Decimal('20.00')  # Participation Fee: EUR per member
+DEFAULT_RENTAL_MULTIPLIER_SKIFF = Decimal('2.5')  # Skiff rental multiplier
+DEFAULT_RENTAL_PRICE_CREW = Decimal('20.00')  # Boat Rental: EUR per seat for crew boats
 
 
 def calculate_boat_pricing(
@@ -25,6 +30,10 @@ def calculate_boat_pricing(
     """
     Calculate complete pricing for a boat registration
     
+    Pricing Components:
+    - base_seat_price: Participation Fee per external club member (RCPM = €0)
+    - rental_price_crew: Boat Rental fee per seat for non-RCPM members using RCPM boats
+    
     Args:
         boat_registration: Boat registration object with seats and rental info
         crew_members: List of all crew members for the team
@@ -34,8 +43,10 @@ def calculate_boat_pricing(
         Dictionary with detailed price breakdown
     """
     # Get pricing configuration
+    # base_seat_price = Participation Fee (registration, insurance, organization)
     base_seat_price = Decimal(str(pricing_config.get('base_seat_price', DEFAULT_BASE_SEAT_PRICE))) if pricing_config else DEFAULT_BASE_SEAT_PRICE
     rental_multiplier_skiff = Decimal(str(pricing_config.get('boat_rental_multiplier_skiff', DEFAULT_RENTAL_MULTIPLIER_SKIFF))) if pricing_config else DEFAULT_RENTAL_MULTIPLIER_SKIFF
+    # rental_price_crew = Boat Rental fee per seat (equipment rental)
     rental_price_crew = Decimal(str(pricing_config.get('boat_rental_price_crew', DEFAULT_RENTAL_PRICE_CREW))) if pricing_config else DEFAULT_RENTAL_PRICE_CREW
     
     # Initialize pricing breakdown

@@ -77,6 +77,76 @@ async function createCrew(crewData) {
 }
 ```
 
+## Pricing Terminology
+
+**IMPORTANT:** The system uses different terminology for pricing in the database/API versus the user interface to provide clarity to end users.
+
+### Database/API Layer (Backend)
+- `base_seat_price`: Internal field name for participation fee
+- `rental_price` / `boat_rental_price_crew`: Internal field name for boat rental fee per seat
+- `boat_rental_multiplier_skiff`: Multiplier for single-person boats
+
+### User Interface Layer (Frontend)
+- **"Participation Fee"** (English) / **"Frais de participation"** (French): What users see for `base_seat_price`
+- **"Boat Rental (per seat)"** (English) / **"Location bateau (par place)"** (French): What users see for `rental_price`
+
+### Pricing Components
+
+| Code/Database Field | UI Display (EN) | UI Display (FR) | What It Covers |
+|---------------------|-----------------|-----------------|----------------|
+| `base_seat_price` | Participation Fee | Frais de participation | Event registration, insurance, organization costs |
+| `rental_price` / `boat_rental_price_crew` | Boat Rental (per seat) | Location bateau (par place) | Equipment rental for using RCPM boat seat |
+| `boat_rental_multiplier_skiff` | Skiff Rental Multiplier | Multiplicateur location skiff | Multiplier for single-person boats (default: 2.5x) |
+
+### Who Pays What
+
+- **RCPM Members**: €0 for participation, €0 for boat rental (free)
+- **External Club Members (own boat)**: Participation Fee only
+- **External Club Members (RCPM boat)**: Participation Fee + Boat Rental per seat
+- **Mixed Crews**: External members pay both fees, RCPM members pay nothing
+
+### Implementation Guidelines
+
+1. **Backend Code**: Use `base_seat_price` and `rental_price` in all Python code and database schemas
+2. **Frontend Code**: Use same variable names internally, but display "Participation Fee" and "Boat Rental" in UI
+3. **Translation Files**: Map pricing keys to user-friendly terms
+4. **Comments**: Add clarifying comments in pricing calculation functions
+
+**Example:**
+```python
+# Backend pricing calculation
+def calculate_price(members, pricing_config):
+    # base_seat_price = Participation Fee (covers registration, insurance, organization)
+    base_seat_price = pricing_config['base_seat_price']
+    
+    # rental_price = Boat Rental fee per seat (equipment rental)
+    rental_price = pricing_config.get('boat_rental_price_crew', base_seat_price)
+    
+    total = 0
+    for member in members:
+        if not is_rcpm_member(member):
+            total += base_seat_price  # Participation Fee
+            if using_rcpm_boat:
+                total += rental_price  # Boat Rental
+    return total
+```
+
+```javascript
+// Frontend display
+<div class="pricing-breakdown">
+  <div class="fee-line">
+    <span>{{ $t('pricing.participationFee') }}</span>  <!-- "Participation Fee" -->
+    <span>{{ formatCurrency(baseSeatPrice) }}</span>
+  </div>
+  <div class="fee-line">
+    <span>{{ $t('pricing.boatRental') }}</span>  <!-- "Boat Rental (per seat)" -->
+    <span>{{ formatCurrency(rentalPrice) }}</span>
+  </div>
+</div>
+```
+
+See [Terminology Glossary](../../../docs/TERMINOLOGY_GLOSSARY.md) for complete pricing definitions and examples.
+
 ## Architecture
 
 ### High-Level Architecture
@@ -712,9 +782,13 @@ def calculate_boat_registration_price(boat_registration, crew_members, club_mana
     
     Pricing rules:
     - RCPM members: 0 euros per seat
-    - External club members: Base_Seat_Price per seat
-    - Boat rental (if applicable): 2.5x Base_Seat_Price for skiffs, Base_Seat_Price per seat for crew boats
+    - External club members: Participation Fee (base_seat_price) per seat
+    - Boat rental (if applicable): 2.5x Participation Fee for skiffs, Boat Rental fee (rental_price) per seat for crew boats
+    
+    Note: base_seat_price = Participation Fee (registration, insurance, organization)
+          rental_price = Boat Rental fee (equipment rental per seat)
     """
+    # base_seat_price = Participation Fee per member
     base_seat_price = pricing_config['base_seat_price']
     club_manager_club = club_manager['club_affiliation']
     is_rcpm = club_manager_club == 'RCPM'
@@ -752,7 +826,7 @@ def calculate_boat_registration_price(boat_registration, crew_members, club_mana
             seat_breakdown.append({
                 'crew_member': f"{crew['first_name']} {crew['last_name']}",
                 'club': crew_club,
-                'price': base_seat_price,
+                'price': base_seat_price,  # Participation Fee
                 'reason': 'External club member'
             })
         
@@ -761,20 +835,21 @@ def calculate_boat_registration_price(boat_registration, crew_members, club_mana
     # Add boat rental fee if applicable
     if boat_registration.get('is_boat_rental', False):
         if boat_registration['boat_type'] == 'skiff':
+            # Skiff rental = 2.5x Participation Fee
             rental_fee = base_seat_price * pricing_config['boat_rental_multiplier_skiff']
             seat_breakdown.append({
                 'item': 'Boat rental (skiff)',
                 'price': rental_fee,
-                'reason': f"{pricing_config['boat_rental_multiplier_skiff']}x Base_Seat_Price"
+                'reason': f"{pricing_config['boat_rental_multiplier_skiff']}x Participation Fee"
             })
         else:
-            # Crew boat rental: Base_Seat_Price per seat
+            # Crew boat rental: Boat Rental fee per seat
             num_seats = len(boat_registration['seats'])
-            rental_fee = base_seat_price * num_seats
+            rental_fee = base_seat_price * num_seats  # Using base_seat_price as default rental_price
             seat_breakdown.append({
                 'item': f'Boat rental ({num_seats} seats)',
                 'price': rental_fee,
-                'reason': f"{num_seats} seats × Base_Seat_Price"
+                'reason': f"{num_seats} seats × Boat Rental fee"
             })
         
         total_price += rental_fee
