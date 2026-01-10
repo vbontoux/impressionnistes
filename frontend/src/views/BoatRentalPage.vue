@@ -264,7 +264,7 @@
 </template>
 
 <script>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { 
@@ -281,7 +281,8 @@ export default {
     
     // Reactive data
     const myRequests = ref([])
-    const viewMode = ref('table') // 'table' or 'cards'
+    // Load view mode from localStorage or default to 'table'
+    const viewMode = ref(localStorage.getItem('rentalRequestsViewMode') || 'table')
     const requestsLoading = ref(false)
     const submitting = ref(false)
     const cancelling = ref(false)
@@ -411,6 +412,11 @@ export default {
       if (!dateString) return ''
       return new Date(dateString).toLocaleDateString()
     }
+
+    // Watch for view mode changes and save to localStorage
+    watch(viewMode, (newMode) => {
+      localStorage.setItem('rentalRequestsViewMode', newMode)
+    })
 
     // Lifecycle
     onMounted(() => {
