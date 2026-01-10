@@ -149,29 +149,6 @@
           <span class="nav-text">{{ $t('nav.admin') }}</span>
         </router-link>
 
-        <router-link v-if="authStore.isAdmin" to="/admin/events" class="nav-item admin-item" @click="closeSidebarOnMobile">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
-              <line x1="3" y1="9" x2="21" y2="9" stroke="currentColor" stroke-width="2"/>
-              <line x1="9" y1="4" x2="9" y2="9" stroke="currentColor" stroke-width="2"/>
-              <line x1="15" y1="4" x2="15" y2="9" stroke="currentColor" stroke-width="2"/>
-            </svg>
-          </span>
-          <span class="nav-text">{{ $t('nav.eventConfig') }}</span>
-        </router-link>
-
-        <router-link v-if="authStore.isAdmin" to="/admin/pricing" class="nav-item admin-item" @click="closeSidebarOnMobile">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18 6C16.5 4.5 14.5 4 12 4C8 4 5 7 5 12C5 17 8 20 12 20C14.5 20 16.5 19.5 18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <line x1="3" y1="10" x2="13" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <line x1="3" y1="14" x2="13" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-          </span>
-          <span class="nav-text">{{ $t('nav.pricingConfig') }}</span>
-        </router-link>
-
         <router-link v-if="authStore.isAdmin" to="/admin/crew" class="nav-item admin-item" @click="closeSidebarOnMobile">
           <span class="nav-icon">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
