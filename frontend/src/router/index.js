@@ -11,7 +11,6 @@ const Dashboard = () => import('../views/Dashboard.vue');
 const CrewMembers = () => import('../views/CrewMembers.vue');
 const Boats = () => import('../views/Boats.vue');
 const BoatDetail = () => import('../views/BoatDetail.vue');
-const BoatRentalPage = () => import('../views/BoatRentalPage.vue');
 const Payment = () => import('../views/Payment.vue');
 const PaymentCheckout = () => import('../views/PaymentCheckout.vue');
 const PaymentSuccess = () => import('../views/PaymentSuccess.vue');
@@ -19,7 +18,6 @@ const Profile = () => import('../views/Profile.vue');
 const AdminDashboard = () => import('../views/admin/AdminDashboard.vue');
 const AdminEventConfig = () => import('../views/admin/AdminEventConfig.vue');
 const AdminPricingConfig = () => import('../views/admin/AdminPricingConfig.vue');
-const AdminBoatInventory = () => import('../views/admin/AdminBoatInventory.vue');
 const AdminCrewMembers = () => import('../views/admin/AdminCrewMembers.vue');
 const AdminBoats = () => import('../views/admin/AdminBoats.vue');
 const AdminDataExport = () => import('../views/admin/AdminDataExport.vue');
@@ -91,12 +89,6 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: '/boat-rentals',
-    name: 'BoatRentals',
-    component: BoatRentalPage,
-    meta: { requiresAuth: true },
-  },
-  {
     path: '/payment',
     name: 'Payment',
     component: Payment,
@@ -136,12 +128,6 @@ const routes = [
     path: '/admin/pricing',
     name: 'AdminPricingConfig',
     component: AdminPricingConfig,
-    meta: { requiresAuth: true, requiresAdmin: true },
-  },
-  {
-    path: '/admin/boats',
-    name: 'AdminBoatInventory',
-    component: AdminBoatInventory,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
   {

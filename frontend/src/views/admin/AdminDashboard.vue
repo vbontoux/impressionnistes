@@ -56,23 +56,6 @@
             <div class="stat-label">{{ $t('admin.dashboard.totalPayments') }}</div>
           </div>
         </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <line x1="8" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <line x1="8" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <line x1="8" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <circle cx="4" cy="6" r="1.5" fill="currentColor"/>
-              <circle cx="4" cy="12" r="1.5" fill="currentColor"/>
-              <circle cx="4" cy="18" r="1.5" fill="currentColor"/>
-            </svg>
-          </div>
-          <div class="stat-content">
-            <div class="stat-value">{{ stats.rentalBoatsReserved }}</div>
-            <div class="stat-label">{{ $t('admin.dashboard.rentalBoatsReserved') }}</div>
-          </div>
-        </div>
       </div>
 
       <!-- Admin Impersonation Card -->
@@ -109,23 +92,6 @@
             <div class="section-content">
               <h3>{{ $t('admin.dashboard.pricing') }}</h3>
               <p>{{ $t('admin.dashboard.pricingDesc') }}</p>
-            </div>
-          </router-link>
-
-          <router-link to="/admin/boats" class="section-card">
-            <div class="section-icon">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <line x1="8" y1="6" x2="21" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <line x1="8" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <line x1="8" y1="18" x2="21" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                <circle cx="4" cy="6" r="1.5" fill="currentColor"/>
-                <circle cx="4" cy="12" r="1.5" fill="currentColor"/>
-                <circle cx="4" cy="18" r="1.5" fill="currentColor"/>
-              </svg>
-            </div>
-            <div class="section-content">
-              <h3>{{ $t('admin.dashboard.boatInventory') }}</h3>
-              <p>{{ $t('admin.dashboard.boatInventoryDesc') }}</p>
             </div>
           </router-link>
 
@@ -212,7 +178,6 @@ const stats = ref({
   totalCrewMembers: 0,
   totalBoatRegistrations: 0,
   totalPayments: 0,
-  rentalBoatsReserved: 0,
 });
 
 const loading = ref(true);
@@ -230,7 +195,6 @@ const loadStats = async () => {
       totalCrewMembers: data.total_crew_members || 0,
       totalBoatRegistrations: data.total_boat_registrations || 0,
       totalPayments: data.total_payments || 0,
-      rentalBoatsReserved: data.rental_boats_reserved || 0,
     };
   } catch (err) {
     console.error('Failed to load stats:', err);

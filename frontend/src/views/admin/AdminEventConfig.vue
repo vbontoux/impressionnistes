@@ -86,27 +86,6 @@
       </div>
 
       <div class="form-section">
-        <h2>{{ $t('admin.eventConfig.rentalSettings') }}</h2>
-        
-        <div class="form-group">
-          <label for="rental_priority_days">{{ $t('admin.eventConfig.rentalPriorityDays') }}</label>
-          <input
-            id="rental_priority_days"
-            v-model.number="formData.rental_priority_days"
-            type="number"
-            min="0"
-            max="90"
-            class="form-control"
-            :class="{ 'error': validationErrors.rental_priority_days }"
-          />
-          <span class="help-text">{{ $t('admin.eventConfig.rentalPriorityHelp') }}</span>
-          <span v-if="validationErrors.rental_priority_days" class="error-text">
-            {{ validationErrors.rental_priority_days }}
-          </span>
-        </div>
-      </div>
-
-      <div class="form-section">
         <h2>{{ $t('admin.eventConfig.raceTiming') }}</h2>
         
         <div class="race-config-grid">
@@ -242,7 +221,6 @@ const formData = ref({
   registration_start_date: '',
   registration_end_date: '',
   payment_deadline: '',
-  rental_priority_days: 15,
   marathon_start_time: '07:45',
   semi_marathon_start_time: '09:00',
   semi_marathon_interval_seconds: 30,
@@ -269,7 +247,6 @@ const loadConfig = async () => {
       registration_start_date: config.registration_start_date || '',
       registration_end_date: config.registration_end_date || '',
       payment_deadline: config.payment_deadline || '',
-      rental_priority_days: config.rental_priority_days || 15,
       marathon_start_time: config.marathon_start_time || '07:45',
       semi_marathon_start_time: config.semi_marathon_start_time || '09:00',
       semi_marathon_interval_seconds: config.semi_marathon_interval_seconds || 30,

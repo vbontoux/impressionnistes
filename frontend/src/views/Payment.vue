@@ -16,7 +16,7 @@
     </div>
 
     <!-- Empty State -->
-    <div v-if="!paymentStore.loading && boatsReadyForPayment.length === 0 && rentalsReadyForPayment.length === 0" class="empty-state">
+    <div v-if="!paymentStore.loading && boatsReadyForPayment.length === 0" class="empty-state">
       <div class="empty-icon">💳</div>
       <h2>{{ $t('payment.noBoatsReady') }}</h2>
       <p>{{ $t('payment.noBoatsReadyDescription') }}</p>
@@ -62,25 +62,10 @@
         </div>
       </div>
 
-      <!-- Rental Requests Section -->
-      <div v-if="rentalsReadyForPayment.length > 0" class="payment-section">
-        <h2 class="section-title">{{ $t('payment.rentalRequests') }}</h2>
-        <div class="boats-list">
-          <RentalPaymentCard
-            v-for="rental in rentalsReadyForPayment"
-            :key="rental.rental_request_id"
-            :rental="rental"
-            :selected="isRentalSelected(rental.rental_request_id)"
-            @toggle="toggleRentalSelection(rental.rental_request_id)"
-          />
-        </div>
-      </div>
-
       <!-- Payment Summary (Sticky) -->
       <div class="payment-summary-container" v-if="totalSelectedCount > 0">
         <PaymentSummary
           :selected-boats="selectedBoats"
-          :selected-rentals="selectedRentals"
           :total="totalAmount"
           @proceed="proceedToCheckout"
         />
@@ -96,7 +81,6 @@ import { usePaymentStore } from '../stores/paymentStore'
 import { useRaceStore } from '../stores/raceStore'
 import { useI18n } from 'vue-i18n'
 import BoatPaymentCard from '../components/BoatPaymentCard.vue'
-import RentalPaymentCard from '../components/RentalPaymentCard.vue'
 import PaymentSummary from '../components/PaymentSummary.vue'
 
 const router = useRouter()
@@ -104,11 +88,9 @@ const paymentStore = usePaymentStore()
 const raceStore = useRaceStore()
 
 const selectedBoatIds = ref(new Set())
-const selectedRentalIds = ref(new Set())
 
 // Computed properties
 const boatsReadyForPayment = computed(() => paymentStore.boatsReadyForPayment)
-const rentalsReadyForPayment = computed(() => paymentStore.rentalsReadyForPayment)
 
 const selectedBoats = computed(() => 
   boatsReadyForPayment.value.filter(boat => 
@@ -116,15 +98,9 @@ const selectedBoats = computed(() =>
   )
 )
 
-const selectedRentals = computed(() => 
-  rentalsReadyForPayment.value.filter(rental => 
-    selectedRentalIds.value.has(rental.rental_request_id)
-  )
-)
+const totalSelectedCount = computed(() => selectedBoatIds.value.size)
 
-const totalSelectedCount = computed(() => selectedBoatIds.value.size + selectedRentalIds.value.size)
-
-const totalItemsCount = computed(() => boatsReadyForPayment.value.length + rentalsReadyForPayment.value.length)
+const totalItemsCount = computed(() => boatsReadyForPayment.value.length)
 
 const allSelected = computed(() => 
   totalSelectedCount.value === totalItemsCount.value && totalItemsCount.value > 0
@@ -139,10 +115,6 @@ const isBoatSelected = (boatId) => {
   return selectedBoatIds.value.has(boatId)
 }
 
-const isRentalSelected = (rentalId) => {
-  return selectedRentalIds.value.has(rentalId)
-}
-
 const toggleBoatSelection = (boatId) => {
   if (selectedBoatIds.value.has(boatId)) {
     selectedBoatIds.value.delete(boatId)
@@ -153,43 +125,26 @@ const toggleBoatSelection = (boatId) => {
   paymentStore.setSelectedBoats(Array.from(selectedBoatIds.value))
 }
 
-const toggleRentalSelection = (rentalId) => {
-  if (selectedRentalIds.value.has(rentalId)) {
-    selectedRentalIds.value.delete(rentalId)
-  } else {
-    selectedRentalIds.value.add(rentalId)
-  }
-  selectedRentalIds.value = new Set(selectedRentalIds.value)
-  paymentStore.setSelectedRentals(Array.from(selectedRentalIds.value))
-}
-
 const selectAll = () => {
   selectedBoatIds.value = new Set(
     boatsReadyForPayment.value.map(boat => boat.boat_registration_id)
   )
-  selectedRentalIds.value = new Set(
-    rentalsReadyForPayment.value.map(rental => rental.rental_request_id)
-  )
   paymentStore.setSelectedBoats(Array.from(selectedBoatIds.value))
-  paymentStore.setSelectedRentals(Array.from(selectedRentalIds.value))
 }
 
 const deselectAll = () => {
   selectedBoatIds.value = new Set()
-  selectedRentalIds.value = new Set()
   paymentStore.setSelectedBoats([])
-  paymentStore.setSelectedRentals([])
 }
 
 const proceedToCheckout = () => {
-  // Store selected boats and rentals in payment store
+  // Store selected boats in payment store
   paymentStore.setSelectedBoats(Array.from(selectedBoatIds.value))
-  paymentStore.setSelectedRentals(Array.from(selectedRentalIds.value))
   // Navigate to checkout
   router.push('/payment/checkout')
 }
 
-// Load boats, rentals, and races on mount
+// Load boats and races on mount
 onMounted(async () => {
   // Load races first so they're available for display
   if (raceStore.races.length === 0) {
@@ -199,8 +154,6 @@ onMounted(async () => {
   
   console.log('Payment page loaded')
   console.log('Boats ready for payment:', boatsReadyForPayment.value.length)
-  console.log('Rentals ready for payment:', rentalsReadyForPayment.value.length)
-  console.log('Rentals data:', rentalsReadyForPayment.value)
 })
 </script>
 

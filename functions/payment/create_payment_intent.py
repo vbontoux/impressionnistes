@@ -17,7 +17,7 @@ from responses import (
 )
 from database import get_db_client
 from auth_utils import get_user_from_event, require_team_manager
-from pricing import calculate_boat_pricing, calculate_rental_request_pricing
+from pricing import calculate_boat_pricing
 from configuration import ConfigurationManager
 from stripe_client import create_payment_intent as stripe_create_payment_intent
 
@@ -85,35 +85,12 @@ def validate_rental_requests(
     db
 ) -> tuple[List[Dict[str, Any]], str]:
     """
-    Validate that all rental requests exist, belong to the team manager,
-    and are in 'accepted' status
+    DEPRECATED: Rental requests feature has been removed.
+    This function is kept for backward compatibility but will always return empty list.
     """
-    requests = []
-    
-    for request_id_param in rental_request_ids:
-        # Reconstruct full DynamoDB key (frontend sends only UUID)
-        request_id = f"RENTAL_REQUEST#{request_id_param}"
-        
-        # Get rental request
-        request = db.get_item(
-            pk=request_id,
-            sk='METADATA'
-        )
-        
-        if not request:
-            return None, f"Rental request {request_id_param} not found"
-        
-        # Check if request belongs to this team manager (requester stores user_id)
-        if request.get('requester_id') != team_manager_id:
-            return None, f"Rental request {request_id_param} does not belong to you"
-        
-        # Check if request is accepted
-        if request.get('status') != 'accepted':
-            return None, f"Rental request {request_id_param} is not accepted (status: {request.get('status')})"
-        
-        requests.append(request)
-    
-    return requests, None
+    if rental_request_ids:
+        return None, "Rental requests feature is no longer available"
+    return [], None
 
 
 @handle_exceptions
@@ -124,8 +101,7 @@ def lambda_handler(event, context):
     
     Request body:
         {
-            "boat_registration_ids": ["boat_id_1", "boat_id_2", ...],
-            "rental_request_ids": ["RENTAL_REQUEST#id_1", "RENTAL_REQUEST#id_2", ...]
+            "boat_registration_ids": ["boat_id_1", "boat_id_2", ...]
         }
     
     Returns:
@@ -150,16 +126,12 @@ def lambda_handler(event, context):
     
     # Validate input
     boat_registration_ids = body.get('boat_registration_ids', [])
-    rental_request_ids = body.get('rental_request_ids', [])
     
-    if not boat_registration_ids and not rental_request_ids:
-        return validation_error({'payment': 'At least one boat registration or rental request is required'})
+    if not boat_registration_ids:
+        return validation_error({'payment': 'At least one boat registration is required'})
     
     if not isinstance(boat_registration_ids, list):
         return validation_error({'boat_registration_ids': 'Must be an array of boat registration IDs'})
-    
-    if not isinstance(rental_request_ids, list):
-        return validation_error({'rental_request_ids': 'Must be an array of rental request IDs'})
     
     # Get database client
     db = get_db_client()
@@ -174,59 +146,29 @@ def lambda_handler(event, context):
     base_seat_price = Decimal(str(pricing_config.get('base_seat_price', 20)))
     
     # Validate boat registrations
-    boats = []
-    if boat_registration_ids:
-        boats, error = validate_boat_registrations(boat_registration_ids, team_manager_id, db)
-        if error:
-            return validation_error({'boat_registration_ids': error})
-    
-    # Validate rental requests
-    requests = []
-    if rental_request_ids:
-        requests, error = validate_rental_requests(rental_request_ids, team_manager_id, db)
-        if error:
-            return validation_error({'rental_request_ids': error})
+    boats, error = validate_boat_registrations(boat_registration_ids, team_manager_id, db)
+    if error:
+        return validation_error({'boat_registration_ids': error})
     
     # Calculate total amount (server-side - never trust frontend)
-    total_amount = Decimal('0')
+    crew_members = db.query_by_pk(
+        pk=f'TEAM#{team_manager_id}',
+        sk_prefix='CREW#'
+    )
+    total_amount = calculate_total_amount(boats, crew_members, pricing_config)
     
-    # Add boat registration fees
-    if boats:
-        crew_members = db.query_by_pk(
-            pk=f'TEAM#{team_manager_id}',
-            sk_prefix='CREW#'
-        )
-        total_amount += calculate_total_amount(boats, crew_members, pricing_config)
-    
-    # Add rental fees
-    for request in requests:
-        boat_type = request.get('boat_type', 'skiff')
-        pricing = calculate_rental_request_pricing(boat_type, pricing_config)
-        total_amount += pricing['total']
-    
-    logger.info(f"Calculated total amount: {total_amount} EUR ({len(boats)} boats, {len(requests)} rental requests)")
+    logger.info(f"Calculated total amount: {total_amount} EUR ({len(boats)} boats)")
     
     # Create metadata for Stripe
-    # Reconstruct full DynamoDB keys for metadata (frontend sends only UUIDs)
-    full_rental_request_ids = [f"RENTAL_REQUEST#{rid}" for rid in rental_request_ids] if rental_request_ids else []
-    
     metadata = {
         'team_manager_id': team_manager_id,
         'boat_count': str(len(boats)),
-        'rental_count': str(len(requests)),
-        'boat_registration_ids': ','.join(boat_registration_ids) if boat_registration_ids else '',
-        'rental_request_ids': ','.join(full_rental_request_ids)
+        'boat_registration_ids': ','.join(boat_registration_ids)
     }
     
     # Create description
-    description_parts = []
-    if boats:
-        boat_types = [boat.get('boat_type', 'unknown') for boat in boats]
-        description_parts.append(f"{len(boats)} boat(s): {', '.join(boat_types)}")
-    if requests:
-        request_types = [request.get('boat_type', 'unknown') for request in requests]
-        description_parts.append(f"{len(requests)} rental(s): {', '.join(request_types)}")
-    description = f"Course des Impressionnistes - {' + '.join(description_parts)}"
+    boat_types = [boat.get('boat_type', 'unknown') for boat in boats]
+    description = f"Course des Impressionnistes - {len(boats)} boat(s): {', '.join(boat_types)}"
     
     try:
         # Create Stripe Payment Intent
@@ -246,8 +188,7 @@ def lambda_handler(event, context):
             'client_secret': payment_intent['client_secret'],
             'amount': float(total_amount),
             'currency': 'EUR',
-            'boat_count': len(boats),
-            'rental_count': len(requests)
+            'boat_count': len(boats)
         })
         
     except Exception as e:
