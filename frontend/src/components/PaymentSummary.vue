@@ -10,11 +10,6 @@
         <span class="value">{{ selectedBoats.length }}</span>
       </div>
 
-      <div class="summary-row" v-if="selectedRentals.length > 0">
-        <span>{{ $t('payment.rentalBoatsSelected', { count: selectedRentals.length }) }}</span>
-        <span class="value">{{ selectedRentals.length }}</span>
-      </div>
-
       <div class="summary-row total">
         <span class="total-label">{{ $t('payment.totalAmount') }}</span>
         <span class="total-value">{{ formatPrice(total) }}</span>
@@ -25,7 +20,7 @@
       <button 
         @click="$emit('proceed')" 
         class="btn-proceed"
-        :disabled="selectedBoats.length === 0 && selectedRentals.length === 0"
+        :disabled="selectedBoats.length === 0"
       >
         <span class="btn-icon">💳</span>
         {{ $t('payment.proceedToPayment') }}
@@ -45,10 +40,6 @@ const props = defineProps({
   selectedBoats: {
     type: Array,
     required: true
-  },
-  selectedRentals: {
-    type: Array,
-    default: () => []
   },
   total: {
     type: Number,

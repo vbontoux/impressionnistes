@@ -13,10 +13,6 @@
           <span class="item-name">{{ boat.event_type }} - {{ boat.boat_type }}</span>
           <span class="item-price">{{ formatPrice(boat.pricing?.total) }}</span>
         </div>
-        <div v-for="rental in selectedRentals" :key="rental.rental_request_id" class="summary-item">
-          <span class="item-name">{{ $t('payment.rental') }}: {{ $t(`boat.types.${rental.boat_type}`) }}</span>
-          <span class="item-price">{{ formatPrice(rental.pricing?.total) }}</span>
-        </div>
       </div>
       <div class="summary-total">
         <span class="total-label">{{ $t('payment.checkout.total') }}</span>
