@@ -31,7 +31,7 @@
           :key="tm.user_id" 
           :value="tm.user_id"
         >
-          {{ tm.first_name }} {{ tm.last_name }} ({{ tm.email }})
+          {{ tm.first_name }} {{ tm.last_name }} ({{ tm.email }}){{ tm.is_admin ? ' [ADMIN]' : '' }}
         </option>
       </select>
     </div>

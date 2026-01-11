@@ -4,7 +4,9 @@ Admin only - retrieves all users who have created boats or crew members
 """
 import json
 import logging
+import os
 from decimal import Decimal
+import boto3
 
 from responses import success_response, validation_error, handle_exceptions
 from auth_utils import require_admin
@@ -12,6 +14,8 @@ from database import get_db_client
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+
+cognito = boto3.client('cognito-idp')
 
 
 def decimal_to_float(obj):
@@ -32,11 +36,12 @@ def lambda_handler(event, context):
     impersonate.
     
     Returns:
-        List of team managers with user_id, first_name, last_name, email, phone_number, club_affiliation
+        List of team managers with user_id, first_name, last_name, email, phone_number, club_affiliation, is_admin
     """
     logger.info("List team managers request")
     
     db = get_db_client()
+    user_pool_id = os.environ.get('USER_POOL_ID')
     
     try:
         # Query all user profiles
@@ -58,6 +63,18 @@ def lambda_handler(event, context):
             users.extend(response.get('Items', []))
         
         logger.info(f"Found {len(users)} total users")
+        
+        # Get admin group members from Cognito
+        admin_user_ids = set()
+        try:
+            admin_response = cognito.list_users_in_group(
+                UserPoolId=user_pool_id,
+                GroupName='admins'
+            )
+            admin_user_ids = {user['Username'] for user in admin_response.get('Users', [])}
+            logger.info(f"Found {len(admin_user_ids)} admin users")
+        except Exception as e:
+            logger.warning(f"Failed to fetch admin group members: {str(e)}")
         
         # Filter for team managers (those who have created boats or crew)
         team_managers = []
@@ -87,7 +104,8 @@ def lambda_handler(event, context):
                     'last_name': user.get('last_name', ''),
                     'email': user.get('email', ''),
                     'phone_number': user.get('mobile_number', ''),
-                    'club_affiliation': user.get('club_affiliation', '')
+                    'club_affiliation': user.get('club_affiliation', ''),
+                    'is_admin': user_id in admin_user_ids
                 })
         
         # Sort by last name, then first name

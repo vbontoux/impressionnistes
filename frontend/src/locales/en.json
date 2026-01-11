@@ -294,6 +294,8 @@
       "email": "Email",
       "phone": "Phone",
       "clubAffiliation": "Club Affiliation",
+      "role": "Role",
+      "admin": "Admin",
       "selectAll": "Select All",
       "deselectAll": "Deselect All",
       "emailSelected": "Email Selected",

@@ -151,6 +151,7 @@ class ApiStack(Stack):
                     'cognito-idp:AdminAddUserToGroup',
                     'cognito-idp:AdminGetUser',
                     'cognito-idp:ListUsers',
+                    'cognito-idp:ListUsersInGroup',
                     'cognito-idp:ResendConfirmationCode'
                 ],
                 resources=[self.auth_stack.user_pool.user_pool_arn]
