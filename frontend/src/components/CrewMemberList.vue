@@ -546,17 +546,18 @@ const clearFilters = () => {
 .actions-cell {
   display: flex;
   gap: 0.5rem;
+  flex-direction: column;
 }
 
 .btn-table {
-  padding: 0.4rem 0.8rem;
+  padding: 0.5rem 0.75rem;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   transition: background-color 0.2s;
-  min-height: 44px;
-  min-width: 44px;
+  min-height: 36px;
+  white-space: nowrap;
 }
 
 .btn-edit-table {

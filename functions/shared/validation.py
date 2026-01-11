@@ -213,6 +213,29 @@ boat_registration_schema = {
         'required': False,
         'default': False
     },
+    'boat_request_enabled': {
+        'type': 'boolean',
+        'required': False,
+        'default': False
+    },
+    'boat_request_comment': {
+        'type': 'string',
+        'required': False,
+        'nullable': True,
+        'maxlength': 500
+    },
+    'assigned_boat_identifier': {
+        'type': 'string',
+        'required': False,
+        'nullable': True,
+        'maxlength': 100
+    },
+    'assigned_boat_comment': {
+        'type': 'string',
+        'required': False,
+        'nullable': True,
+        'maxlength': 500
+    },
     'registration_status': {
         'type': 'string',
         'required': False,
@@ -549,6 +572,57 @@ def sanitize_string(value, max_length=None):
     # Truncate if needed
     if max_length and len(sanitized) > max_length:
         sanitized = sanitized[:max_length]
+    
+    return sanitized
+
+
+def sanitize_xss(value, preserve_newlines=True):
+    """
+    Sanitize string to prevent XSS attacks by removing HTML/script tags
+    while preserving other special characters.
+    
+    This function:
+    - Removes <script> tags and their content
+    - Removes <style> tags and their content
+    - Removes HTML tags (< and >)
+    - Removes javascript: protocol
+    - Removes on* event handlers (onclick, onerror, etc.)
+    - Preserves newlines, quotes, and other special characters
+    
+    Args:
+        value: String to sanitize
+        preserve_newlines: Whether to preserve newline characters (default: True)
+        
+    Returns:
+        str: Sanitized string safe from XSS attacks
+    """
+    if not isinstance(value, str):
+        return value
+    
+    if not value:
+        return value
+    
+    # Remove <script> tags and their content (case-insensitive)
+    sanitized = re.sub(r'<script[^>]*>.*?</script>', '', value, flags=re.IGNORECASE | re.DOTALL)
+    
+    # Remove <style> tags and their content (case-insensitive)
+    sanitized = re.sub(r'<style[^>]*>.*?</style>', '', sanitized, flags=re.IGNORECASE | re.DOTALL)
+    
+    # Remove javascript: protocol
+    sanitized = re.sub(r'javascript:', '', sanitized, flags=re.IGNORECASE)
+    
+    # Remove on* event handlers (onclick, onerror, onload, etc.)
+    sanitized = re.sub(r'\bon\w+\s*=', '', sanitized, flags=re.IGNORECASE)
+    
+    # Remove HTML tags (< and >)
+    sanitized = re.sub(r'<[^>]*>', '', sanitized)
+    
+    # Remove any remaining < or > characters
+    sanitized = sanitized.replace('<', '').replace('>', '')
+    
+    # Optionally preserve newlines
+    if not preserve_newlines:
+        sanitized = sanitized.replace('\n', ' ').replace('\r', ' ')
     
     return sanitized
 

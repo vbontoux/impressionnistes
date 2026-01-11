@@ -23,6 +23,16 @@
             <option value="paid">{{ $t('boat.status.paid') }}</option>
           </select>
         </div>
+        <div class="filter-group">
+          <label>{{ $t('boat.filter.boatRequest') }}&nbsp;:</label>
+          <select v-model="boatRequestFilter" class="filter-select">
+            <option value="all">{{ $t('boat.filter.allRequests') }}</option>
+            <option value="with">{{ $t('boat.filter.withRequest') }}</option>
+            <option value="without">{{ $t('boat.filter.withoutRequest') }}</option>
+            <option value="pending">{{ $t('boat.filter.requestPending') }}</option>
+            <option value="fulfilled">{{ $t('boat.filter.requestFulfilled') }}</option>
+          </select>
+        </div>
       </template>
     </ListFilters>
 
@@ -102,6 +112,33 @@
               <span class="label">{{ $t('boat.paidOn') }}&nbsp;:</span>
               <span>{{ formatDate(boat.paid_at) }}</span>
             </div>
+            
+            <!-- Boat Request Status -->
+            <div v-if="boat.boat_request_enabled" class="boat-request-section">
+              <!-- Pending: Show team manager's request -->
+              <div v-if="!boat.assigned_boat_identifier" class="boat-request-pending">
+                <div class="request-header">
+                  <strong>{{ $t('boat.boatRequest.status') }}&nbsp;:</strong>
+                  <span class="status-text">{{ $t('boat.boatRequest.waitingAssignment') }}</span>
+                </div>
+                <div v-if="boat.boat_request_comment" class="request-comment">
+                  <strong>{{ $t('boat.boatRequest.yourRequest') }}&nbsp;:</strong>
+                  <span>{{ boat.boat_request_comment }}</span>
+                </div>
+              </div>
+              
+              <!-- Fulfilled: Show assigned boat -->
+              <div v-else class="boat-request-fulfilled">
+                <div class="fulfilled-header">
+                  <strong>✓ {{ $t('boat.boatRequest.assignedBoat') }}&nbsp;:</strong>
+                  <span class="boat-name">{{ boat.assigned_boat_identifier }}</span>
+                </div>
+                <div v-if="boat.assigned_boat_comment" class="assignment-details">
+                  <strong>{{ $t('boat.boatRequest.assignmentDetails') }}&nbsp;:</strong>
+                  <span>{{ boat.assigned_boat_comment }}</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div v-if="getRaceName(boat)" class="race-name">
@@ -136,8 +173,9 @@
               <th>{{ $t('boat.gender') }}</th>
               <th>{{ $t('boat.averageAge') }}</th>
               <th>{{ $t('admin.boats.club') }}</th>
-              <th>{{ $t('boat.status.label') }}</th>
               <th>{{ $t('boat.seats') }}</th>
+              <th>{{ $t('boat.boatRequest.status') }}</th>
+              <th>{{ $t('boat.status.label') }}</th>
               <th>{{ $t('common.actions') }}</th>
             </tr>
           </thead>
@@ -159,12 +197,24 @@
                   <span class="club-box">{{ boat.boat_club_display }}</span>
                 </td>
                 <td>
-                  <span class="status-badge" :class="`status-${getBoatStatus(boat)}`">
-                    {{ getBoatStatusLabel(boat) }}
+                  {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
+                </td>
+                <td>
+                  <span v-if="!boat.boat_request_enabled" class="no-request">-</span>
+                  <span 
+                    v-else-if="boat.assigned_boat_identifier" 
+                    class="boat-assigned-table"
+                  >
+                    ✓ {{ $t('boat.boatRequest.assigned') }}: {{ boat.assigned_boat_identifier }}
+                  </span>
+                  <span v-else class="boat-requested">
+                    {{ $t('boat.boatRequest.waitingAssignment') }}
                   </span>
                 </td>
                 <td>
-                  {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
+                  <span class="status-badge" :class="`status-${getBoatStatus(boat)}`">
+                    {{ getBoatStatusLabel(boat) }}
+                  </span>
                 </td>
                 <td class="actions-cell">
                   <button @click="viewBoat(boat)" class="btn-table btn-view-table">
@@ -181,7 +231,7 @@
                 </td>
               </tr>
               <tr v-if="getRaceName(boat)" class="race-row" :class="`row-status-${boat.registration_status}`">
-                <td colspan="10" class="race-cell">
+                <td colspan="11" class="race-cell">
                   <span class="race-label">{{ $t('boat.selectedRace') }}&nbsp;:</span> {{ getRaceName(boat) }}
                 </td>
               </tr>
@@ -221,6 +271,7 @@ export default {
     // Load view mode from localStorage or default to 'cards'
     const viewMode = ref(localStorage.getItem('boatsViewMode') || 'cards')
     const statusFilter = ref('all')
+    const boatRequestFilter = ref('all')
     const searchQuery = ref('')
 
     // Watch for view mode changes and save to localStorage
@@ -234,6 +285,27 @@ export default {
       // Apply status filter
       if (statusFilter.value !== 'all') {
         boats = boats.filter(boat => boat.registration_status === statusFilter.value)
+      }
+
+      // Apply boat request filter
+      if (boatRequestFilter.value !== 'all') {
+        boats = boats.filter(boat => {
+          const hasRequest = boat.boat_request_enabled === true
+          const hasFulfilled = hasRequest && boat.assigned_boat_identifier
+          
+          switch (boatRequestFilter.value) {
+            case 'with':
+              return hasRequest
+            case 'without':
+              return !hasRequest
+            case 'pending':
+              return hasRequest && !hasFulfilled
+            case 'fulfilled':
+              return hasFulfilled
+            default:
+              return true
+          }
+        })
       }
 
       // Apply search query
@@ -342,6 +414,7 @@ export default {
 
     const clearFilters = () => {
       statusFilter.value = 'all'
+      boatRequestFilter.value = 'all'
       searchQuery.value = ''
     }
 
@@ -358,6 +431,7 @@ export default {
       showCreateForm,
       viewMode,
       statusFilter,
+      boatRequestFilter,
       searchQuery,
       boatRegistrations,
       getFilledSeatsCount,
@@ -642,6 +716,32 @@ export default {
   color: #212529;
 }
 
+.assignment-comment {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background-color: #e7f3ff;
+  border-left: 4px solid #007bff;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: #495057;
+  word-break: break-word;
+}
+
+.assignment-comment strong {
+  color: #212529;
+}
+
+.boat-assigned {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.boat-pending {
+  color: #ffc107;
+  font-style: italic;
+}
+
 .boat-actions {
   display: flex;
   flex-direction: column;
@@ -700,7 +800,90 @@ export default {
 .boat-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  min-width: 1200px;
+  table-layout: fixed;
+}
+
+.boat-table th:nth-child(1) { width: 90px; }  /* Boat Number */
+.boat-table th:nth-child(2) { width: 70px; }  /* Event Type */
+.boat-table th:nth-child(3) { width: 70px; }  /* Boat Type */
+.boat-table th:nth-child(4) { width: 110px; } /* First Rower */
+.boat-table th:nth-child(5) { width: 70px; }  /* Gender */
+.boat-table th:nth-child(6) { width: 90px; }  /* Average Age */
+.boat-table th:nth-child(7) { width: 180px; } /* Club */
+.boat-table th:nth-child(8) { width: 60px; }  /* Seats - REDUCED */
+.boat-table th:nth-child(9) { width: 160px; } /* Boat Request - INCREASED */
+.boat-table th:nth-child(10) { width: 100px; } /* Status - INCREASED */
+.boat-table th:nth-child(11) { width: 140px; } /* Actions - INCREASED */
+
+.no-request {
+  color: #6c757d;
+}
+
+.boat-requested {
+  color: #ffc107;
+  font-weight: 600;
+  font-size: 0.8125rem;
+}
+
+.boat-assigned-table {
+  color: #28a745;
+  font-weight: 600;
+}
+
+/* Boat Request Section Styles */
+.boat-request-section {
+  margin-bottom: 1rem;
+}
+
+.boat-request-pending {
+  background-color: #fff9e6;
+  border-left: 4px solid #ffc107;
+  padding: 0.75rem;
+  border-radius: 4px;
+}
+
+.boat-request-pending .request-header {
+  margin-bottom: 0.5rem;
+}
+
+.boat-request-pending .status-text {
+  color: #856404;
+  font-weight: 600;
+}
+
+.boat-request-pending .request-comment {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.boat-request-fulfilled {
+  background-color: #e7f5ec;
+  border-left: 4px solid #28a745;
+  padding: 0.75rem;
+  border-radius: 4px;
+}
+
+.boat-request-fulfilled .fulfilled-header {
+  margin-bottom: 0.5rem;
+}
+
+.boat-request-fulfilled .boat-name {
+  color: #155724;
+  font-weight: 600;
+}
+
+.boat-request-fulfilled .assignment-details {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #155724;
+}
+
+.info-icon {
+  margin-left: 0.25rem;
+  font-size: 0.875rem;
+  cursor: help;
 }
 
 .boat-table thead {
@@ -765,6 +948,8 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  padding: 0.75rem !important;
+  min-width: 120px;
 }
 
 .btn-table {
@@ -777,6 +962,7 @@ export default {
   font-size: 0.8125rem;
   transition: background-color 0.2s;
   white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .btn-view-table {
@@ -902,12 +1088,13 @@ export default {
   }
 
   .actions-cell {
-    flex-direction: row;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .btn-table {
-    width: auto;
-    padding: 0.4rem 0.8rem;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
   }
 
   .btn-view-table:hover {

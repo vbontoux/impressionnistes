@@ -15,7 +15,7 @@ from responses import (
     internal_error,
     handle_exceptions
 )
-from validation import validate_boat_registration, sanitize_dict, boat_registration_schema
+from validation import validate_boat_registration, sanitize_dict, sanitize_xss, boat_registration_schema
 from database import get_db_client, get_timestamp
 from auth_utils import get_user_from_event, require_team_manager_or_admin_override
 from configuration import ConfigurationManager
@@ -121,6 +121,30 @@ def lambda_handler(event, context):
     if 'is_boat_rental' in body:
         update_data['is_boat_rental'] = body['is_boat_rental']
     
+    # Handle boat request fields (team managers can update these)
+    if 'boat_request_enabled' in body:
+        boat_request_enabled = body['boat_request_enabled']
+        update_data['boat_request_enabled'] = boat_request_enabled
+        
+        # If disabling boat request, clear related fields
+        if not boat_request_enabled:
+            update_data['boat_request_comment'] = None
+    
+    if 'boat_request_comment' in body:
+        # Only allow updating comment if boat_request_enabled is true
+        boat_request_enabled = update_data.get('boat_request_enabled', existing_boat.get('boat_request_enabled', False))
+        if boat_request_enabled:
+            comment = body['boat_request_comment']
+            # Sanitize XSS from boat_request_comment
+            if comment:
+                comment = sanitize_xss(comment, preserve_newlines=True)
+            update_data['boat_request_comment'] = comment
+    
+    # Team managers CANNOT update assigned_boat_identifier or assigned_boat_comment
+    # These fields are admin-only and handled in admin_update_boat.py
+    if 'assigned_boat_identifier' in body or 'assigned_boat_comment' in body:
+        return forbidden_error('Only administrators can assign boats')
+    
     # Validate boat type for event if both are being updated
     event_type = update_data.get('event_type', existing_boat.get('event_type'))
     boat_type = update_data.get('boat_type', existing_boat.get('boat_type'))
@@ -137,6 +161,10 @@ def lambda_handler(event, context):
         'race_id': existing_boat.get('race_id'),
         'seats': existing_boat.get('seats', []),
         'is_boat_rental': existing_boat.get('is_boat_rental', False),
+        'boat_request_enabled': existing_boat.get('boat_request_enabled', False),
+        'boat_request_comment': existing_boat.get('boat_request_comment'),
+        'assigned_boat_identifier': existing_boat.get('assigned_boat_identifier'),
+        'assigned_boat_comment': existing_boat.get('assigned_boat_comment'),
         'is_multi_club_crew': existing_boat.get('is_multi_club_crew', False),
         'registration_status': existing_boat.get('registration_status', 'incomplete'),
         'flagged_issues': existing_boat.get('flagged_issues', [])

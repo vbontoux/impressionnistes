@@ -49,6 +49,13 @@ def validate_boat_registrations(
         if not boat:
             return None, f"Boat registration {boat_id} not found"
         
+        # Check if boat request is pending (enabled but not assigned)
+        boat_request_enabled = boat.get('boat_request_enabled', False)
+        assigned_boat_identifier = boat.get('assigned_boat_identifier')
+        
+        if boat_request_enabled and (not assigned_boat_identifier or not assigned_boat_identifier.strip()):
+            return None, f"Boat registration {boat_id} has a pending boat assignment request. Payment cannot be processed until a boat is assigned."
+        
         # Check if boat is in 'complete' status
         if boat.get('registration_status') != 'complete':
             return None, f"Boat registration {boat_id} is not ready for payment (status: {boat.get('registration_status')})"

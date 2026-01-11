@@ -1533,3 +1533,554 @@ def test_export_races_json_empty_database(dynamodb_table, mock_admin_event, mock
     assert data['total_boats'] == 0
     assert data['total_crew_members'] == 0
     assert data['config']['competition_date'] == '2025-05-01'
+
+
+# Boat Assignment Tests (Boat Hull Assignment Request Feature)
+# ============================================================================
+
+def test_admin_can_assign_boat_identifier(dynamodb_table, mock_admin_event, mock_lambda_context, test_team_manager_id):
+    """Test admin can assign boat identifier to a crew with boat request enabled"""
+    # Add team manager
+    dynamodb_table.put_item(Item={
+        'PK': f'USER#{test_team_manager_id}',
+        'SK': 'PROFILE',
+        'first_name': 'John',
+        'last_name': 'Manager',
+        'email': 'john@example.com',
+        'club_affiliation': 'Test Club'
+    })
+    
+    # Add race
+    dynamodb_table.put_item(Item={
+        'PK': 'RACE',
+        'SK': 'M01',
+        'race_id': 'M01',
+        'name': 'Test Race',
+        'event_type': '42km',
+        'boat_type': 'skiff'
+    })
+    
+    # Add crew member
+    dynamodb_table.put_item(Item={
+        'PK': f'TEAM#{test_team_manager_id}',
+        'SK': 'CREW#crew-1',
+        'crew_member_id': 'crew-1',
+        'first_name': 'Alice',
+        'last_name': 'Smith',
+        'date_of_birth': '1990-01-15',
+        'gender': 'F',
+        'license_number': 'LIC001',
+        'club_affiliation': 'Test Club'
+    })
+    
+    # Add boat with boat request enabled but no assignment
+    dynamodb_table.put_item(Item={
+        'PK': f'TEAM#{test_team_manager_id}',
+        'SK': 'BOAT#boat-1',
+        'boat_registration_id': 'boat-1',
+        'event_type': '42km',
+        'boat_type': 'skiff',
+        'race_id': 'M01',
+        'boat_request_enabled': True,
+        'boat_request_comment': 'Need a stable boat',
+        'assigned_boat_identifier': None,
+        'assigned_boat_comment': None,
+        'registration_status': 'incomplete',
+        'seats': [
+            {'position': 1, 'type': 'rower', 'crew_member_id': 'crew-1'}
+        ]
+    })
+    
+    from admin.admin_update_boat import lambda_handler
+    
+    # Admin assigns boat
+    event = mock_admin_event(
+        http_method='PUT',
+        path=f'/admin/teams/{test_team_manager_id}/boats/boat-1',
+        path_parameters={
+            'team_manager_id': test_team_manager_id,
+            'boat_registration_id': 'boat-1'
+        },
+        body=json.dumps({
+            'assigned_boat_identifier': 'Boat 42'
+        })
+    )
+    
+    response = lambda_handler(event, mock_lambda_context)
+    
+    # Verify response
+    assert response['statusCode'] == 200
+    
+    body = json.loads(response['body'])
+    assert body['success'] is True
+    assert body['data']['assigned_boat_identifier'] == 'Boat 42'
+
+
+def test_admin_can_add_assignment_comment(dynamodb_table, mock_admin_event, mock_lambda_context, test_team_manager_id):
+    """Test admin can add assignment comment when assigning boat"""
+    # Add team manager
+    dynamodb_table.put_item(Item={
+        'PK': f'USER#{test_team_manager_id}',
+        'SK': 'PROFILE',
+        'first_name': 'John',
+        'last_name': 'Manager',
+        'email': 'john@example.com',
+        'club_affiliation': 'Test Club'
+    })
+    
+    # Add race
+    dynamodb_table.put_item(Item={
+        'PK': 'RACE',
+        'SK': 'M01',
+        'race_id': 'M01',
+        'name': 'Test Race',
+        'event_type': '42km',
+        'boat_type': 'skiff'
+    })
+    
+    # Add crew member
+    dynamodb_table.put_item(Item={
+        'PK': f'TEAM#{test_team_manager_id}',
+        'SK': 'CREW#crew-1',
+        'crew_member_id': 'crew-1',
+        'first_name': 'Alice',
+        'last_name': 'Smith',
+        'date_of_birth': '1990-01-15',
+        'gender': 'F',
+        'license_number': 'LIC001',
+        'club_affiliation': 'Test Club'
+    })
+    
+    # Add boat with boat request enabled
+    dynamodb_table.put_item(Item={
+        'PK': f'TEAM#{test_team_manager_id}',
+        'SK': 'BOAT#boat-1',
+        'boat_registration_id': 'boat-1',
+        'event_type': '42km',
+        'boat_type': 'skiff',
+        'race_id': 'M01',
+        'boat_request_enabled': True,
+        'boat_request_comment': 'Need a stable boat',
+        'assigned_boat_identifier': None,
+        'assigned_boat_comment': None,
+        'registration_status': 'incomplete',
+        'seats': [
+            {'position': 1, 'type': 'rower', 'crew_member_id': 'crew-1'}
+        ]
+    })
+    
+    from admin.admin_update_boat import lambda_handler
+    
+    # Admin assigns boat with comment
+    event = mock_admin_event(
+        http_method='PUT',
+        path=f'/admin/teams/{test_team_manager_id}/boats/boat-1',
+        path_parameters={
+            'team_manager_id': test_team_manager_id,
+            'boat_registration_id': 'boat-1'
+        },
+        body=json.dumps({
+            'assigned_boat_identifier': 'Boat 42',
+            'assigned_boat_comment': 'Hull in rack 3, oars in locker B'
+        })
+    )
+    
+    response = lambda_handler(event, mock_lambda_context)
+    
+    # Verify response
+    assert response['statusCode'] == 200
+    
+    body = json.loads(response['body'])
+    assert body['success'] is True
+    assert body['data']['assigned_boat_identifier'] == 'Boat 42'
+    assert body['data']['assigned_boat_comment'] == 'Hull in rack 3, oars in locker B'
+
+
+def test_completion_status_recalculates_after_assignment(dynamodb_table, mock_admin_event, mock_lambda_context, test_team_manager_id):
+    """Test completion status recalculates after admin assigns boat"""
+    # Add team manager
+    dynamodb_table.put_item(Item={
+        'PK': f'USER#{test_team_manager_id}',
+        'SK': 'PROFILE',
+        'first_name': 'John',
+        'last_name': 'Manager',
+        'email': 'john@example.com',
+        'club_affiliation': 'Test Club'
+    })
+    
+    # Add race
+    dynamodb_table.put_item(Item={
+        'PK': 'RACE',
+        'SK': 'M01',
+        'race_id': 'M01',
+        'name': 'Test Race',
+        'event_type': '42km',
+        'boat_type': 'skiff'
+    })
+    
+    # Add crew member
+    dynamodb_table.put_item(Item={
+        'PK': f'TEAM#{test_team_manager_id}',
+        'SK': 'CREW#crew-1',
+        'crew_member_id': 'crew-1',
+        'first_name': 'Alice',
+        'last_name': 'Smith',
+        'date_of_birth': '1990-01-15',
+        'gender': 'F',
+        'license_number': 'LIC001',
+        'club_affiliation': 'Test Club'
+    })
+    
+    # Add boat with boat request enabled, all seats filled, race selected
+    # Should be incomplete because no boat assigned yet
+    dynamodb_table.put_item(Item={
+        'PK': f'TEAM#{test_team_manager_id}',
+        'SK': 'BOAT#boat-1',
+        'boat_registration_id': 'boat-1',
+        'event_type': '42km',
+        'boat_type': 'skiff',
+        'race_id': 'M01',
+        'boat_request_enabled': True,
+        'boat_request_comment': 'Need a stable boat',
+        'assigned_boat_identifier': None,
+        'assigned_boat_comment': None,
+        'registration_status': 'incomplete',
+        'seats': [
+            {'position': 1, 'type': 'rower', 'crew_member_id': 'crew-1'}
+        ]
+    })
+    
+    from admin.admin_update_boat import lambda_handler
+    
+    # Admin assigns boat
+    event = mock_admin_event(
+        http_method='PUT',
+        path=f'/admin/teams/{test_team_manager_id}/boats/boat-1',
+        path_parameters={
+            'team_manager_id': test_team_manager_id,
+            'boat_registration_id': 'boat-1'
+        },
+        body=json.dumps({
+            'assigned_boat_identifier': 'Boat 42'
+        })
+    )
+    
+    response = lambda_handler(event, mock_lambda_context)
+    
+    # Verify response
+    assert response['statusCode'] == 200
+    
+    body = json.loads(response['body'])
+    assert body['success'] is True
+    
+    # Status should now be 'complete' because boat is assigned
+    assert body['data']['registration_status'] == 'complete'
+
+
+def test_admin_can_clear_boat_assignment(dynamodb_table, mock_admin_event, mock_lambda_context, test_team_manager_id):
+    """Test admin can clear boat assignment by setting to null"""
+    # Add team manager
+    dynamodb_table.put_item(Item={
+        'PK': f'USER#{test_team_manager_id}',
+        'SK': 'PROFILE',
+        'first_name': 'John',
+        'last_name': 'Manager',
+        'email': 'john@example.com',
+        'club_affiliation': 'Test Club'
+    })
+    
+    # Add race
+    dynamodb_table.put_item(Item={
+        'PK': 'RACE',
+        'SK': 'M01',
+        'race_id': 'M01',
+        'name': 'Test Race',
+        'event_type': '42km',
+        'boat_type': 'skiff'
+    })
+    
+    # Add crew member
+    dynamodb_table.put_item(Item={
+        'PK': f'TEAM#{test_team_manager_id}',
+        'SK': 'CREW#crew-1',
+        'crew_member_id': 'crew-1',
+        'first_name': 'Alice',
+        'last_name': 'Smith',
+        'date_of_birth': '1990-01-15',
+        'gender': 'F',
+        'license_number': 'LIC001',
+        'club_affiliation': 'Test Club'
+    })
+    
+    # Add boat with boat already assigned
+    dynamodb_table.put_item(Item={
+        'PK': f'TEAM#{test_team_manager_id}',
+        'SK': 'BOAT#boat-1',
+        'boat_registration_id': 'boat-1',
+        'event_type': '42km',
+        'boat_type': 'skiff',
+        'race_id': 'M01',
+        'boat_request_enabled': True,
+        'boat_request_comment': 'Need a stable boat',
+        'assigned_boat_identifier': 'Boat 42',
+        'assigned_boat_comment': 'Hull in rack 3',
+        'registration_status': 'complete',
+        'seats': [
+            {'position': 1, 'type': 'rower', 'crew_member_id': 'crew-1'}
+        ]
+    })
+    
+    from admin.admin_update_boat import lambda_handler
+    
+    # Admin clears boat assignment
+    event = mock_admin_event(
+        http_method='PUT',
+        path=f'/admin/teams/{test_team_manager_id}/boats/boat-1',
+        path_parameters={
+            'team_manager_id': test_team_manager_id,
+            'boat_registration_id': 'boat-1'
+        },
+        body=json.dumps({
+            'assigned_boat_identifier': None
+        })
+    )
+    
+    response = lambda_handler(event, mock_lambda_context)
+    
+    # Verify response
+    assert response['statusCode'] == 200
+    
+    body = json.loads(response['body'])
+    assert body['success'] is True
+    assert body['data']['assigned_boat_identifier'] is None
+    
+    # Status should now be 'incomplete' because boat assignment was cleared
+    assert body['data']['registration_status'] == 'incomplete'
+
+
+def test_admin_boat_identifier_length_validation(dynamodb_table, mock_admin_event, mock_lambda_context, test_team_manager_id):
+    """Test admin boat identifier length validation (max 100 chars)"""
+    # Add team manager
+    dynamodb_table.put_item(Item={
+        'PK': f'USER#{test_team_manager_id}',
+        'SK': 'PROFILE',
+        'first_name': 'John',
+        'last_name': 'Manager',
+        'email': 'john@example.com',
+        'club_affiliation': 'Test Club'
+    })
+    
+    # Add boat
+    dynamodb_table.put_item(Item={
+        'PK': f'TEAM#{test_team_manager_id}',
+        'SK': 'BOAT#boat-1',
+        'boat_registration_id': 'boat-1',
+        'event_type': '42km',
+        'boat_type': 'skiff',
+        'boat_request_enabled': True,
+        'registration_status': 'incomplete',
+        'seats': []
+    })
+    
+    from admin.admin_update_boat import lambda_handler
+    
+    # Try to assign boat with identifier > 100 chars
+    long_identifier = 'A' * 101
+    event = mock_admin_event(
+        http_method='PUT',
+        path=f'/admin/teams/{test_team_manager_id}/boats/boat-1',
+        path_parameters={
+            'team_manager_id': test_team_manager_id,
+            'boat_registration_id': 'boat-1'
+        },
+        body=json.dumps({
+            'assigned_boat_identifier': long_identifier
+        })
+    )
+    
+    response = lambda_handler(event, mock_lambda_context)
+    
+    # Should return validation error
+    assert response['statusCode'] == 400
+    
+    body = json.loads(response['body'])
+    assert body['success'] is False
+    # Error structure has 'details' field
+    assert 'assigned_boat_identifier' in body['error']['details']
+
+
+def test_admin_boat_comment_length_validation(dynamodb_table, mock_admin_event, mock_lambda_context, test_team_manager_id):
+    """Test admin boat comment length validation (max 500 chars)"""
+    # Add team manager
+    dynamodb_table.put_item(Item={
+        'PK': f'USER#{test_team_manager_id}',
+        'SK': 'PROFILE',
+        'first_name': 'John',
+        'last_name': 'Manager',
+        'email': 'john@example.com',
+        'club_affiliation': 'Test Club'
+    })
+    
+    # Add boat
+    dynamodb_table.put_item(Item={
+        'PK': f'TEAM#{test_team_manager_id}',
+        'SK': 'BOAT#boat-1',
+        'boat_registration_id': 'boat-1',
+        'event_type': '42km',
+        'boat_type': 'skiff',
+        'boat_request_enabled': True,
+        'registration_status': 'incomplete',
+        'seats': []
+    })
+    
+    from admin.admin_update_boat import lambda_handler
+    
+    # Try to assign boat with comment > 500 chars
+    long_comment = 'A' * 501
+    event = mock_admin_event(
+        http_method='PUT',
+        path=f'/admin/teams/{test_team_manager_id}/boats/boat-1',
+        path_parameters={
+            'team_manager_id': test_team_manager_id,
+            'boat_registration_id': 'boat-1'
+        },
+        body=json.dumps({
+            'assigned_boat_identifier': 'Boat 42',
+            'assigned_boat_comment': long_comment
+        })
+    )
+    
+    response = lambda_handler(event, mock_lambda_context)
+    
+    # Should return validation error
+    assert response['statusCode'] == 400
+    
+    body = json.loads(response['body'])
+    assert body['success'] is False
+    # Error structure has 'details' field
+    assert 'assigned_boat_comment' in body['error']['details']
+
+
+def test_admin_boat_identifier_whitespace_trimming(dynamodb_table, mock_admin_event, mock_lambda_context, test_team_manager_id):
+    """Test admin boat identifier whitespace is trimmed"""
+    # Add team manager
+    dynamodb_table.put_item(Item={
+        'PK': f'USER#{test_team_manager_id}',
+        'SK': 'PROFILE',
+        'first_name': 'John',
+        'last_name': 'Manager',
+        'email': 'john@example.com',
+        'club_affiliation': 'Test Club'
+    })
+    
+    # Add race
+    dynamodb_table.put_item(Item={
+        'PK': 'RACE',
+        'SK': 'M01',
+        'race_id': 'M01',
+        'name': 'Test Race',
+        'event_type': '42km',
+        'boat_type': 'skiff'
+    })
+    
+    # Add crew member
+    dynamodb_table.put_item(Item={
+        'PK': f'TEAM#{test_team_manager_id}',
+        'SK': 'CREW#crew-1',
+        'crew_member_id': 'crew-1',
+        'first_name': 'Alice',
+        'last_name': 'Smith',
+        'date_of_birth': '1990-01-15',
+        'gender': 'F',
+        'license_number': 'LIC001',
+        'club_affiliation': 'Test Club'
+    })
+    
+    # Add boat
+    dynamodb_table.put_item(Item={
+        'PK': f'TEAM#{test_team_manager_id}',
+        'SK': 'BOAT#boat-1',
+        'boat_registration_id': 'boat-1',
+        'event_type': '42km',
+        'boat_type': 'skiff',
+        'race_id': 'M01',
+        'boat_request_enabled': True,
+        'registration_status': 'incomplete',
+        'seats': [
+            {'position': 1, 'type': 'rower', 'crew_member_id': 'crew-1'}
+        ]
+    })
+    
+    from admin.admin_update_boat import lambda_handler
+    
+    # Assign boat with leading/trailing whitespace
+    event = mock_admin_event(
+        http_method='PUT',
+        path=f'/admin/teams/{test_team_manager_id}/boats/boat-1',
+        path_parameters={
+            'team_manager_id': test_team_manager_id,
+            'boat_registration_id': 'boat-1'
+        },
+        body=json.dumps({
+            'assigned_boat_identifier': '  Boat 42  '
+        })
+    )
+    
+    response = lambda_handler(event, mock_lambda_context)
+    
+    # Verify whitespace is trimmed
+    assert response['statusCode'] == 200
+    
+    body = json.loads(response['body'])
+    assert body['success'] is True
+    assert body['data']['assigned_boat_identifier'] == 'Boat 42'  # Trimmed
+
+
+def test_admin_empty_string_boat_identifier_becomes_null(dynamodb_table, mock_admin_event, mock_lambda_context, test_team_manager_id):
+    """Test admin empty string boat identifier becomes null"""
+    # Add team manager
+    dynamodb_table.put_item(Item={
+        'PK': f'USER#{test_team_manager_id}',
+        'SK': 'PROFILE',
+        'first_name': 'John',
+        'last_name': 'Manager',
+        'email': 'john@example.com',
+        'club_affiliation': 'Test Club'
+    })
+    
+    # Add boat with assignment
+    dynamodb_table.put_item(Item={
+        'PK': f'TEAM#{test_team_manager_id}',
+        'SK': 'BOAT#boat-1',
+        'boat_registration_id': 'boat-1',
+        'event_type': '42km',
+        'boat_type': 'skiff',
+        'boat_request_enabled': True,
+        'assigned_boat_identifier': 'Boat 42',
+        'registration_status': 'complete',
+        'seats': []
+    })
+    
+    from admin.admin_update_boat import lambda_handler
+    
+    # Clear assignment with empty string
+    event = mock_admin_event(
+        http_method='PUT',
+        path=f'/admin/teams/{test_team_manager_id}/boats/boat-1',
+        path_parameters={
+            'team_manager_id': test_team_manager_id,
+            'boat_registration_id': 'boat-1'
+        },
+        body=json.dumps({
+            'assigned_boat_identifier': '   '  # Whitespace only
+        })
+    )
+    
+    response = lambda_handler(event, mock_lambda_context)
+    
+    # Verify empty string becomes null
+    assert response['statusCode'] == 200
+    
+    body = json.loads(response['body'])
+    assert body['success'] is True
+    assert body['data']['assigned_boat_identifier'] is None

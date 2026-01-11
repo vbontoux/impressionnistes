@@ -11,7 +11,7 @@ from responses import (
     not_found_error,
     handle_exceptions
 )
-from validation import validate_boat_registration, sanitize_dict, boat_registration_schema
+from validation import validate_boat_registration, sanitize_dict, sanitize_xss, boat_registration_schema
 from database import get_db_client, get_timestamp
 from auth_utils import require_admin
 from boat_registration_utils import (
@@ -88,6 +88,38 @@ def lambda_handler(event, context):
     for field in updatable_fields:
         if field in body:
             update_data[field] = body[field]
+    
+    # Admin can update boat assignment fields
+    if 'assigned_boat_identifier' in body:
+        boat_identifier = body['assigned_boat_identifier']
+        if boat_identifier:
+            # Sanitize and validate
+            boat_identifier = sanitize_dict({'value': boat_identifier})['value']
+            # Trim whitespace
+            boat_identifier = boat_identifier.strip()
+            if len(boat_identifier) > 100:
+                return validation_error({
+                    'assigned_boat_identifier': 'Boat identifier cannot exceed 100 characters'
+                })
+            update_data['assigned_boat_identifier'] = boat_identifier if boat_identifier else None
+        else:
+            # Clearing assignment
+            update_data['assigned_boat_identifier'] = None
+    
+    if 'assigned_boat_comment' in body:
+        boat_comment = body['assigned_boat_comment']
+        if boat_comment:
+            # Validate length first
+            if len(boat_comment) > 500:
+                return validation_error({
+                    'assigned_boat_comment': 'Boat comment cannot exceed 500 characters'
+                })
+            # Sanitize XSS from assigned_boat_comment
+            boat_comment = sanitize_xss(boat_comment, preserve_newlines=True)
+            update_data['assigned_boat_comment'] = boat_comment
+        else:
+            # Clearing comment
+            update_data['assigned_boat_comment'] = None
     
     # Generate or clear boat_number when race_id changes
     if 'race_id' in update_data:
@@ -183,6 +215,25 @@ def lambda_handler(event, context):
         club_info = calculate_boat_club_info(assigned_members, team_manager_club)
         update_data['boat_club_display'] = club_info['boat_club_display']
         update_data['club_list'] = club_info['club_list']
+        
+        # Create temporary boat object for status calculation
+        temp_boat = {**existing_boat, **update_data}
+        
+        # Recalculate registration status
+        registration_status = calculate_registration_status(temp_boat, assigned_members)
+        update_data['registration_status'] = registration_status
+    
+    # If boat assignment fields are updated, recalculate registration status
+    if 'assigned_boat_identifier' in update_data or 'assigned_boat_comment' in update_data:
+        # Get crew members for this team manager
+        crew_members = db.query_by_pk(
+            pk=f'TEAM#{team_manager_id}',
+            sk_prefix='CREW#'
+        )
+        
+        # Get assigned crew members from existing seats
+        seats = update_data.get('seats', existing_boat.get('seats', []))
+        assigned_members = get_assigned_crew_members(seats, crew_members)
         
         # Create temporary boat object for status calculation
         temp_boat = {**existing_boat, **update_data}

@@ -77,6 +77,7 @@ def is_registration_complete(boat_registration: Dict[str, Any]) -> bool:
     A registration is complete when:
     - All seats have crew members assigned
     - A race has been selected
+    - If boat request is enabled, a boat must be assigned
     
     Args:
         boat_registration: Boat registration dictionary
@@ -92,6 +93,14 @@ def is_registration_complete(boat_registration: Dict[str, Any]) -> bool:
     seats = boat_registration.get('seats', [])
     for seat in seats:
         if not seat.get('crew_member_id'):
+            return False
+    
+    # Check boat request status
+    boat_request_enabled = boat_registration.get('boat_request_enabled', False)
+    if boat_request_enabled:
+        assigned_boat_identifier = boat_registration.get('assigned_boat_identifier')
+        if not assigned_boat_identifier or not assigned_boat_identifier.strip():
+            # Boat request is enabled but no boat assigned yet
             return False
     
     return True

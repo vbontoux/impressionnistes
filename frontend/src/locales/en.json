@@ -271,6 +271,15 @@
       "editBoat": "Edit Crew",
       "modalInfo": "Admin crew management",
       "useTeamManagerInterface": "To create or edit crews, please use the club manager interface by viewing the crew details.",
+      "teamManagerRequest": "Club Manager's Request",
+      "assignBoatLabel": "Assign Boat (Name/Number)",
+      "assignBoatPlaceholder": "e.g., Boat 42, Elite Shell, etc.",
+      "assignBoatHelp": "Enter the boat name or number to assign. Leave empty to unassign.",
+      "assignmentDetailsLabel": "Assignment Details",
+      "assignmentDetailsPlaceholder": "e.g., Hull location, oar rack number, special instructions...",
+      "assignmentDetailsHelp": "Optional details about where to find the boat, oars, or other instructions.",
+      "optional": "Optional",
+      "noBoatRequest": "This crew has not requested a boat assignment.",
       "viewNotAvailable": "Crew detail view for other club managers is not yet available. Crew: {boat}, Club Manager: {teamManager}",
       "fetchError": "Failed to load crews. Please try again.",
       "updateError": "Failed to update crew. Please try again.",
@@ -545,7 +554,13 @@
       "allEvents": "All Events",
       "allBoatTypes": "All Boat Types",
       "sortBy": "Sort by",
-      "dateAdded": "Date Added"
+      "dateAdded": "Date Added",
+      "boatRequest": "Boat Request",
+      "allRequests": "All",
+      "withRequest": "With boat request",
+      "withoutRequest": "Without boat request",
+      "requestPending": "Request pending",
+      "requestFulfilled": "Request fulfilled"
     },
     "searchPlaceholder": "Search by stroke rower, crew type, event or race...",
     "types": {
@@ -564,6 +579,23 @@
       "quadWithCox": "Quad scull with coxswain",
       "eightWithCox": "Eight with coxswain",
       "octaWithCox": "Octuple scull with coxswain"
+    },
+    "boatRequest": {
+      "title": "Boat Request",
+      "assigned": "Assigned",
+      "assignedBoat": "Boat Assigned",
+      "yourRequest": "Your request",
+      "enableLabel": "Request boat assignment from organizers",
+      "helpText": "Check this box if you need the organization to provide a physical boat for this crew",
+      "commentLabel": "Boat Request Details (Optional)",
+      "commentPlaceholder": "e.g., Beginner level crew, prefer boat #42, need stable boat, etc.",
+      "assignedBoatLabel": "Assigned Boat",
+      "assignedBoatCommentLabel": "Assignment Details",
+      "assignedBoatHelp": "This field will be filled by administrators once a boat is assigned",
+      "notAssigned": "Not yet assigned",
+      "status": "Boat Request",
+      "waitingAssignment": "Waiting for boat assignment",
+      "assignmentDetails": "Assignment Details"
     }
   },
   "boatRental": {

@@ -61,6 +61,61 @@
         />
       </div>
 
+      <!-- Boat Request Section -->
+      <div class="section">
+        <h2>{{ $t('boat.boatRequest.title') }}</h2>
+        
+        <div class="form-group">
+          <label class="checkbox-label">
+            <input 
+              type="checkbox" 
+              v-model="boat.boat_request_enabled"
+              @change="handleBoatRequestToggle"
+            />
+            <span>{{ $t('boat.boatRequest.enableLabel') }}</span>
+          </label>
+          <p class="help-text">{{ $t('boat.boatRequest.helpText') }}</p>
+        </div>
+        
+        <!-- Show these fields only when boat request is enabled -->
+        <div v-if="boat.boat_request_enabled" class="boat-request-fields">
+          <div class="form-group">
+            <label for="boat_request_comment">
+              {{ $t('boat.boatRequest.commentLabel') }}
+            </label>
+            <textarea
+              id="boat_request_comment"
+              v-model="boat.boat_request_comment"
+              :placeholder="$t('boat.boatRequest.commentPlaceholder')"
+              maxlength="500"
+              rows="4"
+              class="form-textarea"
+            ></textarea>
+            <span class="char-count">
+              {{ boat.boat_request_comment?.length || 0 }} / 500
+            </span>
+          </div>
+          
+          <div class="form-group">
+            <label>{{ $t('boat.boatRequest.assignedBoatLabel') }}</label>
+            <input
+              type="text"
+              :value="boat.assigned_boat_identifier || $t('boat.boatRequest.notAssigned')"
+              disabled
+              class="form-input read-only"
+            />
+            <p class="help-text">{{ $t('boat.boatRequest.assignedBoatHelp') }}</p>
+          </div>
+          
+          <div v-if="boat.assigned_boat_comment" class="form-group">
+            <label>{{ $t('boat.boatRequest.assignedBoatCommentLabel') }}</label>
+            <div class="assigned-comment">
+              {{ boat.assigned_boat_comment }}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Flagged Issues -->
       <div v-if="boat.flagged_issues && boat.flagged_issues.length > 0" class="section">
         <h2>{{ $t('boat.flaggedIssues') }}</h2>
@@ -182,6 +237,14 @@ export default {
       }
     }
 
+    const handleBoatRequestToggle = () => {
+      if (!boat.value.boat_request_enabled) {
+        // Clear fields when disabling boat request
+        boat.value.boat_request_comment = ''
+        // Note: assigned_boat_identifier and assigned_boat_comment are read-only, backend will clear them
+      }
+    }
+
     // Check if all seats are filled
     const allSeatsFilled = computed(() => {
       if (!boat.value || !boat.value.seats) return false
@@ -210,7 +273,10 @@ export default {
       try {
         await boatStore.updateBoatRegistration(boat.value.boat_registration_id, {
           seats: boat.value.seats,
-          race_id: boat.value.race_id
+          race_id: boat.value.race_id,
+          boat_request_enabled: boat.value.boat_request_enabled,
+          boat_request_comment: boat.value.boat_request_comment
+          // Don't send assigned_boat_identifier or assigned_boat_comment (read-only for team managers)
         })
         // Reload crew members to refresh assignments
         await crewStore.fetchCrewMembers()
@@ -275,6 +341,7 @@ export default {
       canSave,
       handleSeatsUpdate,
       handleRaceSelection,
+      handleBoatRequestToggle,
       saveBoat,
       goBack,
       formatDate
@@ -505,5 +572,88 @@ export default {
 .btn-large {
   padding: 1rem 3rem;
   font-size: 1.1rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.checkbox-label input[type="checkbox"] {
+  margin-right: 0.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+}
+
+.checkbox-label span {
+  user-select: none;
+}
+
+.help-text {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.boat-request-fields {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 1rem;
+  resize: vertical;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.read-only {
+  background-color: #e9ecef;
+  cursor: not-allowed;
+  color: #6c757d;
+}
+
+.char-count {
+  display: block;
+  text-align: right;
+  font-size: 0.875rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+}
+
+.assigned-comment {
+  padding: 0.75rem;
+  background-color: #e7f3ff;
+  border-left: 4px solid #007bff;
+  border-radius: 4px;
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+  color: #333;
 }
 </style>

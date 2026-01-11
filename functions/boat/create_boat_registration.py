@@ -13,7 +13,7 @@ from responses import (
     internal_error,
     handle_exceptions
 )
-from validation import validate_boat_registration, sanitize_dict, boat_registration_schema
+from validation import validate_boat_registration, sanitize_dict, sanitize_xss, boat_registration_schema
 from database import get_db_client, get_timestamp
 from auth_utils import get_user_from_event, require_team_manager_or_admin_override
 from boat_registration_utils import (
@@ -84,6 +84,23 @@ def lambda_handler(event, context):
         # Create default seat structure for boat type
         seats = get_required_seats_for_boat_type(boat_type)
     
+    # Extract boat request fields
+    boat_request_enabled = body.get('boat_request_enabled', False)
+    boat_request_comment = body.get('boat_request_comment')
+    
+    # Validate boat request comment length BEFORE sanitization
+    if boat_request_enabled and boat_request_comment:
+        if len(boat_request_comment) > 500:
+            return validation_error({
+                'boat_request_comment': 'Boat request comment cannot exceed 500 characters'
+            })
+        # Sanitize XSS from boat_request_comment
+        boat_request_comment = sanitize_xss(boat_request_comment, preserve_newlines=True)
+    
+    # Clear boat request fields if boat_request_enabled is false
+    if not boat_request_enabled:
+        boat_request_comment = None
+    
     # Prepare boat registration data
     boat_data = {
         'event_type': event_type,
@@ -91,6 +108,10 @@ def lambda_handler(event, context):
         'race_id': body.get('race_id'),
         'seats': seats,
         'is_boat_rental': body.get('is_boat_rental', False),
+        'boat_request_enabled': boat_request_enabled,
+        'boat_request_comment': boat_request_comment,
+        'assigned_boat_identifier': None,  # Only admins can set this
+        'assigned_boat_comment': None,  # Only admins can set this
         'is_multi_club_crew': False,  # Will be calculated
         'registration_status': 'incomplete',
         'flagged_issues': []
@@ -189,6 +210,10 @@ def lambda_handler(event, context):
         'boat_number': boat_number,
         'seats': boat_data['seats'],
         'is_boat_rental': boat_data['is_boat_rental'],
+        'boat_request_enabled': boat_data['boat_request_enabled'],
+        'boat_request_comment': boat_data.get('boat_request_comment'),
+        'assigned_boat_identifier': boat_data.get('assigned_boat_identifier'),
+        'assigned_boat_comment': boat_data.get('assigned_boat_comment'),
         'is_multi_club_crew': boat_data['is_multi_club_crew'],
         'boat_club_display': boat_club_display,
         'club_list': club_list,

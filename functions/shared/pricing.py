@@ -60,7 +60,10 @@ def calculate_boat_pricing(
     
     # Get boat details
     boat_type = boat_registration.get('boat_type')
-    is_boat_rental = boat_registration.get('is_boat_rental', False)
+    # Check if boat rental applies: boat request enabled AND boat has been assigned
+    boat_request_enabled = boat_registration.get('boat_request_enabled', False)
+    assigned_boat_identifier = boat_registration.get('assigned_boat_identifier')
+    is_boat_rental = boat_request_enabled and assigned_boat_identifier and assigned_boat_identifier.strip()
     is_multi_club_crew = boat_registration.get('is_multi_club_crew', False)
     seats = boat_registration.get('seats', [])
     
@@ -111,27 +114,33 @@ def calculate_boat_pricing(
         })
     
     # Calculate rental fee if applicable
+    # Rental fees only apply when:
+    # 1. boat_request_enabled is true (team requested a boat)
+    # 2. assigned_boat_identifier is set (organizer assigned a boat)
+    # RCPM members pay €0 for both Participation Fee and Boat Rental
     if is_boat_rental:
         if boat_type == 'skiff':
-            # Skiff rental: 2.5x base price
-            rental_fee = base_seat_price * rental_multiplier_skiff
-            pricing['rental_fee'] = rental_fee
-            pricing['breakdown'].append({
-                'item': 'Skiff rental',
-                'unit_price': base_seat_price * rental_multiplier_skiff,
-                'quantity': 1,
-                'amount': rental_fee
-            })
+            # Skiff rental: 2.5x base price (only if not RCPM member)
+            if external_seats > 0:
+                rental_fee = base_seat_price * rental_multiplier_skiff
+                pricing['rental_fee'] = rental_fee
+                pricing['breakdown'].append({
+                    'item': 'Skiff rental',
+                    'unit_price': base_seat_price * rental_multiplier_skiff,
+                    'quantity': 1,
+                    'amount': rental_fee
+                })
         else:
-            # Crew boat rental: base price per seat
-            rental_fee = rental_price_crew * seat_count
-            pricing['rental_fee'] = rental_fee
-            pricing['breakdown'].append({
-                'item': f'Boat rental ({seat_count} seats)',
-                'unit_price': rental_price_crew,
-                'quantity': seat_count,
-                'amount': rental_fee
-            })
+            # Crew boat rental: base price per seat (only for external members)
+            if external_seats > 0:
+                rental_fee = rental_price_crew * external_seats
+                pricing['rental_fee'] = rental_fee
+                pricing['breakdown'].append({
+                    'item': f'Boat rental ({external_seats} external seat(s))',
+                    'unit_price': rental_price_crew,
+                    'quantity': external_seats,
+                    'amount': rental_fee
+                })
     
     # Note: Multi-club crew seat rental is already included in base_price
     # External members pay Base_Seat_Price, RCPM members pay zero

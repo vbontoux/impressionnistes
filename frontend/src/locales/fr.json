@@ -271,6 +271,15 @@
       "editBoat": "Modifier l'équipage",
       "modalInfo": "Gestion des équipages par l'administrateur",
       "useTeamManagerInterface": "Pour créer ou modifier des équipages, veuillez utiliser l'interface du manager de club en consultant les détails de l'équipage.",
+      "teamManagerRequest": "Demande du Manager de Club",
+      "assignBoatLabel": "Attribuer un bateau (Nom/Numéro)",
+      "assignBoatPlaceholder": "ex: Bateau 42, Coque Elite, etc.",
+      "assignBoatHelp": "Entrez le nom ou le numéro du bateau à attribuer. Laissez vide pour désattribuer.",
+      "assignmentDetailsLabel": "Détails de l'attribution",
+      "assignmentDetailsPlaceholder": "ex: Emplacement de la coque, numéro du rack d'avirons, instructions spéciales...",
+      "assignmentDetailsHelp": "Détails optionnels sur l'emplacement du bateau, des avirons ou autres instructions.",
+      "optional": "Optionnel",
+      "noBoatRequest": "Cet équipage n'a pas demandé d'attribution de bateau.",
       "viewNotAvailable": "La vue détaillée des équipages d'autres managers n'est pas encore disponible. Équipage : {boat}, Manager : {teamManager}",
       "fetchError": "Échec du chargement des équipages. Veuillez réessayer.",
       "updateError": "Échec de la mise à jour de l'équipage. Veuillez réessayer.",
@@ -545,7 +554,13 @@
       "allEvents": "Tous les événements",
       "allBoatTypes": "Tous les types de bateaux",
       "sortBy": "Trier par",
-      "dateAdded": "Date d'ajout"
+      "dateAdded": "Date d'ajout",
+      "boatRequest": "Demande de bateau",
+      "allRequests": "Toutes",
+      "withRequest": "Avec demande",
+      "withoutRequest": "Sans demande",
+      "requestPending": "En attente",
+      "requestFulfilled": "Attribuée"
     },
     "searchPlaceholder": "Rechercher par chef de nage, type d'équipage, événement ou course...",
     "types": {
@@ -564,6 +579,23 @@
       "quadWithCox": "Quatre de couple avec barreur",
       "eightWithCox": "Huit avec barreur",
       "octaWithCox": "Huit de couple avec barreur"
+    },
+    "boatRequest": {
+      "title": "Demande de bateau",
+      "assigned": "Attribué",
+      "assignedBoat": "Bateau attribué",
+      "yourRequest": "Votre demande",
+      "enableLabel": "Demander l'attribution d'un bateau par les organisateurs",
+      "helpText": "Cochez cette case si vous avez besoin que l'organisation fournisse un bateau physique pour cet équipage",
+      "commentLabel": "Détails de la demande de bateau (Optionnel)",
+      "commentPlaceholder": "ex: Équipage débutant, préférence pour le bateau #42, besoin d'un bateau stable, etc.",
+      "assignedBoatLabel": "Bateau attribué",
+      "assignedBoatCommentLabel": "Détails de l'attribution",
+      "assignedBoatHelp": "Ce champ sera rempli par les administrateurs une fois qu'un bateau sera attribué",
+      "notAssigned": "Pas encore attribué",
+      "status": "Demande de bateau",
+      "waitingAssignment": "En attente d'attribution de bateau",
+      "assignmentDetails": "Détails de l'attribution"
     }
   },
   "boatRental": {
