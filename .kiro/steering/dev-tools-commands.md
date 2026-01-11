@@ -9,8 +9,10 @@ All infrastructure and database tools are located in `infrastructure/Makefile`.
 **Deployment:**
 ```bash
 cd infrastructure
-make deploy-dev          # Deploy to dev environment
-make deploy-prod         # Deploy to production (with confirmation)
+make deploy-dev          # Deploy backend to dev environment
+make deploy-prod         # Deploy backend to production (with confirmation)
+make deploy-frontend-dev # Deploy frontend to dev environment
+make deploy-frontend-prod # Deploy frontend to production
 make describe-infra      # Show API URLs and Cognito config
 ```
 
@@ -74,11 +76,20 @@ See `functions/migrations/README.md` for:
 
 ## Frontend Development
 
+**Local Development:**
 ```bash
 cd frontend
 npm run dev              # Start dev server
 npm run build            # Build for production
 npm run lint             # Lint code
+```
+
+**Frontend Deployment:**
+All frontend deployment commands are also available in the infrastructure Makefile:
+```bash
+cd infrastructure
+make deploy-frontend-dev  # Deploy frontend to dev environment
+make deploy-frontend-prod # Deploy frontend to production
 ```
 
 ## Backend Testing
