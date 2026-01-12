@@ -68,6 +68,10 @@
                 {{ $t('admin.clubManagers.clubAffiliation') }}
                 <span v-if="sortField === 'club_affiliation'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
               </th>
+              <th @click="sortBy('is_admin')">
+                {{ $t('admin.clubManagers.role') }}
+                <span v-if="sortField === 'is_admin'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -101,6 +105,10 @@
                 <span v-else class="no-data">-</span>
               </td>
               <td><span class="club-box">{{ manager.club_affiliation || '-' }}</span></td>
+              <td>
+                <span v-if="manager.is_admin" class="admin-badge">{{ $t('admin.clubManagers.admin') }}</span>
+                <span v-else class="no-data">-</span>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -141,6 +149,10 @@
             <div class="detail-row">
               <span class="label">{{ $t('admin.clubManagers.clubAffiliation') }}&nbsp;:</span>
               <span class="club-box">{{ manager.club_affiliation || '-' }}</span>
+            </div>
+            <div class="detail-row" v-if="manager.is_admin">
+              <span class="label">{{ $t('admin.clubManagers.role') }}&nbsp;:</span>
+              <span class="admin-badge">{{ $t('admin.clubManagers.admin') }}</span>
             </div>
           </div>
         </div>
@@ -571,6 +583,18 @@ export default {
   line-height: 1.3;
   word-wrap: break-word;
   overflow-wrap: break-word;
+}
+
+.admin-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background-color: #667eea;
+  color: white;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Card View */

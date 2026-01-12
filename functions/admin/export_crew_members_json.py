@@ -56,6 +56,12 @@ def lambda_handler(event, context):
         # Cache team manager lookups to minimize database queries
         team_manager_cache = {}
         
+        # Cache boat registration lookups
+        boat_cache = {}
+        
+        # Cache race lookups
+        race_cache = {}
+        
         for member in crew_members:
             team_manager_id = member.get('PK', '').replace('TEAM#', '')
             
@@ -89,6 +95,71 @@ def lambda_handler(event, context):
                     member['age'] = None
             else:
                 member['age'] = None
+            
+            # Add boat assignment information
+            assigned_boat_id = member.get('assigned_boat_id')
+            if assigned_boat_id:
+                # Cache boat info to avoid repeated queries
+                boat_cache_key = f"{team_manager_id}#{assigned_boat_id}"
+                if boat_cache_key not in boat_cache:
+                    try:
+                        boat_response = db.table.get_item(
+                            Key={
+                                'PK': f'TEAM#{team_manager_id}',
+                                'SK': f'BOAT#{assigned_boat_id}'
+                            }
+                        )
+                        boat_cache[boat_cache_key] = boat_response.get('Item', {})
+                    except Exception as e:
+                        logger.warning(f"Could not fetch boat {assigned_boat_id}: {str(e)}")
+                        boat_cache[boat_cache_key] = {}
+                
+                boat_info = boat_cache[boat_cache_key]
+                member['boat_type'] = boat_info.get('boat_type', '')
+                member['event_type'] = boat_info.get('event_type', '')
+                member['boat_number'] = boat_info.get('boat_number', '')
+                member['assigned_boat_identifier'] = boat_info.get('assigned_boat_identifier', '')
+                member['assigned_boat_comment'] = boat_info.get('assigned_boat_comment', '')
+                
+                # Find seat position in boat
+                seats = boat_info.get('seats', [])
+                crew_member_id = member.get('crew_member_id')
+                seat_position = ''
+                for seat in seats:
+                    if seat.get('crew_member_id') == crew_member_id:
+                        seat_position = seat.get('type', '')
+                        break
+                member['seat_position'] = seat_position
+                
+                # Get race name
+                race_id = boat_info.get('race_id')
+                if race_id:
+                    if race_id not in race_cache:
+                        try:
+                            race_response = db.table.get_item(
+                                Key={
+                                    'PK': 'RACE',
+                                    'SK': race_id
+                                }
+                            )
+                            race_cache[race_id] = race_response.get('Item', {})
+                        except Exception as e:
+                            logger.warning(f"Could not fetch race {race_id}: {str(e)}")
+                            race_cache[race_id] = {}
+                    
+                    race_info = race_cache[race_id]
+                    member['race_name'] = race_info.get('race_name', '')
+                else:
+                    member['race_name'] = ''
+            else:
+                # No boat assignment
+                member['boat_type'] = ''
+                member['event_type'] = ''
+                member['boat_number'] = ''
+                member['assigned_boat_identifier'] = ''
+                member['assigned_boat_comment'] = ''
+                member['seat_position'] = ''
+                member['race_name'] = ''
         
         # Sort by team manager name, then by crew member last name
         crew_members.sort(key=lambda m: (

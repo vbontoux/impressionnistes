@@ -63,6 +63,8 @@ export function formatBoatRegistrationsToCSV(jsonData) {
     'Is Multi-Club Crew',
     'Club',
     'Club List',
+    'Assigned Boat Identifier',
+    'Assigned Boat Comment',
     'Team Manager Name',
     'Team Manager Email',
     'Team Manager Club',
@@ -75,6 +77,7 @@ export function formatBoatRegistrationsToCSV(jsonData) {
   const crewHeaders = []
   for (let i = 1; i <= maxCrewMembers; i++) {
     crewHeaders.push(
+      `${i}. Position`,
       `${i}. First Name`,
       `${i}. Last Name`,
       `${i}. Gender`,
@@ -110,6 +113,8 @@ export function formatBoatRegistrationsToCSV(jsonData) {
       escapeCSVField(formatBoolean(boat.is_multi_club_crew)),
       escapeCSVField(boat.boat_club_display || ''),
       escapeCSVField((boat.club_list || []).join('; ')),
+      escapeCSVField(boat.assigned_boat_identifier || ''),
+      escapeCSVField(boat.assigned_boat_comment || ''),
       escapeCSVField(boat.team_manager_name || ''),
       escapeCSVField(boat.team_manager_email || ''),
       escapeCSVField(boat.team_manager_club || ''),
@@ -123,6 +128,7 @@ export function formatBoatRegistrationsToCSV(jsonData) {
     for (let i = 0; i < maxCrewMembers; i++) {
       const crew = crewDetails[i] || {}
       crewRow.push(
+        escapeCSVField(crew.type || ''),
         escapeCSVField(crew.first_name || ''),
         escapeCSVField(crew.last_name || ''),
         escapeCSVField(crew.gender || ''),

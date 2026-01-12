@@ -30,6 +30,14 @@ export function formatCrewMembersToCSV(jsonData) {
     'Team Manager Name',
     'Team Manager Email',
     'Team Manager Club',
+    'Boat Assignment',
+    'Boat Type',
+    'Event Type',
+    'Race Name',
+    'Boat Number',
+    'Seat Position',
+    'Assigned Boat Identifier',
+    'Assigned Boat Comment',
     'Created At',
     'Updated At'
   ]
@@ -50,6 +58,14 @@ export function formatCrewMembersToCSV(jsonData) {
       escapeCSVField(member.team_manager_name || ''),
       escapeCSVField(member.team_manager_email || ''),
       escapeCSVField(member.team_manager_club || ''),
+      escapeCSVField(member.assigned_boat_id ? 'Yes' : 'No'),
+      escapeCSVField(member.boat_type || ''),
+      escapeCSVField(member.event_type || ''),
+      escapeCSVField(member.race_name || ''),
+      escapeCSVField(member.boat_number || ''),
+      escapeCSVField(member.seat_position || ''),
+      escapeCSVField(member.assigned_boat_identifier || ''),
+      escapeCSVField(member.assigned_boat_comment || ''),
       escapeCSVField(member.created_at || ''),
       escapeCSVField(member.updated_at || '')
     ])
