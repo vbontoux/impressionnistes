@@ -13,6 +13,7 @@ Welcome to the Course des Impressionnistes Registration System documentation.
 - [API Endpoints](reference/api-endpoints.md) - Complete API documentation
 - [Project Structure](reference/project-structure.md) - Codebase organization
 - [Consent Schema](reference/consent-schema.md) - GDPR consent storage
+- [Terminology](reference/terminology.md) - Standard terminology and pricing definitions
 
 ### Guides
 - [GDPR Compliance](guides/GDPR_COMPLIANCE.md) - **NEW** Privacy and consent implementation
@@ -25,15 +26,17 @@ Welcome to the Course des Impressionnistes Registration System documentation.
 docs/
 ├── README.md                    # This file
 ├── guides/                      # How-to guides and tutorials
-│   ├── GDPR_COMPLIANCE.md      # GDPR compliance guide (NEW)
+│   ├── GDPR_COMPLIANCE.md      # GDPR compliance guide
 │   ├── development/            # Development guides
 │   ├── operations/             # Operations and maintenance
 │   └── setup/                  # Setup and deployment
 ├── reference/                   # Technical reference
 │   ├── api-endpoints.md        # API documentation
-│   ├── consent-schema.md       # Consent storage schema (NEW)
+│   ├── consent-schema.md       # Consent storage schema
+│   ├── terminology.md          # Standard terminology and pricing definitions
 │   └── project-structure.md    # Codebase structure
 └── archived/                    # Archived documentation
+    └── PRICING_TERMINOLOGY_UPDATE_SUMMARY.md  # Pricing terminology update (Jan 2026)
 ```
 
 ## What's New

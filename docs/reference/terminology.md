@@ -87,9 +87,9 @@ This document defines the standard terminology used throughout the Course des Im
 
 ## Related Documentation
 
-- [Requirements](.kiro/specs/impressionnistes-registration-system/requirements.md)
-- [Design](.kiro/specs/impressionnistes-registration-system/design.md)
-- [Pricing Configuration Guide](guides/admin/pricing-configuration.md) *(if exists)*
+- [Requirements](../.kiro/specs/impressionnistes-registration-system/requirements.md)
+- [Design](../.kiro/specs/impressionnistes-registration-system/design.md)
+- [Pricing Update Summary](../archived/PRICING_TERMINOLOGY_UPDATE_SUMMARY.md)
 
 ---
 

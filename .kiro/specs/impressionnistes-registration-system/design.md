@@ -145,7 +145,7 @@ def calculate_price(members, pricing_config):
 </div>
 ```
 
-See [Terminology Glossary](../../../docs/TERMINOLOGY_GLOSSARY.md) for complete pricing definitions and examples.
+See [Terminology Glossary](../../../docs/reference/terminology.md) for complete pricing definitions and examples.
 
 ## Architecture
 

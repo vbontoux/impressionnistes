@@ -61,7 +61,7 @@ The Course des Impressionnistes Registration System is a web application that en
 - RCPM member in RCPM boat: €0 (no fees)
 - External club member in RCPM skiff: Participation Fee (€20) + Boat Rental (€50 = 2.5x) = €70
 
-See [Terminology Glossary](../../../docs/TERMINOLOGY_GLOSSARY.md) for complete pricing definitions and examples.
+See [Terminology Glossary](../../../docs/reference/terminology.md) for complete pricing definitions and examples.
 
 ---
 

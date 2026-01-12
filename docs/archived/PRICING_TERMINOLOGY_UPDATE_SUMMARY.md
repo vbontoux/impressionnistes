@@ -40,7 +40,7 @@ Updated pricing terminology across the application to provide clearer, more user
 ## Files Updated
 
 ### Documentation
-1. ✅ **`docs/TERMINOLOGY_GLOSSARY.md`** - NEW
+1. ✅ **`docs/reference/terminology.md`** - NEW
    - Comprehensive glossary with pricing definitions
    - Examples and scenarios
    - Usage guidelines
@@ -177,9 +177,9 @@ def calculate_price(members):
 
 ## Related Documentation
 
-- [Terminology Glossary](TERMINOLOGY_GLOSSARY.md) - Complete pricing definitions
-- [Requirements](../.kiro/specs/impressionnistes-registration-system/requirements.md) - Updated requirements
-- [Design](../.kiro/specs/impressionnistes-registration-system/design.md) - Updated design doc
+- [Terminology Glossary](../reference/terminology.md) - Complete pricing definitions
+- [Requirements](../../.kiro/specs/impressionnistes-registration-system/requirements.md) - Updated requirements
+- [Design](../../.kiro/specs/impressionnistes-registration-system/design.md) - Updated design doc
 
 ## Next Steps
 
