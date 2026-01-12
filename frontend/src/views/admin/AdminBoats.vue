@@ -59,10 +59,10 @@
     </ListFilters>
 
     <!-- Loading state -->
-    <div v-if="loading" class="loading">
-      <div class="spinner"></div>
-      <p>{{ $t('common.loading') }}</p>
-    </div>
+    <LoadingSpinner 
+      v-if="loading"
+      :message="$t('common.loading')"
+    />
 
     <!-- Error state -->
     <div v-if="error" class="error-message">
@@ -83,15 +83,14 @@
         >
           <div class="boat-header">
             <h3>{{ boat.event_type }} - {{ boat.boat_type }}</h3>
-            <span class="status-badge" :class="`status-${getBoatStatus(boat)}`">
-              {{ getBoatStatusLabel(boat) }}
-            </span>
+            <StatusBadge :status="getBoatStatus(boat)" size="medium" />
           </div>
 
           <div class="boat-details">
             <div class="detail-row">
               <span class="label">{{ $t('admin.boats.boatNumber') }}&nbsp;:</span>
-              <span>{{ boat.boat_number || '-' }}</span>
+              <span v-if="boat.boat_number" class="boat-number-text">{{ boat.boat_number }}</span>
+              <span v-else class="no-race-text">-</span>
             </div>
             <div class="detail-row">
               <span class="label">{{ $t('boat.firstRower') }}&nbsp;:</span>
@@ -156,29 +155,36 @@
           </div>
 
           <div class="boat-actions">
-            <button 
-              @click="editBoat(boat)" 
-              class="btn-secondary"
+            <BaseButton 
+              variant="secondary"
+              size="small"
+              @click="editBoat(boat)"
             >
               {{ $t('common.edit') }}
-            </button>
-            <button 
+            </BaseButton>
+            <BaseButton 
               v-if="boat.forfait"
-              @click="removeForfait(boat)" 
-              class="btn-secondary"
+              variant="secondary"
+              size="small"
+              @click="removeForfait(boat)"
             >
               {{ $t('admin.boats.removeForfait') }}
-            </button>
-            <button 
+            </BaseButton>
+            <BaseButton 
               v-else
-              @click="setForfait(boat)" 
-              class="btn-warning"
+              variant="warning"
+              size="small"
+              @click="setForfait(boat)"
             >
               {{ $t('admin.boats.setForfait') }}
-            </button>
-            <button @click="deleteBoat(boat)" class="btn-danger">
+            </BaseButton>
+            <BaseButton 
+              variant="danger"
+              size="small"
+              @click="deleteBoat(boat)"
+            >
               {{ $t('common.delete') }}
-            </button>
+            </BaseButton>
           </div>
         </div>
       </div>
@@ -217,7 +223,10 @@
             <tbody>
               <template v-for="boat in paginatedBoats" :key="boat.boat_registration_id">
                 <tr :class="getRowClass(boat)">
-                  <td>{{ boat.boat_number || '-' }}</td>
+                  <td>
+                    <span v-if="boat.boat_number" class="boat-number-cell">{{ boat.boat_number }}</span>
+                    <span v-else class="no-race-cell">-</span>
+                  </td>
                   <td>{{ boat.event_type }}</td>
                   <td>{{ boat.boat_type }}</td>
                   <td>{{ getFirstRowerLastName(boat) }}</td>
@@ -242,34 +251,37 @@
                     </span>
                   </td>
                   <td>
-                    <span class="status-badge" :class="`status-${getBoatStatus(boat)}`">
-                      {{ getBoatStatusLabel(boat) }}
-                    </span>
+                    <StatusBadge :status="getBoatStatus(boat)" size="medium" />
                   </td>
                   <td class="actions-cell">
-                    <button 
-                      @click="editBoat(boat)" 
-                      class="btn-table btn-edit-table"
+                    <BaseButton 
+                      size="small"
+                      variant="secondary"
+                      @click="editBoat(boat)"
                       :title="$t('common.edit')"
+                      fullWidth
                     >
                       {{ $t('common.edit') }}
-                    </button>
-                    <button 
-                      @click="toggleForfait(boat)" 
-                      class="btn-table btn-forfait-table"
-                      :class="{ active: boat.forfait }"
+                    </BaseButton>
+                    <BaseButton 
+                      size="small"
+                      :variant="boat.forfait ? 'secondary' : 'warning'"
+                      @click="toggleForfait(boat)"
                       :title="boat.forfait ? $t('admin.boats.removeForfait') : $t('admin.boats.setForfait')"
+                      fullWidth
                     >
                       {{ boat.forfait ? $t('admin.boats.removeForfait') : $t('admin.boats.setForfait') }}
-                    </button>
-                    <button 
-                      @click="deleteBoat(boat)" 
-                      class="btn-table btn-delete-table"
+                    </BaseButton>
+                    <BaseButton 
+                      size="small"
+                      variant="danger"
+                      @click="deleteBoat(boat)"
                       :disabled="boat.registration_status === 'paid'"
                       :title="boat.registration_status === 'paid' ? $t('boat.cannotDeletePaid') : ''"
+                      fullWidth
                     >
                       {{ $t('common.delete') }}
-                    </button>
+                    </BaseButton>
                   </td>
                 </tr>
                 <tr v-if="getRaceName(boat)" class="race-row" :class="getRowClass(boat)">
@@ -285,98 +297,105 @@
 
       <!-- Pagination -->
       <div v-if="totalPages > 1" class="pagination">
-        <button 
-          @click="currentPage--" 
+        <BaseButton 
+          variant="primary"
+          @click="currentPage--"
           :disabled="currentPage === 1"
-          class="pagination-btn"
         >
           {{ $t('common.previous') }}
-        </button>
+        </BaseButton>
         <span class="page-info">
           {{ $t('common.pageInfo', { current: currentPage, total: totalPages }) }}
         </span>
-        <button 
-          @click="currentPage++" 
+        <BaseButton 
+          variant="primary"
+          @click="currentPage++"
           :disabled="currentPage === totalPages"
-          class="pagination-btn"
         >
           {{ $t('common.next') }}
-        </button>
+        </BaseButton>
       </div>
     </div>
 
     <!-- Create/Edit Modal -->
-    <div v-if="showCreateModal || showEditModal" class="modal-overlay" @click.self="closeModals">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>{{ showEditModal ? $t('admin.boats.editBoat') : $t('admin.boats.addBoat') }}</h2>
-          <button @click="closeModals" class="close-btn">&times;</button>
-        </div>
-        <div class="modal-body">
-          <!-- Edit Modal Content -->
-          <div v-if="showEditModal && editingBoat">
-            <!-- Boat Assignment Section (only if boat_request_enabled) -->
-            <div v-if="editingBoat.boat_request_enabled" class="boat-assignment-section">
-              <h3>{{ $t('boat.boatRequest.title') }}</h3>
-              
-              <div v-if="editingBoat.boat_request_comment" class="request-comment">
-                <label>{{ $t('admin.boats.teamManagerRequest') }}:</label>
-                <p>{{ editingBoat.boat_request_comment }}</p>
-              </div>
-              
-              <div class="form-group">
-                <label for="assigned_boat_identifier">{{ $t('admin.boats.assignBoatLabel') }}:</label>
-                <input
-                  id="assigned_boat_identifier"
-                  v-model="editForm.assigned_boat_identifier"
-                  type="text"
-                  maxlength="100"
-                  :placeholder="$t('admin.boats.assignBoatPlaceholder')"
-                  class="form-input"
-                />
-                <p class="help-text">
-                  {{ $t('admin.boats.assignBoatHelp') }}
-                </p>
-              </div>
-              
-              <div class="form-group">
-                <label for="assigned_boat_comment">{{ $t('admin.boats.assignmentDetailsLabel') }} ({{ $t('admin.boats.optional') }}):</label>
-                <textarea
-                  id="assigned_boat_comment"
-                  v-model="editForm.assigned_boat_comment"
-                  maxlength="500"
-                  rows="3"
-                  :placeholder="$t('admin.boats.assignmentDetailsPlaceholder')"
-                  class="form-textarea"
-                ></textarea>
-                <span class="char-count">
-                  {{ editForm.assigned_boat_comment?.length || 0 }} / 500
-                </span>
-                <p class="help-text">
-                  {{ $t('admin.boats.assignmentDetailsHelp') }}
-                </p>
-              </div>
+    <BaseModal
+      :show="showCreateModal || showEditModal"
+      :title="showEditModal ? $t('admin.boats.editBoat') : $t('admin.boats.addBoat')"
+      @close="closeModals"
+    >
+      <template #default>
+        <!-- Edit Modal Content -->
+        <div v-if="showEditModal && editingBoat">
+          <!-- Boat Assignment Section (only if boat_request_enabled) -->
+          <div v-if="editingBoat.boat_request_enabled" class="boat-assignment-section">
+            <h3>{{ $t('boat.boatRequest.title') }}</h3>
+            
+            <div v-if="editingBoat.boat_request_comment" class="request-comment">
+              <label>{{ $t('admin.boats.teamManagerRequest') }}:</label>
+              <p>{{ editingBoat.boat_request_comment }}</p>
             </div>
             
-            <div v-else class="info-message">
-              <p>{{ $t('admin.boats.noBoatRequest') }}</p>
+            <div class="form-group">
+              <label for="assigned_boat_identifier">{{ $t('admin.boats.assignBoatLabel') }}:</label>
+              <input
+                id="assigned_boat_identifier"
+                v-model="editForm.assigned_boat_identifier"
+                type="text"
+                maxlength="100"
+                :placeholder="$t('admin.boats.assignBoatPlaceholder')"
+                class="form-input"
+              />
+              <p class="help-text">
+                {{ $t('admin.boats.assignBoatHelp') }}
+              </p>
+            </div>
+            
+            <div class="form-group">
+              <label for="assigned_boat_comment">{{ $t('admin.boats.assignmentDetailsLabel') }} ({{ $t('admin.boats.optional') }}):</label>
+              <textarea
+                id="assigned_boat_comment"
+                v-model="editForm.assigned_boat_comment"
+                maxlength="500"
+                rows="3"
+                :placeholder="$t('admin.boats.assignmentDetailsPlaceholder')"
+                class="form-textarea"
+              ></textarea>
+              <span class="char-count">
+                {{ editForm.assigned_boat_comment?.length || 0 }} / 500
+              </span>
+              <p class="help-text">
+                {{ $t('admin.boats.assignmentDetailsHelp') }}
+              </p>
             </div>
           </div>
           
-          <!-- Create Modal Content -->
-          <div v-if="showCreateModal">
-            <p class="info-text">{{ $t('admin.boats.modalInfo') }}</p>
-            <p>{{ $t('admin.boats.useTeamManagerInterface') }}</p>
+          <div v-else class="info-message">
+            <p>{{ $t('admin.boats.noBoatRequest') }}</p>
           </div>
         </div>
-        <div class="modal-footer">
-          <button @click="closeModals" class="btn-secondary">{{ $t('common.cancel') }}</button>
-          <button v-if="showEditModal" @click="saveBoatAssignment" class="btn-primary" :disabled="saving">
-            {{ saving ? $t('common.saving') : $t('common.save') }}
-          </button>
+        
+        <!-- Create Modal Content -->
+        <div v-if="showCreateModal">
+          <p class="info-text">{{ $t('admin.boats.modalInfo') }}</p>
+          <p>{{ $t('admin.boats.useTeamManagerInterface') }}</p>
         </div>
-      </div>
-    </div>
+      </template>
+      
+      <template #footer>
+        <BaseButton variant="secondary" @click="closeModals">
+          {{ $t('common.cancel') }}
+        </BaseButton>
+        <BaseButton 
+          v-if="showEditModal"
+          variant="primary"
+          @click="saveBoatAssignment"
+          :disabled="saving"
+          :loading="saving"
+        >
+          {{ $t('common.save') }}
+        </BaseButton>
+      </template>
+    </BaseModal>
   </div>
 </template>
 
@@ -386,9 +405,14 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import apiClient from '../../services/apiClient'
 import { useRaceStore } from '../../stores/raceStore'
+import { useTableSort } from '../../composables/useTableSort'
 import TableScrollIndicator from '../../components/TableScrollIndicator.vue'
 import ListHeader from '../../components/shared/ListHeader.vue'
 import ListFilters from '../../components/shared/ListFilters.vue'
+import BaseButton from '../../components/base/BaseButton.vue'
+import StatusBadge from '../../components/base/StatusBadge.vue'
+import LoadingSpinner from '../../components/base/LoadingSpinner.vue'
+import BaseModal from '../../components/base/BaseModal.vue'
 import { formatAverageAge } from '../../utils/formatters'
 
 export default {
@@ -396,7 +420,11 @@ export default {
   components: {
     TableScrollIndicator,
     ListHeader,
-    ListFilters
+    ListFilters,
+    BaseButton,
+    StatusBadge,
+    LoadingSpinner,
+    BaseModal
   },
   setup() {
     const router = useRouter()
@@ -663,11 +691,6 @@ export default {
       return boat.registration_status || 'incomplete'
     }
 
-    const getBoatStatusLabel = (boat) => {
-      if (boat.forfait) return t('admin.boats.forfait')
-      return t(`boat.status.${boat.registration_status || 'incomplete'}`)
-    }
-
     const getRowClass = (boat) => {
       if (boat.forfait) return 'row-forfait'
       return `row-status-${boat.registration_status || 'incomplete'}`
@@ -860,7 +883,6 @@ export default {
       getFirstRowerLastName,
       getFirstRowerName,
       getBoatStatus,
-      getBoatStatusLabel,
       getRowClass,
       getRaceName,
       getCrewAverageAge,
@@ -914,23 +936,24 @@ export default {
 .filter-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
   flex: 1;
   min-width: 200px;
 }
 
 .filter-group label {
-  font-weight: 500;
-  color: #495057;
-  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-dark);
+  font-size: var(--font-size-base);
 }
 
 .filter-select,
 .filter-input {
-  padding: 0.5rem;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  font-size: 0.875rem;
+  padding: var(--form-input-padding);
+  border: 1px solid var(--form-input-border-color);
+  border-radius: var(--form-input-border-radius);
+  font-size: var(--font-size-base);
+  min-height: var(--form-input-min-height);
 }
 
 .loading {
@@ -938,41 +961,26 @@ export default {
   padding: 3rem;
 }
 
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #007bff;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
 .error-message {
-  padding: 1rem;
-  background-color: #fee;
-  border: 1px solid #fcc;
-  border-radius: 4px;
-  color: #c33;
-  margin-bottom: 1rem;
+  padding: var(--spacing-lg);
+  background-color: var(--color-danger-light);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--button-border-radius);
+  color: var(--color-danger-text);
+  margin-bottom: var(--spacing-lg);
 }
 
 .boats-table-container {
-  background-color: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-bg-white);
+  border-radius: var(--card-border-radius);
+  padding: var(--card-padding-desktop);
+  box-shadow: var(--card-shadow);
 }
 
 .count {
-  margin: 0 0 1rem 0;
-  color: #6c757d;
-  font-size: 0.875rem;
+  margin: 0 0 var(--spacing-lg) 0;
+  color: var(--color-secondary);
+  font-size: var(--font-size-base);
 }
 
 .boats-table {
@@ -981,381 +989,211 @@ export default {
 }
 
 .boats-table thead {
-  background-color: #f8f9fa;
+  background-color: var(--table-header-bg);
 }
 
 .boats-table th {
-  padding: 0.75rem;
+  padding: var(--table-cell-padding-mobile);
   text-align: left;
-  font-weight: 600;
-  color: #495057;
-  border-bottom: 2px solid #dee2e6;
+  font-weight: var(--table-header-font-weight);
+  color: var(--color-dark);
+  border-bottom: 2px solid var(--table-border-color);
   cursor: pointer;
   user-select: none;
 }
 
 .boats-table th:hover {
-  background-color: #e9ecef;
+  background-color: var(--color-bg-hover);
 }
 
 .boats-table td {
-  padding: 0.75rem;
-  border-bottom: 1px solid #dee2e6;
+  padding: var(--table-cell-padding-mobile);
+  border-bottom: 1px solid var(--table-border-color);
 }
 
 .boats-table tbody tr:hover {
-  background-color: #f8f9fa;
+  background-color: var(--table-hover-bg);
+}
+
+@media (min-width: 768px) {
+  .boats-table th,
+  .boats-table td {
+    padding: var(--table-cell-padding-desktop);
+  }
 }
 
 .boats-table tbody tr.row-status-complete {
-  border-left: 4px solid #28a745;
+  border-left: 4px solid var(--color-success);
 }
 
 .boats-table tbody tr.row-status-paid {
-  border-left: 4px solid #007bff;
+  border-left: 4px solid var(--color-primary);
 }
 
 .boats-table tbody tr.row-status-free {
-  border-left: 4px solid #007bff;
+  border-left: 4px solid var(--color-primary);
 }
 
 .boats-table tbody tr.row-status-incomplete {
-  border-left: 4px solid #ffc107;
+  border-left: 4px solid var(--color-warning);
 }
 
 .boats-table tbody tr.row-forfait {
-  border-left: 4px solid #dc3545;
-  background-color: #fff5f5;
+  border-left: 4px solid var(--color-danger);
+  background-color: var(--color-danger-light);
 }
 
 .boats-table .race-row {
-  background-color: #f8f9fa;
+  background-color: var(--table-header-bg);
   border-left-width: 4px;
 }
 
 .boats-table .race-cell {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.8125rem;
+  padding: var(--spacing-sm) var(--table-cell-padding-mobile);
+  font-size: var(--font-size-sm);
   font-style: italic;
-  color: #495057;
+  color: var(--color-dark);
 }
 
 .boats-table .race-label {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   font-style: normal;
-  color: #212529;
-}
-
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.status-badge.status-incomplete {
-  background-color: #ffc107;
-  color: #000;
-}
-
-.status-badge.status-complete {
-  background-color: #28a745;
-  color: white;
-}
-
-.status-badge.status-paid {
-  background-color: #007bff;
-  color: white;
-}
-
-.status-badge.status-free {
-  background-color: #007bff;
-  color: white;
-}
-
-.status-badge.status-forfait {
-  background-color: #dc3545;
-  color: white;
+  color: var(--color-dark);
 }
 
 .no-request {
-  color: #6c757d;
+  color: var(--color-secondary);
 }
 
 .boat-requested-admin {
-  color: #ffc107;
-  font-weight: 600;
+  color: var(--color-warning);
+  font-weight: var(--font-weight-semibold);
 }
 
 .boat-assigned-admin {
-  color: #28a745;
-  font-weight: 600;
+  color: var(--color-success);
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Boat Request Section Styles */
 .boat-request-section {
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 .boat-request-pending {
-  background-color: #fff9e6;
-  border-left: 4px solid #ffc107;
-  padding: 0.75rem;
-  border-radius: 4px;
+  background-color: var(--color-warning-light);
+  border-left: 4px solid var(--color-warning);
+  padding: var(--spacing-md);
+  border-radius: var(--button-border-radius);
 }
 
 .boat-request-pending .request-header {
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--spacing-sm);
 }
 
 .boat-request-pending .status-text {
-  color: #856404;
-  font-weight: 600;
+  color: var(--color-warning-text);
+  font-weight: var(--font-weight-semibold);
 }
 
 .boat-request-pending .request-comment {
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: #856404;
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-base);
+  color: var(--color-warning-text);
 }
 
 .boat-request-fulfilled {
-  background-color: #e7f5ec;
-  border-left: 4px solid #28a745;
-  padding: 0.75rem;
-  border-radius: 4px;
+  background-color: var(--color-success-light);
+  border-left: 4px solid var(--color-success);
+  padding: var(--spacing-md);
+  border-radius: var(--button-border-radius);
 }
 
 .boat-request-fulfilled .fulfilled-header {
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--spacing-sm);
 }
 
 .boat-request-fulfilled .boat-name {
-  color: #155724;
-  font-weight: 600;
+  color: var(--color-success-text);
+  font-weight: var(--font-weight-semibold);
 }
 
 .boat-request-fulfilled .assignment-details {
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: #155724;
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-base);
+  color: var(--color-success-text);
 }
 
 .actions-cell {
   display: flex;
-  gap: 0.5rem;
-}
-
-.btn-table {
-  padding: 0.4rem 0.8rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  transition: background-color 0.2s;
-}
-
-.btn-view-table {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-view-table:hover {
-  background-color: #545b62;
-}
-
-.btn-edit-table {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-edit-table:hover {
-  background-color: #545b62;
-}
-
-.btn-forfait-table {
-  background-color: #ffc107;
-  color: #000;
-}
-
-.btn-forfait-table:hover {
-  background-color: #e0a800;
-}
-
-.btn-forfait-table.active {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-forfait-table.active:hover {
-  background-color: #c82333;
-}
-
-.btn-delete-table {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-delete-table:hover:not(:disabled) {
-  background-color: #c82333;
-}
-
-.btn-delete-table:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  opacity: 0.6;
+  gap: var(--spacing-sm);
+  flex-direction: column;
 }
 
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.pagination-btn {
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.pagination-btn:hover:not(:disabled) {
-  background-color: #0056b3;
-}
-
-.pagination-btn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-xl);
 }
 
 .page-info {
-  color: #6c757d;
+  color: var(--color-secondary);
 }
 
-/* Modal styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-}
-
-.modal-content {
-  background-color: white;
-  border-radius: 8px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid #dee2e6;
-  flex-shrink: 0;
-}
-
-.modal-header h2 {
-  margin: 0;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 2rem;
-  cursor: pointer;
-  color: #6c757d;
-  line-height: 1;
-  min-width: 44px;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
-.close-btn:hover {
-  color: #212529;
-}
-
-.modal-body {
-  padding: 1.5rem;
-  overflow-y: auto;
-  flex: 1;
-}
-
-.info-text {
-  color: #6c757d;
-  margin-bottom: 1rem;
-}
-
+/* Form styles for modal */
 .boat-assignment-section {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-xl);
 }
 
 .boat-assignment-section h3 {
-  margin-bottom: 1rem;
-  font-size: 1.125rem;
-  color: #333;
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-xl);
+  color: var(--color-dark);
 }
 
 .boat-assignment-section .request-comment {
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-left: 4px solid #007bff;
-  margin-bottom: 1.5rem;
-  border-radius: 4px;
+  padding: var(--spacing-lg);
+  background-color: var(--color-bg-light);
+  border-left: 4px solid var(--color-primary);
+  margin-bottom: var(--spacing-xl);
+  border-radius: var(--button-border-radius);
 }
 
 .boat-assignment-section .request-comment label {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   display: block;
-  margin-bottom: 0.5rem;
-  color: #212529;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-dark);
 }
 
 .boat-assignment-section .request-comment p {
   margin: 0;
   white-space: pre-wrap;
-  color: #495057;
+  color: var(--color-dark);
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--form-group-gap);
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #333;
+  margin-bottom: var(--form-label-gap);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-dark);
 }
 
 .form-input,
 .form-textarea {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: var(--spacing-md);
+  border: 1px solid var(--form-input-border-color);
+  border-radius: var(--form-input-border-radius);
   font-family: inherit;
-  font-size: 1rem;
+  font-size: var(--font-size-lg);
+  min-height: var(--form-input-min-height);
 }
 
 .form-textarea {
@@ -1365,201 +1203,109 @@ export default {
 .form-input:focus,
 .form-textarea:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .char-count {
   display: block;
   text-align: right;
-  font-size: 0.875rem;
-  color: #6c757d;
-  margin-top: 0.25rem;
+  font-size: var(--font-size-base);
+  color: var(--color-secondary);
+  margin-top: var(--spacing-xs);
 }
 
 .help-text {
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: #666;
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-base);
+  color: var(--color-muted);
 }
 
 .info-message {
-  padding: 1rem;
-  background-color: #e7f3ff;
-  border-left: 4px solid #007bff;
-  border-radius: 4px;
+  padding: var(--spacing-lg);
+  background-color: var(--color-info-light);
+  border-left: 4px solid var(--color-info);
+  border-radius: var(--button-border-radius);
 }
 
 .info-message p {
   margin: 0;
-  color: #495057;
-}
-
-.modal-footer {
-  padding: 1.5rem;
-  border-top: 1px solid #dee2e6;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-  flex-shrink: 0;
-}
-
-.btn-secondary {
-  padding: 0.5rem 1rem;
-  background-color: #6c757d;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  min-height: 44px;
-}
-
-.btn-secondary:hover {
-  background-color: #545b62;
-}
-
-.btn-primary {
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  min-height: 44px;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #0056b3;
-}
-
-.btn-primary:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  opacity: 0.6;
+  color: var(--color-info-text);
 }
 
 @media (max-width: 768px) {
-  .modal-overlay {
-    align-items: flex-end;
-    padding: 0;
-  }
-
-  .modal-content {
-    border-radius: 12px 12px 0 0;
-    width: 100%;
-    max-width: 100%;
-    max-height: 90vh;
-  }
-
-  .modal-header {
-    padding: 1rem;
-  }
-
-  .modal-body {
-    padding: 1rem;
-  }
-
-  .modal-footer {
-    padding: 1rem;
+  .filter-row {
     flex-direction: column;
-  }
-
-  .modal-footer .btn-secondary {
-    width: 100%;
   }
 }
 
-/* Card View Styles */
 .boat-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-  padding: 1rem 0;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-lg) 0;
 }
 
 .boat-card {
-  background: white;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 1.5rem;
-  transition: all 0.3s;
+  background: var(--color-bg-white);
+  border: var(--card-border-width) solid var(--card-border-color);
+  border-radius: var(--card-border-radius);
+  padding: var(--card-padding-desktop);
+  transition: var(--transition-normal);
 }
 
 .boat-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: var(--card-shadow-hover);
 }
 
 .boat-card.status-paid {
-  border-left: 4px solid #007bff;
+  border-left: 4px solid var(--color-primary);
 }
 
 .boat-card.status-complete {
-  border-left: 4px solid #28a745;
+  border-left: 4px solid var(--color-success);
 }
 
 .boat-card.status-incomplete {
-  border-left: 4px solid #ffc107;
+  border-left: 4px solid var(--color-warning);
 }
 
 .boat-card.status-forfait {
-  border-left: 4px solid #dc3545;
-  background-color: #fff5f5;
+  border-left: 4px solid var(--color-danger);
+  background-color: var(--color-danger-light);
+}
+
+@media (max-width: 768px) {
+  .boat-card {
+    padding: var(--card-padding-mobile);
+  }
 }
 
 .boat-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e0e0e0;
-  gap: 1rem;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+  gap: var(--spacing-lg);
 }
 
 .boat-header h3 {
   margin: 0;
-  color: #333;
-  font-size: 1.1rem;
+  color: var(--color-dark);
+  font-size: var(--font-size-xl);
   flex: 1;
 }
 
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.status-badge.status-incomplete {
-  background-color: #ffc107;
-  color: #000;
-}
-
-.status-badge.status-complete {
-  background-color: #28a745;
-  color: white;
-}
-
-.status-badge.status-paid {
-  background-color: #007bff;
-  color: white;
-}
-
-.status-badge.status-forfait {
-  background-color: #dc3545;
-  color: white;
-}
-
 .boat-details {
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 .boat-details .detail-row {
   display: flex;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f5f5f5;
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--color-bg-light);
   align-items: flex-start;
 }
 
@@ -1568,29 +1314,29 @@ export default {
 }
 
 .boat-details .label {
-  font-weight: 500;
-  color: #666;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted);
   min-width: 100px;
   max-width: 100px;
   flex-shrink: 0;
   word-wrap: break-word;
-  line-height: 1.4;
+  line-height: var(--line-height-normal);
 }
 
 .boat-details .detail-row span:not(.label) {
-  color: #333;
+  color: var(--color-dark);
   flex: 1;
 }
 
 .team-manager-info {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--spacing-xs);
 }
 
 .team-manager-info .email {
-  font-size: 0.85rem;
-  color: #6c757d;
+  font-size: var(--font-size-sm);
+  color: var(--color-secondary);
   word-break: break-all;
   overflow-wrap: break-word;
 }
@@ -1598,12 +1344,12 @@ export default {
 .club-box {
   display: inline-block;
   max-width: 200px;
-  padding: 0.25rem 0.5rem;
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  line-height: 1.3;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-bg-light);
+  border: 1px solid var(--form-input-border-color);
+  border-radius: var(--button-border-radius);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-tight);
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
@@ -1619,244 +1365,97 @@ export default {
 }
 
 .race-name {
-  background-color: #f8f9fa;
-  padding: 0.75rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
+  background-color: var(--table-header-bg);
+  padding: var(--spacing-md);
+  border-radius: var(--button-border-radius);
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-base);
 }
 
 .assignment-comment-admin {
-  background-color: #e7f3ff;
-  border-left: 4px solid #007bff;
-  padding: 0.75rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
+  background-color: var(--color-info-light);
+  border-left: 4px solid var(--color-info);
+  padding: var(--spacing-md);
+  border-radius: var(--button-border-radius);
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-base);
 }
 
 .boat-assigned {
-  color: #28a745;
-  font-weight: 600;
+  color: var(--color-success);
+  font-weight: var(--font-weight-semibold);
 }
 
 .boat-pending {
-  color: #ffc107;
+  color: var(--color-warning);
   font-style: italic;
 }
 
 .boat-actions {
   display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
-  padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
-}
-
-.boat-actions .btn-secondary,
-.boat-actions .btn-warning,
-.boat-actions .btn-danger {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.8rem;
-}
-
-.btn-warning {
-  background-color: #ff9800;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-warning:hover {
-  background-color: #f57c00;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-danger:hover:not(:disabled) {
-  background-color: #c82333;
-}
-
-.btn-danger:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-</style>
-
-@media (max-width: 768px) {
-  .filter-row {
-    flex-direction: column;
-  }
-
-  .filter-group {
-    min-width: 100%;
-  }
-
-  .boats-table-container {
-    overflow-x: auto;
-  }
-
-  .actions-cell {
-    flex-direction: column;
-  }
-
-  .filter-select,
-  .filter-input {
-    font-size: 16px;
-    min-height: 44px;
-  }
-
-  .filter-btn {
-    min-height: 44px;
-  }
-
-  .btn-table {
-    min-height: 44px;
-    min-width: 44px;
-  }
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
 }
 
 /* Mobile card styles */
 .card-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-}
-
-.boat-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #dee2e6;
-}
-
-.boat-card.row-status-complete {
-  border-left-color: #28a745;
-}
-
-.boat-card.row-status-paid {
-  border-left-color: #007bff;
-}
-
-.boat-card.row-status-free {
-  border-left-color: #007bff;
-}
-
-.boat-card.row-status-incomplete {
-  border-left-color: #ffc107;
-}
-
-.boat-card.row-forfait {
-  border-left-color: #dc3545;
-  background-color: #fff5f5;
+  gap: var(--spacing-lg);
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid #e0e0e0;
-  gap: 0.5rem;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  gap: var(--spacing-sm);
 }
 
 .card-title {
-  font-size: 1rem;
-  color: #212529;
+  font-size: var(--font-size-lg);
+  color: var(--color-dark);
   flex: 1;
 }
 
 .card-body {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 .card-row {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 0.5rem 0;
-  gap: 1rem;
+  padding: var(--spacing-sm) 0;
+  gap: var(--spacing-lg);
 }
 
 .card-label {
-  font-weight: 600;
-  color: #6c757d;
-  font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-secondary);
+  font-size: var(--font-size-base);
   flex-shrink: 0;
 }
 
 .card-value {
-  color: #212529;
-  font-size: 0.875rem;
+  color: var(--color-dark);
+  font-size: var(--font-size-base);
   text-align: right;
   word-break: break-word;
 }
 
 .card-actions {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
-}
-
-.btn-card {
-  flex: 1;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
-  min-height: 44px;
-}
-
-.btn-forfait-card {
-  background-color: #ffc107;
-  color: #000;
-}
-
-.btn-forfait-card:hover {
-  background-color: #e0a800;
-}
-
-.btn-forfait-card.active {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-forfait-card.active:hover {
-  background-color: #c82333;
-}
-
-.btn-delete-card {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-delete-card:hover:not(:disabled) {
-  background-color: #c82333;
-}
-
-.btn-delete-card:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  opacity: 0.6;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
 }
 
 /* Mobile responsive styles */
@@ -1865,29 +1464,9 @@ export default {
     padding: 0;
   }
 
-  .list-header {
-    flex-direction: column;
-    align-items: stretch;
-    margin-bottom: 1rem;
-  }
-
-  .list-header .btn-primary {
-    width: 100%;
-  }
-
-  .filters {
-    padding: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .search-input {
-    font-size: 16px;
-    min-height: 44px;
-  }
-
   .filter-row {
     flex-direction: column;
-    gap: 0.75rem;
+    gap: var(--spacing-md);
   }
 
   .filter-group {
@@ -1896,17 +1475,12 @@ export default {
 
   .filter-select,
   .filter-input {
-    font-size: 16px;
-    min-height: 44px;
-  }
-
-  .filter-btn {
-    width: 100%;
-    min-height: 44px;
+    font-size: var(--form-input-font-size-mobile);
+    min-height: var(--touch-target-min-size);
   }
 
   .boats-table-container {
-    padding: 1rem;
+    padding: var(--card-padding-mobile);
   }
 
   .boats-table {
@@ -1922,22 +1496,9 @@ export default {
     flex-wrap: nowrap;
   }
 
-  .btn-table {
-    min-height: 44px;
-    min-width: 44px;
-    padding: 0.5rem;
-    font-size: 0.75rem;
-  }
-
   .pagination {
     flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .pagination-btn {
-    flex: 1;
-    min-width: 100px;
-    min-height: 44px;
+    gap: var(--spacing-sm);
   }
 
   .page-info {
@@ -1956,3 +1517,4 @@ export default {
     white-space: normal;
   }
 }
+</style>

@@ -28,9 +28,9 @@
         </button>
       </div>
       <slot name="action">
-        <button v-if="actionLabel" @click="$emit('action')" class="btn-primary">
+        <BaseButton v-if="actionLabel" variant="primary" @click="$emit('action')">
           {{ actionLabel }}
-        </button>
+        </BaseButton>
       </slot>
     </div>
   </div>
@@ -39,6 +39,7 @@
 <script setup>
 import { defineProps, defineEmits } from 'vue'
 import { useI18n } from 'vue-i18n'
+import BaseButton from '@/components/base/BaseButton.vue'
 
 const { t } = useI18n()
 
@@ -70,80 +71,62 @@ defineEmits(['update:viewMode', 'action'])
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xxl);
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: var(--spacing-lg);
 }
 
 .header-title h1 {
-  margin: 0 0 0.5rem 0;
-  font-size: 2rem;
-  color: #212529;
+  margin: 0 0 var(--spacing-sm) 0;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-dark);
 }
 
 .subtitle {
-  color: #6c757d;
+  color: var(--color-muted);
   margin: 0;
-  font-size: 1rem;
+  font-size: var(--font-size-lg);
 }
 
 .header-actions {
   display: flex;
-  gap: 1rem;
+  gap: var(--spacing-lg);
   align-items: center;
 }
 
 .view-toggle {
   display: flex;
-  gap: 0.25rem;
-  background-color: #e9ecef;
-  border-radius: 4px;
-  padding: 0.25rem;
+  gap: var(--spacing-xs);
+  background-color: var(--color-light);
+  border-radius: var(--button-border-radius);
+  padding: var(--spacing-xs);
 }
 
 .btn-view {
-  padding: 0.5rem 0.75rem;
+  padding: var(--spacing-sm) var(--spacing-md);
   background-color: transparent;
   border: none;
   cursor: pointer;
-  font-size: 1.25rem;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-  min-width: 44px;
-  min-height: 44px;
+  font-size: var(--font-size-2xl);
+  border-radius: var(--button-border-radius);
+  transition: var(--transition-normal);
+  min-width: var(--touch-target-min-size);
+  min-height: var(--touch-target-min-size);
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--color-muted);
 }
 
 .btn-view:hover {
-  background-color: #dee2e6;
+  background-color: var(--color-border);
 }
 
 .btn-view.active {
-  background-color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.btn-primary {
-  padding: 0.75rem 1.5rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
-  min-height: 44px;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-}
-
-.btn-primary:active {
-  background-color: #004085;
+  background-color: var(--color-bg-white);
+  box-shadow: var(--card-shadow);
+  color: var(--color-dark);
 }
 
 /* Mobile Responsive */
@@ -151,12 +134,12 @@ defineEmits(['update:viewMode', 'action'])
   .list-header {
     flex-direction: column;
     align-items: stretch;
-    margin-bottom: 1.5rem;
-    gap: 1rem;
+    margin-bottom: var(--spacing-xl);
+    gap: var(--spacing-lg);
   }
 
   .header-title h1 {
-    font-size: 1.5rem;
+    font-size: var(--font-size-2xl);
   }
 
   .header-actions {
@@ -170,14 +153,7 @@ defineEmits(['update:viewMode', 'action'])
   }
 
   .btn-view {
-    padding: 0.75rem;
-  }
-
-  .btn-primary {
-    flex-shrink: 0;
-    width: auto;
-    padding: 0.75rem 1rem;
-    font-size: 0.9rem;
+    padding: var(--spacing-md);
   }
 }
 
@@ -194,12 +170,7 @@ defineEmits(['update:viewMode', 'action'])
   }
 
   .btn-view {
-    padding: 0.5rem 0.75rem;
-  }
-
-  .btn-primary {
-    width: auto;
-    padding: 0.5rem 1rem;
+    padding: var(--spacing-sm) var(--spacing-md);
   }
 }
 </style>

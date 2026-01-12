@@ -1,77 +1,88 @@
 <template>
-  <div class="crew-member-card" :class="{ 'has-issues': hasFlaggedIssues, 'assigned': isAssigned }">
-    <div class="card-header">
-      <div class="member-info">
-        <h4>{{ crewMember.first_name }} {{ crewMember.last_name }}</h4>
-        <span class="license">{{ crewMember.license_number }}</span>
+  <DataCard>
+    <template #header>
+      <div class="card-header">
+        <div class="member-info">
+          <h4>{{ crewMember.first_name }} {{ crewMember.last_name }}</h4>
+          <span class="license">{{ crewMember.license_number }}</span>
+        </div>
+        <div class="badges">
+          <span v-if="isAssigned" class="badge badge-assigned">{{ $t('crew.card.assigned') }}</span>
+          <span v-else class="badge badge-unassigned">{{ $t('crew.card.unassigned') }}</span>
+        </div>
       </div>
-      <div class="badges">
-        <span v-if="isAssigned" class="badge badge-assigned">{{ $t('crew.card.assigned') }}</span>
-      </div>
-    </div>
+    </template>
 
-    <div class="card-body">
-      <div class="detail-row">
-        <span class="label">{{ $t('crew.card.dateOfBirth') }}&nbsp;:</span>
-        <span class="value">{{ formatDate(crewMember.date_of_birth) }}</span>
-      </div>
-      <div class="detail-row">
-        <span class="label">{{ $t('crew.card.age') }}&nbsp;:</span>
-        <span class="value">{{ calculateAge(crewMember.date_of_birth) }} {{ $t('crew.card.years') }}</span>
-      </div>
-      <div class="detail-row">
-        <span class="label">{{ $t('crew.card.category') }}&nbsp;:</span>
-        <span class="value category-badge" :class="`category-${getAgeCategory(crewMember.date_of_birth)}`">
-          {{ $t(`boat.${getAgeCategory(crewMember.date_of_birth)}`) }}
-          <span v-if="getAgeCategory(crewMember.date_of_birth) === 'master'" class="master-letter">
-            {{ getMasterCategoryLetter(crewMember.date_of_birth) }}
+    <template #default>
+      <div class="card-body">
+        <div class="detail-row">
+          <span class="label">{{ $t('crew.card.dateOfBirth') }}&nbsp;:</span>
+          <span class="value">{{ formatDate(crewMember.date_of_birth) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">{{ $t('crew.card.age') }}&nbsp;:</span>
+          <span class="value">{{ calculateAge(crewMember.date_of_birth) }} {{ $t('crew.card.years') }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">{{ $t('crew.card.category') }}&nbsp;:</span>
+          <span class="value category-badge" :class="`category-${getAgeCategory(crewMember.date_of_birth)}`">
+            {{ $t(`boat.${getAgeCategory(crewMember.date_of_birth)}`) }}
+            <span v-if="getAgeCategory(crewMember.date_of_birth) === 'master'" class="master-letter">
+              {{ getMasterCategoryLetter(crewMember.date_of_birth) }}
+            </span>
           </span>
-        </span>
+        </div>
+        <div class="detail-row">
+          <span class="label">{{ $t('crew.card.gender') }}&nbsp;:</span>
+          <span class="value">{{ crewMember.gender === 'M' ? $t('crew.form.male') : $t('crew.form.female') }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">{{ $t('crew.card.club') }}&nbsp;:</span>
+          <span class="value club-box">{{ crewMember.club_affiliation }}</span>
+        </div>
       </div>
-      <div class="detail-row">
-        <span class="label">{{ $t('crew.card.gender') }}&nbsp;:</span>
-        <span class="value">{{ crewMember.gender === 'M' ? $t('crew.form.male') : $t('crew.form.female') }}</span>
-      </div>
-      <div class="detail-row">
-        <span class="label">{{ $t('crew.card.club') }}&nbsp;:</span>
-        <span class="value club-box">{{ crewMember.club_affiliation }}</span>
-      </div>
-    </div>
 
-    <!-- Flagged Issues -->
-    <div v-if="hasFlaggedIssues" class="flagged-issues">
-      <div class="issue-header">
-        <span class="icon">⚠️</span>
-        <strong>{{ $t('crew.card.flaggedIssues') }}</strong>
+      <!-- Flagged Issues -->
+      <div v-if="hasFlaggedIssues" class="flagged-issues">
+        <div class="issue-header">
+          <span class="icon">⚠️</span>
+          <strong>{{ $t('crew.card.flaggedIssues') }}</strong>
+        </div>
+        <ul class="issue-list">
+          <li v-for="(issue, index) in crewMember.flagged_issues" :key="index">
+            {{ issue }}
+          </li>
+        </ul>
       </div>
-      <ul class="issue-list">
-        <li v-for="(issue, index) in crewMember.flagged_issues" :key="index">
-          {{ issue }}
-        </li>
-      </ul>
-    </div>
+    </template>
 
-    <!-- Actions -->
-    <div class="card-actions">
-      <button class="btn btn-small btn-edit" @click="$emit('edit', crewMember)">
+    <template #actions>
+      <BaseButton 
+        variant="secondary" 
+        size="small"
+        @click="$emit('edit', crewMember)"
+      >
         {{ $t('common.edit') }}
-      </button>
-      <button 
-        class="btn btn-small btn-delete" 
-        @click="$emit('delete', crewMember)"
+      </BaseButton>
+      <BaseButton 
+        variant="danger" 
+        size="small"
         :disabled="isAssigned"
         :title="isAssigned ? $t('crew.card.cannotDeleteAssigned') : ''"
+        @click="$emit('delete', crewMember)"
       >
         {{ $t('common.delete') }}
-      </button>
-    </div>
-  </div>
+      </BaseButton>
+    </template>
+  </DataCard>
 </template>
 
 <script setup>
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { calculateAge, getAgeCategory as getAgeCategoryUtil, getMasterCategory } from '../utils/raceEligibility';
+import DataCard from './composite/DataCard.vue';
+import BaseButton from './base/BaseButton.vue';
 
 const props = defineProps({
   crewMember: {
@@ -109,76 +120,57 @@ const getMasterCategoryLetter = (dateOfBirth) => {
 </script>
 
 <style scoped>
-.crew-member-card {
-  background: white;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  transition: all 0.3s;
-}
-
-.crew-member-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.crew-member-card.has-issues {
-  border-color: #ff9800;
-  background-color: #fff3e0;
-}
-
-.crew-member-card.assigned {
-  border-left: 4px solid #4CAF50;
-}
-
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e0e0e0;
+  width: 100%;
 }
 
 .member-info h4 {
-  margin: 0 0 0.25rem 0;
-  color: #333;
-  font-size: 1.25rem;
+  margin: 0 0 var(--spacing-xs, 0.25rem) 0;
+  color: var(--color-dark, #333);
+  font-size: var(--font-size-xl, 1.25rem);
 }
 
 .license {
-  color: #666;
-  font-size: 0.875rem;
+  color: var(--color-muted, #666);
+  font-size: var(--font-size-sm, 0.875rem);
   font-family: monospace;
 }
 
 .badges {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--spacing-sm, 0.5rem);
   flex-wrap: wrap;
 }
 
 .badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
+  display: inline-block;
+  padding: var(--badge-padding, 0.25rem 0.75rem);
+  border-radius: var(--badge-border-radius, 12px);
+  font-size: var(--badge-font-size, 0.75rem);
+  font-weight: var(--badge-font-weight, 500);
 }
 
 .badge-assigned {
-  background-color: #9C27B0;
+  background-color: var(--color-success, #28a745);
   color: white;
 }
 
+.badge-unassigned {
+  background-color: var(--color-warning, #ffc107);
+  color: var(--color-dark, #212529);
+}
+
 .card-body {
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-lg, 1rem);
 }
 
 .detail-row {
   display: flex;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f5f5f5;
+  padding: var(--spacing-sm, 0.5rem) 0;
+  border-bottom: 1px solid var(--color-light, #f5f5f5);
 }
 
 .detail-row:last-child {
@@ -186,23 +178,23 @@ const getMasterCategoryLetter = (dateOfBirth) => {
 }
 
 .label {
-  font-weight: 500;
-  color: #666;
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-muted, #666);
   min-width: 120px;
 }
 
 .value {
-  color: #333;
+  color: var(--color-dark, #333);
 }
 
 .club-box {
   display: inline-block;
   max-width: 200px;
-  padding: 0.25rem 0.5rem;
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
+  padding: var(--spacing-xs, 0.25rem) var(--spacing-sm, 0.5rem);
+  background-color: var(--color-light, #f5f5f5);
+  border: 1px solid var(--color-border, #ddd);
   border-radius: 4px;
-  font-size: 0.75rem;
+  font-size: var(--font-size-sm, 0.75rem);
   line-height: 1.3;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -210,10 +202,10 @@ const getMasterCategoryLetter = (dateOfBirth) => {
 
 .category-badge {
   display: inline-block;
-  padding: 0.25rem 0.75rem;
+  padding: var(--spacing-xs, 0.25rem) var(--spacing-md, 0.75rem);
   border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: var(--font-size-sm, 0.75rem);
+  font-weight: var(--font-weight-semibold, 600);
   text-transform: uppercase;
 }
 
@@ -243,24 +235,24 @@ const getMasterCategoryLetter = (dateOfBirth) => {
 }
 
 .master-letter {
-  margin-left: 0.25rem;
+  margin-left: var(--spacing-xs, 0.25rem);
   font-weight: 700;
   font-size: 0.85rem;
 }
 
 .flagged-issues {
   background-color: #fff3e0;
-  border: 1px solid #ff9800;
+  border: 1px solid var(--color-warning, #ff9800);
   border-radius: 4px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  padding: var(--spacing-lg, 1rem);
+  margin-top: var(--spacing-lg, 1rem);
 }
 
 .issue-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  gap: var(--spacing-sm, 0.5rem);
+  margin-bottom: var(--spacing-sm, 0.5rem);
   color: #e65100;
 }
 
@@ -275,50 +267,6 @@ const getMasterCategoryLetter = (dateOfBirth) => {
 }
 
 .issue-list li {
-  margin-bottom: 0.25rem;
-}
-
-.card-actions {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
-}
-
-.btn {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-small {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.8rem;
-}
-
-.btn-edit {
-  background-color: #2196F3;
-  color: white;
-}
-
-.btn-edit:hover {
-  background-color: #1976D2;
-}
-
-.btn-delete {
-  background-color: #f44336;
-  color: white;
-}
-
-.btn-delete:hover:not(:disabled) {
-  background-color: #d32f2f;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  margin-bottom: var(--spacing-xs, 0.25rem);
 }
 </style>

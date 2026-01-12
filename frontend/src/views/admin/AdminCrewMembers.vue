@@ -54,15 +54,10 @@
     </ListFilters>
 
     <!-- Loading state -->
-    <div v-if="loading" class="loading">
-      <div class="spinner"></div>
-      <p>{{ $t('common.loading') }}</p>
-    </div>
+    <LoadingSpinner v-if="loading" :message="$t('common.loading')" />
 
     <!-- Error state -->
-    <div v-if="error" class="error-message">
-      {{ error }}
-    </div>
+    <MessageAlert v-if="error" type="error" :message="error" />
 
     <!-- Crew members table -->
     <div v-if="!loading && !error && viewMode === 'table'" class="crew-table-container">
@@ -71,19 +66,19 @@
       <table class="crew-table">
         <thead>
           <tr>
-            <th @click="sortBy('last_name')">
+            <th @click="sortBy('last_name')" class="sortable">
               Nom
               <span v-if="sortField === 'last_name'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
             </th>
             <th>{{ $t('crew.list.age') }} / {{ $t('crew.card.category') }}</th>
             <th>{{ $t('crew.form.gender') }}</th>
             <th>{{ $t('crew.form.licenseNumber') }}</th>
-            <th @click="sortBy('club_affiliation')">
+            <th @click="sortBy('club_affiliation')" class="sortable">
               {{ $t('crew.card.club') }}
               <span v-if="sortField === 'club_affiliation'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
             </th>
             <th>{{ $t('crew.card.assigned') }}</th>
-            <th @click="sortBy('team_manager_name')">
+            <th @click="sortBy('team_manager_name')" class="sortable">
               {{ $t('admin.crewMembers.teamManager') }}
               <span v-if="sortField === 'team_manager_name'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
             </th>
@@ -112,8 +107,8 @@
             <td>{{ crew.license_number }}</td>
             <td><span class="club-box">{{ crew.club_affiliation || crew.team_manager_club }}</span></td>
             <td>
-              <span v-if="crew.assigned_boat_id" class="assigned-badge">✓</span>
-              <span v-else>-</span>
+              <span v-if="crew.assigned_boat_id" class="badge badge-assigned">{{ $t('crew.card.assigned') }}</span>
+              <span v-else class="badge badge-unassigned">{{ $t('crew.card.unassigned') }}</span>
             </td>
             <td>
               <div class="team-manager-info">
@@ -122,13 +117,9 @@
               </div>
             </td>
             <td class="actions-cell">
-              <button @click="editCrewMember(crew)" class="btn-table btn-edit-table">
+              <BaseButton size="small" variant="secondary" @click="editCrewMember(crew)">
                 {{ $t('common.edit') }}
-              </button>
-              <!-- Delete button hidden to prevent accidental deletions -->
-              <!-- <button @click="confirmDelete(crew)" class="btn-table btn-delete-table">
-                {{ $t('common.delete') }}
-              </button> -->
+              </BaseButton>
             </td>
           </tr>
         </tbody>
@@ -145,6 +136,7 @@
           </div>
           <div class="badges">
             <span v-if="crew.assigned_boat_id" class="badge badge-assigned">{{ $t('crew.card.assigned') }}</span>
+            <span v-else class="badge badge-unassigned">{{ $t('crew.card.unassigned') }}</span>
           </div>
         </div>
 
@@ -186,109 +178,95 @@
         </div>
 
         <div class="card-actions">
-          <button class="btn btn-small btn-edit" @click="editCrewMember(crew)">
+          <BaseButton size="small" variant="secondary" @click="editCrewMember(crew)">
             {{ $t('common.edit') }}
-          </button>
+          </BaseButton>
         </div>
       </div>
     </div>
 
     <!-- Pagination -->
     <div v-if="!loading && !error && totalPages > 1" class="pagination">
-      <button @click="currentPage--" :disabled="currentPage === 1" class="btn-secondary">
+      <BaseButton size="small" variant="secondary" @click="currentPage--" :disabled="currentPage === 1">
         {{ $t('common.previous') }}
-      </button>
+      </BaseButton>
       <span class="page-info">
         {{ $t('common.pageInfo', { current: currentPage, total: totalPages }) }}
       </span>
-      <button @click="currentPage++" :disabled="currentPage === totalPages" class="btn-secondary">
+      <BaseButton size="small" variant="secondary" @click="currentPage++" :disabled="currentPage === totalPages">
         {{ $t('common.next') }}
-      </button>
+      </BaseButton>
     </div>
 
     <!-- Edit Crew Member Modal -->
-    <div v-if="showEditCrewModal" class="modal-overlay" @click.self="closeModals">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>{{ $t('admin.crewMembers.editCrewMember') }}</h2>
-          <button @click="closeModals" class="close-btn">&times;</button>
-        </div>
+    <BaseModal :show="showEditCrewModal" :title="$t('admin.crewMembers.editCrewMember')" @close="closeModals">
+      <template #default>
+        <div v-if="modalError" class="error-message">{{ modalError }}</div>
 
-        <div class="modal-body">
-          <div v-if="modalError" class="error-message">{{ modalError }}</div>
-
-          <form @submit.prevent="saveCrewMember">
-            <div class="form-row">
-              <div class="form-group">
-                <label>{{ $t('crew.form.firstName') }} *</label>
-                <input v-model="crewForm.first_name" type="text" required class="form-control" />
-              </div>
-
-              <div class="form-group">
-                <label>{{ $t('crew.form.lastName') }} *</label>
-                <input v-model="crewForm.last_name" type="text" required class="form-control" />
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>{{ $t('crew.card.dateOfBirth') }} *</label>
-                <input v-model="crewForm.date_of_birth" type="date" required class="form-control" />
-              </div>
-
-              <div class="form-group">
-                <label>{{ $t('crew.form.gender') }} *</label>
-                <select v-model="crewForm.gender" required class="form-control">
-                  <option value="">{{ $t('crew.form.selectGender') }}</option>
-                  <option value="M">{{ $t('crew.form.male') }}</option>
-                  <option value="F">{{ $t('crew.form.female') }}</option>
-                </select>
-              </div>
+        <form @submit.prevent="saveCrewMember">
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ $t('crew.form.firstName') }} *</label>
+              <input v-model="crewForm.first_name" type="text" required class="form-control" />
             </div>
 
             <div class="form-group">
-              <label>{{ $t('crew.form.licenseNumber') }} *</label>
-              <input v-model="crewForm.license_number" type="text" required class="form-control" maxlength="24" placeholder="ABC123456" />
+              <label>{{ $t('crew.form.lastName') }} *</label>
+              <input v-model="crewForm.last_name" type="text" required class="form-control" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>{{ $t('crew.card.dateOfBirth') }} *</label>
+              <input v-model="crewForm.date_of_birth" type="date" required class="form-control" />
             </div>
 
             <div class="form-group">
-              <label>{{ $t('crew.form.clubAffiliation') }}</label>
-              <input v-model="crewForm.club_affiliation" type="text" class="form-control" />
-              <small class="form-text">{{ $t('crew.form.clubHint') }}</small>
+              <label>{{ $t('crew.form.gender') }} *</label>
+              <select v-model="crewForm.gender" required class="form-control">
+                <option value="">{{ $t('crew.form.selectGender') }}</option>
+                <option value="M">{{ $t('crew.form.male') }}</option>
+                <option value="F">{{ $t('crew.form.female') }}</option>
+              </select>
             </div>
+          </div>
 
-            <div class="modal-footer">
-              <button type="button" @click="closeModals" class="btn-secondary">{{ $t('common.cancel') }}</button>
-              <button type="submit" class="btn-primary" :disabled="saving">
-                {{ saving ? $t('common.saving') : $t('common.save') }}
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+          <div class="form-group">
+            <label>{{ $t('crew.form.licenseNumber') }} *</label>
+            <input v-model="crewForm.license_number" type="text" required class="form-control" maxlength="24" placeholder="ABC123456" />
+          </div>
+
+          <div class="form-group">
+            <label>{{ $t('crew.form.clubAffiliation') }}</label>
+            <input v-model="crewForm.club_affiliation" type="text" class="form-control" />
+            <small class="form-text">{{ $t('crew.form.clubHint') }}</small>
+          </div>
+        </form>
+      </template>
+      
+      <template #footer>
+        <BaseButton variant="secondary" @click="closeModals">{{ $t('common.cancel') }}</BaseButton>
+        <BaseButton variant="primary" @click="saveCrewMember" :disabled="saving">
+          {{ saving ? $t('common.saving') : $t('common.save') }}
+        </BaseButton>
+      </template>
+    </BaseModal>
 
     <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteModal" class="modal-overlay" @click.self="showDeleteModal = false">
-      <div class="modal modal-small">
-        <div class="modal-header">
-          <h2>{{ $t('admin.crewMembers.confirmDelete') }}</h2>
-          <button @click="showDeleteModal = false" class="close-btn">&times;</button>
-        </div>
-
-        <div class="modal-body">
-          <p>{{ $t('admin.crewMembers.confirmDeleteMessage', { name: `${crewToDelete?.first_name} ${crewToDelete?.last_name}` }) }}</p>
-          <div v-if="modalError" class="error-message">{{ modalError }}</div>
-        </div>
-
-        <div class="modal-footer">
-          <button @click="showDeleteModal = false" class="btn-secondary">{{ $t('common.cancel') }}</button>
-          <button @click="deleteCrewMember" class="btn-danger" :disabled="deleting">
-            {{ deleting ? $t('common.deleting') : $t('common.delete') }}
-          </button>
-        </div>
-      </div>
-    </div>
+    <BaseModal v-if="showDeleteModal" :show="showDeleteModal" :title="$t('admin.crewMembers.confirmDelete')" size="small" @close="showDeleteModal = false">
+      <template #default>
+        <p>{{ $t('admin.crewMembers.confirmDeleteMessage', { name: `${crewToDelete?.first_name} ${crewToDelete?.last_name}` }) }}</p>
+        <div v-if="modalError" class="error-message">{{ modalError }}</div>
+      </template>
+      
+      <template #footer>
+        <BaseButton variant="secondary" @click="showDeleteModal = false">{{ $t('common.cancel') }}</BaseButton>
+        <BaseButton variant="danger" @click="deleteCrewMember" :disabled="deleting">
+          {{ deleting ? $t('common.deleting') : $t('common.delete') }}
+        </BaseButton>
+      </template>
+    </BaseModal>
   </div>
 </template>
 
@@ -299,12 +277,21 @@ import apiClient from '../../services/apiClient';
 import { calculateAge, getAgeCategory, getMasterCategory } from '../../utils/raceEligibility';
 import ListHeader from '../../components/shared/ListHeader.vue';
 import ListFilters from '../../components/shared/ListFilters.vue';
+import BaseButton from '../../components/base/BaseButton.vue';
+import BaseModal from '../../components/base/BaseModal.vue';
+import LoadingSpinner from '../../components/base/LoadingSpinner.vue';
+import MessageAlert from '../../components/composite/MessageAlert.vue';
+import { useTableSort } from '../../composables/useTableSort';
 
 export default {
   name: 'AdminCrewMembers',
   components: {
     ListHeader,
-    ListFilters
+    ListFilters,
+    BaseButton,
+    BaseModal,
+    LoadingSpinner,
+    MessageAlert
   },
   setup() {
     const { t } = useI18n();
@@ -319,8 +306,6 @@ export default {
     const filterTeamManager = ref('');
     const categoryFilter = ref('all');
     const assignedFilter = ref('all');
-    const sortField = ref('team_manager_name');
-    const sortDirection = ref('asc');
     const currentPage = ref(1);
     const itemsPerPage = 50;
     const viewMode = ref(localStorage.getItem('adminCrewViewMode') || 'table');
@@ -411,34 +396,20 @@ export default {
         });
       }
 
-      // Apply sorting - create a copy to avoid mutating the original array
-      const sorted = [...filtered].sort((a, b) => {
-        let aVal = a[sortField.value] || '';
-        let bVal = b[sortField.value] || '';
-        
-        if (typeof aVal === 'string') {
-          aVal = aVal.toLowerCase();
-          bVal = bVal.toLowerCase();
-        }
-
-        if (sortDirection.value === 'asc') {
-          return aVal > bVal ? 1 : -1;
-        } else {
-          return aVal < bVal ? 1 : -1;
-        }
-      });
-
-      return sorted;
+      return filtered;
     });
 
+    // Use table sort composable
+    const { sortedData, sortField, sortDirection, sortBy } = useTableSort(filteredCrewMembers, 'team_manager_name');
+
     const totalPages = computed(() => {
-      return Math.ceil(filteredCrewMembers.value.length / itemsPerPage);
+      return Math.ceil(sortedData.value.length / itemsPerPage);
     });
 
     const paginatedCrewMembers = computed(() => {
       const start = (currentPage.value - 1) * itemsPerPage;
       const end = start + itemsPerPage;
-      const paginated = filteredCrewMembers.value.slice(start, end);
+      const paginated = sortedData.value.slice(start, end);
       
       // Pre-calculate age and category for each crew member to avoid repeated calculations in template
       return paginated.map(crew => ({
@@ -477,15 +448,6 @@ export default {
         error.value = t('admin.crewMembers.fetchError');
       } finally {
         loading.value = false;
-      }
-    };
-
-    const sortBy = (field) => {
-      if (sortField.value === field) {
-        sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
-      } else {
-        sortField.value = field;
-        sortDirection.value = 'asc';
       }
     };
 
@@ -643,8 +605,10 @@ export default {
 </script>
 
 <style scoped>
+@import '@/assets/design-tokens.css';
+
 .admin-crew-members {
-  padding: 2rem;
+  padding: var(--spacing-xl);
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -652,51 +616,31 @@ export default {
 .filter-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
   flex: 1;
   min-width: 200px;
 }
 
 .filter-group label {
-  font-weight: 500;
-  color: #495057;
-  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted);
+  font-size: var(--font-size-sm);
 }
 
 .filter-select,
 .filter-input {
-  padding: 0.5rem;
-  border: 1px solid #dee2e6;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
-  font-size: 0.875rem;
-}
-
-.loading {
-  text-align: center;
-  padding: 3rem;
-}
-
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  font-size: var(--font-size-sm);
 }
 
 .error-message {
   background-color: #fee;
   color: #c33;
-  padding: 1rem;
+  padding: var(--spacing-lg);
   border-radius: 4px;
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 .crew-table-container {
@@ -707,11 +651,11 @@ export default {
 }
 
 .count {
-  padding: 1rem;
-  background: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
-  font-weight: 600;
-  color: #495057;
+  padding: var(--spacing-lg);
+  background: var(--color-light);
+  border-bottom: 1px solid var(--color-border);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-muted);
 }
 
 .crew-table {
@@ -720,101 +664,77 @@ export default {
 }
 
 .crew-table thead {
-  background: #f8f9fa;
+  background: var(--color-light);
 }
 
 .crew-table th {
-  padding: 1rem;
+  padding: var(--spacing-lg);
   text-align: left;
-  font-weight: 600;
-  color: #495057;
-  border-bottom: 2px solid #dee2e6;
-  cursor: pointer;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-muted);
+  border-bottom: 2px solid var(--color-border);
   user-select: none;
 }
 
-.crew-table th:hover {
+.crew-table th.sortable {
+  cursor: pointer;
+}
+
+.crew-table th.sortable:hover {
   background: #e9ecef;
 }
 
 .crew-table td {
-  padding: 1rem;
-  border-bottom: 1px solid #dee2e6;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .crew-table tbody tr:hover {
-  background: #f8f9fa;
+  background: var(--color-light);
 }
 
 .team-manager-info {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--spacing-xs);
 }
 
 .email {
-  font-size: 0.85rem;
-  color: #6c757d;
+  font-size: var(--font-size-sm);
+  color: var(--color-secondary);
 }
 
 .actions-cell {
   display: flex;
-  gap: 0.5rem;
-}
-
-.btn-table {
-  padding: 0.4rem 0.8rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  transition: background-color 0.2s;
-}
-
-.btn-edit-table {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-edit-table:hover {
-  background-color: #545b62;
-}
-
-.btn-delete-table {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-delete-table:hover {
-  background-color: #c82333;
+  gap: var(--spacing-sm);
 }
 
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  border-top: 1px solid #dee2e6;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
 }
 
 .page-info {
-  color: #495057;
+  color: var(--color-muted);
 }
 
 .btn-primary,
 .btn-secondary,
 .btn-danger {
-  padding: 0.5rem 1rem;
+  padding: var(--spacing-sm) var(--spacing-lg);
   border: none;
   border-radius: 4px;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .btn-primary {
-  background: #007bff;
+  background: var(--color-primary);
   color: white;
 }
 
@@ -823,7 +743,7 @@ export default {
 }
 
 .btn-secondary {
-  background: #6c757d;
+  background: var(--color-secondary);
   color: white;
 }
 
@@ -832,7 +752,7 @@ export default {
 }
 
 .btn-danger {
-  background: #dc3545;
+  background: var(--color-danger);
   color: white;
 }
 
@@ -846,159 +766,47 @@ button:disabled {
 }
 
 /* Modal styles */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-}
-
-.modal-content {
-  background: white;
-  border-radius: 8px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-}
-
-.modal {
-  background: white;
-  border-radius: 8px;
-  max-width: 600px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-small {
-  max-width: 400px;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid #dee2e6;
-  flex-shrink: 0;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 1.5rem;
-  color: #2c3e50;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 2rem;
-  cursor: pointer;
-  color: #6c757d;
-  line-height: 1;
-  min-width: 44px;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-}
-
-.close-btn:hover {
-  color: #495057;
-}
-
-.modal-body {
-  padding: 1.5rem;
-  flex: 1;
-  overflow-y: auto;
-}
-
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: var(--spacing-lg);
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #495057;
+  margin-bottom: var(--spacing-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-muted);
 }
 
 .form-control {
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ced4da;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
 }
 
 .form-control:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
 .form-text {
   display: block;
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
-  color: #6c757d;
-}
-
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  padding: 1.5rem;
-  border-top: 1px solid #dee2e6;
-  flex-shrink: 0;
+  margin-top: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-secondary);
 }
 
 @media (max-width: 768px) {
   .admin-crew-members {
-    padding: 1rem;
-  }
-
-  .list-header {
-    flex-direction: column;
-    align-items: stretch;
-    margin-bottom: 1rem;
-  }
-
-  .filters {
-    padding: 1rem;
-    margin-bottom: 1rem;
-  }
-
-  .search-input {
-    font-size: 16px;
-    min-height: 44px;
-  }
-
-  .filter-row {
-    flex-direction: column;
-    gap: 0.75rem;
+    padding: var(--spacing-lg);
   }
 
   .filter-group {
@@ -1008,7 +816,7 @@ button:disabled {
   }
 
   .filter-group label {
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--spacing-xs);
   }
 
   .filter-select,
@@ -1018,13 +826,8 @@ button:disabled {
     min-height: 44px;
   }
 
-  .filter-btn {
-    width: 100%;
-    min-height: 44px;
-  }
-
   .crew-table-container {
-    padding: 1rem;
+    padding: var(--spacing-lg);
   }
 
   .crew-table {
@@ -1040,52 +843,14 @@ button:disabled {
     flex-wrap: nowrap;
   }
 
-  .btn-table {
-    min-height: 44px;
-    min-width: 44px;
-    padding: 0.5rem;
-    font-size: 0.75rem;
-  }
-
   .pagination {
     flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .pagination .btn-secondary {
-    flex: 1;
-    min-width: 100px;
-    min-height: 44px;
+    gap: var(--spacing-sm);
   }
 
   .page-info {
     width: 100%;
     text-align: center;
-  }
-
-  .modal-overlay {
-    align-items: flex-end;
-    padding: 0;
-  }
-
-  .modal-content,
-  .modal {
-    border-radius: 12px 12px 0 0;
-    width: 100%;
-    max-width: 100%;
-    max-height: 90vh;
-  }
-
-  .modal-header {
-    padding: 1rem;
-  }
-
-  .modal-header h2 {
-    font-size: 1.25rem;
-  }
-
-  .modal-body {
-    padding: 1rem;
   }
 
   .form-row {
@@ -1096,106 +861,6 @@ button:disabled {
     font-size: 16px;
     min-height: 44px;
   }
-
-  .modal-footer {
-    padding: 1rem;
-    flex-direction: column;
-  }
-
-  .modal-footer .btn-primary,
-  .modal-footer .btn-secondary,
-  .modal-footer .btn-danger {
-    width: 100%;
-    min-height: 44px;
-  }
-}
-
-/* Mobile card styles */
-.card-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.crew-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #dee2e6;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid #e0e0e0;
-  gap: 0.5rem;
-}
-
-.card-title {
-  font-size: 1rem;
-  color: #212529;
-  flex: 1;
-}
-
-.card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.card-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 0.5rem 0;
-  gap: 1rem;
-}
-
-.card-label {
-  font-weight: 600;
-  color: #6c757d;
-  font-size: 0.875rem;
-  flex-shrink: 0;
-}
-
-.card-value {
-  color: #212529;
-  font-size: 0.875rem;
-  text-align: right;
-  word-break: break-word;
-}
-
-.card-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
-}
-
-.btn-card {
-  flex: 1;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
-  min-height: 44px;
-}
-
-.btn-edit-card {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-edit-card:hover {
-  background-color: #545b62;
 }
 
 @media (min-width: 768px) {
@@ -1284,10 +949,10 @@ button:disabled {
 
 .category-badge {
   display: inline-block;
-  padding: 0.25rem 0.5rem;
+  padding: var(--spacing-xs, 0.25rem) var(--spacing-sm, 0.5rem);
   border-radius: 8px;
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: var(--font-size-sm, 0.7rem);
+  font-weight: var(--font-weight-semibold, 600);
   text-transform: uppercase;
 }
 
@@ -1317,40 +982,34 @@ button:disabled {
 }
 
 .master-letter {
-  margin-left: 0.25rem;
+  margin-left: var(--spacing-xs, 0.25rem);
   font-weight: 700;
 }
 
 .name-cell strong {
-  color: #2c3e50;
+  color: var(--color-dark, #2c3e50);
 }
 
 .age-category-cell {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-sm, 0.5rem);
 }
 
 .age {
-  color: #666;
-  font-size: 0.9rem;
+  color: var(--color-muted, #666);
+  font-size: var(--font-size-base, 0.9rem);
   white-space: nowrap;
-}
-
-.assigned-badge {
-  color: #4CAF50;
-  font-size: 1.25rem;
-  font-weight: bold;
 }
 
 .club-box {
   display: inline-block;
   max-width: 200px;
-  padding: 0.25rem 0.5rem;
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
+  padding: var(--spacing-xs, 0.25rem) var(--spacing-sm, 0.5rem);
+  background-color: var(--color-light, #f5f5f5);
+  border: 1px solid var(--color-border, #ddd);
   border-radius: 4px;
-  font-size: 0.75rem;
+  font-size: var(--font-size-sm, 0.75rem);
   line-height: 1.3;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -1360,15 +1019,15 @@ button:disabled {
 .crew-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-  padding: 1rem 0;
+  gap: var(--spacing-xl, 1.5rem);
+  padding: var(--spacing-lg, 1rem) 0;
 }
 
 .crew-card {
   background: white;
-  border: 2px solid #e0e0e0;
+  border: 2px solid var(--color-border, #e0e0e0);
   border-radius: 8px;
-  padding: 1.5rem;
+  padding: var(--spacing-xl, 1.5rem);
   transition: all 0.3s;
 }
 
@@ -1377,57 +1036,62 @@ button:disabled {
 }
 
 .crew-card.assigned {
-  border-left: 4px solid #4CAF50;
+  border-left: 4px solid var(--color-success, #4CAF50);
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: var(--spacing-lg, 1rem);
+  padding-bottom: var(--spacing-lg, 1rem);
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
 }
 
 .member-info h4 {
-  margin: 0 0 0.25rem 0;
-  color: #333;
-  font-size: 1.25rem;
+  margin: 0 0 var(--spacing-xs, 0.25rem) 0;
+  color: var(--color-dark, #333);
+  font-size: var(--font-size-xl, 1.25rem);
 }
 
 .license {
-  color: #666;
-  font-size: 0.875rem;
+  color: var(--color-muted, #666);
+  font-size: var(--font-size-sm, 0.875rem);
   font-family: monospace;
 }
 
 .badges {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--spacing-sm, 0.5rem);
   flex-wrap: wrap;
 }
 
 .badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
+  display: inline-block;
+  padding: var(--badge-padding, 0.25rem 0.75rem);
+  border-radius: var(--badge-border-radius, 12px);
+  font-size: var(--badge-font-size, 0.75rem);
+  font-weight: var(--badge-font-weight, 500);
 }
 
 .badge-assigned {
-  background-color: #9C27B0;
+  background-color: var(--color-success, #28a745);
   color: white;
 }
 
+.badge-unassigned {
+  background-color: var(--color-warning, #ffc107);
+  color: var(--color-dark, #212529);
+}
+
 .card-body {
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-lg, 1rem);
 }
 
 .detail-row {
   display: flex;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f5f5f5;
+  padding: var(--spacing-sm, 0.5rem) 0;
+  border-bottom: 1px solid var(--color-light, #f5f5f5);
   align-items: flex-start;
 }
 
@@ -1436,8 +1100,8 @@ button:disabled {
 }
 
 .label {
-  font-weight: 500;
-  color: #666;
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-muted, #666);
   min-width: 120px;
   max-width: 120px;
   flex-shrink: 0;
@@ -1446,216 +1110,27 @@ button:disabled {
 }
 
 .value {
-  color: #333;
+  color: var(--color-dark, #333);
   flex: 1;
 }
 
 .card-actions {
   display: flex;
-  gap: 0.5rem;
-  justify-content: flex-end;
-  padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
-}
-
-.btn {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-small {
-  padding: 0.4rem 0.8rem;
-  font-size: 0.8rem;
-}
-
-.btn-edit {
-  background-color: #2196F3;
-  color: white;
-}
-
-.btn-edit:hover {
-  background-color: #1976D2;
+  gap: var(--spacing-sm, 0.5rem);
+  padding-top: var(--spacing-lg, 1rem);
+  border-top: 1px solid var(--color-border, #e0e0e0);
 }
 
 .team-manager-info {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--spacing-xs, 0.25rem);
 }
 
 .team-manager-info .email {
-  font-size: 0.85rem;
-  color: #6c757d;
+  font-size: var(--font-size-sm, 0.85rem);
+  color: var(--color-secondary, #6c757d);
   word-break: break-all;
   overflow-wrap: break-word;
 }
 </style>
-
-
-/* Mobile card styles */
-.card-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.crew-card {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #dee2e6;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid #e0e0e0;
-  gap: 0.5rem;
-}
-
-.card-title {
-  font-size: 1rem;
-  color: #212529;
-  flex: 1;
-}
-
-.card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.card-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 0.5rem 0;
-  gap: 1rem;
-}
-
-.card-label {
-  font-weight: 600;
-  color: #6c757d;
-  font-size: 0.875rem;
-  flex-shrink: 0;
-}
-
-.card-value {
-  color: #212529;
-  font-size: 0.875rem;
-  text-align: right;
-  word-break: break-word;
-}
-
-.card-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
-}
-
-.btn-card {
-  flex: 1;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
-  min-height: 44px;
-}
-
-.btn-edit-card {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-edit-card:hover {
-  background-color: #545b62;
-}
-
-/* Mobile responsive styles */
-@media (max-width: 768px) {
-  .admin-crew-members {
-    padding: 1rem;
-  }
-
-  .filter-group {
-    flex-direction: column;
-    align-items: stretch;
-    width: 100%;
-  }
-
-  .filter-group label {
-    margin-bottom: 0.25rem;
-  }
-
-  .filter-select,
-  .filter-input {
-    width: 100%;
-    font-size: 16px;
-    min-height: 44px;
-  }
-
-  .crew-table-container {
-    padding: 1rem;
-  }
-
-  .crew-table {
-    min-width: 900px;
-  }
-
-  .crew-table th,
-  .crew-table td {
-    white-space: nowrap;
-  }
-
-  .actions-cell {
-    flex-wrap: nowrap;
-  }
-
-  .btn-table {
-    min-height: 44px;
-    min-width: 44px;
-    padding: 0.5rem;
-    font-size: 0.75rem;
-  }
-
-  .pagination {
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .pagination .btn-secondary {
-    flex: 1;
-    min-width: 100px;
-    min-height: 44px;
-  }
-
-  .page-info {
-    width: 100%;
-    text-align: center;
-  }
-}
-
-@media (min-width: 768px) {
-  .crew-table {
-    min-width: auto;
-  }
-
-  .crew-table td,
-  .crew-table th {
-    white-space: normal;
-  }
-}

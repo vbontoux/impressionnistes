@@ -15,6 +15,11 @@ Welcome to the Course des Impressionnistes Registration System documentation.
 - [Consent Schema](reference/consent-schema.md) - GDPR consent storage
 - [Terminology](reference/terminology.md) - Standard terminology and pricing definitions
 
+### Design System
+- [Design System Setup](design-system-setup.md) - Design tokens implementation guide
+- [Design System Showcase Guide](design-system-showcase-guide.md) - Living style guide maintenance
+- [Design System Documentation](design-system.md) - Complete design system reference (coming in Task 22)
+
 ### Guides
 - [GDPR Compliance](guides/GDPR_COMPLIANCE.md) - **NEW** Privacy and consent implementation
 - [Email System](guides/EMAIL_SYSTEM_SUMMARY.md) - Email configuration and usage

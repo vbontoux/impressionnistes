@@ -24,6 +24,7 @@ const AdminDataExport = () => import('../views/admin/AdminDataExport.vue');
 const AdminClubManagers = () => import('../views/admin/AdminClubManagers.vue');
 const PrivacyPolicy = () => import('../views/legal/PrivacyPolicy.vue');
 const TermsConditions = () => import('../views/legal/TermsConditions.vue');
+const DesignSystemShowcase = () => import('../views/DesignSystemShowcase.vue');
 
 const routes = [
   {
@@ -63,6 +64,11 @@ const routes = [
     path: '/terms-conditions',
     name: 'TermsConditions',
     component: TermsConditions,
+  },
+  {
+    path: '/design-system',
+    name: 'DesignSystemShowcase',
+    component: DesignSystemShowcase,
   },
   {
     path: '/dashboard',

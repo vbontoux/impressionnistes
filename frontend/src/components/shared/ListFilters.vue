@@ -46,80 +46,85 @@ defineEmits(['update:searchQuery', 'clear'])
 
 <style scoped>
 .list-filters {
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background: var(--color-bg-white);
+  padding: var(--spacing-lg);
+  border-radius: var(--card-border-radius);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--card-shadow);
 }
 
 .search-box {
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--spacing-md);
 }
 
 .search-input {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  min-height: 44px;
+  padding: var(--form-input-padding);
+  border: 1px solid var(--form-input-border-color);
+  border-radius: var(--form-input-border-radius);
+  font-size: var(--font-size-lg);
+  min-height: var(--form-input-min-height);
+  background: var(--color-bg-white);
+}
+
+.search-input::placeholder {
+  color: #999;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .filter-row {
   display: flex;
-  gap: 1rem;
+  gap: var(--spacing-lg);
   flex-wrap: wrap;
   align-items: center;
 }
 
 .filter-btn {
-  padding: 0.5rem 1rem;
-  border: 1px solid #ddd;
-  background: white;
-  border-radius: 4px;
+  padding: var(--form-input-padding) var(--spacing-lg);
+  border: 1px solid var(--form-input-border-color);
+  background: var(--color-bg-white);
+  border-radius: var(--form-input-border-radius);
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   white-space: nowrap;
-  transition: all 0.3s;
-  min-height: 44px;
+  transition: var(--transition-slow);
+  min-height: var(--form-input-min-height);
 }
 
 .filter-btn:hover {
-  background: #f5f5f5;
+  background: var(--color-bg-light);
 }
 
 .filter-btn:active {
-  background: #e9ecef;
+  background: var(--color-light);
 }
 
 /* Mobile Responsive */
 @media (max-width: 767px) {
   .list-filters {
-    padding: 1rem;
-    margin-bottom: 1rem;
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
     border-radius: 0;
   }
 
   .search-input {
-    font-size: 16px; /* Prevents iOS zoom */
+    font-size: var(--form-input-font-size-mobile); /* Prevents iOS zoom */
   }
 
   .filter-row {
     flex-direction: column;
-    gap: 0.75rem;
+    gap: var(--spacing-md);
     align-items: stretch;
   }
 
   .filter-btn {
     width: 100%;
-    min-height: 44px;
+    min-height: var(--touch-target-min-size);
   }
 }
 

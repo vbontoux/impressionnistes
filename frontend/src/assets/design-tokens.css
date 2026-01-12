@@ -1,0 +1,239 @@
+/**
+ * Design Tokens
+ * 
+ * Central definition of design system values using CSS custom properties.
+ * These tokens ensure consistency across the application and make theming easier.
+ */
+
+:root {
+  /* ========================================
+     Colors - Semantic Color Palette
+     ======================================== */
+  
+  /* Primary Colors */
+  --color-primary: #007bff;
+  --color-primary-hover: #0056b3;
+  --color-primary-active: #004085;
+  
+  /* Success Colors */
+  --color-success: #28a745;
+  --color-success-hover: #218838;
+  --color-success-active: #1e7e34;
+  --color-success-light: #e7f5ec;
+  --color-success-border: #c3e6cb;
+  --color-success-text: #155724;
+  
+  /* Warning Colors */
+  --color-warning: #ffc107;
+  --color-warning-hover: #e0a800;
+  --color-warning-active: #d39e00;
+  --color-warning-light: #fff9e6;
+  --color-warning-border: #ffc107;
+  --color-warning-text: #856404;
+  
+  /* Danger Colors */
+  --color-danger: #dc3545;
+  --color-danger-hover: #c82333;
+  --color-danger-active: #bd2130;
+  --color-danger-light: #fee;
+  --color-danger-border: #fcc;
+  --color-danger-text: #c33;
+  
+  /* Secondary Colors */
+  --color-secondary: #6c757d;
+  --color-secondary-hover: #5a6268;
+  --color-secondary-active: #545b62;
+  
+  /* Neutral Colors */
+  --color-light: #f8f9fa;
+  --color-dark: #212529;
+  --color-muted: #666;
+  --color-border: #dee2e6;
+  --color-disabled: #ccc;
+  
+  /* Background Colors */
+  --color-bg-white: #ffffff;
+  --color-bg-light: #f5f5f5;
+  --color-bg-overlay: rgba(0, 0, 0, 0.5);
+  --color-bg-hover: rgba(0, 0, 0, 0.05);
+  
+  /* Info Colors */
+  --color-info: #007bff;
+  --color-info-light: #e7f3ff;
+  --color-info-border: #b3d9ff;
+  --color-info-text: #004085;
+  
+  /* ========================================
+     Spacing Scale
+     ======================================== */
+  
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 0.75rem;   /* 12px */
+  --spacing-lg: 1rem;      /* 16px */
+  --spacing-xl: 1.5rem;    /* 24px */
+  --spacing-xxl: 2rem;     /* 32px */
+  --spacing-3xl: 3rem;     /* 48px */
+  
+  /* ========================================
+     Typography
+     ======================================== */
+  
+  /* Font Sizes */
+  --font-size-xs: 0.75rem;      /* 12px */
+  --font-size-sm: 0.8125rem;    /* 13px */
+  --font-size-base: 0.875rem;   /* 14px */
+  --font-size-md: 0.95rem;      /* 15.2px */
+  --font-size-lg: 1rem;         /* 16px */
+  --font-size-xl: 1.125rem;     /* 18px */
+  --font-size-2xl: 1.25rem;     /* 20px */
+  --font-size-3xl: 1.5rem;      /* 24px */
+  
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* ========================================
+     Breakpoints
+     ======================================== */
+  
+  --breakpoint-mobile: 768px;
+  --breakpoint-tablet: 1024px;
+  --breakpoint-desktop: 1280px;
+  
+  /* ========================================
+     Component-Specific Tokens
+     ======================================== */
+  
+  /* Buttons */
+  --button-border-radius: 4px;
+  --button-padding-sm: 0.5rem 0.75rem;
+  --button-padding-md: 0.75rem 1rem;
+  --button-padding-lg: 0.75rem 1.5rem;
+  --button-min-height-sm: 36px;
+  --button-min-height-md: 44px;
+  --button-min-height-lg: 48px;
+  --button-font-size-sm: 0.8125rem;
+  --button-font-size-md: 0.875rem;
+  --button-font-size-lg: 0.95rem;
+  --button-transition: all 0.2s ease;
+  
+  /* Status Badges */
+  --badge-border-radius: 12px;
+  --badge-padding: 0.25rem 0.75rem;
+  --badge-font-size: 0.75rem;
+  --badge-font-weight: 500;
+  
+  /* Cards */
+  --card-border-radius: 8px;
+  --card-padding-mobile: 1rem;
+  --card-padding-desktop: 1.5rem;
+  --card-border-width: 1px;
+  --card-border-color: var(--color-border);
+  --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --card-shadow-hover: 0 4px 8px rgba(0, 0, 0, 0.15);
+  
+  /* Tables */
+  --table-header-bg: #f8f9fa;
+  --table-header-font-weight: 600;
+  --table-cell-padding-mobile: 0.75rem;
+  --table-cell-padding-desktop: 1rem;
+  --table-border-color: var(--color-border);
+  --table-hover-bg: #f8f9fa;
+  
+  /* Modals */
+  --modal-border-radius-desktop: 8px;
+  --modal-border-radius-mobile: 12px 12px 0 0;
+  --modal-max-width: 600px;
+  --modal-padding: 1rem 1.5rem;
+  --modal-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+  --modal-z-index: 1000;
+  
+  /* Forms */
+  --form-input-border-radius: 4px;
+  --form-input-border-color: #ddd;
+  --form-input-padding: 0.5rem;
+  --form-input-min-height: 44px;
+  --form-input-font-size-mobile: 16px; /* Prevents iOS zoom */
+  --form-label-gap: 0.5rem;
+  --form-group-gap: 1rem;
+  
+  /* Loading Spinner */
+  --spinner-size: 40px;
+  --spinner-border-width: 4px;
+  --spinner-border-color: #f3f3f3;
+  --spinner-border-top-color: #4CAF50;
+  --spinner-animation-duration: 1s;
+  
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+  
+  /* Z-Index Scale */
+  --z-index-dropdown: 100;
+  --z-index-sticky: 200;
+  --z-index-fixed: 300;
+  --z-index-modal-backdrop: 900;
+  --z-index-modal: 1000;
+  --z-index-popover: 1100;
+  --z-index-tooltip: 1200;
+  
+  /* Opacity */
+  --opacity-disabled: 0.6;
+  --opacity-hover: 0.1;
+  
+  /* Touch Targets */
+  --touch-target-min-size: 44px;
+  --touch-target-spacing: 8px;
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+
+/* Boat Number Styling */
+.boat-number-text,
+.boat-number-cell {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-primary);
+}
+
+.no-race-text,
+.no-race-cell {
+  color: var(--color-secondary);
+  font-style: italic;
+}
+
+/* ========================================
+   Responsive Typography Adjustments
+   ======================================== */
+
+@media (min-width: 768px) {
+  :root {
+    --font-size-base: 0.95rem;   /* Slightly larger on desktop */
+  }
+}
+
+/* ========================================
+   Dark Mode Support (Future)
+   ======================================== */
+
+/* Uncomment when implementing dark mode
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg-white: #1a1a1a;
+    --color-dark: #ffffff;
+    --color-light: #2a2a2a;
+    --color-muted: #999;
+  }
+}
+*/

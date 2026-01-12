@@ -4,6 +4,9 @@ import { createI18n } from 'vue-i18n';
 import App from './App.vue';
 import router from './router';
 
+// Import design tokens test (development only)
+import './utils/testDesignTokens.js';
+
 // Import translations
 import en from './locales/en.json';
 import fr from './locales/fr.json';

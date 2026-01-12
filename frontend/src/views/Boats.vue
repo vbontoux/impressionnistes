@@ -47,10 +47,10 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="boatStore.loading && boatRegistrations.length === 0" class="loading">
-      <div class="spinner"></div>
-      <p>{{ $t('common.loading') }}</p>
-    </div>
+    <LoadingSpinner 
+      v-if="boatStore.loading && boatRegistrations.length === 0"
+      :message="$t('common.loading')"
+    />
 
     <!-- Error State -->
     <div v-else-if="boatStore.error" class="error-message">
@@ -59,9 +59,10 @@
 
     <!-- Boat Registrations List -->
     <div v-else-if="boatRegistrations.length > 0 || !boatStore.loading" class="boats-list">
-      <div v-if="boatRegistrations.length === 0 && !boatStore.loading" class="empty-state">
-        <p>{{ $t('boat.noBoats') }}</p>
-      </div>
+      <EmptyState 
+        v-if="boatRegistrations.length === 0 && !boatStore.loading"
+        :message="$t('boat.noBoats')"
+      />
 
       <!-- Card View -->
       <div v-else-if="viewMode === 'cards'" class="boat-cards">
@@ -73,9 +74,7 @@
         >
           <div class="boat-header">
             <h3>{{ boat.event_type }} - {{ boat.boat_type }}</h3>
-            <span class="status-badge" :class="`status-${getBoatStatus(boat)}`">
-              {{ getBoatStatusLabel(boat) }}
-            </span>
+            <StatusBadge :status="getBoatStatus(boat)" size="medium" />
           </div>
 
           <div class="boat-details">
@@ -146,17 +145,22 @@
           </div>
 
           <div class="boat-actions">
-            <button @click="viewBoat(boat)" class="btn-secondary">
+            <BaseButton 
+              variant="secondary"
+              size="small"
+              @click="viewBoat(boat)"
+            >
               {{ $t('common.view') }}
-            </button>
-            <button 
-              @click="deleteBoat(boat)" 
-              class="btn-danger"
+            </BaseButton>
+            <BaseButton 
+              variant="danger"
+              size="small"
+              @click="deleteBoat(boat)"
               :disabled="boat.registration_status === 'paid'"
               :title="boat.registration_status === 'paid' ? $t('boat.cannotDeletePaid') : ''"
             >
               {{ $t('common.delete') }}
-            </button>
+            </BaseButton>
           </div>
         </div>
       </div>
@@ -166,13 +170,19 @@
         <table class="boat-table">
           <thead>
             <tr>
-              <th>{{ $t('boat.boatNumber') }}</th>
-              <th>{{ $t('boat.eventType') }}</th>
+              <th class="sortable-header" @click="sortBy('boat_number')">
+                {{ $t('boat.boatNumber') }} {{ getSortIndicator('boat_number') }}
+              </th>
+              <th class="sortable-header" @click="sortBy('event_type')">
+                {{ $t('boat.eventType') }} {{ getSortIndicator('event_type') }}
+              </th>
               <th>{{ $t('boat.boatType') }}</th>
               <th>{{ $t('boat.firstRower') }}</th>
               <th>{{ $t('boat.gender') }}</th>
               <th>{{ $t('boat.averageAge') }}</th>
-              <th>{{ $t('admin.boats.club') }}</th>
+              <th class="sortable-header" @click="sortBy('boat_club_display')">
+                {{ $t('admin.boats.club') }} {{ getSortIndicator('boat_club_display') }}
+              </th>
               <th>{{ $t('boat.seats') }}</th>
               <th>{{ $t('boat.boatRequest.status') }}</th>
               <th>{{ $t('boat.status.label') }}</th>
@@ -212,22 +222,27 @@
                   </span>
                 </td>
                 <td>
-                  <span class="status-badge" :class="`status-${getBoatStatus(boat)}`">
-                    {{ getBoatStatusLabel(boat) }}
-                  </span>
+                  <StatusBadge :status="getBoatStatus(boat)" size="medium" />
                 </td>
                 <td class="actions-cell">
-                  <button @click="viewBoat(boat)" class="btn-table btn-view-table">
+                  <BaseButton 
+                    size="small"
+                    variant="secondary"
+                    @click="viewBoat(boat)"
+                    fullWidth
+                  >
                     {{ $t('common.view') }}
-                  </button>
-                  <button 
-                    @click="deleteBoat(boat)" 
-                    class="btn-table btn-delete-table"
+                  </BaseButton>
+                  <BaseButton 
+                    size="small"
+                    variant="danger"
+                    @click="deleteBoat(boat)"
                     :disabled="boat.registration_status === 'paid'"
                     :title="boat.registration_status === 'paid' ? $t('boat.cannotDeletePaid') : ''"
+                    fullWidth
                   >
                     {{ $t('common.delete') }}
-                  </button>
+                  </BaseButton>
                 </td>
               </tr>
               <tr v-if="getRaceName(boat)" class="race-row" :class="`row-status-${boat.registration_status}`">
@@ -249,9 +264,14 @@ import { useRouter } from 'vue-router'
 import { useBoatStore } from '../stores/boatStore'
 import { useRaceStore } from '../stores/raceStore'
 import { useI18n } from 'vue-i18n'
+import { useTableSort } from '../composables/useTableSort'
 import BoatRegistrationForm from '../components/BoatRegistrationForm.vue'
 import ListHeader from '../components/shared/ListHeader.vue'
 import ListFilters from '../components/shared/ListFilters.vue'
+import BaseButton from '../components/base/BaseButton.vue'
+import StatusBadge from '../components/base/StatusBadge.vue'
+import LoadingSpinner from '../components/base/LoadingSpinner.vue'
+import EmptyState from '../components/base/EmptyState.vue'
 import { formatAverageAge } from '../utils/formatters'
 
 export default {
@@ -259,7 +279,11 @@ export default {
   components: {
     BoatRegistrationForm,
     ListHeader,
-    ListFilters
+    ListFilters,
+    BaseButton,
+    StatusBadge,
+    LoadingSpinner,
+    EmptyState
   },
   setup() {
     const router = useRouter()
@@ -327,6 +351,13 @@ export default {
       return boats
     })
 
+    // Set up table sorting
+    const boatsForSorting = computed(() => boatRegistrations.value)
+    const { sortedData, sortBy, getSortIndicator } = useTableSort(boatsForSorting)
+    
+    // Use sorted data for display
+    const displayBoats = computed(() => sortedData.value)
+
     const getFilledSeatsCount = (boat) => {
       if (!boat.seats) return 0
       return boat.seats.filter(seat => seat.crew_member_id).length
@@ -344,11 +375,6 @@ export default {
     const getBoatStatus = (boat) => {
       if (boat.forfait) return 'forfait'
       return boat.registration_status || 'incomplete'
-    }
-
-    const getBoatStatusLabel = (boat) => {
-      if (boat.forfait) return t('boat.status.forfait')
-      return t(`boat.status.${boat.registration_status || 'incomplete'}`)
     }
 
     const getRowClass = (boat) => {
@@ -433,11 +459,10 @@ export default {
       statusFilter,
       boatRequestFilter,
       searchQuery,
-      boatRegistrations,
+      boatRegistrations: displayBoats,
       getFilledSeatsCount,
       getFirstRowerLastName,
       getBoatStatus,
-      getBoatStatusLabel,
       getRowClass,
       getCrewGenderCategory,
       getCrewAverageAge,
@@ -446,7 +471,9 @@ export default {
       handleBoatCreated,
       viewBoat,
       deleteBoat,
-      clearFilters
+      clearFilters,
+      sortBy,
+      getSortIndicator
     }
   }
 }
@@ -463,49 +490,28 @@ export default {
 .filter-group {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 .filter-group label {
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   white-space: nowrap;
 }
 
 .filter-select {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
+  padding: var(--form-input-padding);
+  border: 1px solid var(--form-input-border-color);
+  border-radius: var(--form-input-border-radius);
+  background: var(--color-bg-white);
   cursor: pointer;
   min-width: 120px;
-  min-height: 44px;
+  min-height: var(--form-input-min-height);
 }
 
 .filter-select:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-}
-
-.loading {
-  text-align: center;
-  padding: 2rem 1rem;
-  color: #666;
-}
-
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #4CAF50;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 .modal-overlay {
@@ -514,17 +520,17 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--modal-overlay-bg);
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  z-index: 1000;
+  z-index: var(--modal-z-index);
   padding: 0;
 }
 
 .modal-content {
-  background-color: white;
-  border-radius: 12px 12px 0 0;
+  background-color: var(--color-bg-white);
+  border-radius: var(--modal-border-radius-mobile);
   width: 100%;
   max-width: 100%;
   max-height: 90vh;
@@ -534,52 +540,41 @@ export default {
 }
 
 .error-message {
-  padding: 1rem;
-  background-color: #fee;
-  border: 1px solid #fcc;
-  border-radius: 4px;
-  color: #c33;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 2rem 1rem;
-}
-
-.empty-state p {
-  color: #666;
-  margin-bottom: 1.5rem;
-  font-size: 0.95rem;
+  padding: var(--spacing-lg);
+  background-color: var(--color-danger-light);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--button-border-radius);
+  color: var(--color-danger-text);
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-base);
 }
 
 .boat-cards {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1rem;
+  gap: var(--spacing-lg);
 }
 
 .boat-card {
-  background-color: white;
-  border: 2px solid #dee2e6;
-  border-radius: 8px;
-  padding: 1rem;
-  transition: box-shadow 0.2s;
+  background-color: var(--color-bg-white);
+  border: 2px solid var(--color-border);
+  border-radius: var(--card-border-radius);
+  padding: var(--card-padding-mobile);
+  transition: box-shadow var(--transition-normal);
 }
 
 .boat-card.status-complete {
-  border-color: #28a745;
+  border-color: var(--color-success);
 }
 
 .boat-card.status-free {
-  border-color: #007bff;
+  border-color: var(--color-primary);
   background: linear-gradient(to bottom, #f0f7ff 0%, white 100%);
   box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
 }
 
 .boat-card.status-paid {
-  border-color: #007bff;
+  border-color: var(--color-primary);
   background: linear-gradient(to bottom, #f0f7ff 0%, white 100%);
   box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
 }
@@ -588,88 +583,34 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
-  gap: 0.5rem;
+  margin-bottom: var(--spacing-lg);
+  gap: var(--spacing-sm);
 }
 
 .boat-header h3 {
   margin: 0;
-  color: #212529;
-  font-size: 1rem;
+  color: var(--color-dark);
+  font-size: var(--font-size-lg);
   word-break: break-word;
   flex: 1;
 }
 
-.boat-number-text {
-  font-weight: 600;
-  color: #007bff;
-}
-
-.no-race-text {
-  color: #6c757d;
-  font-style: italic;
-}
-
-.boat-number-cell {
-  font-weight: 600;
-  color: #007bff;
-}
-
-.no-race-cell {
-  color: #6c757d;
-  font-style: italic;
-}
-
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.status-badge.status-incomplete {
-  background-color: #ffc107;
-  color: #000;
-}
-
-.status-badge.status-complete {
-  background-color: #28a745;
-  color: white;
-}
-
-.status-badge.status-free {
-  background-color: #007bff;
-  color: white;
-}
-
-.status-badge.status-paid {
-  background-color: #007bff;
-  color: white;
-}
-
-.status-badge.status-forfait {
-  background-color: #dc3545;
-  color: white;
-}
-
 .boat-details {
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 .detail-row {
   display: flex;
   justify-content: space-between;
-  padding: 0.5rem 0;
+  padding: var(--spacing-sm) 0;
   border-bottom: 1px solid #f0f0f0;
-  font-size: 0.875rem;
-  gap: 0.5rem;
+  font-size: var(--font-size-base);
+  gap: var(--spacing-sm);
 }
 
 .detail-row .label {
-  font-weight: 500;
-  color: #666;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted);
   flex-shrink: 0;
 }
 
@@ -681,11 +622,11 @@ export default {
 .club-box {
   display: inline-block;
   max-width: 200px;
-  padding: 0.25rem 0.5rem;
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.75rem;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-bg-light);
+  border: 1px solid var(--form-input-border-color);
+  border-radius: var(--button-border-radius);
+  font-size: var(--font-size-xs);
   line-height: 1.3;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -702,97 +643,59 @@ export default {
 }
 
 .race-name {
-  margin-top: 1rem;
-  padding: 0.75rem;
-  background-color: #f8f9fa;
-  border-radius: 4px;
-  font-size: 0.875rem;
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background-color: var(--color-light);
+  border-radius: var(--button-border-radius);
+  font-size: var(--font-size-base);
   line-height: 1.4;
   color: #495057;
   word-break: break-word;
 }
 
 .race-name strong {
-  color: #212529;
+  color: var(--color-dark);
 }
 
 .assignment-comment {
-  margin-top: 0.75rem;
-  padding: 0.75rem;
-  background-color: #e7f3ff;
-  border-left: 4px solid #007bff;
-  border-radius: 4px;
-  font-size: 0.875rem;
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--color-info-light);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--button-border-radius);
+  font-size: var(--font-size-base);
   line-height: 1.4;
   color: #495057;
   word-break: break-word;
 }
 
 .assignment-comment strong {
-  color: #212529;
+  color: var(--color-dark);
 }
 
 .boat-assigned {
-  color: #28a745;
-  font-weight: 600;
+  color: var(--color-success);
+  font-weight: var(--font-weight-semibold);
 }
 
 .boat-pending {
-  color: #ffc107;
+  color: var(--color-warning);
   font-style: italic;
 }
 
 .boat-actions {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1rem;
-}
-
-.btn-secondary,
-.btn-danger {
-  width: 100%;
-  min-height: 44px;
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
-  touch-action: manipulation;
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-secondary:active {
-  background-color: #545b62;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-danger:active:not(:disabled) {
-  background-color: #c82333;
-}
-
-.btn-danger:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  opacity: 0.6;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-lg);
 }
 
 /* Table View Styles */
 .boat-table-container {
-  background-color: white;
+  background-color: var(--color-bg-white);
   border-radius: 0;
   overflow-x: auto;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--card-shadow);
   margin: 0 -1rem;
   -webkit-overflow-scrolling: touch;
 }
@@ -817,176 +720,149 @@ export default {
 .boat-table th:nth-child(11) { width: 140px; } /* Actions - INCREASED */
 
 .no-request {
-  color: #6c757d;
+  color: var(--color-secondary);
 }
 
 .boat-requested {
-  color: #ffc107;
-  font-weight: 600;
-  font-size: 0.8125rem;
+  color: var(--color-warning);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
 }
 
 .boat-assigned-table {
-  color: #28a745;
-  font-weight: 600;
+  color: var(--color-success);
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Boat Request Section Styles */
 .boat-request-section {
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 .boat-request-pending {
-  background-color: #fff9e6;
-  border-left: 4px solid #ffc107;
-  padding: 0.75rem;
-  border-radius: 4px;
+  background-color: var(--color-warning-light);
+  border-left: 4px solid var(--color-warning);
+  padding: var(--spacing-md);
+  border-radius: var(--button-border-radius);
 }
 
 .boat-request-pending .request-header {
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--spacing-sm);
 }
 
 .boat-request-pending .status-text {
-  color: #856404;
-  font-weight: 600;
+  color: var(--color-warning-text);
+  font-weight: var(--font-weight-semibold);
 }
 
 .boat-request-pending .request-comment {
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: #666;
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-base);
+  color: var(--color-muted);
 }
 
 .boat-request-fulfilled {
-  background-color: #e7f5ec;
-  border-left: 4px solid #28a745;
-  padding: 0.75rem;
-  border-radius: 4px;
+  background-color: var(--color-success-light);
+  border-left: 4px solid var(--color-success);
+  padding: var(--spacing-md);
+  border-radius: var(--button-border-radius);
 }
 
 .boat-request-fulfilled .fulfilled-header {
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--spacing-sm);
 }
 
 .boat-request-fulfilled .boat-name {
-  color: #155724;
-  font-weight: 600;
+  color: var(--color-success-text);
+  font-weight: var(--font-weight-semibold);
 }
 
 .boat-request-fulfilled .assignment-details {
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: #155724;
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-base);
+  color: var(--color-success-text);
 }
 
 .info-icon {
-  margin-left: 0.25rem;
-  font-size: 0.875rem;
+  margin-left: var(--spacing-xs);
+  font-size: var(--font-size-base);
   cursor: help;
 }
 
 .boat-table thead {
-  background-color: #f8f9fa;
+  background-color: var(--table-header-bg);
 }
 
 .boat-table th {
-  padding: 0.75rem;
+  padding: var(--table-cell-padding-mobile);
   text-align: left;
-  font-weight: 600;
+  font-weight: var(--table-header-font-weight);
   color: #495057;
-  border-bottom: 2px solid #dee2e6;
-  font-size: 0.875rem;
+  border-bottom: 2px solid var(--table-border-color);
+  font-size: var(--font-size-base);
+}
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--transition-normal);
+}
+
+.sortable-header:hover {
+  background-color: #e9ecef;
 }
 
 .boat-table td {
-  padding: 0.75rem;
-  border-bottom: 1px solid #dee2e6;
-  font-size: 0.875rem;
+  padding: var(--table-cell-padding-mobile);
+  border-bottom: 1px solid var(--table-border-color);
+  font-size: var(--font-size-base);
 }
 
 .boat-table tbody tr.row-status-complete {
-  border-left: 4px solid #28a745;
+  border-left: 4px solid var(--color-success);
 }
 
 .boat-table tbody tr.row-status-free {
-  border-left: 4px solid #007bff;
+  border-left: 4px solid var(--color-primary);
 }
 
 .boat-table tbody tr.row-status-paid {
-  border-left: 4px solid #007bff;
+  border-left: 4px solid var(--color-primary);
 }
 
 .boat-table tbody tr.row-status-incomplete {
-  border-left: 4px solid #ffc107;
+  border-left: 4px solid var(--color-warning);
 }
 
 .boat-table tbody tr.row-forfait {
-  border-left: 4px solid #dc3545;
+  border-left: 4px solid var(--color-danger);
   background-color: #fff5f5;
 }
 
 .boat-table .race-row {
-  background-color: #f8f9fa;
+  background-color: var(--color-light);
   border-left-width: 4px;
 }
 
 .boat-table .race-cell {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.8125rem;
+  padding: var(--spacing-sm) var(--table-cell-padding-mobile);
+  font-size: var(--font-size-sm);
   font-style: italic;
   color: #495057;
 }
 
 .boat-table .race-label {
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
   font-style: normal;
-  color: #212529;
+  color: var(--color-dark);
 }
 
 .actions-cell {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 0.75rem !important;
+  gap: var(--spacing-sm);
+  padding: var(--table-cell-padding-mobile) !important;
   min-width: 120px;
-}
-
-.btn-table {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  min-height: 36px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8125rem;
-  transition: background-color 0.2s;
-  white-space: nowrap;
-  box-sizing: border-box;
-}
-
-.btn-view-table {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-view-table:active {
-  background-color: #545b62;
-}
-
-.btn-delete-table {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-delete-table:active:not(:disabled) {
-  background-color: #c82333;
-}
-
-.btn-delete-table:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  opacity: 0.6;
 }
 
 /* Mobile Responsive */
@@ -997,7 +873,7 @@ export default {
 
   .filter-select {
     width: 100%;
-    font-size: 16px; /* Prevents iOS zoom */
+    font-size: var(--form-input-font-size-mobile); /* Prevents iOS zoom */
   }
 }
 
@@ -1007,102 +883,61 @@ export default {
     width: auto;
   }
 
-  .loading {
-    padding: 3rem;
-  }
-
   .modal-overlay {
     align-items: center;
-    padding: 1rem;
+    padding: var(--spacing-lg);
   }
 
   .modal-content {
-    border-radius: 8px;
+    border-radius: var(--modal-border-radius-desktop);
     width: 90%;
-    max-width: 600px;
-  }
-
-  .empty-state {
-    padding: 3rem;
+    max-width: var(--modal-max-width);
   }
 
   .boat-cards {
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 1.5rem;
+    gap: var(--spacing-xl);
   }
 
   .boat-card {
-    padding: 1.5rem;
+    padding: var(--card-padding-desktop);
   }
 
   .boat-card:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--card-shadow-hover);
   }
 
   .boat-header h3 {
-    font-size: 1.125rem;
-  }
-
-  .boat-actions {
-    flex-direction: row;
-    gap: 0.5rem;
-  }
-
-  .btn-secondary,
-  .btn-danger {
-    width: auto;
-    flex: 1;
-    padding: 0.5rem 1rem;
-  }
-
-  .btn-secondary:hover {
-    background-color: #545b62;
-  }
-
-  .btn-danger:hover:not(:disabled) {
-    background-color: #c82333;
+    font-size: var(--font-size-xl);
   }
 
   .boat-table-container {
-    border-radius: 8px;
+    border-radius: var(--card-border-radius);
     margin: 0;
   }
 
   .boat-table th {
-    padding: 1rem;
-    font-size: 0.95rem;
+    padding: var(--table-cell-padding-desktop);
+    font-size: var(--font-size-md);
   }
 
   .boat-table td {
-    padding: 1rem;
-    font-size: 0.95rem;
+    padding: var(--table-cell-padding-desktop);
+    font-size: var(--font-size-md);
   }
 
   .boat-table tbody tr:hover {
-    background-color: #f8f9fa;
+    background-color: var(--table-hover-bg);
   }
 
   .boat-table .race-cell {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
+    padding: var(--spacing-sm) var(--table-cell-padding-desktop);
+    font-size: var(--font-size-base);
   }
 
   .actions-cell {
     flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .btn-table {
-    width: 100%;
-    padding: 0.5rem 0.75rem;
-  }
-
-  .btn-view-table:hover {
-    background-color: #545b62;
-  }
-
-  .btn-delete-table:hover:not(:disabled) {
-    background-color: #c82333;
+    gap: var(--spacing-sm);
   }
 }
 </style>

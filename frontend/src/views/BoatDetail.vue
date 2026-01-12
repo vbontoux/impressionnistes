@@ -6,18 +6,21 @@
 
     <div v-else-if="boat" class="boat-content">
       <!-- Error Message -->
-      <div v-if="error" class="error-message">
-        <span>{{ error }}</span>
-        <button @click="error = null" class="btn-close-error">×</button>
-      </div>
+      <MessageAlert
+        v-if="error"
+        type="error"
+        :message="error"
+        :dismissible="true"
+        @dismiss="error = null"
+      />
       <!-- Header -->
       <div class="header">
         <div>
-          <button @click="goBack" class="btn-back">← {{ $t('common.back') }}</button>
+          <BaseButton variant="secondary" size="small" @click="goBack" class="btn-back">
+            ← {{ $t('common.back') }}
+          </BaseButton>
           <h1>{{ boat.event_type }} - {{ boat.boat_type }}</h1>
-          <span class="status-badge" :class="`status-${boat.registration_status}`">
-            {{ $t(`boat.status.${boat.registration_status}`) }}
-          </span>
+          <StatusBadge :status="boat.registration_status" />
         </div>
       </div>
 
@@ -65,7 +68,7 @@
       <div class="section">
         <h2>{{ $t('boat.boatRequest.title') }}</h2>
         
-        <div class="form-group">
+        <FormGroup :help-text="$t('boat.boatRequest.helpText')">
           <label class="checkbox-label">
             <input 
               type="checkbox" 
@@ -74,15 +77,14 @@
             />
             <span>{{ $t('boat.boatRequest.enableLabel') }}</span>
           </label>
-          <p class="help-text">{{ $t('boat.boatRequest.helpText') }}</p>
-        </div>
+        </FormGroup>
         
         <!-- Show these fields only when boat request is enabled -->
         <div v-if="boat.boat_request_enabled" class="boat-request-fields">
-          <div class="form-group">
-            <label for="boat_request_comment">
-              {{ $t('boat.boatRequest.commentLabel') }}
-            </label>
+          <FormGroup
+            :label="$t('boat.boatRequest.commentLabel')"
+            input-id="boat_request_comment"
+          >
             <textarea
               id="boat_request_comment"
               v-model="boat.boat_request_comment"
@@ -91,28 +93,31 @@
               rows="4"
               class="form-textarea"
             ></textarea>
-            <span class="char-count">
-              {{ boat.boat_request_comment?.length || 0 }} / 500
-            </span>
-          </div>
+          </FormGroup>
+          <span class="char-count">
+            {{ boat.boat_request_comment?.length || 0 }} / 500
+          </span>
           
-          <div class="form-group">
-            <label>{{ $t('boat.boatRequest.assignedBoatLabel') }}</label>
+          <FormGroup
+            :label="$t('boat.boatRequest.assignedBoatLabel')"
+            :help-text="$t('boat.boatRequest.assignedBoatHelp')"
+          >
             <input
               type="text"
               :value="boat.assigned_boat_identifier || $t('boat.boatRequest.notAssigned')"
               disabled
               class="form-input read-only"
             />
-            <p class="help-text">{{ $t('boat.boatRequest.assignedBoatHelp') }}</p>
-          </div>
+          </FormGroup>
           
-          <div v-if="boat.assigned_boat_comment" class="form-group">
-            <label>{{ $t('boat.boatRequest.assignedBoatCommentLabel') }}</label>
+          <FormGroup
+            v-if="boat.assigned_boat_comment"
+            :label="$t('boat.boatRequest.assignedBoatCommentLabel')"
+          >
             <div class="assigned-comment">
               {{ boat.assigned_boat_comment }}
             </div>
-          </div>
+          </FormGroup>
         </div>
       </div>
 
@@ -139,12 +144,18 @@
       <!-- Bottom Action Buttons -->
       <div class="bottom-actions">
         <div class="button-group">
-          <button @click="goBack" class="btn-secondary btn-large">
+          <BaseButton variant="secondary" size="small" @click="goBack">
             {{ $t('common.cancel') }}
-          </button>
-          <button @click="saveBoat" :disabled="saving || !canSave" class="btn-primary btn-large">
+          </BaseButton>
+          <BaseButton 
+            variant="primary" 
+            size="small" 
+            :disabled="saving || !canSave"
+            :loading="saving"
+            @click="saveBoat"
+          >
             {{ saving ? $t('common.saving') : $t('common.save') }}
-          </button>
+          </BaseButton>
         </div>
         <p v-if="allSeatsFilled && !boat.race_id" class="save-hint">
           {{ $t('boat.selectRaceToSave') }}
@@ -163,12 +174,20 @@ import { useRaceStore } from '../stores/raceStore'
 import { useI18n } from 'vue-i18n'
 import SeatAssignment from '../components/SeatAssignment.vue'
 import RaceSelector from '../components/RaceSelector.vue'
+import BaseButton from '../components/base/BaseButton.vue'
+import StatusBadge from '../components/base/StatusBadge.vue'
+import MessageAlert from '../components/composite/MessageAlert.vue'
+import FormGroup from '../components/composite/FormGroup.vue'
 
 export default {
   name: 'BoatDetail',
   components: {
     SeatAssignment,
-    RaceSelector
+    RaceSelector,
+    BaseButton,
+    StatusBadge,
+    MessageAlert,
+    FormGroup
   },
   setup() {
     const route = useRoute()
@@ -359,240 +378,136 @@ export default {
 
 .loading {
   text-align: center;
-  padding: 3rem;
-  color: #666;
-}
-
-.error-message {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem;
-  background-color: #fee;
-  border: 1px solid #fcc;
-  border-radius: 4px;
-  color: #c33;
-  margin-bottom: 1rem;
-}
-
-.btn-close-error {
-  background: none;
-  border: none;
-  color: #c33;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 0;
-  margin-left: 1rem;
-  line-height: 1;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.btn-close-error:hover {
-  color: #a00;
+  padding: var(--spacing-3xl);
+  color: var(--color-muted);
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: start;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #dee2e6;
+  margin-bottom: var(--spacing-xxl);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 2px solid var(--color-border);
 }
 
 .header h1 {
-  margin: 0.5rem 0;
+  margin: var(--spacing-sm) 0;
 }
 
 .btn-back {
-  background: none;
-  border: none;
-  color: #007bff;
-  cursor: pointer;
-  font-size: 1rem;
-  padding: 0;
-  margin-bottom: 0.5rem;
-}
-
-.btn-back:hover {
-  text-decoration: underline;
-}
-
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-left: 1rem;
-}
-
-.status-badge.status-incomplete {
-  background-color: #ffc107;
-  color: #000;
-}
-
-.status-badge.status-complete {
-  background-color: #28a745;
-  color: white;
-}
-
-.status-badge.status-paid {
-  background-color: #007bff;
-  color: white;
-}
-
-.header-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.btn-primary {
-  padding: 0.75rem 1.5rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #0056b3;
-}
-
-.btn-primary:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+  margin-bottom: var(--spacing-sm);
 }
 
 .section {
   background-color: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: var(--card-border-radius);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--card-shadow);
 }
 
 .section h2 {
-  margin: 0 0 1rem 0;
-  color: #212529;
+  margin: 0 0 var(--spacing-lg) 0;
+  color: var(--color-dark);
 }
 
 .info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
+  gap: var(--spacing-lg);
 }
 
 .info-item {
   display: flex;
   justify-content: space-between;
-  padding: 0.75rem;
-  background-color: #f8f9fa;
-  border-radius: 4px;
+  padding: var(--spacing-md);
+  background-color: var(--color-light);
+  border-radius: var(--card-border-radius);
 }
 
 .info-item .label {
-  font-weight: 500;
-  color: #666;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted);
 }
 
 .issues-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--spacing-lg);
 }
 
 .issue-item {
-  padding: 1rem;
-  background-color: #fff3cd;
-  border: 1px solid #ffeaa7;
-  border-radius: 4px;
+  padding: var(--spacing-lg);
+  background-color: var(--color-warning-bg, #fff3cd);
+  border: var(--card-border-width) solid var(--color-warning-border, #ffeaa7);
+  border-radius: var(--card-border-radius);
 }
 
 .issue-item.issue-resolved {
-  background-color: #d4edda;
-  border-color: #c3e6cb;
+  background-color: var(--color-success-bg, #d4edda);
+  border-color: var(--color-success-border, #c3e6cb);
 }
 
 .issue-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--spacing-sm);
 }
 
 .resolved-badge {
-  background-color: #28a745;
+  background-color: var(--color-success);
   color: white;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--badge-border-radius);
+  font-size: var(--font-size-xs);
 }
 
 .issue-item p {
-  margin: 0.5rem 0;
+  margin: var(--spacing-sm) 0;
 }
 
 .issue-item small {
-  color: #666;
+  color: var(--color-muted);
 }
 
 .bottom-actions {
-  margin-top: 2rem;
-  padding: 1.5rem;
-  background-color: #f9f9f9;
-  border-top: 2px solid #e0e0e0;
+  margin-top: var(--spacing-xxl);
+  padding: var(--spacing-xl);
+  background-color: var(--color-light);
+  border-top: 2px solid var(--color-border);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
+  gap: var(--spacing-md);
 }
 
 .button-group {
   display: flex;
-  gap: 1rem;
+  gap: var(--spacing-lg);
   align-items: center;
 }
 
 .save-hint {
-  color: #856404;
-  background-color: #fff3cd;
-  border: 1px solid #ffeaa7;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
+  color: var(--color-warning-text, #856404);
+  background-color: var(--color-warning-bg, #fff3cd);
+  border: var(--card-border-width) solid var(--color-warning-border, #ffeaa7);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--card-border-radius);
   margin: 0;
-  font-size: 0.9rem;
-}
-
-.btn-large {
-  padding: 1rem 3rem;
-  font-size: 1.1rem;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+  font-size: var(--font-size-base);
 }
 
 .checkbox-label {
   display: flex;
   align-items: center;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 .checkbox-label input[type="checkbox"] {
-  margin-right: 0.5rem;
+  margin-right: var(--spacing-sm);
   width: 1.25rem;
   height: 1.25rem;
   cursor: pointer;
@@ -602,58 +517,52 @@ export default {
   user-select: none;
 }
 
-.help-text {
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: #666;
-}
-
 .boat-request-fields {
-  margin-top: 1rem;
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 4px;
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background-color: var(--color-light);
+  border-radius: var(--card-border-radius);
 }
 
 .form-textarea {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: var(--spacing-md);
+  border: var(--card-border-width) solid var(--color-border);
+  border-radius: var(--card-border-radius);
   font-family: inherit;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   resize: vertical;
 }
 
 .form-input {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
+  padding: var(--spacing-md);
+  border: var(--card-border-width) solid var(--color-border);
+  border-radius: var(--card-border-radius);
+  font-size: var(--font-size-base);
 }
 
 .read-only {
-  background-color: #e9ecef;
+  background-color: var(--color-light);
   cursor: not-allowed;
-  color: #6c757d;
+  color: var(--color-secondary);
 }
 
 .char-count {
   display: block;
   text-align: right;
-  font-size: 0.875rem;
-  color: #6c757d;
-  margin-top: 0.25rem;
+  font-size: var(--font-size-sm);
+  color: var(--color-secondary);
+  margin-top: var(--spacing-xs);
 }
 
 .assigned-comment {
-  padding: 0.75rem;
-  background-color: #e7f3ff;
-  border-left: 4px solid #007bff;
-  border-radius: 4px;
+  padding: var(--spacing-md);
+  background-color: var(--color-info-bg, #e7f3ff);
+  border-left: calc(var(--card-border-width) * 4) solid var(--color-primary);
+  border-radius: var(--card-border-radius);
   white-space: pre-wrap;
-  font-size: 0.9rem;
-  color: #333;
+  font-size: var(--font-size-base);
+  color: var(--color-dark);
 }
 </style>

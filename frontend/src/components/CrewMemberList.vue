@@ -41,23 +41,11 @@
             <option value="master">{{ $t('boat.master') }}</option>
           </select>
         </div>
-
-        <div class="filter-group">
-          <label>{{ $t('crew.list.sortBy') }}&nbsp;:</label>
-          <select v-model="sortBy" class="sort-select">
-            <option value="last_name">{{ $t('crew.list.lastName') }}</option>
-            <option value="first_name">{{ $t('crew.list.firstName') }}</option>
-            <option value="date_of_birth">{{ $t('crew.list.age') }}</option>
-            <option value="created_at">{{ $t('crew.list.dateAdded') }}</option>
-          </select>
-        </div>
       </template>
     </ListFilters>
 
     <!-- Loading State -->
-    <div v-if="crewStore.loading" class="loading">
-      {{ $t('common.loading') }}
-    </div>
+    <LoadingSpinner v-if="crewStore.loading" :message="$t('common.loading')" />
 
     <!-- Error State -->
     <div v-else-if="crewStore.error" class="alert alert-error">
@@ -65,17 +53,21 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="filteredCrewMembers.length === 0" class="empty-state">
-      <p>{{ $t('crew.list.noMembers') }}</p>
-      <button class="btn btn-primary" @click="showCreateForm = true">
-        {{ $t('crew.list.addFirst') }}
-      </button>
-    </div>
+    <EmptyState 
+      v-else-if="filteredCrewMembers.length === 0" 
+      :message="$t('crew.list.noMembers')"
+    >
+      <template #action>
+        <BaseButton variant="primary" @click="showCreateForm = true">
+          {{ $t('crew.list.addFirst') }}
+        </BaseButton>
+      </template>
+    </EmptyState>
 
     <!-- Card View -->
     <div v-else-if="viewMode === 'cards'" class="crew-grid">
       <CrewMemberCard
-        v-for="member in filteredCrewMembers"
+        v-for="member in sortedCrewMembers"
         :key="member.crew_member_id"
         :crew-member="member"
         @edit="handleEdit"
@@ -88,19 +80,31 @@
       <table class="crew-table">
         <thead>
           <tr>
-            <th>{{ $t('crew.form.firstName') }}</th>
-            <th>{{ $t('crew.form.lastName') }}</th>
-            <th>{{ $t('crew.list.age') }}</th>
-            <th>{{ $t('crew.form.gender') }}</th>
+            <th class="sortable-header" @click="handleSort('first_name')">
+              {{ $t('crew.form.firstName') }} {{ getSortIndicator('first_name') }}
+            </th>
+            <th class="sortable-header" @click="handleSort('last_name')">
+              {{ $t('crew.form.lastName') }} {{ getSortIndicator('last_name') }}
+            </th>
+            <th class="sortable-header" @click="handleSort('date_of_birth')">
+              {{ $t('crew.list.age') }} {{ getSortIndicator('date_of_birth') }}
+            </th>
+            <th class="sortable-header" @click="handleSort('gender')">
+              {{ $t('crew.form.gender') }} {{ getSortIndicator('gender') }}
+            </th>
             <th>{{ $t('crew.card.category') }}</th>
-            <th>{{ $t('crew.card.club') }}</th>
-            <th>{{ $t('crew.card.assigned') }}</th>
+            <th class="sortable-header" @click="handleSort('club_affiliation')">
+              {{ $t('crew.card.club') }} {{ getSortIndicator('club_affiliation') }}
+            </th>
+            <th class="sortable-header" @click="handleSort('assigned_boat_id')">
+              {{ $t('crew.card.assigned') }} {{ getSortIndicator('assigned_boat_id') }}
+            </th>
             <th>{{ $t('common.actions') }}</th>
           </tr>
         </thead>
         <tbody>
           <tr 
-            v-for="member in filteredCrewMembers" 
+            v-for="member in sortedCrewMembers" 
             :key="member.crew_member_id"
             :class="{ 'row-assigned': member.assigned_boat_id, 'row-flagged': member.flagged_issues?.length }"
           >
@@ -118,16 +122,24 @@
             </td>
             <td><span class="club-box">{{ member.club_affiliation }}</span></td>
             <td>
-              <span v-if="member.assigned_boat_id" class="assigned-badge">✓</span>
-              <span v-else>-</span>
+              <span v-if="member.assigned_boat_id" class="badge badge-assigned">{{ $t('crew.card.assigned') }}</span>
+              <span v-else class="badge badge-unassigned">{{ $t('crew.card.unassigned') }}</span>
             </td>
             <td class="actions-cell">
-              <button @click="handleEdit(member)" class="btn-table btn-edit-table">
+              <BaseButton 
+                size="small" 
+                variant="secondary" 
+                @click="handleEdit(member)"
+              >
                 {{ $t('common.edit') }}
-              </button>
-              <button @click="handleDelete(member)" class="btn-table btn-delete-table">
+              </BaseButton>
+              <BaseButton 
+                size="small" 
+                variant="danger" 
+                @click="handleDelete(member)"
+              >
                 {{ $t('common.delete') }}
-              </button>
+              </BaseButton>
             </td>
           </tr>
         </tbody>
@@ -151,12 +163,21 @@
         <h3>{{ $t('crew.list.confirmDelete') }}</h3>
         <p>{{ $t('crew.list.confirmDeleteMessage', { name: `${deletingMember.first_name} ${deletingMember.last_name}` }) }}</p>
         <div class="button-group">
-          <button class="btn btn-danger" @click="confirmDelete" :disabled="deleting">
-            {{ deleting ? $t('common.loading') : $t('common.delete') }}
-          </button>
-          <button class="btn btn-secondary" @click="deletingMember = null" :disabled="deleting">
+          <BaseButton 
+            variant="danger" 
+            :disabled="deleting"
+            :loading="deleting"
+            @click="confirmDelete"
+          >
+            {{ $t('common.delete') }}
+          </BaseButton>
+          <BaseButton 
+            variant="secondary" 
+            :disabled="deleting"
+            @click="deletingMember = null"
+          >
             {{ $t('common.cancel') }}
-          </button>
+          </BaseButton>
         </div>
       </div>
     </div>
@@ -168,10 +189,14 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useCrewStore } from '../stores/crewStore';
 import { calculateAge, getAgeCategory, getMasterCategory } from '../utils/raceEligibility';
+import { useTableSort } from '../composables/useTableSort';
 import CrewMemberCard from './CrewMemberCard.vue';
 import CrewMemberForm from './CrewMemberForm.vue';
 import ListHeader from './shared/ListHeader.vue';
 import ListFilters from './shared/ListFilters.vue';
+import BaseButton from './base/BaseButton.vue';
+import LoadingSpinner from './base/LoadingSpinner.vue';
+import EmptyState from './base/EmptyState.vue';
 
 const { t } = useI18n();
 const crewStore = useCrewStore();
@@ -185,7 +210,6 @@ const categoryFilter = ref('all');
 const unassignedCount = computed(() => {
   return crewStore.crewMembers.filter(member => !member.assigned_boat_id).length;
 });
-const sortBy = ref('last_name');
 // Load view mode from localStorage or default to 'cards'
 const viewMode = ref(localStorage.getItem('crewViewMode') || 'cards');
 const showCreateForm = ref(false);
@@ -245,7 +269,7 @@ onMounted(async () => {
   }
 });
 
-// Filtered and sorted crew members
+// Filtered crew members (without sorting - sorting handled by useTableSort)
 const filteredCrewMembers = computed(() => {
   let members = crewStore.crewMembers;
 
@@ -291,17 +315,16 @@ const filteredCrewMembers = computed(() => {
     );
   }
 
-  // Apply sort
-  return [...members].sort((a, b) => {
-    const aVal = a[sortBy.value];
-    const bVal = b[sortBy.value];
-    
-    if (typeof aVal === 'string') {
-      return aVal.localeCompare(bVal);
-    }
-    return aVal > bVal ? 1 : -1;
-  });
+  return members;
 });
+
+// Use table sort composable for sorting
+const filteredCrewMembersRef = computed(() => filteredCrewMembers.value);
+const { sortedData: sortedCrewMembers, sortBy: handleSort, getSortIndicator } = useTableSort(
+  filteredCrewMembersRef,
+  'last_name',
+  'asc'
+);
 
 const handleEdit = (member) => {
   editingMember.value = member;
@@ -353,17 +376,17 @@ const clearFilters = () => {
 .filter-group {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-sm, 0.5rem);
 }
 
 .filter-group label {
-  font-weight: 500;
+  font-weight: var(--font-weight-medium, 500);
   white-space: nowrap;
 }
 
 .filter-select {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
+  padding: var(--spacing-sm, 0.5rem);
+  border: 1px solid var(--color-border, #ddd);
   border-radius: 4px;
   background: white;
   cursor: pointer;
@@ -371,42 +394,42 @@ const clearFilters = () => {
 }
 
 .sort-select {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
+  padding: var(--spacing-sm, 0.5rem);
+  border: 1px solid var(--color-border, #ddd);
   border-radius: 4px;
 }
 
 .loading {
   text-align: center;
-  padding: 3rem;
-  color: #666;
+  padding: var(--spacing-2xl, 2rem);
+  color: var(--color-muted, #666);
 }
 
 .alert-error {
   background-color: #ffebee;
   color: #c62828;
   border: 1px solid #ef5350;
-  padding: 1rem;
+  padding: var(--spacing-lg, 1rem);
   border-radius: 4px;
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-lg, 1rem);
 }
 
 .empty-state {
   text-align: center;
-  padding: 3rem;
+  padding: var(--spacing-2xl, 2rem);
   background: white;
   border-radius: 8px;
 }
 
 .empty-state p {
-  color: #666;
-  margin-bottom: 1rem;
+  color: var(--color-muted, #666);
+  margin-bottom: var(--spacing-lg, 1rem);
 }
 
 .crew-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
+  gap: var(--spacing-xl, 1.5rem);
 }
 
 .modal-overlay {
@@ -415,12 +438,12 @@ const clearFilters = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background: var(--modal-overlay-bg, rgba(0,0,0,0.5));
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
+  z-index: var(--z-index-modal-backdrop, 900);
+  padding: var(--spacing-lg, 1rem);
 }
 
 .modal-content {
@@ -435,63 +458,18 @@ const clearFilters = () => {
 
 .modal-small {
   max-width: 500px;
-  padding: 2rem;
+  padding: var(--spacing-2xl, 2rem);
 }
 
 .modal-small h3 {
   margin-top: 0;
-  color: #333;
+  color: var(--color-dark, #333);
 }
 
 .button-group {
   display: flex;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.btn {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-  min-height: 44px;
-}
-
-.btn-primary {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #45a049;
-}
-
-.btn-secondary {
-  background-color: #fff;
-  color: #666;
-  border: 1px solid #ddd;
-}
-
-.btn-secondary:hover {
-  background-color: #f5f5f5;
-}
-
-.btn-danger {
-  background-color: #f44336;
-  color: white;
-  flex: 1;
-}
-
-.btn-danger:hover:not(:disabled) {
-  background-color: #d32f2f;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  gap: var(--spacing-lg, 1rem);
+  margin-top: var(--spacing-xl, 1.5rem);
 }
 
 /* Table View Styles */
@@ -509,73 +487,66 @@ const clearFilters = () => {
 }
 
 .crew-table thead {
-  background-color: #f8f9fa;
+  background-color: var(--color-light, #f8f9fa);
 }
 
 .crew-table th {
-  padding: 1rem;
+  padding: var(--spacing-lg, 1rem);
   text-align: left;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold, 600);
   color: #495057;
-  border-bottom: 2px solid #dee2e6;
+  border-bottom: 2px solid var(--color-border, #dee2e6);
+}
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.sortable-header:hover {
+  background-color: var(--color-bg-hover, rgba(0, 0, 0, 0.05));
 }
 
 .crew-table td {
-  padding: 1rem;
-  border-bottom: 1px solid #dee2e6;
+  padding: var(--spacing-lg, 1rem);
+  border-bottom: 1px solid var(--color-border, #dee2e6);
 }
 
 .crew-table tbody tr:hover {
-  background-color: #f8f9fa;
+  background-color: var(--color-light, #f8f9fa);
 }
 
 .crew-table tbody tr.row-assigned {
-  border-left: 4px solid #4CAF50;
+  border-left: 4px solid var(--color-success, #4CAF50);
 }
 
 .crew-table tbody tr.row-flagged {
-  border-left: 4px solid #ffc107;
+  border-left: 4px solid var(--color-warning, #ffc107);
 }
 
-.assigned-badge {
-  color: #4CAF50;
-  font-size: 1.25rem;
-  font-weight: bold;
+.badge {
+  display: inline-block;
+  padding: var(--badge-padding, 0.25rem 0.75rem);
+  border-radius: var(--badge-border-radius, 12px);
+  font-size: var(--badge-font-size, 0.75rem);
+  font-weight: var(--badge-font-weight, 500);
+}
+
+.badge-assigned {
+  background-color: var(--color-success, #28a745);
+  color: white;
+}
+
+.badge-unassigned {
+  background-color: var(--color-warning, #ffc107);
+  color: var(--color-dark, #212529);
 }
 
 .actions-cell {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--spacing-sm, 0.5rem);
   flex-direction: column;
-}
-
-.btn-table {
-  padding: 0.5rem 0.75rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.8125rem;
-  transition: background-color 0.2s;
-  min-height: 36px;
-  white-space: nowrap;
-}
-
-.btn-edit-table {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-edit-table:hover {
-  background-color: #545b62;
-}
-
-.btn-delete-table {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn-delete-table:hover {
-  background-color: #c82333;
 }
 
 /* Mobile Responsive */
@@ -599,7 +570,7 @@ const clearFilters = () => {
   /* Card grid - single column on mobile */
   .crew-grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: var(--spacing-lg, 1rem);
   }
 
   /* Table - horizontal scroll with indicators */
@@ -617,14 +588,7 @@ const clearFilters = () => {
 
   /* Action buttons - reduce padding on mobile */
   .actions-cell {
-    padding: 0.5rem;
-  }
-
-  .btn-table {
-    padding: 0.5rem;
-    font-size: 0.75rem;
-    min-height: 44px;
-    min-width: 44px;
+    padding: var(--spacing-sm, 0.5rem);
   }
 
   /* Modals - bottom sheet style on mobile */
@@ -642,18 +606,13 @@ const clearFilters = () => {
 
   .modal-small {
     border-radius: 12px 12px 0 0;
-    padding: 1.5rem;
+    padding: var(--spacing-xl, 1.5rem);
     max-width: 100%;
     width: 100%;
   }
 
   .button-group {
     flex-direction: column;
-  }
-
-  .button-group .btn {
-    width: 100%;
-    min-height: 44px;
   }
 }
 
@@ -675,10 +634,10 @@ const clearFilters = () => {
 
 .category-badge {
   display: inline-block;
-  padding: 0.25rem 0.5rem;
+  padding: var(--spacing-xs, 0.25rem) var(--spacing-sm, 0.5rem);
   border-radius: 8px;
-  font-size: 0.7rem;
-  font-weight: 600;
+  font-size: var(--font-size-sm, 0.7rem);
+  font-weight: var(--font-weight-semibold, 600);
   text-transform: uppercase;
 }
 
@@ -708,18 +667,18 @@ const clearFilters = () => {
 }
 
 .master-letter {
-  margin-left: 0.25rem;
+  margin-left: var(--spacing-xs, 0.25rem);
   font-weight: 700;
 }
 
 .club-box {
   display: inline-block;
   max-width: 200px;
-  padding: 0.25rem 0.5rem;
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
+  padding: var(--spacing-xs, 0.25rem) var(--spacing-sm, 0.5rem);
+  background-color: var(--color-light, #f5f5f5);
+  border: 1px solid var(--color-border, #ddd);
   border-radius: 4px;
-  font-size: 0.75rem;
+  font-size: var(--font-size-sm, 0.75rem);
   line-height: 1.3;
   word-wrap: break-word;
   overflow-wrap: break-word;

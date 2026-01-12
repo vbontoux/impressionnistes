@@ -416,6 +416,7 @@
     },
     "card": {
       "assigned": "Assigned",
+      "unassigned": "Unassigned",
       "dateOfBirth": "Date of Birth",
       "age": "Age",
       "years": "years",

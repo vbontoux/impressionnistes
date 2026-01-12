@@ -428,6 +428,9 @@ watch(() => authStore.impersonatedTeamManagerId, (teamManagerId) => {
 </script>
 
 <style>
+/* Import Design Tokens */
+@import './assets/design-tokens.css';
+
 * {
   margin: 0;
   padding: 0;

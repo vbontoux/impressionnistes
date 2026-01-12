@@ -416,6 +416,7 @@
     },
     "card": {
       "assigned": "Assigné",
+      "unassigned": "Non assigné",
       "dateOfBirth": "Né(e) le",
       "age": "Âge",
       "years": "ans",
@@ -475,7 +476,7 @@
       "forfait": "Forfait"
     },
     "createRegistration": "Créer un équipage",
-    "eventType": "Type d'événement",
+    "eventType": "Evt",
     "selectEvent": "Sélectionner un événement",
     "semiMarathon": "Semi-Marathon",
     "marathon": "Marathon",
