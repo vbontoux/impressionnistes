@@ -13,27 +13,36 @@
     />
 
     <!-- Loading state -->
-    <div v-if="loading" class="loading">
-      <div class="spinner"></div>
-      <p>{{ $t('common.loading') }}</p>
-    </div>
+    <LoadingSpinner v-if="loading" :message="$t('common.loading')" />
 
     <!-- Error state -->
-    <div v-if="error" class="error-message">
-      {{ error }}
-      <button @click="fetchClubManagers" class="btn-retry">{{ $t('common.retry') }}</button>
-    </div>
+    <MessageAlert 
+      v-if="error" 
+      type="error" 
+      :message="error"
+    >
+      <BaseButton size="small" variant="primary" @click="fetchClubManagers">
+        {{ $t('common.retry') }}
+      </BaseButton>
+    </MessageAlert>
 
     <!-- Empty state -->
-    <div v-if="!loading && !error && managers.length === 0" class="empty-state">
-      <p>{{ $t('admin.clubManagers.noManagers') }}</p>
-    </div>
+    <EmptyState 
+      v-if="!loading && !error && managers.length === 0"
+      :message="$t('admin.clubManagers.noManagers')"
+    />
 
     <!-- No search results -->
-    <div v-if="!loading && !error && managers.length > 0 && filteredManagers.length === 0" class="empty-state">
-      <p>{{ $t('admin.clubManagers.noSearchResults') }}</p>
-      <button @click="clearFilters" class="btn-secondary">{{ $t('admin.clubManagers.clearSearch') }}</button>
-    </div>
+    <EmptyState 
+      v-if="!loading && !error && managers.length > 0 && filteredManagers.length === 0"
+      :message="$t('admin.clubManagers.noSearchResults')"
+    >
+      <template #action>
+        <BaseButton size="small" variant="secondary" @click="clearFilters">
+          {{ $t('admin.clubManagers.clearSearch') }}
+        </BaseButton>
+      </template>
+    </EmptyState>
 
     <!-- Club managers table/cards -->
     <div v-if="!loading && !error && managers.length > 0 && filteredManagers.length > 0">
@@ -166,27 +175,30 @@
           </span>
         </div>
         <div class="action-buttons">
-          <button 
+          <BaseButton 
+            size="small"
+            variant="secondary"
             @click="selectAll" 
-            class="btn-secondary"
             :disabled="allSelected"
           >
             {{ $t('admin.clubManagers.selectAll') }}
-          </button>
-          <button 
+          </BaseButton>
+          <BaseButton 
+            size="small"
+            variant="secondary"
             @click="deselectAll" 
-            class="btn-secondary"
             :disabled="selectedIds.size === 0"
           >
             {{ $t('admin.clubManagers.deselectAll') }}
-          </button>
-          <button 
+          </BaseButton>
+          <BaseButton 
+            size="small"
+            variant="primary"
             @click="emailSelected" 
-            class="btn-primary"
             :disabled="selectedIds.size === 0"
           >
             {{ $t('admin.clubManagers.emailSelected') }}
-          </button>
+          </BaseButton>
         </div>
       </div>
     </div>
@@ -199,12 +211,20 @@ import { useI18n } from 'vue-i18n'
 import apiClient from '../../services/apiClient'
 import ListHeader from '../../components/shared/ListHeader.vue'
 import ListFilters from '../../components/shared/ListFilters.vue'
+import BaseButton from '../../components/base/BaseButton.vue'
+import LoadingSpinner from '../../components/base/LoadingSpinner.vue'
+import EmptyState from '../../components/base/EmptyState.vue'
+import MessageAlert from '../../components/composite/MessageAlert.vue'
 
 export default {
   name: 'AdminClubManagers',
   components: {
     ListHeader,
-    ListFilters
+    ListFilters,
+    BaseButton,
+    LoadingSpinner,
+    EmptyState,
+    MessageAlert
   },
   setup() {
     const { t } = useI18n()
@@ -385,91 +405,25 @@ export default {
 </script>
 
 <style scoped>
-@import '@/assets/responsive.css';
-
 .admin-club-managers {
   padding: 0;
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* Loading State */
-.loading {
-  text-align: center;
-  padding: 3rem;
-}
-
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #007bff;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Error State */
-.error-message {
-  padding: 1rem;
-  background-color: #fee;
-  border: 1px solid #fcc;
-  border-radius: 4px;
-  color: #c33;
-  margin-bottom: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-}
-
-.btn-retry {
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  white-space: nowrap;
-  transition: background-color 0.2s;
-  min-height: 44px;
-}
-
-.btn-retry:hover {
-  background-color: #0056b3;
-}
-
-/* Empty State */
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  color: #6c757d;
-  font-size: 1.125rem;
-}
-
-.empty-state .btn-secondary {
-  margin-top: 1rem;
-}
-
 /* Count */
 .count {
-  margin: 0 0 1rem 0;
-  color: #6c757d;
-  font-size: 0.875rem;
+  margin: 0 0 var(--spacing-md) 0;
+  color: var(--color-muted);
+  font-size: var(--font-size-sm);
 }
 
 /* Table View */
 .managers-table-container {
   background-color: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
   overflow-x: auto;
 }
 
@@ -480,15 +434,15 @@ export default {
 }
 
 .managers-table thead {
-  background-color: #f8f9fa;
+  background-color: var(--color-light);
 }
 
 .managers-table th {
-  padding: 0.75rem;
+  padding: var(--spacing-md);
   text-align: left;
-  font-weight: 600;
-  color: #495057;
-  border-bottom: 2px solid #dee2e6;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-dark);
+  border-bottom: 2px solid var(--color-border);
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
@@ -505,8 +459,8 @@ export default {
 }
 
 .managers-table td {
-  padding: 0.75rem;
-  border-bottom: 1px solid #dee2e6;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .managers-table td.checkbox-col {
@@ -518,7 +472,7 @@ export default {
 }
 
 .managers-table tbody tr:hover {
-  background-color: #f8f9fa;
+  background-color: var(--color-light);
 }
 
 .managers-table tbody tr.selected {
@@ -529,11 +483,11 @@ export default {
   width: 18px;
   height: 18px;
   cursor: pointer;
-  accent-color: #007bff;
+  accent-color: var(--color-primary);
 }
 
 .email-link {
-  color: #007bff;
+  color: var(--color-primary);
   text-decoration: none;
   transition: color 0.2s;
 }
@@ -544,16 +498,16 @@ export default {
 }
 
 .email-link:focus {
-  outline: 2px solid #007bff;
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
   border-radius: 2px;
 }
 
 .phone-link {
-  color: #28a745;
+  color: var(--color-success);
   text-decoration: none;
   transition: color 0.2s;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 .phone-link:hover {
@@ -562,24 +516,24 @@ export default {
 }
 
 .phone-link:focus {
-  outline: 2px solid #28a745;
+  outline: 2px solid var(--color-success);
   outline-offset: 2px;
   border-radius: 2px;
 }
 
 .no-data {
-  color: #999;
+  color: var(--color-muted);
   font-style: italic;
 }
 
 .club-box {
   display: inline-block;
   max-width: 200px;
-  padding: 0.25rem 0.5rem;
-  background-color: #f5f5f5;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 0.75rem;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-light);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
   line-height: 1.3;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -587,39 +541,39 @@ export default {
 
 .admin-badge {
   display: inline-block;
-  padding: 0.25rem 0.5rem;
-  background-color: #667eea;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-primary);
   color: white;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
+  border-radius: var(--badge-border-radius);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   letter-spacing: 0.5px;
+  width: fit-content;
 }
 
 /* Card View */
 .manager-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-  padding: 1rem 0;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-md) 0;
 }
 
 .manager-card {
   background-color: white;
-  border: 2px solid #e0e0e0;
-  border-radius: 8px;
-  padding: 1.5rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-xl);
   transition: all 0.3s;
 }
 
 .manager-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
 
 .manager-card.selected {
-  border-color: #007bff;
+  border-color: var(--color-primary);
   background-color: #f0f8ff;
   box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
 }
@@ -627,10 +581,10 @@ export default {
 .card-header {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid #e0e0e0;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .card-checkbox {
@@ -638,28 +592,28 @@ export default {
   height: 20px;
   cursor: pointer;
   flex-shrink: 0;
-  accent-color: #007bff;
+  accent-color: var(--color-primary);
 }
 
 .card-header h3 {
   margin: 0;
-  font-size: 1.1rem;
-  color: #333;
+  font-size: var(--font-size-lg);
+  color: var(--color-dark);
   flex: 1;
 }
 
 .card-details {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--spacing-md);
 }
 
 .detail-row {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #f5f5f5;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--color-light);
 }
 
 .detail-row:last-child {
@@ -667,100 +621,40 @@ export default {
 }
 
 .detail-row .label {
-  font-weight: 500;
-  color: #666;
-  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted);
+  font-size: var(--font-size-sm);
 }
 
 .detail-row .email-link,
 .detail-row .club-box {
-  color: #333;
+  color: var(--color-dark);
 }
 
 /* Selection Actions */
 .selection-actions {
   background-color: white;
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md) var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: var(--spacing-md);
   flex-wrap: wrap;
-  margin-top: 1.5rem;
+  margin-top: var(--spacing-xl);
 }
 
 .selection-info {
-  color: #495057;
-  font-weight: 500;
-  font-size: 0.875rem;
+  color: var(--color-dark);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
 }
 
 .action-buttons {
   display: flex;
-  gap: 0.75rem;
+  gap: var(--spacing-md);
   flex-wrap: wrap;
-}
-
-/* Buttons */
-.btn-primary,
-.btn-secondary {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.2s;
-  min-height: 44px;
-  white-space: nowrap;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #0056b3;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);
-}
-
-.btn-primary:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background-color: #545b62;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3);
-}
-
-.btn-secondary:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.btn-primary:disabled,
-.btn-secondary:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-  opacity: 0.6;
-  transform: none;
-  box-shadow: none;
-}
-
-.btn-primary:focus,
-.btn-secondary:focus,
-.btn-retry:focus {
-  outline: 2px solid #007bff;
-  outline-offset: 2px;
 }
 
 /* Mobile Responsive */
@@ -771,39 +665,39 @@ export default {
 
   /* Hide table view on mobile - cards are better */
   .managers-table-container {
-    padding: 0.75rem;
-    border-radius: 8px;
-    margin: 0 0.5rem;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    margin: 0 var(--spacing-sm);
   }
 
   .managers-table {
-    font-size: 0.8125rem;
+    font-size: var(--font-size-sm);
     min-width: 700px; /* Force horizontal scroll for table */
   }
 
   .managers-table th,
   .managers-table td {
-    padding: 0.5rem 0.375rem;
+    padding: var(--spacing-sm) var(--spacing-xs);
   }
 
   .managers-table th {
-    font-size: 0.75rem;
+    font-size: var(--font-size-xs);
   }
 
   /* Optimize card view for mobile */
   .manager-cards {
     grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 0 0.5rem;
+    gap: var(--spacing-md);
+    padding: 0 var(--spacing-sm);
   }
 
   .manager-card {
-    border-radius: 8px;
-    padding: 1.25rem;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
   }
 
   .card-header h3 {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 
   .card-checkbox {
@@ -812,88 +706,49 @@ export default {
   }
 
   .detail-row {
-    padding: 0.625rem 0;
+    padding: 10px 0;
   }
 
   .detail-row .label {
-    font-size: 0.8125rem;
-    margin-bottom: 0.25rem;
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-xs);
   }
 
   .detail-row .email-link {
     word-break: break-all;
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
   }
 
   .club-box {
     max-width: 100%;
-    font-size: 0.8125rem;
+    font-size: var(--font-size-sm);
   }
 
   /* Selection actions - stack vertically on mobile */
   .selection-actions {
     flex-direction: column;
     align-items: stretch;
-    padding: 1rem;
-    border-radius: 8px;
-    margin: 1rem 0.5rem 0;
-    gap: 0.75rem;
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    margin: var(--spacing-md) var(--spacing-sm) 0;
+    gap: var(--spacing-md);
   }
 
   .selection-info {
     text-align: center;
-    font-size: 0.9375rem;
+    font-size: var(--font-size-base);
   }
 
   .action-buttons {
     flex-direction: column;
     width: 100%;
-    gap: 0.625rem;
-  }
-
-  .btn-primary,
-  .btn-secondary,
-  .btn-retry {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 0.9375rem;
-    min-height: 48px; /* Better touch target */
-  }
-
-  /* Empty states */
-  .empty-state {
-    padding: 2rem 1rem;
-    font-size: 0.9375rem;
-  }
-
-  .empty-state .btn-secondary {
-    width: 100%;
-    max-width: 300px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  /* Error message */
-  .error-message {
-    flex-direction: column;
-    align-items: stretch;
-    margin: 0 0.5rem 1rem;
-    padding: 1rem;
-  }
-
-  .error-message .btn-retry {
-    width: 100%;
+    gap: 10px;
   }
 
   /* Count text */
   .count {
-    padding: 0 0.5rem;
-    font-size: 0.8125rem;
-  }
-
-  /* Loading spinner */
-  .loading {
-    padding: 2rem 1rem;
+    padding: 0 var(--spacing-sm);
+    font-size: var(--font-size-sm);
   }
 }
 
@@ -901,30 +756,23 @@ export default {
 @media (min-width: 768px) and (max-width: 1023px) {
   .manager-cards {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1rem;
+    gap: var(--spacing-md);
   }
 
   .managers-table-container {
-    padding: 1.25rem;
+    padding: var(--spacing-lg);
   }
 }
 
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   .manager-card,
-  .btn-primary,
-  .btn-secondary,
   .managers-table tbody tr,
   .email-link {
     transition: none;
   }
 
   .manager-card:hover {
-    transform: none;
-  }
-
-  .btn-primary:hover:not(:disabled),
-  .btn-secondary:hover:not(:disabled) {
     transform: none;
   }
 }

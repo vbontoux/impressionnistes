@@ -11,15 +11,19 @@
       <p class="subtitle">{{ $t('admin.pricingConfig.subtitle') }}</p>
     </div>
 
-    <div v-if="loading" class="loading">
-      <div class="spinner"></div>
-      <p>{{ $t('common.loading') }}</p>
-    </div>
+    <LoadingSpinner v-if="loading" :message="$t('common.loading')" />
 
-    <div v-else-if="error" class="error-message">
-      <p>{{ error }}</p>
-      <button @click="loadConfig" class="btn-secondary">{{ $t('common.retry') }}</button>
-    </div>
+    <MessageAlert 
+      v-else-if="error" 
+      type="error" 
+      :message="error"
+    >
+      <template #action>
+        <BaseButton variant="secondary" size="small" @click="loadConfig">
+          {{ $t('common.retry') }}
+        </BaseButton>
+      </template>
+    </MessageAlert>
 
     <div v-else class="config-container">
       <div class="config-form-section">
@@ -27,8 +31,11 @@
           <div class="form-section">
             <h2>{{ $t('admin.pricingConfig.basePricing') }}</h2>
             
-            <div class="form-group">
-              <label for="base_seat_price">{{ $t('admin.pricingConfig.baseSeatPrice') }}</label>
+            <FormGroup
+              :label="$t('admin.pricingConfig.baseSeatPrice')"
+              :help-text="$t('admin.pricingConfig.baseSeatPriceHelp')"
+              :error="validationErrors.base_seat_price"
+            >
               <div class="input-with-unit">
                 <input
                   id="base_seat_price"
@@ -42,18 +49,17 @@
                 />
                 <span class="unit">€</span>
               </div>
-              <span class="help-text">{{ $t('admin.pricingConfig.baseSeatPriceHelp') }}</span>
-              <span v-if="validationErrors.base_seat_price" class="error-text">
-                {{ validationErrors.base_seat_price }}
-              </span>
-            </div>
+            </FormGroup>
           </div>
 
           <div class="form-section">
             <h2>{{ $t('admin.pricingConfig.rentalPricing') }}</h2>
             
-            <div class="form-group">
-              <label for="skiff_multiplier">{{ $t('admin.pricingConfig.skiffMultiplier') }}</label>
+            <FormGroup
+              :label="$t('admin.pricingConfig.skiffMultiplier')"
+              :help-text="$t('admin.pricingConfig.skiffMultiplierHelp')"
+              :error="validationErrors.boat_rental_multiplier_skiff"
+            >
               <div class="input-with-unit">
                 <input
                   id="skiff_multiplier"
@@ -67,14 +73,13 @@
                 />
                 <span class="unit">x</span>
               </div>
-              <span class="help-text">{{ $t('admin.pricingConfig.skiffMultiplierHelp') }}</span>
-              <span v-if="validationErrors.boat_rental_multiplier_skiff" class="error-text">
-                {{ validationErrors.boat_rental_multiplier_skiff }}
-              </span>
-            </div>
+            </FormGroup>
 
-            <div class="form-group">
-              <label for="crew_boat_price">{{ $t('admin.pricingConfig.crewBoatPrice') }}</label>
+            <FormGroup
+              :label="$t('admin.pricingConfig.crewBoatPrice')"
+              :help-text="$t('admin.pricingConfig.crewBoatPriceHelp')"
+              :error="validationErrors.boat_rental_price_crew"
+            >
               <div class="input-with-unit">
                 <input
                   id="crew_boat_price"
@@ -88,28 +93,43 @@
                 />
                 <span class="unit">€</span>
               </div>
-              <span class="help-text">{{ $t('admin.pricingConfig.crewBoatPriceHelp') }}</span>
-              <span v-if="validationErrors.boat_rental_price_crew" class="error-text">
-                {{ validationErrors.boat_rental_price_crew }}
-              </span>
-            </div>
+            </FormGroup>
           </div>
 
-          <div v-if="saveError" class="error-message">
-            {{ saveError }}
-          </div>
+          <MessageAlert 
+            v-if="saveError" 
+            type="error" 
+            :message="saveError"
+            :dismissible="true"
+            @dismiss="saveError = null"
+          />
 
-          <div v-if="saveSuccess" class="success-message">
-            {{ $t('admin.pricingConfig.saveSuccess') }}
-          </div>
+          <MessageAlert 
+            v-if="saveSuccess" 
+            type="success" 
+            :message="$t('admin.pricingConfig.saveSuccess')"
+            :auto-dismiss="3000"
+          />
 
           <div class="form-actions">
-            <button type="button" @click="handleCancel" class="btn-secondary" :disabled="saving">
+            <BaseButton 
+              type="button" 
+              variant="secondary" 
+              size="medium"
+              :disabled="saving"
+              @click="handleCancel"
+            >
               {{ $t('common.cancel') }}
-            </button>
-            <button type="submit" class="btn-primary" :disabled="saving || !hasChanges">
+            </BaseButton>
+            <BaseButton 
+              type="submit" 
+              variant="primary" 
+              size="medium"
+              :disabled="saving || !hasChanges"
+              :loading="saving"
+            >
               {{ saving ? $t('common.saving') : $t('common.save') }}
-            </button>
+            </BaseButton>
           </div>
         </form>
       </div>
@@ -169,6 +189,10 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import apiClient from '../../services/apiClient';
+import BaseButton from '../../components/base/BaseButton.vue';
+import FormGroup from '../../components/composite/FormGroup.vue';
+import LoadingSpinner from '../../components/base/LoadingSpinner.vue';
+import MessageAlert from '../../components/composite/MessageAlert.vue';
 
 const router = useRouter();
 const { t } = useI18n();
@@ -303,21 +327,21 @@ onMounted(() => {
 .admin-pricing-config {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: var(--spacing-xxl);
 }
 
 .page-header {
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xxl);
 }
 
 .back-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #3498db;
+  gap: var(--spacing-sm);
+  color: var(--color-primary);
   text-decoration: none;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-sm);
 }
 
 .back-link:hover {
@@ -325,40 +349,26 @@ onMounted(() => {
 }
 
 .page-header h1 {
-  font-size: 2rem;
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
+  font-size: var(--font-size-3xl);
+  color: var(--color-dark);
+  margin-bottom: var(--spacing-sm);
+  font-weight: var(--font-weight-semibold);
 }
 
 .subtitle {
-  color: #7f8c8d;
-  font-size: 1.1rem;
+  color: var(--color-muted);
+  font-size: var(--font-size-lg);
 }
 
-.loading {
-  text-align: center;
-  padding: 3rem;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-  margin: 0 auto 1rem;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.input-with-unit {
+  display: flex;
+  align-items: center;
 }
 
 .config-container {
   display: grid;
   grid-template-columns: 1fr 400px;
-  gap: 2rem;
+  gap: var(--spacing-xxl);
 }
 
 @media (max-width: 1024px) {
@@ -370,130 +380,107 @@ onMounted(() => {
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .admin-pricing-config {
-    padding: 1rem;
+    padding: var(--spacing-lg);
   }
 
   .page-header {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--spacing-xl);
   }
 
   .page-header h1 {
-    font-size: 1.75rem;
+    font-size: var(--font-size-2xl);
   }
 
   .subtitle {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 
   .back-link {
-    font-size: 16px; /* Prevent iOS zoom */
-    min-height: 44px;
+    font-size: var(--form-input-font-size-mobile);
+    min-height: var(--touch-target-min-size);
     display: inline-flex;
     align-items: center;
   }
 
   .config-form {
-    padding: 1.25rem;
+    padding: var(--spacing-lg);
   }
 
   .form-section {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1.5rem;
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-xl);
   }
 
   .form-section h2 {
-    font-size: 1.125rem;
-  }
-
-  .form-group {
-    margin-bottom: 1.25rem;
-  }
-
-  .form-group label {
-    font-size: 0.9rem;
+    font-size: var(--font-size-lg);
   }
 
   .form-control {
-    min-height: 44px;
-    font-size: 16px; /* Prevent iOS zoom */
+    min-height: var(--form-input-min-height);
+    font-size: var(--form-input-font-size-mobile);
     padding: 0.625rem 0.75rem;
   }
 
   .unit {
     padding: 0.625rem 0.875rem;
-    font-size: 16px; /* Prevent iOS zoom */
-  }
-
-  .help-text,
-  .error-text {
-    font-size: 0.8rem;
+    font-size: var(--form-input-font-size-mobile);
   }
 
   .form-actions {
     flex-direction: column-reverse;
-    gap: 0.75rem;
+    gap: var(--spacing-md);
   }
 
-  .btn-primary,
-  .btn-secondary {
+  .form-actions :deep(button) {
     width: 100%;
-    min-height: 44px;
-    font-size: 16px; /* Prevent iOS zoom */
-    padding: 0.875rem 1.5rem;
   }
 
   .pricing-preview {
-    padding: 1.25rem;
+    padding: var(--spacing-lg);
   }
 
   .pricing-preview h2 {
-    font-size: 1.125rem;
+    font-size: var(--font-size-lg);
   }
 
   .scenario {
-    padding: 0.875rem;
+    padding: var(--spacing-md);
   }
 
   .scenario h3 {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 
   .price-item {
-    font-size: 0.9rem;
+    font-size: var(--font-size-sm);
     flex-wrap: wrap;
-    gap: 0.25rem;
+    gap: var(--spacing-xs);
   }
 
   .price {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 
   .preview-note {
-    padding: 0.875rem;
+    padding: var(--spacing-md);
   }
 
   .preview-note p {
-    font-size: 0.85rem;
-  }
-
-  .error-message,
-  .success-message {
-    padding: 0.875rem;
-    font-size: 0.9rem;
+    font-size: var(--font-size-xs);
   }
 }
 
 .config-form {
-  background: white;
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--color-white);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-xxl);
+  box-shadow: var(--shadow-sm);
 }
 
 .form-section {
-  margin-bottom: 2rem;
-  padding-bottom: 2rem;
-  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: var(--spacing-xxl);
+  padding-bottom: var(--spacing-xxl);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .form-section:last-of-type {
@@ -501,20 +488,10 @@ onMounted(() => {
 }
 
 .form-section h2 {
-  font-size: 1.3rem;
-  color: #2c3e50;
-  margin-bottom: 1.5rem;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  font-weight: 500;
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
+  font-size: var(--font-size-xl);
+  color: var(--color-dark);
+  margin-bottom: var(--spacing-xl);
+  font-weight: var(--font-weight-semibold);
 }
 
 .input-with-unit {
@@ -524,173 +501,107 @@ onMounted(() => {
 
 .form-control {
   flex: 1;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px 0 0 4px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
+  padding: var(--form-input-padding);
+  border: 1px solid var(--form-input-border-color);
+  border-radius: var(--form-input-border-radius) 0 0 var(--form-input-border-radius);
+  font-size: var(--font-size-base);
+  transition: border-color var(--transition-normal);
 }
 
 .form-control:focus {
   outline: none;
-  border-color: #3498db;
+  border-color: var(--color-primary);
 }
 
 .form-control.error {
-  border-color: #e74c3c;
+  border-color: var(--color-danger);
 }
 
 .unit {
-  background-color: #f8f9fa;
-  border: 1px solid #ddd;
+  background-color: var(--color-light);
+  border: 1px solid var(--form-input-border-color);
   border-left: none;
-  border-radius: 0 4px 4px 0;
-  padding: 0.75rem 1rem;
-  font-weight: 500;
-  color: #6c757d;
-}
-
-.help-text {
-  display: block;
-  font-size: 0.85rem;
-  color: #7f8c8d;
-  margin-top: 0.25rem;
-}
-
-.error-text {
-  display: block;
-  color: #e74c3c;
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
-}
-
-.error-message {
-  background-color: #fee;
-  border: 1px solid #e74c3c;
-  color: #c0392b;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-}
-
-.success-message {
-  background-color: #d4edda;
-  border: 1px solid #28a745;
-  color: #155724;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
+  border-radius: 0 var(--form-input-border-radius) var(--form-input-border-radius) 0;
+  padding: var(--form-input-padding);
+  padding-left: var(--spacing-lg);
+  padding-right: var(--spacing-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-secondary);
 }
 
 .form-actions {
   display: flex;
-  gap: 1rem;
+  gap: var(--spacing-lg);
   justify-content: flex-end;
-  margin-top: 2rem;
-}
-
-.btn-primary,
-.btn-secondary {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-primary {
-  background-color: #3498db;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #2980b9;
-}
-
-.btn-primary:disabled {
-  background-color: #bdc3c7;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background-color: #ecf0f1;
-  color: #2c3e50;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background-color: #d5dbdb;
-}
-
-.btn-secondary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  margin-top: var(--spacing-xxl);
 }
 
 /* Pricing Preview */
 .pricing-preview {
-  background: white;
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--color-white);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-xxl);
+  box-shadow: var(--shadow-sm);
   height: fit-content;
 }
 
 .pricing-preview h2 {
-  font-size: 1.3rem;
-  color: #2c3e50;
-  margin-bottom: 1.5rem;
+  font-size: var(--font-size-xl);
+  color: var(--color-dark);
+  margin-bottom: var(--spacing-xl);
+  font-weight: var(--font-weight-semibold);
 }
 
 .preview-scenarios {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--spacing-xl);
 }
 
 .scenario {
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-lg);
 }
 
 .scenario h3 {
-  font-size: 1.1rem;
-  color: #2c3e50;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #f0f0f0;
+  font-size: var(--font-size-lg);
+  color: var(--color-dark);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1px solid var(--color-light);
+  font-weight: var(--font-weight-semibold);
 }
 
 .price-breakdown {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 .price-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.25rem 0;
+  padding: var(--spacing-xs) 0;
 }
 
 .price {
-  font-weight: 600;
-  color: #27ae60;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-success);
 }
 
 .preview-note {
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 4px;
-  border-left: 4px solid #3498db;
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background-color: var(--color-light);
+  border-radius: var(--border-radius-sm);
+  border-left: 4px solid var(--color-primary);
 }
 
 .preview-note p {
-  font-size: 0.9rem;
-  color: #6c757d;
+  font-size: var(--font-size-sm);
+  color: var(--color-secondary);
   margin: 0;
 }
 </style>

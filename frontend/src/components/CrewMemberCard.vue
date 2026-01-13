@@ -125,6 +125,9 @@ const getMasterCategoryLetter = (dateOfBirth) => {
   justify-content: space-between;
   align-items: flex-start;
   width: 100%;
+  padding-bottom: var(--spacing-lg, 1rem);
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+  margin-bottom: var(--spacing-lg, 1rem);
 }
 
 .member-info h4 {

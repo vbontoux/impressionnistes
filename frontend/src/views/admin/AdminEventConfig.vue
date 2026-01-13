@@ -11,21 +11,27 @@
       <p class="subtitle">{{ $t('admin.eventConfig.subtitle') }}</p>
     </div>
 
-    <div v-if="loading" class="loading">
-      <div class="spinner"></div>
-      <p>{{ $t('common.loading') }}</p>
-    </div>
+    <LoadingSpinner v-if="loading" :message="$t('common.loading')" />
 
-    <div v-else-if="error" class="error-message">
-      <p>{{ error }}</p>
-      <button @click="loadConfig" class="btn-secondary">{{ $t('common.retry') }}</button>
-    </div>
+    <MessageAlert 
+      v-else-if="error" 
+      type="error" 
+      :message="error"
+    >
+      <template #action>
+        <BaseButton variant="secondary" size="small" @click="loadConfig">
+          {{ $t('common.retry') }}
+        </BaseButton>
+      </template>
+    </MessageAlert>
 
     <form v-else @submit.prevent="handleSubmit" class="config-form">
       <div class="form-section">
         <h2>{{ $t('admin.eventConfig.eventDate') }}</h2>
-        <div class="form-group">
-          <label for="event_date">{{ $t('admin.eventConfig.competitionDate') }}</label>
+        <FormGroup
+          :label="$t('admin.eventConfig.competitionDate')"
+          :error="validationErrors.event_date"
+        >
           <input
             id="event_date"
             v-model="formData.event_date"
@@ -33,17 +39,16 @@
             class="form-control"
             :class="{ 'error': validationErrors.event_date }"
           />
-          <span v-if="validationErrors.event_date" class="error-text">
-            {{ validationErrors.event_date }}
-          </span>
-        </div>
+        </FormGroup>
       </div>
 
       <div class="form-section">
         <h2>{{ $t('admin.eventConfig.registrationPeriod') }}</h2>
         
-        <div class="form-group">
-          <label for="registration_start_date">{{ $t('admin.eventConfig.registrationStart') }}</label>
+        <FormGroup
+          :label="$t('admin.eventConfig.registrationStart')"
+          :error="validationErrors.registration_start_date"
+        >
           <input
             id="registration_start_date"
             v-model="formData.registration_start_date"
@@ -51,13 +56,12 @@
             class="form-control"
             :class="{ 'error': validationErrors.registration_start_date }"
           />
-          <span v-if="validationErrors.registration_start_date" class="error-text">
-            {{ validationErrors.registration_start_date }}
-          </span>
-        </div>
+        </FormGroup>
 
-        <div class="form-group">
-          <label for="registration_end_date">{{ $t('admin.eventConfig.registrationEnd') }}</label>
+        <FormGroup
+          :label="$t('admin.eventConfig.registrationEnd')"
+          :error="validationErrors.registration_end_date"
+        >
           <input
             id="registration_end_date"
             v-model="formData.registration_end_date"
@@ -65,13 +69,12 @@
             class="form-control"
             :class="{ 'error': validationErrors.registration_end_date }"
           />
-          <span v-if="validationErrors.registration_end_date" class="error-text">
-            {{ validationErrors.registration_end_date }}
-          </span>
-        </div>
+        </FormGroup>
 
-        <div class="form-group">
-          <label for="payment_deadline">{{ $t('admin.eventConfig.paymentDeadline') }}</label>
+        <FormGroup
+          :label="$t('admin.eventConfig.paymentDeadline')"
+          :error="validationErrors.payment_deadline"
+        >
           <input
             id="payment_deadline"
             v-model="formData.payment_deadline"
@@ -79,10 +82,7 @@
             class="form-control"
             :class="{ 'error': validationErrors.payment_deadline }"
           />
-          <span v-if="validationErrors.payment_deadline" class="error-text">
-            {{ validationErrors.payment_deadline }}
-          </span>
-        </div>
+        </FormGroup>
       </div>
 
       <div class="form-section">
@@ -93,8 +93,11 @@
           <div class="race-config-column">
             <h3 class="race-type-title">{{ $t('admin.eventConfig.marathon') }}</h3>
             
-            <div class="form-group">
-              <label for="marathon_start_time">{{ $t('admin.eventConfig.startTime') }}</label>
+            <FormGroup
+              :label="$t('admin.eventConfig.startTime')"
+              :help-text="$t('admin.eventConfig.marathonStartTimeHelp')"
+              :error="validationErrors.marathon_start_time"
+            >
               <input
                 id="marathon_start_time"
                 v-model="formData.marathon_start_time"
@@ -102,14 +105,13 @@
                 class="form-control"
                 :class="{ 'error': validationErrors.marathon_start_time }"
               />
-              <span class="help-text">{{ $t('admin.eventConfig.marathonStartTimeHelp') }}</span>
-              <span v-if="validationErrors.marathon_start_time" class="error-text">
-                {{ validationErrors.marathon_start_time }}
-              </span>
-            </div>
+            </FormGroup>
 
-            <div class="form-group">
-              <label for="marathon_bow_start">{{ $t('admin.eventConfig.bowStart') }}</label>
+            <FormGroup
+              :label="$t('admin.eventConfig.bowStart')"
+              :help-text="$t('admin.eventConfig.marathonBowStartHelp')"
+              :error="validationErrors.marathon_bow_start"
+            >
               <input
                 id="marathon_bow_start"
                 v-model.number="formData.marathon_bow_start"
@@ -118,19 +120,18 @@
                 class="form-control"
                 :class="{ 'error': validationErrors.marathon_bow_start }"
               />
-              <span class="help-text">{{ $t('admin.eventConfig.marathonBowStartHelp') }}</span>
-              <span v-if="validationErrors.marathon_bow_start" class="error-text">
-                {{ validationErrors.marathon_bow_start }}
-              </span>
-            </div>
+            </FormGroup>
           </div>
 
           <!-- Semi-Marathon Configuration -->
           <div class="race-config-column">
             <h3 class="race-type-title">{{ $t('admin.eventConfig.semiMarathon') }}</h3>
             
-            <div class="form-group">
-              <label for="semi_marathon_start_time">{{ $t('admin.eventConfig.startTime') }}</label>
+            <FormGroup
+              :label="$t('admin.eventConfig.startTime')"
+              :help-text="$t('admin.eventConfig.semiMarathonStartTimeHelp')"
+              :error="validationErrors.semi_marathon_start_time"
+            >
               <input
                 id="semi_marathon_start_time"
                 v-model="formData.semi_marathon_start_time"
@@ -138,14 +139,13 @@
                 class="form-control"
                 :class="{ 'error': validationErrors.semi_marathon_start_time }"
               />
-              <span class="help-text">{{ $t('admin.eventConfig.semiMarathonStartTimeHelp') }}</span>
-              <span v-if="validationErrors.semi_marathon_start_time" class="error-text">
-                {{ validationErrors.semi_marathon_start_time }}
-              </span>
-            </div>
+            </FormGroup>
 
-            <div class="form-group">
-              <label for="semi_marathon_bow_start">{{ $t('admin.eventConfig.bowStart') }}</label>
+            <FormGroup
+              :label="$t('admin.eventConfig.bowStart')"
+              :help-text="$t('admin.eventConfig.semiMarathonBowStartHelp')"
+              :error="validationErrors.semi_marathon_bow_start"
+            >
               <input
                 id="semi_marathon_bow_start"
                 v-model.number="formData.semi_marathon_bow_start"
@@ -154,14 +154,13 @@
                 class="form-control"
                 :class="{ 'error': validationErrors.semi_marathon_bow_start }"
               />
-              <span class="help-text">{{ $t('admin.eventConfig.semiMarathonBowStartHelp') }}</span>
-              <span v-if="validationErrors.semi_marathon_bow_start" class="error-text">
-                {{ validationErrors.semi_marathon_bow_start }}
-              </span>
-            </div>
+            </FormGroup>
 
-            <div class="form-group">
-              <label for="semi_marathon_interval_seconds">{{ $t('admin.eventConfig.interval') }}</label>
+            <FormGroup
+              :label="$t('admin.eventConfig.interval')"
+              :help-text="$t('admin.eventConfig.semiMarathonIntervalHelp')"
+              :error="validationErrors.semi_marathon_interval_seconds"
+            >
               <input
                 id="semi_marathon_interval_seconds"
                 v-model.number="formData.semi_marathon_interval_seconds"
@@ -171,30 +170,45 @@
                 class="form-control"
                 :class="{ 'error': validationErrors.semi_marathon_interval_seconds }"
               />
-              <span class="help-text">{{ $t('admin.eventConfig.semiMarathonIntervalHelp') }}</span>
-              <span v-if="validationErrors.semi_marathon_interval_seconds" class="error-text">
-                {{ validationErrors.semi_marathon_interval_seconds }}
-              </span>
-            </div>
+            </FormGroup>
           </div>
         </div>
       </div>
 
-      <div v-if="saveError" class="error-message">
-        {{ saveError }}
-      </div>
+      <MessageAlert 
+        v-if="saveError" 
+        type="error" 
+        :message="saveError"
+        :dismissible="true"
+        @dismiss="saveError = null"
+      />
 
-      <div v-if="saveSuccess" class="success-message">
-        {{ $t('admin.eventConfig.saveSuccess') }}
-      </div>
+      <MessageAlert 
+        v-if="saveSuccess" 
+        type="success" 
+        :message="$t('admin.eventConfig.saveSuccess')"
+        :auto-dismiss="3000"
+      />
 
       <div class="form-actions">
-        <button type="button" @click="handleCancel" class="btn-secondary" :disabled="saving">
+        <BaseButton 
+          type="button" 
+          variant="secondary" 
+          size="medium"
+          :disabled="saving"
+          @click="handleCancel"
+        >
           {{ $t('common.cancel') }}
-        </button>
-        <button type="submit" class="btn-primary" :disabled="saving || !hasChanges">
+        </BaseButton>
+        <BaseButton 
+          type="submit" 
+          variant="primary" 
+          size="medium"
+          :disabled="saving || !hasChanges"
+          :loading="saving"
+        >
           {{ saving ? $t('common.saving') : $t('common.save') }}
-        </button>
+        </BaseButton>
       </div>
     </form>
   </div>
@@ -205,6 +219,10 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import apiClient from '../../services/apiClient';
+import BaseButton from '../../components/base/BaseButton.vue';
+import FormGroup from '../../components/composite/FormGroup.vue';
+import LoadingSpinner from '../../components/base/LoadingSpinner.vue';
+import MessageAlert from '../../components/composite/MessageAlert.vue';
 
 const router = useRouter();
 const { t } = useI18n();
@@ -396,21 +414,21 @@ onMounted(() => {
 .admin-event-config {
   max-width: 800px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: var(--spacing-xxl);
 }
 
 .page-header {
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xxl);
 }
 
 .back-link {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  color: #3498db;
+  gap: var(--spacing-sm);
+  color: var(--color-primary);
   text-decoration: none;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-sm);
 }
 
 .back-link:hover {
@@ -418,47 +436,28 @@ onMounted(() => {
 }
 
 .page-header h1 {
-  font-size: 2rem;
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
+  font-size: var(--font-size-3xl);
+  color: var(--color-dark);
+  margin-bottom: var(--spacing-sm);
+  font-weight: var(--font-weight-semibold);
 }
 
 .subtitle {
-  color: #7f8c8d;
-  font-size: 1.1rem;
-}
-
-.loading {
-  text-align: center;
-  padding: 3rem;
-}
-
-.spinner {
-  width: 50px;
-  height: 50px;
-  margin: 0 auto 1rem;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  color: var(--color-muted);
+  font-size: var(--font-size-lg);
 }
 
 .config-form {
-  background: white;
-  border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: var(--color-white);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-xxl);
+  box-shadow: var(--shadow-sm);
 }
 
 .form-section {
-  margin-bottom: 2rem;
-  padding-bottom: 2rem;
-  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: var(--spacing-xxl);
+  padding-bottom: var(--spacing-xxl);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .form-section:last-of-type {
@@ -466,15 +465,16 @@ onMounted(() => {
 }
 
 .form-section h2 {
-  font-size: 1.3rem;
-  color: #2c3e50;
-  margin-bottom: 1.5rem;
+  font-size: var(--font-size-xl);
+  color: var(--color-dark);
+  margin-bottom: var(--spacing-xl);
+  font-weight: var(--font-weight-semibold);
 }
 
 .race-config-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  gap: var(--spacing-xxl);
 }
 
 .race-config-column {
@@ -482,167 +482,86 @@ onMounted(() => {
 }
 
 .race-type-title {
-  font-size: 1.1rem;
-  color: #3498db;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #3498db;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  font-weight: 500;
-  color: #2c3e50;
-  margin-bottom: 0.5rem;
+  font-size: var(--font-size-lg);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2px solid var(--color-primary);
 }
 
 .form-control {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
+  padding: var(--form-input-padding);
+  border: 1px solid var(--form-input-border-color);
+  border-radius: var(--form-input-border-radius);
+  font-size: var(--font-size-base);
+  transition: border-color var(--transition-normal);
 }
 
 .form-control:focus {
   outline: none;
-  border-color: #3498db;
+  border-color: var(--color-primary);
 }
 
 .form-control.error {
-  border-color: #e74c3c;
-}
-
-.help-text {
-  display: block;
-  font-size: 0.85rem;
-  color: #7f8c8d;
-  margin-top: 0.25rem;
-}
-
-.error-text {
-  display: block;
-  color: #e74c3c;
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
-}
-
-.error-message {
-  background-color: #fee;
-  border: 1px solid #e74c3c;
-  color: #c0392b;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-}
-
-.success-message {
-  background-color: #d4edda;
-  border: 1px solid #28a745;
-  color: #155724;
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
+  border-color: var(--color-danger);
 }
 
 .form-actions {
   display: flex;
-  gap: 1rem;
+  gap: var(--spacing-lg);
   justify-content: flex-end;
-  margin-top: 2rem;
-}
-
-.btn-primary,
-.btn-secondary {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.btn-primary {
-  background-color: #3498db;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #2980b9;
-}
-
-.btn-primary:disabled {
-  background-color: #bdc3c7;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background-color: #ecf0f1;
-  color: #2c3e50;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background-color: #d5dbdb;
-}
-
-.btn-secondary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  margin-top: var(--spacing-xxl);
 }
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .admin-event-config {
-    padding: 1rem;
+    padding: var(--spacing-lg);
     max-width: 100%;
     overflow-x: hidden;
   }
 
   .page-header {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--spacing-xl);
   }
 
   .page-header h1 {
-    font-size: 1.75rem;
+    font-size: var(--font-size-2xl);
   }
 
   .subtitle {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 
   .back-link {
-    font-size: 16px; /* Prevent iOS zoom */
-    min-height: 44px;
+    font-size: var(--form-input-font-size-mobile);
+    min-height: var(--touch-target-min-size);
     display: inline-flex;
     align-items: center;
   }
 
   .config-form {
-    padding: 1.25rem;
+    padding: var(--spacing-lg);
     max-width: 100%;
     overflow-x: hidden;
   }
 
   .form-section {
-    margin-bottom: 1.5rem;
-    padding-bottom: 1.5rem;
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-xl);
     max-width: 100%;
     overflow-x: hidden;
   }
 
   .form-section h2 {
-    font-size: 1.125rem;
+    font-size: var(--font-size-lg);
   }
 
   .race-config-grid {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: var(--spacing-xl);
     max-width: 100%;
   }
 
@@ -652,21 +571,12 @@ onMounted(() => {
   }
 
   .race-type-title {
-    font-size: 1rem;
-  }
-
-  .form-group {
-    margin-bottom: 1.25rem;
-    max-width: 100%;
-  }
-
-  .form-group label {
-    font-size: 0.9rem;
+    font-size: var(--font-size-base);
   }
 
   .form-control {
-    min-height: 44px;
-    font-size: 16px; /* Prevent iOS zoom */
+    min-height: var(--form-input-min-height);
+    font-size: var(--form-input-font-size-mobile);
     padding: 0.625rem 0.75rem;
     max-width: 100%;
     box-sizing: border-box;
@@ -681,29 +591,13 @@ onMounted(() => {
     box-sizing: border-box;
   }
 
-  .help-text,
-  .error-text {
-    font-size: 0.8rem;
-    word-wrap: break-word;
-  }
-
   .form-actions {
     flex-direction: column-reverse;
-    gap: 0.75rem;
+    gap: var(--spacing-md);
   }
 
-  .btn-primary,
-  .btn-secondary {
+  .form-actions :deep(button) {
     width: 100%;
-    min-height: 44px;
-    font-size: 16px; /* Prevent iOS zoom */
-    padding: 0.875rem 1.5rem;
-  }
-
-  .error-message,
-  .success-message {
-    padding: 0.875rem;
-    font-size: 0.9rem;
   }
 }
 </style>

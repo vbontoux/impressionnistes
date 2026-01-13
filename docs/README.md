@@ -16,9 +16,10 @@ Welcome to the Course des Impressionnistes Registration System documentation.
 - [Terminology](reference/terminology.md) - Standard terminology and pricing definitions
 
 ### Design System
+- [Design System Documentation](design-system.md) - Complete design system reference with components, tokens, and patterns
+- [Design System Showcase](../frontend/src/views/DesignSystemShowcase.vue) - Interactive component examples (visit `/design-system` in the app)
 - [Design System Setup](design-system-setup.md) - Design tokens implementation guide
 - [Design System Showcase Guide](design-system-showcase-guide.md) - Living style guide maintenance
-- [Design System Documentation](design-system.md) - Complete design system reference (coming in Task 22)
 
 ### Guides
 - [GDPR Compliance](guides/GDPR_COMPLIANCE.md) - **NEW** Privacy and consent implementation

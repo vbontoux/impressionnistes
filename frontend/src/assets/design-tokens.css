@@ -14,6 +14,7 @@
   --color-primary: #007bff;
   --color-primary-hover: #0056b3;
   --color-primary-active: #004085;
+  --color-primary-dark: #0056b3;  /* Alias for hover state */
   
   /* Success Colors */
   --color-success: #28a745;
@@ -50,6 +51,7 @@
   --color-muted: #666;
   --color-border: #dee2e6;
   --color-disabled: #ccc;
+  --color-white: #ffffff;
   
   /* Background Colors */
   --color-bg-white: #ffffff;
@@ -139,6 +141,16 @@
   --card-border-color: var(--color-border);
   --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   --card-shadow-hover: 0 4px 8px rgba(0, 0, 0, 0.15);
+  
+  /* Border Radius */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
   
   /* Tables */
   --table-header-bg: #f8f9fa;

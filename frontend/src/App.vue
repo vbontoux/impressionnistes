@@ -431,6 +431,9 @@ watch(() => authStore.impersonatedTeamManagerId, (teamManagerId) => {
 /* Import Design Tokens */
 @import './assets/design-tokens.css';
 
+/* Import Utility Classes */
+@import './styles/utilities.css';
+
 * {
   margin: 0;
   padding: 0;
@@ -439,9 +442,9 @@ watch(() => authStore.impersonatedTeamManagerId, (teamManagerId) => {
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  line-height: 1.6;
-  color: #333;
-  background-color: #f5f5f5;
+  line-height: var(--line-height-normal);
+  color: var(--color-dark);
+  background-color: var(--color-bg-light);
   overflow-x: hidden;
 }
 
@@ -461,30 +464,30 @@ h2 {
 
 /* Top Header */
 .top-header {
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 0.75rem;
+  background-color: var(--color-bg-white);
+  box-shadow: var(--shadow-sm);
+  padding: var(--spacing-md);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: var(--z-index-dropdown);
 }
 
 .menu-toggle {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.5rem;
+  padding: var(--spacing-sm);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-width: 44px;
-  min-height: 44px;
-  width: 44px;
-  height: 44px;
+  min-width: var(--touch-target-min-size);
+  min-height: var(--touch-target-min-size);
+  width: var(--touch-target-min-size);
+  height: var(--touch-target-min-size);
   position: relative;
 }
 
@@ -492,9 +495,9 @@ h2 {
   display: block;
   width: 24px;
   height: 2px;
-  background-color: #333;
+  background-color: var(--color-dark);
   position: relative;
-  transition: background-color 0.3s;
+  transition: var(--transition-slow);
 }
 
 .hamburger::before,
@@ -503,10 +506,10 @@ h2 {
   display: block;
   width: 24px;
   height: 2px;
-  background-color: #333;
+  background-color: var(--color-dark);
   position: absolute;
   left: 0;
-  transition: all 0.3s;
+  transition: var(--transition-slow);
 }
 
 .hamburger::before {
@@ -535,9 +538,9 @@ h2 {
 .logo {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 1.1rem;
-  font-weight: bold;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
   color: #4CAF50;
   text-decoration: none;
   flex: 1;
@@ -556,19 +559,19 @@ h2 {
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 .btn-header {
-  padding: 0.5rem 1rem;
-  color: white;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  color: var(--color-white);
   text-decoration: none;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  transition: background-color 0.3s;
+  border-radius: var(--button-border-radius);
+  font-size: var(--button-font-size-sm);
+  transition: var(--transition-slow);
   white-space: nowrap;
-  min-height: 44px;
-  min-width: 44px;
+  min-height: var(--touch-target-min-size);
+  min-width: var(--touch-target-min-size);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -600,18 +603,18 @@ h2 {
 .user-menu-button {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: white;
-  color: #333;
-  border: 1px solid #e0e0e0;
-  border-radius: 6px;
-  font-size: 0.9rem;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--color-bg-white);
+  color: var(--color-dark);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--button-font-size-sm);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: var(--button-transition);
   white-space: nowrap;
-  min-height: 44px;
-  min-width: 44px;
+  min-height: var(--touch-target-min-size);
+  min-width: var(--touch-target-min-size);
 }
 
 .user-menu-button:hover {
@@ -620,15 +623,15 @@ h2 {
 }
 
 .user-name {
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
   max-width: 120px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .dropdown-icon {
-  transition: transform 0.2s;
-  color: #666;
+  transition: var(--transition-normal);
+  color: var(--color-muted);
 }
 
 .dropdown-icon.open {
@@ -637,16 +640,16 @@ h2 {
 
 .user-menu-dropdown {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  top: calc(100% + var(--spacing-sm));
   right: 0;
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-md);
   min-width: 200px;
-  z-index: 1000;
+  z-index: var(--z-index-modal);
   overflow: hidden;
-  animation: slideDown 0.2s ease;
+  animation: slideDown var(--transition-normal) ease;
 }
 
 /* Ensure dropdown stays within viewport on mobile */
@@ -672,38 +675,38 @@ h2 {
 .user-menu-dropdown .menu-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem;
-  color: #333;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  color: var(--color-dark);
   text-decoration: none;
   border: none;
   background: none;
   width: 100%;
   text-align: left;
   cursor: pointer;
-  transition: background-color 0.15s;
-  font-size: 0.9rem;
-  min-height: 44px;
+  transition: var(--transition-fast);
+  font-size: var(--button-font-size-sm);
+  min-height: var(--touch-target-min-size);
 }
 
 .user-menu-dropdown .menu-item:hover {
-  background-color: #f8f9fa;
+  background-color: var(--color-light);
 }
 
 .user-menu-dropdown .menu-item .menu-icon {
   width: 20px;
   height: 20px;
-  color: #666;
+  color: var(--color-muted);
   flex-shrink: 0;
 }
 
 .user-menu-dropdown .menu-item.logout {
-  color: #e74c3c;
-  border-top: 1px solid #f0f0f0;
+  color: var(--color-danger);
+  border-top: 1px solid var(--color-border);
 }
 
 .user-menu-dropdown .menu-item.logout .menu-icon {
-  color: #e74c3c;
+  color: var(--color-danger);
 }
 
 .user-menu-dropdown .menu-item.logout:hover {
@@ -719,7 +722,7 @@ h2 {
   width: 280px;
   background-color: #2c3e50;
   padding-top: 70px;
-  transition: left 0.3s ease;
+  transition: var(--transition-slow);
   z-index: 99;
   overflow-y: auto;
 }
@@ -742,23 +745,23 @@ h2 {
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  padding: 1rem 0;
+  padding: var(--spacing-lg) 0;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg) var(--spacing-xl);
   color: #ecf0f1;
   text-decoration: none;
-  transition: background-color 0.3s;
+  transition: var(--transition-slow);
   border: none;
   background: none;
   width: 100%;
   text-align: left;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: var(--font-size-lg);
 }
 
 .nav-item:hover {
@@ -782,7 +785,7 @@ h2 {
   width: 100%;
   height: 100%;
   color: #ecf0f1;
-  transition: color 0.3s;
+  transition: var(--transition-slow);
 }
 
 .nav-item:hover .nav-icon svg {
@@ -800,7 +803,7 @@ h2 {
 .nav-divider {
   height: 1px;
   background-color: #34495e;
-  margin: 1rem 1.5rem;
+  margin: var(--spacing-lg) var(--spacing-xl);
 }
 
 .nav-item.admin-item {
@@ -835,7 +838,7 @@ h2 {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--color-bg-overlay);
   z-index: 98;
   display: none;
 }
@@ -847,8 +850,8 @@ h2 {
 /* Main Content */
 .main-content {
   flex: 1;
-  padding: 1rem;
-  transition: margin-left 0.3s ease;
+  padding: var(--spacing-lg);
+  transition: var(--transition-slow);
 }
 
 .main-content.with-sidebar {
@@ -858,8 +861,8 @@ h2 {
 /* Tablet and Desktop */
 @media (min-width: 768px) {
   .top-header {
-    padding: 1rem;
-    gap: 1rem;
+    padding: var(--spacing-lg);
+    gap: var(--spacing-lg);
   }
 
   .logo-text {
@@ -889,27 +892,27 @@ h2 {
   }
 
   .header-actions {
-    gap: 1rem;
+    gap: var(--spacing-lg);
   }
 }
 
 /* Large Desktop */
 @media (min-width: 1200px) {
   .main-content {
-    padding: 1.5rem;
+    padding: var(--spacing-xl);
   }
 }
 
 /* Mobile Optimization */
 @media (max-width: 767px) {
   .top-header {
-    padding: 0.5rem 0.75rem;
-    gap: 0.5rem;
+    padding: var(--spacing-sm) var(--spacing-md);
+    gap: var(--spacing-sm);
   }
 
   .logo {
-    font-size: 0.9rem;
-    gap: 0.5rem;
+    font-size: var(--button-font-size-sm);
+    gap: var(--spacing-sm);
   }
 
   .logo-image {
@@ -921,18 +924,18 @@ h2 {
   }
 
   .main-content {
-    padding: 0.75rem;
+    padding: var(--spacing-md);
   }
 
   .btn-header {
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
-    min-height: 44px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+    min-height: var(--touch-target-min-size);
   }
 
   .user-menu-button {
-    padding: 0.5rem 0.75rem;
-    min-height: 44px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    min-height: var(--touch-target-min-size);
   }
 
   .user-name {
@@ -940,7 +943,7 @@ h2 {
   }
 
   .header-actions {
-    gap: 0.5rem;
+    gap: var(--spacing-sm);
   }
 }
 

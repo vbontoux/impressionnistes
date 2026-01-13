@@ -4,27 +4,34 @@
 
     <form @submit.prevent="handleSubmit">
       <!-- Event Type Selection -->
-      <div class="form-group">
-        <label for="event_type">{{ $t('boat.eventType') }} *</label>
+      <FormGroup
+        :label="$t('boat.eventType') + ' *'"
+        for-id="event_type"
+      >
         <select
           id="event_type"
           v-model="formData.event_type"
           @change="onEventTypeChange"
           required
+          class="form-select"
         >
           <option value="">{{ $t('boat.selectEvent') }}</option>
           <option value="21km">{{ $t('boat.semiMarathon') }} (21km)</option>
           <option value="42km">{{ $t('boat.marathon') }} (42km)</option>
         </select>
-      </div>
+      </FormGroup>
 
       <!-- Boat Type Selection -->
-      <div class="form-group" v-if="formData.event_type">
-        <label for="boat_type">{{ $t('boat.boatType') }} *</label>
+      <FormGroup
+        v-if="formData.event_type"
+        :label="$t('boat.boatType') + ' *'"
+        for-id="boat_type"
+      >
         <select
           id="boat_type"
           v-model="formData.boat_type"
           required
+          class="form-select"
         >
           <option value="">{{ $t('boat.selectBoatType') }}</option>
           <option
@@ -35,7 +42,7 @@
             {{ boatType.label }}
           </option>
         </select>
-      </div>
+      </FormGroup>
 
       <!-- Boat Request Section -->
       <div class="form-section boat-request-section" v-if="formData.boat_type">
@@ -55,10 +62,10 @@
         
         <!-- Show these fields only when boat request is enabled -->
         <div v-if="formData.boat_request_enabled" class="boat-request-fields">
-          <div class="form-group">
-            <label for="boat_request_comment">
-              {{ $t('boat.boatRequest.commentLabel') }}
-            </label>
+          <FormGroup
+            :label="$t('boat.boatRequest.commentLabel')"
+            for-id="boat_request_comment"
+          >
             <textarea
               id="boat_request_comment"
               v-model="formData.boat_request_comment"
@@ -67,44 +74,64 @@
               rows="4"
               class="form-textarea"
             ></textarea>
-            <span class="char-count">
-              {{ formData.boat_request_comment?.length || 0 }} / 500
-            </span>
-          </div>
+            <template #help>
+              <span class="char-count">
+                {{ formData.boat_request_comment?.length || 0 }} / 500
+              </span>
+            </template>
+          </FormGroup>
           
-          <div class="form-group">
-            <label>{{ $t('boat.boatRequest.assignedBoatLabel') }}</label>
+          <FormGroup
+            :label="$t('boat.boatRequest.assignedBoatLabel')"
+            :help-text="$t('boat.boatRequest.assignedBoatHelp')"
+          >
             <input
               type="text"
               :value="formData.assigned_boat_identifier || $t('boat.boatRequest.notAssigned')"
               disabled
               class="form-input read-only"
             />
-            <p class="help-text">{{ $t('boat.boatRequest.assignedBoatHelp') }}</p>
-          </div>
+          </FormGroup>
           
-          <div v-if="formData.assigned_boat_comment" class="form-group">
-            <label>{{ $t('boat.boatRequest.assignedBoatCommentLabel') }}</label>
+          <FormGroup
+            v-if="formData.assigned_boat_comment"
+            :label="$t('boat.boatRequest.assignedBoatCommentLabel')"
+          >
             <div class="assigned-comment">
               {{ formData.assigned_boat_comment }}
             </div>
-          </div>
+          </FormGroup>
         </div>
       </div>
 
       <!-- Error Message -->
-      <div v-if="error" class="error-message">
-        {{ error }}
-      </div>
+      <MessageAlert 
+        v-if="error" 
+        type="error" 
+        :message="error"
+        :dismissible="true"
+        @dismiss="error = null"
+      />
 
       <!-- Action Buttons -->
       <div class="form-actions">
-        <button type="button" @click="$emit('cancel')" class="btn-secondary">
+        <BaseButton 
+          type="button" 
+          variant="secondary" 
+          size="small"
+          @click="$emit('cancel')"
+        >
           {{ $t('common.cancel') }}
-        </button>
-        <button type="submit" :disabled="loading" class="btn-primary">
+        </BaseButton>
+        <BaseButton 
+          type="submit" 
+          variant="primary" 
+          size="small"
+          :disabled="loading"
+          :loading="loading"
+        >
           {{ loading ? $t('common.creating') : $t('common.create') }}
-        </button>
+        </BaseButton>
       </div>
     </form>
   </div>
@@ -114,9 +141,17 @@
 import { ref, computed } from 'vue'
 import { useBoatStore } from '../stores/boatStore'
 import { useI18n } from 'vue-i18n'
+import BaseButton from './base/BaseButton.vue'
+import FormGroup from './composite/FormGroup.vue'
+import MessageAlert from './composite/MessageAlert.vue'
 
 export default {
   name: 'BoatRegistrationForm',
+  components: {
+    BaseButton,
+    FormGroup,
+    MessageAlert
+  },
   emits: ['created', 'cancel'],
   setup(props, { emit }) {
     const { t } = useI18n()
@@ -201,49 +236,39 @@ export default {
 .boat-registration-form {
   max-width: 600px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: var(--spacing-xxl);
 }
 
 .form-section {
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 1px solid #e0e0e0;
+  margin-top: var(--spacing-xxl);
+  padding-top: var(--spacing-xxl);
+  border-top: 1px solid var(--color-border);
 }
 
 .form-section h3 {
-  margin-bottom: 1rem;
-  font-size: 1.25rem;
-  color: #333;
+  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-size-xl);
+  color: var(--color-dark);
+  font-weight: var(--font-weight-semibold);
 }
 
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-}
-
-.form-group select,
-.form-group input[type="text"] {
+.form-select {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
+  padding: var(--form-input-padding);
+  border: 1px solid var(--form-input-border-color);
+  border-radius: var(--form-input-border-radius);
+  font-size: var(--font-size-base);
 }
 
 .checkbox-label {
   display: flex;
   align-items: center;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 .checkbox-label input[type="checkbox"] {
-  margin-right: 0.5rem;
+  margin-right: var(--spacing-sm);
   width: 1.25rem;
   height: 1.25rem;
   cursor: pointer;
@@ -254,98 +279,96 @@ export default {
 }
 
 .help-text {
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: #666;
+  margin-top: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
 }
 
 .boat-request-fields {
-  margin-top: 1rem;
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 4px;
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  background-color: var(--color-light);
+  border-radius: var(--border-radius-sm);
 }
 
 .form-textarea {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: var(--form-input-padding);
+  border: 1px solid var(--form-input-border-color);
+  border-radius: var(--form-input-border-radius);
   font-family: inherit;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   resize: vertical;
 }
 
+.form-input {
+  width: 100%;
+  padding: var(--form-input-padding);
+  border: 1px solid var(--form-input-border-color);
+  border-radius: var(--form-input-border-radius);
+  font-size: var(--font-size-base);
+}
+
 .read-only {
-  background-color: #e9ecef;
+  background-color: var(--color-light);
   cursor: not-allowed;
-  color: #6c757d;
+  color: var(--color-secondary);
 }
 
 .char-count {
   display: block;
   text-align: right;
-  font-size: 0.875rem;
-  color: #6c757d;
-  margin-top: 0.25rem;
+  font-size: var(--font-size-sm);
+  color: var(--color-secondary);
+  margin-top: var(--spacing-xs);
 }
 
 .assigned-comment {
-  padding: 0.75rem;
-  background-color: #e7f3ff;
-  border-left: 4px solid #007bff;
-  border-radius: 4px;
+  padding: var(--spacing-md);
+  background-color: var(--color-info-light);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--border-radius-sm);
   white-space: pre-wrap;
-  font-size: 0.9rem;
-  color: #333;
-}
-
-.error-message {
-  padding: 1rem;
-  background-color: #fee;
-  border: 1px solid #fcc;
-  border-radius: 4px;
-  color: #c33;
-  margin-bottom: 1rem;
+  font-size: var(--font-size-sm);
+  color: var(--color-dark);
 }
 
 .form-actions {
   display: flex;
-  gap: 1rem;
+  gap: var(--spacing-lg);
   justify-content: flex-end;
-  margin-top: 2rem;
+  margin-top: var(--spacing-xxl);
 }
 
-.btn-primary,
-.btn-secondary {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .boat-registration-form {
+    padding: var(--spacing-lg);
+  }
 
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-}
+  .form-section {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-xl);
+  }
 
-.btn-primary:hover:not(:disabled) {
-  background-color: #0056b3;
-}
+  .form-section h3 {
+    font-size: var(--font-size-lg);
+  }
 
-.btn-primary:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
+  .form-select,
+  .form-input,
+  .form-textarea {
+    min-height: var(--form-input-min-height);
+    font-size: var(--form-input-font-size-mobile);
+  }
 
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
-}
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: var(--spacing-md);
+  }
 
-.btn-secondary:hover {
-  background-color: #545b62;
+  .form-actions :deep(button) {
+    width: 100%;
+  }
 }
 </style>

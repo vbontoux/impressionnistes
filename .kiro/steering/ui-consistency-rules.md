@@ -51,6 +51,12 @@ inclusion: always
 - Default size is "medium" (matches design tokens)
 - NEVER create custom badge styling
 
+**Custom Badges (non-status):**
+- MUST use `display: inline-block` or `display: inline-flex`
+- MUST use `width: fit-content` to prevent full-width stretching
+- NEVER use `text-transform: uppercase` (use sentence case)
+- Use design system colors only
+
 ### 4. Utility Classes in design-tokens.css
 
 **Current utility classes available:**
@@ -72,6 +78,8 @@ inclusion: always
 - [ ] All status badges use `StatusBadge` component
 - [ ] All utility classes are in `design-tokens.css`
 - [ ] Component sizing follows standards (size="small" for cards/tables)
+- [ ] NO `text-transform: uppercase` on badges (use sentence case)
+- [ ] All badges use `width: fit-content` (not full width)
 
 ## Quick Reference
 
@@ -140,5 +148,7 @@ inclusion: always
 🚩 Creating custom button styling instead of using `BaseButton`
 🚩 Different button sizes in similar contexts (all cards should match)
 🚩 Different badge sizes across the application
+🚩 Using `text-transform: uppercase` on badges (ALWAYS use sentence case)
+🚩 Badges taking full width (ALWAYS use `width: fit-content`)
 
 If you see any of these, STOP and refactor to use the design system properly.

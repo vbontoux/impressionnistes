@@ -4,8 +4,11 @@
 
     <form @submit.prevent="handleSubmit">
       <!-- First Name -->
-      <div class="form-group">
-        <label for="firstName">{{ $t('crew.form.firstName') }} *</label>
+      <FormGroup
+        :label="$t('crew.form.firstName')"
+        :required="true"
+        :error="errors.first_name"
+      >
         <input
           id="firstName"
           v-model="form.first_name"
@@ -14,12 +17,14 @@
           :disabled="loading"
           @blur="validateField('first_name')"
         />
-        <span v-if="errors.first_name" class="error">{{ errors.first_name }}</span>
-      </div>
+      </FormGroup>
 
       <!-- Last Name -->
-      <div class="form-group">
-        <label for="lastName">{{ $t('crew.form.lastName') }} *</label>
+      <FormGroup
+        :label="$t('crew.form.lastName')"
+        :required="true"
+        :error="errors.last_name"
+      >
         <input
           id="lastName"
           v-model="form.last_name"
@@ -28,12 +33,14 @@
           :disabled="loading"
           @blur="validateField('last_name')"
         />
-        <span v-if="errors.last_name" class="error">{{ errors.last_name }}</span>
-      </div>
+      </FormGroup>
 
       <!-- Date of Birth -->
-      <div class="form-group">
-        <label for="dateOfBirth">{{ $t('crew.form.dateOfBirth') }} *</label>
+      <FormGroup
+        :label="$t('crew.form.dateOfBirth')"
+        :required="true"
+        :error="errors.date_of_birth"
+      >
         <input
           id="dateOfBirth"
           v-model="form.date_of_birth"
@@ -42,12 +49,14 @@
           :disabled="loading"
           @blur="validateField('date_of_birth')"
         />
-        <span v-if="errors.date_of_birth" class="error">{{ errors.date_of_birth }}</span>
-      </div>
+      </FormGroup>
 
       <!-- Gender -->
-      <div class="form-group">
-        <label for="gender">{{ $t('crew.form.gender') }} *</label>
+      <FormGroup
+        :label="$t('crew.form.gender')"
+        :required="true"
+        :error="errors.gender"
+      >
         <select
           id="gender"
           v-model="form.gender"
@@ -58,13 +67,16 @@
           <option value="M">{{ $t('crew.form.male') }}</option>
           <option value="F">{{ $t('crew.form.female') }}</option>
         </select>
-        <span v-if="errors.gender" class="error">{{ errors.gender }}</span>
-      </div>
+      </FormGroup>
 
       <!-- License Number with Warning -->
-      <div class="form-group license-with-warning">
-        <div class="license-field">
-          <label for="licenseNumber">{{ $t('crew.form.licenseNumber') }} *</label>
+      <div class="license-with-warning">
+        <FormGroup
+          :label="$t('crew.form.licenseNumber')"
+          :required="true"
+          :error="errors.license_number"
+          :help-text="$t('crew.form.licenseHint')"
+        >
           <input
             id="licenseNumber"
             v-model="form.license_number"
@@ -75,9 +87,7 @@
             maxlength="24"
             @blur="validateField('license_number')"
           />
-          <small class="hint">{{ $t('crew.form.licenseHint') }}</small>
-          <span v-if="errors.license_number" class="error">{{ errors.license_number }}</span>
-        </div>
+        </FormGroup>
         
         <div class="warning-box" :class="{ 'expanded': warningExpanded }" @click="warningExpanded = !warningExpanded">
           <svg class="warning-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -156,24 +166,33 @@
       </div>
 
       <!-- Error Message -->
-      <div v-if="errorMessage" class="alert alert-error">
-        {{ errorMessage }}
-      </div>
+      <MessageAlert
+        v-if="errorMessage"
+        type="error"
+        :message="errorMessage"
+        :dismissible="true"
+        @dismiss="errorMessage = ''"
+      />
 
       <!-- Success Message -->
-      <div v-if="successMessage" class="alert alert-success">
-        {{ successMessage }}
-      </div>
+      <MessageAlert
+        v-if="successMessage"
+        type="success"
+        :message="successMessage"
+        :dismissible="true"
+        :auto-dismiss="true"
+        @dismiss="successMessage = ''"
+      />
 
       <!-- Action Buttons -->
       <div class="button-group">
-        <button type="submit" class="btn btn-primary" :disabled="loading">
+        <BaseButton type="submit" variant="primary" size="small" :disabled="loading">
           <span v-if="loading">{{ $t('common.loading') }}</span>
           <span v-else>{{ isEdit ? $t('crew.form.update') : $t('crew.form.create') }}</span>
-        </button>
-        <button type="button" class="btn btn-secondary" @click="handleCancel" :disabled="loading">
+        </BaseButton>
+        <BaseButton type="button" variant="secondary" size="small" @click="handleCancel" :disabled="loading">
           {{ $t('common.cancel') }}
-        </button>
+        </BaseButton>
       </div>
     </form>
   </div>
@@ -186,6 +205,9 @@ import { useCrewStore } from '../stores/crewStore';
 import { useAuthStore } from '../stores/authStore';
 import axios from 'axios';
 import { calculateAge } from '../utils/raceEligibility';
+import BaseButton from './base/BaseButton.vue';
+import FormGroup from './composite/FormGroup.vue';
+import MessageAlert from './composite/MessageAlert.vue';
 
 const props = defineProps({
   crewMember: {
@@ -496,36 +518,25 @@ const handleCancel = () => {
 .crew-member-form {
   max-width: 600px;
   margin: 0 auto;
-  padding: 1rem;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: var(--spacing-lg);
+  background: var(--color-white);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-sm);
 }
 
 h3 {
-  margin-bottom: 1rem;
-  color: #333;
-  font-size: 1.25rem;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #333;
-  font-size: 0.875rem;
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-dark);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Mobile-optimized inputs: 16px font to prevent iOS zoom, 44px min height for touch targets */
 input, select {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
   font-size: 16px; /* Prevents iOS zoom on focus */
   min-height: 44px; /* Touch target minimum */
   box-sizing: border-box;
@@ -533,47 +544,29 @@ input, select {
 
 input:focus, select:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: var(--color-primary);
 }
 
 input:disabled, select:disabled {
-  background-color: #f5f5f5;
+  background-color: var(--color-light);
   cursor: not-allowed;
-}
-
-.hint {
-  display: block;
-  color: #666;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
-
-.error {
-  display: block;
-  color: #f44336;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
 }
 
 /* Mobile: Stack license field and warning vertically */
 .license-with-warning {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-}
-
-.license-field {
-  display: flex;
-  flex-direction: column;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
 }
 
 .warning-box {
   display: flex;
-  gap: 0.75rem;
-  padding: 0.75rem;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   background-color: #fff3e0;
-  border: 2px solid #ff9800;
-  border-radius: 6px;
+  border: 2px solid var(--color-warning);
+  border-radius: var(--border-radius-md);
   align-items: flex-start;
   height: fit-content;
   cursor: pointer;
@@ -588,7 +581,7 @@ input:disabled, select:disabled {
 .warning-icon {
   width: 24px;
   height: 24px;
-  color: #ff9800;
+  color: var(--color-warning);
   flex-shrink: 0;
   margin-top: 0.1rem;
 }
@@ -600,27 +593,27 @@ input:disabled, select:disabled {
 .warning-content strong {
   display: block;
   color: #e65100;
-  font-size: 0.85rem;
+  font-size: var(--font-size-sm);
   margin-bottom: 0;
-  font-weight: 600;
+  font-weight: var(--font-weight-semibold);
 }
 
 .warning-box.expanded .warning-content strong {
-  margin-bottom: 0.35rem;
+  margin-bottom: var(--spacing-xs);
 }
 
 .warning-content p {
   color: #e65100;
-  font-size: 0.85rem;
+  font-size: var(--font-size-sm);
   line-height: 1.4;
   margin: 0;
-  margin-top: 0.35rem;
+  margin-top: var(--spacing-xs);
 }
 
 .expand-icon {
   width: 20px;
   height: 20px;
-  color: #ff9800;
+  color: var(--color-warning);
   flex-shrink: 0;
   transition: transform 0.3s;
 }
@@ -629,91 +622,37 @@ input:disabled, select:disabled {
   transform: rotate(180deg);
 }
 
-.alert {
-  padding: 0.75rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-}
-
-.alert-error {
-  background-color: #ffebee;
-  color: #c62828;
-  border: 1px solid #ef5350;
-}
-
-.alert-success {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-  border: 1px solid #66bb6a;
-}
-
 /* Mobile: Stack buttons vertically */
 .button-group {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-}
-
-.btn {
-  width: 100%;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px; /* Prevents iOS zoom */
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  min-height: 44px; /* Touch target minimum */
-}
-
-.btn-primary {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #45a049;
-}
-
-.btn-secondary {
-  background-color: #fff;
-  color: #666;
-  border: 1px solid #ddd;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background-color: #f5f5f5;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-xl);
 }
 
 .checkbox-group {
   display: flex;
   align-items: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--spacing-sm);
   min-height: 44px; /* Touch target minimum */
 }
 
 .checkbox-group input[type="checkbox"] {
   width: 20px;
   height: 20px;
-  margin-right: 0.5rem;
+  margin-right: var(--spacing-sm);
   flex-shrink: 0;
 }
 
 .checkbox-label {
   margin-bottom: 0;
-  font-weight: normal;
+  font-weight: var(--font-weight-normal);
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-dark);
 }
 
 .ffa-logo {
@@ -732,25 +671,25 @@ input:disabled, select:disabled {
   right: 0;
   max-height: 250px;
   overflow-y: auto;
-  background: white;
-  border: 1px solid #ddd;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
   border-top: none;
-  border-radius: 0 0 4px 4px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm);
+  box-shadow: var(--shadow-md);
   z-index: 1000;
 }
 
 .autocomplete-item {
-  padding: 0.75rem;
+  padding: var(--spacing-sm) var(--spacing-md);
   cursor: pointer;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--color-light);
   min-height: 44px; /* Touch target minimum */
   display: flex;
   align-items: center;
 }
 
 .autocomplete-item:hover {
-  background-color: #f5f5f5;
+  background-color: var(--color-light);
 }
 
 .autocomplete-item:last-child {
@@ -758,78 +697,54 @@ input:disabled, select:disabled {
 }
 
 .club-name {
-  font-weight: 500;
-  color: #333;
-  font-size: 0.875rem;
-}
-
-.club-url {
-  font-size: 0.875rem;
-  color: #666;
-  margin-top: 0.25rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-dark);
+  font-size: var(--font-size-sm);
 }
 
 .autocomplete-no-results {
-  padding: 0.75rem;
-  color: #666;
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: var(--color-muted);
   font-style: italic;
-  background: white;
-  border: 1px solid #ddd;
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
   border-top: none;
-  border-radius: 0 0 4px 4px;
-  font-size: 0.875rem;
+  border-radius: 0 0 var(--border-radius-sm) var(--border-radius-sm);
+  font-size: var(--font-size-sm);
 }
 
 /* Tablet and larger: Enhanced layout */
 @media (min-width: 768px) {
   .crew-member-form {
-    padding: 2rem;
+    padding: var(--spacing-xxl);
   }
 
   h3 {
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
-  }
-
-  .form-group {
-    margin-bottom: 1.5rem;
-  }
-
-  label {
-    font-size: 1rem;
+    margin-bottom: var(--spacing-xl);
+    font-size: var(--font-size-xl);
   }
 
   input, select {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 
   /* Desktop: Side-by-side license and warning */
   .license-with-warning {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 1.5rem;
+    gap: var(--spacing-xl);
     align-items: start;
-  }
-
-  .alert {
-    padding: 1rem;
-    font-size: 1rem;
   }
 
   /* Desktop: Horizontal button group */
   .button-group {
     flex-direction: row;
-    gap: 1rem;
-    margin-top: 2rem;
-  }
-
-  .btn {
-    flex: 1;
-    font-size: 1rem;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-xxl);
   }
 
   .checkbox-label {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 
   .ffa-logo {
@@ -841,11 +756,11 @@ input:disabled, select:disabled {
   }
 
   .club-name {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 
   .autocomplete-no-results {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
   }
 }
 </style>

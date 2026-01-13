@@ -150,7 +150,7 @@
               size="small"
               @click="viewBoat(boat)"
             >
-              {{ $t('common.view') }}
+              {{ $t('common.edit') }}
             </BaseButton>
             <BaseButton 
               variant="danger"
@@ -231,7 +231,7 @@
                     @click="viewBoat(boat)"
                     fullWidth
                   >
-                    {{ $t('common.view') }}
+                    {{ $t('common.edit') }}
                   </BaseButton>
                   <BaseButton 
                     size="small"
@@ -584,6 +584,8 @@ export default {
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
   gap: var(--spacing-sm);
 }
 
