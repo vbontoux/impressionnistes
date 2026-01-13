@@ -163,20 +163,11 @@
               {{ $t('common.edit') }}
             </BaseButton>
             <BaseButton 
-              v-if="boat.forfait"
-              variant="secondary"
               size="small"
-              @click="removeForfait(boat)"
+              :variant="boat.forfait ? 'secondary' : 'warning'"
+              @click="toggleForfait(boat)"
             >
-              {{ $t('admin.boats.removeForfait') }}
-            </BaseButton>
-            <BaseButton 
-              v-else
-              variant="warning"
-              size="small"
-              @click="setForfait(boat)"
-            >
-              {{ $t('admin.boats.setForfait') }}
+              {{ boat.forfait ? $t('admin.boats.removeForfait') : $t('admin.boats.setForfait') }}
             </BaseButton>
             <BaseButton 
               variant="danger"
@@ -456,6 +447,7 @@ export default {
       assigned_boat_comment: ''
     })
     const saving = ref(false)
+    const forfaitProcessing = ref(false)
 
     // Fetch all boats
     const fetchBoats = async () => {
@@ -721,60 +713,44 @@ export default {
     }
 
     const toggleForfait = async (boat) => {
+      console.log('toggleForfait called for boat:', boat.boat_registration_id, 'Processing:', forfaitProcessing.value)
+      
+      // Prevent double-execution
+      if (forfaitProcessing.value) {
+        console.log('Already processing forfait, ignoring duplicate call')
+        return
+      }
+      
       if (!confirm(t(boat.forfait ? 'admin.boats.confirmRemoveForfait' : 'admin.boats.confirmSetForfait'))) {
+        console.log('User cancelled confirmation')
         return
       }
 
+      console.log('User confirmed, making API call')
+      forfaitProcessing.value = true
+      
       try {
         await apiClient.put(`/admin/boats/${boat.team_manager_id}/${boat.boat_registration_id}`, {
           forfait: !boat.forfait
         })
         
-        // Update local state
+        console.log('API call successful, updating local state')
+        // Update local state without refreshing the entire list (preserves scroll position)
         boat.forfait = !boat.forfait
+        
+        // Update registration_status based on forfait state
+        if (boat.forfait) {
+          boat.registration_status = 'forfait'
+        } else {
+          // Recalculate status based on seats
+          const filledSeats = getFilledSeatsCount(boat)
+          boat.registration_status = filledSeats === boat.seats?.length ? 'complete' : 'incomplete'
+        }
       } catch (err) {
         console.error('Failed to toggle forfait:', err)
         error.value = t('admin.boats.updateError')
-      }
-    }
-
-    const setForfait = async (boat) => {
-      if (!confirm(t('admin.boats.confirmSetForfait'))) {
-        return
-      }
-
-      try {
-        await apiClient.put(`/admin/boats/${boat.team_manager_id}/${boat.boat_registration_id}`, {
-          forfait: true
-        })
-        
-        // Update local state
-        boat.forfait = true
-        boat.registration_status = 'forfait'
-      } catch (err) {
-        console.error('Failed to set forfait:', err)
-        error.value = t('admin.boats.updateError')
-      }
-    }
-
-    const removeForfait = async (boat) => {
-      if (!confirm(t('admin.boats.confirmRemoveForfait'))) {
-        return
-      }
-
-      try {
-        await apiClient.put(`/admin/boats/${boat.team_manager_id}/${boat.boat_registration_id}`, {
-          forfait: false
-        })
-        
-        // Update local state
-        boat.forfait = false
-        // Recalculate status based on seats
-        const filledSeats = getFilledSeatsCount(boat)
-        boat.registration_status = filledSeats === boat.seats?.length ? 'complete' : 'incomplete'
-      } catch (err) {
-        console.error('Failed to remove forfait:', err)
-        error.value = t('admin.boats.updateError')
+      } finally {
+        forfaitProcessing.value = false
       }
     }
 
@@ -889,8 +865,6 @@ export default {
       sortBy,
       clearFilters,
       toggleForfait,
-      setForfait,
-      removeForfait,
       deleteBoat,
       closeModals,
       editBoat,
