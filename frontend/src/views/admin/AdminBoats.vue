@@ -713,20 +713,15 @@ export default {
     }
 
     const toggleForfait = async (boat) => {
-      console.log('toggleForfait called for boat:', boat.boat_registration_id, 'Processing:', forfaitProcessing.value)
-      
       // Prevent double-execution
       if (forfaitProcessing.value) {
-        console.log('Already processing forfait, ignoring duplicate call')
         return
       }
       
       if (!confirm(t(boat.forfait ? 'admin.boats.confirmRemoveForfait' : 'admin.boats.confirmSetForfait'))) {
-        console.log('User cancelled confirmation')
         return
       }
 
-      console.log('User confirmed, making API call')
       forfaitProcessing.value = true
       
       try {
@@ -734,7 +729,6 @@ export default {
           forfait: !boat.forfait
         })
         
-        console.log('API call successful, updating local state')
         // Update local state without refreshing the entire list (preserves scroll position)
         boat.forfait = !boat.forfait
         
