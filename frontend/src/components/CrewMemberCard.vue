@@ -60,6 +60,8 @@
       <BaseButton 
         variant="secondary" 
         size="small"
+        :disabled="!canEdit"
+        :title="editTooltip"
         @click="$emit('edit', crewMember)"
       >
         {{ $t('common.edit') }}
@@ -67,8 +69,8 @@
       <BaseButton 
         variant="danger" 
         size="small"
-        :disabled="isAssigned"
-        :title="isAssigned ? $t('crew.card.cannotDeleteAssigned') : ''"
+        :disabled="!canDelete"
+        :title="deleteTooltip"
         @click="$emit('delete', crewMember)"
       >
         {{ $t('common.delete') }}
@@ -78,9 +80,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { calculateAge, getAgeCategory as getAgeCategoryUtil, getMasterCategory } from '../utils/raceEligibility';
+import { usePermissions } from '../composables/usePermissions';
 import DataCard from './composite/DataCard.vue';
 import BaseButton from './base/BaseButton.vue';
 
@@ -94,11 +97,48 @@ const props = defineProps({
 defineEmits(['edit', 'delete']);
 
 const { t } = useI18n();
+const { canPerformAction, getPermissionMessage, initialize, loading: permissionsLoading } = usePermissions();
+
+// Initialize permissions on mount
+onMounted(async () => {
+  await initialize();
+});
 
 const isAssigned = computed(() => !!props.crewMember.assigned_boat_id);
 const hasFlaggedIssues = computed(() => 
   props.crewMember.flagged_issues && props.crewMember.flagged_issues.length > 0
 );
+
+// Resource context for permission checks
+const resourceContext = computed(() => ({
+  resource_type: 'crew_member',
+  resource_id: props.crewMember.crew_member_id,
+  resource_state: {
+    assigned: isAssigned.value
+  }
+}));
+
+// Permission checks
+const canEdit = computed(() => {
+  if (permissionsLoading.value) return false;
+  return canPerformAction('edit_crew_member', resourceContext.value);
+});
+
+const canDelete = computed(() => {
+  if (permissionsLoading.value) return false;
+  return canPerformAction('delete_crew_member', resourceContext.value);
+});
+
+// Tooltip messages
+const editTooltip = computed(() => {
+  if (canEdit.value) return '';
+  return getPermissionMessage('edit_crew_member', resourceContext.value);
+});
+
+const deleteTooltip = computed(() => {
+  if (canDelete.value) return '';
+  return getPermissionMessage('delete_crew_member', resourceContext.value);
+});
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);

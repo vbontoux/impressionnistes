@@ -4,9 +4,18 @@
       :title="$t('crew.list.title')"
       :subtitle="$t('crew.list.subtitle')"
       v-model:viewMode="viewMode"
-      :actionLabel="$t('crew.list.addNew')"
-      @action="showCreateForm = true"
-    />
+    >
+      <template #action>
+        <BaseButton 
+          variant="primary"
+          :disabled="!canCreateCrewMember"
+          :title="createCrewMemberTooltip"
+          @click="showCreateForm = true"
+        >
+          {{ $t('crew.list.addNew') }}
+        </BaseButton>
+      </template>
+    </ListHeader>
 
     <ListFilters
       v-model:searchQuery="searchQuery"
@@ -58,7 +67,12 @@
       :message="$t('crew.list.noMembers')"
     >
       <template #action>
-        <BaseButton variant="primary" @click="showCreateForm = true">
+        <BaseButton 
+          variant="primary"
+          :disabled="!canCreateCrewMember"
+          :title="createCrewMemberTooltip"
+          @click="showCreateForm = true"
+        >
           {{ $t('crew.list.addFirst') }}
         </BaseButton>
       </template>
@@ -128,14 +142,18 @@
             <td class="actions-cell">
               <BaseButton 
                 size="small" 
-                variant="secondary" 
+                variant="secondary"
+                :disabled="!canEditMember(member)"
+                :title="getEditTooltip(member)"
                 @click="handleEdit(member)"
               >
                 {{ $t('common.edit') }}
               </BaseButton>
               <BaseButton 
                 size="small" 
-                variant="danger" 
+                variant="danger"
+                :disabled="!canDeleteMember(member)"
+                :title="getDeleteTooltip(member)"
                 @click="handleDelete(member)"
               >
                 {{ $t('common.delete') }}
@@ -157,30 +175,14 @@
       </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div v-if="deletingMember" class="modal-overlay" @click.self="deletingMember = null">
-      <div class="modal-content modal-small">
-        <h3>{{ $t('crew.list.confirmDelete') }}</h3>
-        <p>{{ $t('crew.list.confirmDeleteMessage', { name: `${deletingMember.first_name} ${deletingMember.last_name}` }) }}</p>
-        <div class="button-group">
-          <BaseButton 
-            variant="danger" 
-            :disabled="deleting"
-            :loading="deleting"
-            @click="confirmDelete"
-          >
-            {{ $t('common.delete') }}
-          </BaseButton>
-          <BaseButton 
-            variant="secondary" 
-            :disabled="deleting"
-            @click="deletingMember = null"
-          >
-            {{ $t('common.cancel') }}
-          </BaseButton>
-        </div>
-      </div>
-    </div>
+    <!-- Delete Error Message (shown after confirmation dialog) -->
+    <MessageAlert
+      v-if="deleteError"
+      type="error"
+      :message="deleteError"
+      :dismissible="true"
+      @dismiss="deleteError = ''"
+    />
   </div>
 </template>
 
@@ -190,6 +192,8 @@ import { useI18n } from 'vue-i18n';
 import { useCrewStore } from '../stores/crewStore';
 import { calculateAge, getAgeCategory, getMasterCategory } from '../utils/raceEligibility';
 import { useTableSort } from '../composables/useTableSort';
+import { usePermissions } from '../composables/usePermissions';
+import { useConfirm } from '../composables/useConfirm';
 import CrewMemberCard from './CrewMemberCard.vue';
 import CrewMemberForm from './CrewMemberForm.vue';
 import ListHeader from './shared/ListHeader.vue';
@@ -197,9 +201,12 @@ import ListFilters from './shared/ListFilters.vue';
 import BaseButton from './base/BaseButton.vue';
 import LoadingSpinner from './base/LoadingSpinner.vue';
 import EmptyState from './base/EmptyState.vue';
+import MessageAlert from './composite/MessageAlert.vue';
 
 const { t } = useI18n();
 const crewStore = useCrewStore();
+const { canPerformAction, getPermissionMessage, initialize: initializePermissions, loading: permissionsLoading } = usePermissions();
+const { confirm } = useConfirm();
 
 const searchQuery = ref('');
 const filter = ref('all');
@@ -214,8 +221,8 @@ const unassignedCount = computed(() => {
 const viewMode = ref(localStorage.getItem('crewViewMode') || 'cards');
 const showCreateForm = ref(false);
 const editingMember = ref(null);
-const deletingMember = ref(null);
 const deleting = ref(false);
+const deleteError = ref('');
 
 // Watch for view mode changes and save to localStorage
 watch(viewMode, (newMode) => {
@@ -237,8 +244,60 @@ const getMasterCategoryLetter = (dateOfBirth) => {
   return getMasterCategory(age);
 };
 
+// Permission check helper for table rows
+const canEditMember = (member) => {
+  if (permissionsLoading.value) return false;
+  const resourceContext = {
+    resource_type: 'crew_member',
+    resource_id: member.crew_member_id,
+    resource_state: {
+      assigned: !!member.assigned_boat_id
+    }
+  };
+  return canPerformAction('edit_crew_member', resourceContext);
+};
+
+const canDeleteMember = (member) => {
+  if (permissionsLoading.value) return false;
+  const resourceContext = {
+    resource_type: 'crew_member',
+    resource_id: member.crew_member_id,
+    resource_state: {
+      assigned: !!member.assigned_boat_id
+    }
+  };
+  return canPerformAction('delete_crew_member', resourceContext);
+};
+
+const getEditTooltip = (member) => {
+  if (canEditMember(member)) return '';
+  const resourceContext = {
+    resource_type: 'crew_member',
+    resource_id: member.crew_member_id,
+    resource_state: {
+      assigned: !!member.assigned_boat_id
+    }
+  };
+  return getPermissionMessage('edit_crew_member', resourceContext);
+};
+
+const getDeleteTooltip = (member) => {
+  if (canDeleteMember(member)) return '';
+  const resourceContext = {
+    resource_type: 'crew_member',
+    resource_id: member.crew_member_id,
+    resource_state: {
+      assigned: !!member.assigned_boat_id
+    }
+  };
+  return getPermissionMessage('delete_crew_member', resourceContext);
+};
+
 // Load crew members on mount
 onMounted(async () => {
+  // Initialize permissions
+  await initializePermissions();
+  
   // Check authentication
   const token = localStorage.getItem('access_token');
   console.log('Auth token exists:', !!token);
@@ -330,18 +389,33 @@ const handleEdit = (member) => {
   editingMember.value = member;
 };
 
-const handleDelete = (member) => {
-  deletingMember.value = member;
-};
+const handleDelete = async (member) => {
+  // Prevent multiple simultaneous delete operations
+  if (deleting.value) {
+    console.log('Delete already in progress, ignoring duplicate request');
+    return;
+  }
 
-const confirmDelete = async () => {
+  const confirmed = await confirm({
+    title: t('crew.delete.title'),
+    message: t('crew.delete.message', { name: `${member.first_name} ${member.last_name}` }),
+    confirmText: t('crew.delete.confirm'),
+    cancelText: t('common.cancel'),
+    variant: 'danger'
+  });
+
+  if (!confirmed) {
+    return;
+  }
+
+  deleteError.value = '';
   deleting.value = true;
+  
   try {
-    await crewStore.deleteCrewMember(deletingMember.value.crew_member_id);
-    deletingMember.value = null;
+    await crewStore.deleteCrewMember(member.crew_member_id);
   } catch (error) {
     console.error('Failed to delete crew member:', error);
-    alert(t('crew.list.deleteError'));
+    deleteError.value = t('crew.list.deleteError');
   } finally {
     deleting.value = false;
   }
@@ -364,6 +438,21 @@ const clearFilters = () => {
   categoryFilter.value = 'all';
   searchQuery.value = '';
 };
+
+// Permission check for creating crew members
+const canCreateCrewMember = computed(() => {
+  if (permissionsLoading.value) return false;
+  return canPerformAction('create_crew_member', {
+    resource_type: 'crew_member'
+  });
+});
+
+const createCrewMemberTooltip = computed(() => {
+  if (canCreateCrewMember.value) return '';
+  return getPermissionMessage('create_crew_member', {
+    resource_type: 'crew_member'
+  });
+});
 </script>
 
 <style scoped>

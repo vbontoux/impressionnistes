@@ -14,6 +14,7 @@ from responses import (
 )
 from database import get_db_client
 from auth_utils import get_user_from_event, require_team_manager_or_admin_override
+from access_control import require_permission
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -21,6 +22,7 @@ logger.setLevel(logging.INFO)
 
 @handle_exceptions
 @require_team_manager_or_admin_override
+@require_permission('delete_crew_member')
 def lambda_handler(event, context):
     """
     Delete a crew member

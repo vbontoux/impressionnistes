@@ -16,6 +16,7 @@ from responses import (
 )
 from database import get_db_client, get_timestamp
 from auth_utils import get_user_from_event, require_team_manager_or_admin_override
+from access_control import require_permission
 from configuration import ConfigurationManager
 
 logger = logging.getLogger()
@@ -24,6 +25,7 @@ logger.setLevel(logging.INFO)
 
 @handle_exceptions
 @require_team_manager_or_admin_override
+@require_permission('delete_boat_registration')
 def lambda_handler(event, context):
     """
     Delete a boat registration
@@ -68,9 +70,6 @@ def lambda_handler(event, context):
     # Check if registration period is active
     config_manager = ConfigurationManager()
     system_config = config_manager.get_system_config()
-    
-    # TODO: Add registration period check when configuration is fully implemented
-    # For now, allow deletions
     
     # Unassign crew members from this boat
     seats = existing_boat.get('seats', [])

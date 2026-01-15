@@ -360,19 +360,31 @@ apiClient.interceptors.response.use(
 /**
  * Helper function to get user-friendly error message
  * @param {Error} error - Axios error object
+ * @param {Function} t - i18n translate function (optional)
  * @returns {string} User-friendly error message
  */
-export function getErrorMessage(error) {
+export function getErrorMessage(error, t = null) {
   // Use the userMessage set by the interceptor
   if (error.userMessage) {
     return error.userMessage;
   }
 
-  // Fallback to response data
+  // Check for i18n key in response data
   if (error.response?.data) {
     const data = error.response.data;
+    
+    // If we have a translation function and a reason_key, use it
+    if (t && data.reason_key) {
+      try {
+        return t(data.reason_key);
+      } catch (e) {
+        console.warn('Failed to translate error key:', data.reason_key, e);
+        // Fall through to use the reason or message
+      }
+    }
+    
     // Handle both API Gateway format {"message": "..."} and backend format {"error": {"message": "..."}}
-    return data.error?.message || data.message || 'An error occurred';
+    return data.reason || data.error?.message || data.message || 'An error occurred';
   }
 
   // Network error

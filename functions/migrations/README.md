@@ -2,6 +2,23 @@
 
 This directory contains database migration scripts for one-time data updates or schema changes.
 
+## Available Migrations
+
+### add_permission_matrix.py
+Adds the centralized access control permission matrix (CONFIG#PERMISSIONS) to existing databases.
+
+**When to use:** For existing dev/prod environments that were created before the permission matrix feature.
+
+**Usage:**
+```bash
+cd infrastructure
+make db-migrate MIGRATION=add_permission_matrix ENV=dev
+```
+
+**Safe to run multiple times** - Will skip if permission matrix already exists.
+
+---
+
 ## When to Create a Migration
 
 Create a migration when you need to:

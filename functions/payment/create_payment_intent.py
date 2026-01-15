@@ -16,10 +16,11 @@ from responses import (
     handle_exceptions
 )
 from database import get_db_client
-from auth_utils import get_user_from_event, require_team_manager
+from auth_utils import get_user_from_event, require_team_manager, require_team_manager_or_admin_override
 from pricing import calculate_boat_pricing
 from configuration import ConfigurationManager
 from stripe_client import create_payment_intent as stripe_create_payment_intent
+from access_control import require_permission
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -101,7 +102,8 @@ def validate_rental_requests(
 
 
 @handle_exceptions
-@require_team_manager
+@require_team_manager_or_admin_override
+@require_permission('process_payment')
 def lambda_handler(event, context):
     """
     Create a Stripe Payment Intent for selected boat registrations and/or rental requests
@@ -121,9 +123,15 @@ def lambda_handler(event, context):
     """
     logger.info("Create payment intent request")
     
-    # Get authenticated user
+    # Get authenticated user (respects admin impersonation via _effective_user_id)
+    team_manager_id = event.get('_effective_user_id')
+    if not team_manager_id:
+        user = get_user_from_event(event)
+        team_manager_id = user['user_id']
+    
+    # Get user for email (always use actual user, not impersonated)
     user = get_user_from_event(event)
-    team_manager_id = user['user_id']
+    team_manager_email = user.get('email')
     
     # Parse request body
     try:
@@ -143,8 +151,6 @@ def lambda_handler(event, context):
     # Get database client
     db = get_db_client()
     
-    # Get team manager email for receipt
-    team_manager_email = user.get('email')  # Email from Cognito token
     logger.info(f"Team manager email for receipt: {team_manager_email}")
     
     # Get pricing configuration

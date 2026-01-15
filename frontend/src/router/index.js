@@ -22,6 +22,9 @@ const AdminCrewMembers = () => import('../views/admin/AdminCrewMembers.vue');
 const AdminBoats = () => import('../views/admin/AdminBoats.vue');
 const AdminDataExport = () => import('../views/admin/AdminDataExport.vue');
 const AdminClubManagers = () => import('../views/admin/AdminClubManagers.vue');
+const AdminPermissionConfig = () => import('../views/admin/AdminPermissionConfig.vue');
+const AdminTemporaryAccessGrants = () => import('../views/admin/AdminTemporaryAccessGrants.vue');
+const AdminPermissionAuditLogs = () => import('../views/admin/AdminPermissionAuditLogs.vue');
 const PrivacyPolicy = () => import('../views/legal/PrivacyPolicy.vue');
 const TermsConditions = () => import('../views/legal/TermsConditions.vue');
 const DesignSystemShowcase = () => import('../views/DesignSystemShowcase.vue');
@@ -158,6 +161,24 @@ const routes = [
     path: '/admin/club-managers',
     name: 'AdminClubManagers',
     component: AdminClubManagers,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/permissions',
+    name: 'AdminPermissionConfig',
+    component: AdminPermissionConfig,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/temporary-access',
+    name: 'AdminTemporaryAccessGrants',
+    component: AdminTemporaryAccessGrants,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/audit-logs',
+    name: 'AdminPermissionAuditLogs',
+    component: AdminPermissionAuditLogs,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
 ];

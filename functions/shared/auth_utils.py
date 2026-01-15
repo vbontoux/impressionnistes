@@ -231,6 +231,7 @@ def require_team_manager_or_admin_override(func):
     - Team managers to access their own data
     - Admins to access their own data
     - Admins to access any team manager's data via ?team_manager_id parameter
+    - Admins to access any team manager's data via custom:impersonated_user_id claim
     
     Sets event['_effective_user_id'] for use in handler
     Sets event['_is_admin_override'] to track impersonation
@@ -251,9 +252,14 @@ def require_team_manager_or_admin_override(func):
             logger.warning("Unauthorized access attempt")
             return unauthorized_error('Authentication required')
         
-        # Check for admin override
+        # Check for admin override in query parameters
         query_params = event.get('queryStringParameters', {}) or {}
         override_id = query_params.get('team_manager_id')
+        
+        # Also check for impersonation in Cognito claims
+        if not override_id:
+            claims = event.get('requestContext', {}).get('authorizer', {}).get('claims', {})
+            override_id = claims.get('custom:impersonated_user_id')
         
         if override_id:
             # Admin override requested

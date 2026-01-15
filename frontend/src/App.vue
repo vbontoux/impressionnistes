@@ -223,6 +223,19 @@
       @customize="showCookiePreferences = true"
       @consent-changed="handleConsentChanged"
     />
+
+    <!-- Global Confirm Dialog -->
+    <ConfirmDialog
+      :show="confirmDialog.showDialog.value"
+      :title="confirmDialog.dialogConfig.value.title"
+      :message="confirmDialog.dialogConfig.value.message"
+      :confirm-text="confirmDialog.dialogConfig.value.confirmText"
+      :cancel-text="confirmDialog.dialogConfig.value.cancelText"
+      :variant="confirmDialog.dialogConfig.value.variant"
+      @confirm="confirmDialog.handleConfirm"
+      @cancel="confirmDialog.handleCancel"
+      @close="confirmDialog.handleClose"
+    />
   </div>
 </template>
 
@@ -233,12 +246,14 @@ import { ref, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from './stores/authStore';
 import { useSessionTimeout } from './composables/useSessionTimeout';
+import { useConfirm } from './composables/useConfirm';
 import LanguageSwitcher from './components/LanguageSwitcher.vue';
 import SessionTimeoutWarning from './components/SessionTimeoutWarning.vue';
 import Footer from './components/layout/Footer.vue';
 import CookiePreferences from './components/legal/CookiePreferences.vue';
 import CookieBanner from './components/legal/CookieBanner.vue';
 import AdminImpersonationBar from './components/AdminImpersonationBar.vue';
+import ConfirmDialog from './components/base/ConfirmDialog.vue';
 import apiClient from './services/apiClient';
 
 const router = useRouter();
@@ -250,6 +265,9 @@ const showCookiePreferences = ref(false);
 
 // Initialize session timeout monitoring
 const sessionTimeout = useSessionTimeout();
+
+// Initialize global confirm dialog
+const confirmDialog = useConfirm();
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value;

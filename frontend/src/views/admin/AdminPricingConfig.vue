@@ -188,6 +188,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import { useConfirm } from '../../composables/useConfirm';
 import apiClient from '../../services/apiClient';
 import BaseButton from '../../components/base/BaseButton.vue';
 import FormGroup from '../../components/composite/FormGroup.vue';
@@ -196,6 +197,7 @@ import MessageAlert from '../../components/composite/MessageAlert.vue';
 
 const router = useRouter();
 const { t } = useI18n();
+const { confirm } = useConfirm();
 
 const loading = ref(true);
 const saving = ref(false);
@@ -276,8 +278,16 @@ const handleSubmit = async () => {
     return;
   }
   
-  // Confirm changes
-  if (!confirm(t('admin.pricingConfig.confirmSave'))) {
+  // Confirm changes with custom dialog
+  const confirmed = await confirm({
+    title: t('admin.pricingConfig.confirmSaveTitle'),
+    message: t('admin.pricingConfig.confirmSave'),
+    confirmText: t('common.save'),
+    cancelText: t('common.cancel'),
+    variant: 'primary'
+  });
+  
+  if (!confirmed) {
     return;
   }
   
@@ -308,9 +318,17 @@ const handleSubmit = async () => {
   }
 };
 
-const handleCancel = () => {
+const handleCancel = async () => {
   if (hasChanges.value) {
-    if (confirm(t('admin.pricingConfig.confirmCancel'))) {
+    const confirmed = await confirm({
+      title: t('admin.pricingConfig.confirmCancelTitle'),
+      message: t('admin.pricingConfig.confirmCancel'),
+      confirmText: t('common.yes'),
+      cancelText: t('common.no'),
+      variant: 'warning'
+    });
+    
+    if (confirmed) {
       router.push('/admin');
     }
   } else {

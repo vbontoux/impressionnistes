@@ -20,11 +20,15 @@
       <button 
         @click="$emit('proceed')" 
         class="btn-proceed"
-        :disabled="selectedBoats.length === 0"
+        :disabled="selectedBoats.length === 0 || disabled"
+        :title="disabled ? disabledMessage : ''"
       >
         <span class="btn-icon">💳</span>
         {{ $t('payment.proceedToPayment') }}
       </button>
+      <p v-if="disabled && disabledMessage" class="permission-message">
+        {{ disabledMessage }}
+      </p>
     </div>
 
     <div class="summary-note">
@@ -44,6 +48,14 @@ const props = defineProps({
   total: {
     type: Number,
     required: true
+  },
+  disabled: {
+    type: Boolean,
+    default: false
+  },
+  disabledMessage: {
+    type: String,
+    default: ''
   }
 })
 
@@ -171,6 +183,17 @@ const formatPrice = (amount) => {
   color: #666;
   font-size: 0.8125rem;
   line-height: 1.4;
+}
+
+.permission-message {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background-color: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  color: #856404;
+  font-size: 0.875rem;
+  text-align: center;
 }
 
 /* Tablet and larger screens */

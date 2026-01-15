@@ -205,6 +205,7 @@ import { useCrewStore } from '../stores/crewStore';
 import { useAuthStore } from '../stores/authStore';
 import axios from 'axios';
 import { calculateAge } from '../utils/raceEligibility';
+import { getErrorMessage } from '../services/apiClient';
 import BaseButton from './base/BaseButton.vue';
 import FormGroup from './composite/FormGroup.vue';
 import MessageAlert from './composite/MessageAlert.vue';
@@ -473,30 +474,20 @@ const handleSubmit = async () => {
     console.error('Crew member form error:', error);
     console.error('Error response:', error.response);
     
-    // Try to extract detailed error message
-    let detailedError = t('crew.form.error');
+    // Use the centralized error message handler with i18n support
+    let detailedError = getErrorMessage(error, t);
     
-    if (error.response?.data?.error) {
-      const errorData = error.response.data.error;
-      
-      // Check for specific error codes that need translation
-      if (errorData.code === 'DUPLICATE_LICENSE') {
-        detailedError = t('crew.validation.licenseDuplicate');
-      }
-      // Check if it's a validation error with field-specific messages
-      else if (typeof errorData === 'object' && !errorData.message) {
-        // Format validation errors
-        const errorMessages = Object.entries(errorData)
-          .map(([field, msg]) => `${field}: ${msg}`)
-          .join(', ');
-        detailedError = errorMessages;
-      } else if (errorData.message) {
-        detailedError = errorData.message;
-      } else if (typeof errorData === 'string') {
-        detailedError = errorData;
-      }
-    } else if (error.message) {
-      detailedError = error.message;
+    // Check for specific error codes that need translation
+    if (error.response?.data?.error?.code === 'DUPLICATE_LICENSE') {
+      detailedError = t('crew.validation.licenseDuplicate');
+    }
+    // Check if it's a validation error with field-specific messages
+    else if (error.response?.data?.error && typeof error.response.data.error === 'object' && !error.response.data.error.message) {
+      // Format validation errors
+      const errorMessages = Object.entries(error.response.data.error)
+        .map(([field, msg]) => `${field}: ${msg}`)
+        .join(', ');
+      detailedError = errorMessages;
     }
     
     errorMessage.value = detailedError;

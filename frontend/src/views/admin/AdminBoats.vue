@@ -394,6 +394,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useConfirm } from '../../composables/useConfirm'
 import apiClient from '../../services/apiClient'
 import { useRaceStore } from '../../stores/raceStore'
 import { useTableSort } from '../../composables/useTableSort'
@@ -420,6 +421,7 @@ export default {
   setup() {
     const router = useRouter()
     const { t } = useI18n()
+    const { confirm } = useConfirm()
     const raceStore = useRaceStore()
 
     const boats = ref([])
@@ -718,7 +720,15 @@ export default {
         return
       }
       
-      if (!confirm(t(boat.forfait ? 'admin.boats.confirmRemoveForfait' : 'admin.boats.confirmSetForfait'))) {
+      const confirmed = await confirm({
+        title: t(boat.forfait ? 'admin.boats.confirmRemoveForfaitTitle' : 'admin.boats.confirmSetForfaitTitle'),
+        message: t(boat.forfait ? 'admin.boats.confirmRemoveForfait' : 'admin.boats.confirmSetForfait'),
+        confirmText: t(boat.forfait ? 'admin.boats.removeForfait' : 'admin.boats.setForfait'),
+        cancelText: t('common.cancel'),
+        variant: 'warning'
+      })
+      
+      if (!confirmed) {
         return
       }
 
@@ -749,7 +759,15 @@ export default {
     }
 
     const deleteBoat = async (boat) => {
-      if (!confirm(t('admin.boats.confirmDelete', { boat: `${boat.event_type} ${boat.boat_type}` }))) {
+      const confirmed = await confirm({
+        title: t('admin.boats.confirmDeleteTitle'),
+        message: t('admin.boats.confirmDelete', { boat: `${boat.event_type} ${boat.boat_type}` }),
+        confirmText: t('common.delete'),
+        cancelText: t('common.cancel'),
+        variant: 'danger'
+      })
+      
+      if (!confirmed) {
         return
       }
 

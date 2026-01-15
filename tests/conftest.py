@@ -99,15 +99,24 @@ def dynamodb_table(aws_credentials):
 
 def _seed_configuration(table):
     """Seed the table with default configuration"""
+    from datetime import datetime, timedelta
+    
+    # Set dates relative to today to ensure tests work regardless of when they run
+    today = datetime.now().date()
+    start_date = (today - timedelta(days=5)).isoformat()  # Started 5 days ago
+    end_date = (today + timedelta(days=25)).isoformat()   # Ends in 25 days
+    payment_deadline = (today + timedelta(days=30)).isoformat()  # Deadline in 30 days
+    event_date = (today + timedelta(days=35)).isoformat()  # Event in 35 days
+    
     # System configuration
     table.put_item(Item={
         'PK': 'CONFIG',
         'SK': 'SYSTEM',
-        'registration_start_date': '2025-03-19',
-        'registration_end_date': '2025-04-19',
-        'payment_deadline': '2025-04-25',
+        'registration_start_date': start_date,
+        'registration_end_date': end_date,
+        'payment_deadline': payment_deadline,
         'rental_priority_days': 15,
-        'event_date': '2025-05-01',
+        'event_date': event_date,
         'temporary_editing_access_hours': 48
     })
     
@@ -130,6 +139,10 @@ def _seed_configuration(table):
         'notification_channels': ['email', 'in_app'],
         'email_from': 'test@example.com'
     })
+    
+    # Permission matrix - Initialize with default permissions
+    from init.init_config import initialize_permission_matrix
+    initialize_permission_matrix(table)
 
 
 @pytest.fixture

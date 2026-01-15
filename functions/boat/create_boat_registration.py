@@ -16,6 +16,7 @@ from responses import (
 from validation import validate_boat_registration, sanitize_dict, sanitize_xss, boat_registration_schema
 from database import get_db_client, get_timestamp
 from auth_utils import get_user_from_event, require_team_manager_or_admin_override
+from access_control import require_permission
 from boat_registration_utils import (
     get_required_seats_for_boat_type,
     validate_boat_type_for_event,
@@ -31,6 +32,7 @@ logger.setLevel(logging.INFO)
 
 @handle_exceptions
 @require_team_manager_or_admin_override
+@require_permission('create_boat_registration')
 def lambda_handler(event, context):
     """
     Create a new boat registration

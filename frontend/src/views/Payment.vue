@@ -67,6 +67,8 @@
         <PaymentSummary
           :selected-boats="selectedBoats"
           :total="totalAmount"
+          :disabled="!canProcessPayment"
+          :disabled-message="paymentDisabledMessage"
           @proceed="proceedToCheckout"
         />
       </div>
@@ -80,12 +82,14 @@ import { useRouter } from 'vue-router'
 import { usePaymentStore } from '../stores/paymentStore'
 import { useRaceStore } from '../stores/raceStore'
 import { useI18n } from 'vue-i18n'
+import { usePermissions } from '../composables/usePermissions'
 import BoatPaymentCard from '../components/BoatPaymentCard.vue'
 import PaymentSummary from '../components/PaymentSummary.vue'
 
 const router = useRouter()
 const paymentStore = usePaymentStore()
 const raceStore = useRaceStore()
+const { canPerformAction, getPermissionMessage, initialize: initializePermissions } = usePermissions()
 
 const selectedBoatIds = ref(new Set())
 
@@ -109,6 +113,10 @@ const allSelected = computed(() =>
 const noneSelected = computed(() => totalSelectedCount.value === 0)
 
 const totalAmount = computed(() => paymentStore.totalAmount)
+
+// Permission checks
+const canProcessPayment = computed(() => canPerformAction('process_payment'))
+const paymentDisabledMessage = computed(() => getPermissionMessage('process_payment'))
 
 // Methods
 const isBoatSelected = (boatId) => {
@@ -146,6 +154,9 @@ const proceedToCheckout = () => {
 
 // Load boats and races on mount
 onMounted(async () => {
+  // Initialize permissions
+  await initializePermissions()
+  
   // Load races first so they're available for display
   if (raceStore.races.length === 0) {
     await raceStore.fetchRaces()

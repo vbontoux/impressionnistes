@@ -8,6 +8,7 @@ import pytest
 def test_get_public_event_info(dynamodb_table, mock_api_gateway_event, mock_lambda_context):
     """Test getting public event information"""
     from health.get_public_event_info import lambda_handler
+    from datetime import datetime, timedelta
     
     # Create API Gateway event (no user_id - public endpoint)
     event = mock_api_gateway_event(
@@ -28,11 +29,19 @@ def test_get_public_event_info(dynamodb_table, mock_api_gateway_event, mock_lamb
     assert 'registration_end_date' in body['data']
     assert 'payment_deadline' in body['data']
     
-    # Verify dates match configuration
-    assert body['data']['event_date'] == '2025-05-01'
-    assert body['data']['registration_start_date'] == '2025-03-19'
-    assert body['data']['registration_end_date'] == '2025-04-19'
-    assert body['data']['payment_deadline'] == '2025-04-25'
+    # Verify dates are valid ISO format and in the expected relative order
+    # (conftest.py now uses relative dates based on today)
+    today = datetime.now().date()
+    start_date = datetime.fromisoformat(body['data']['registration_start_date']).date()
+    end_date = datetime.fromisoformat(body['data']['registration_end_date']).date()
+    payment_deadline = datetime.fromisoformat(body['data']['payment_deadline']).date()
+    event_date = datetime.fromisoformat(body['data']['event_date']).date()
+    
+    # Verify dates are in correct order
+    assert start_date < end_date < payment_deadline < event_date
+    # Verify we're currently in registration period (based on conftest setup)
+    assert start_date <= today <= end_date
+
 
 
 def test_list_clubs_public(dynamodb_table, mock_api_gateway_event, mock_lambda_context):

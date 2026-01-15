@@ -223,7 +223,7 @@ def test_create_crew_member_validation_error(dynamodb_table, mock_api_gateway_ev
 
 
 def test_update_crew_member_club_recalculates_boat(dynamodb_table, mock_api_gateway_event, mock_lambda_context, test_team_manager_id):
-    """Test that updating a crew member's club recalculates boat club info"""
+    """Test that updating an assigned crew member is denied by permission system"""
     # Create team manager profile
     dynamodb_table.put_item(Item={
         'PK': f'USER#{test_team_manager_id}',
@@ -232,7 +232,7 @@ def test_update_crew_member_club_recalculates_boat(dynamodb_table, mock_api_gate
         'club_affiliation': 'RCPM'
     })
     
-    # Create a crew member
+    # Create a crew member assigned to a boat
     crew_member_id = 'crew-club-update-test'
     dynamodb_table.put_item(Item={
         'PK': f'TEAM#{test_team_manager_id}',
@@ -244,7 +244,7 @@ def test_update_crew_member_club_recalculates_boat(dynamodb_table, mock_api_gate
         'gender': 'M',
         'license_number': 'LIC999',
         'club_affiliation': 'RCPM',
-        'assigned_boat_id': 'boat-123'
+        'assigned_boat_id': 'boat-123'  # Assigned to a boat
     })
     
     # Create a boat with this crew member assigned
@@ -269,7 +269,7 @@ def test_update_crew_member_club_recalculates_boat(dynamodb_table, mock_api_gate
     # Import Lambda handler
     from crew.update_crew_member import lambda_handler
     
-    # Update crew member's club to a different club
+    # Try to update crew member's club (should be denied because assigned)
     event = mock_api_gateway_event(
         http_method='PUT',
         path=f'/crew/{crew_member_id}',
@@ -288,26 +288,22 @@ def test_update_crew_member_club_recalculates_boat(dynamodb_table, mock_api_gate
     # Call Lambda handler
     response = lambda_handler(event, mock_lambda_context)
     
-    # Assert response
-    assert response['statusCode'] == 200
+    # Assert denied due to assigned crew member
+    assert response['statusCode'] == 403
     
     body = json.loads(response['body'])
-    assert body['success'] is True
-    assert body['data']['club_affiliation'] == 'Club Elite'
+    assert body['success'] is False
+    assert 'error' in body
     
-    # Verify boat club info was recalculated
-    boat_item = dynamodb_table.get_item(
+    # Verify crew member was NOT updated
+    crew_item = dynamodb_table.get_item(
         Key={
             'PK': f'TEAM#{test_team_manager_id}',
-            'SK': f'BOAT#{boat_id}'
+            'SK': f'CREW#{crew_member_id}'
         }
     )
     
-    assert 'Item' in boat_item
-    boat = boat_item['Item']
-    
-    # Boat should now show simplified format: just "Club Elite"
-    assert boat['boat_club_display'] == 'Club Elite'
-    assert 'Club Elite' in boat['club_list']
-    assert boat['is_multi_club_crew'] is False
+    assert 'Item' in crew_item
+    crew = crew_item['Item']
+    assert crew['club_affiliation'] == 'RCPM'  # Still original club
 

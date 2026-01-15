@@ -4,9 +4,18 @@
       :title="$t('nav.boats')"
       :subtitle="$t('boat.subtitle')"
       v-model:viewMode="viewMode"
-      :actionLabel="$t('boat.addNew')"
-      @action="showCreateForm = true"
-    />
+    >
+      <template #action>
+        <BaseButton 
+          variant="primary"
+          :disabled="!canCreateBoatRegistration"
+          :title="createBoatRegistrationTooltip"
+          @click="showCreateForm = true"
+        >
+          {{ $t('boat.addNew') }}
+        </BaseButton>
+      </template>
+    </ListHeader>
 
     <ListFilters
       v-model:searchQuery="searchQuery"
@@ -148,6 +157,8 @@
             <BaseButton 
               variant="secondary"
               size="small"
+              :disabled="!canEditBoat(boat)"
+              :title="getEditTooltip(boat)"
               @click="viewBoat(boat)"
             >
               {{ $t('common.edit') }}
@@ -155,9 +166,9 @@
             <BaseButton 
               variant="danger"
               size="small"
+              :disabled="!canDeleteBoat(boat)"
+              :title="getDeleteTooltip(boat)"
               @click="deleteBoat(boat)"
-              :disabled="boat.registration_status === 'paid'"
-              :title="boat.registration_status === 'paid' ? $t('boat.cannotDeletePaid') : ''"
             >
               {{ $t('common.delete') }}
             </BaseButton>
@@ -228,6 +239,8 @@
                   <BaseButton 
                     size="small"
                     variant="secondary"
+                    :disabled="!canEditBoat(boat)"
+                    :title="getEditTooltip(boat)"
                     @click="viewBoat(boat)"
                     fullWidth
                   >
@@ -236,9 +249,9 @@
                   <BaseButton 
                     size="small"
                     variant="danger"
+                    :disabled="!canDeleteBoat(boat)"
+                    :title="getDeleteTooltip(boat)"
                     @click="deleteBoat(boat)"
-                    :disabled="boat.registration_status === 'paid'"
-                    :title="boat.registration_status === 'paid' ? $t('boat.cannotDeletePaid') : ''"
                     fullWidth
                   >
                     {{ $t('common.delete') }}
@@ -258,13 +271,15 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBoatStore } from '../stores/boatStore'
 import { useRaceStore } from '../stores/raceStore'
 import { useI18n } from 'vue-i18n'
 import { useTableSort } from '../composables/useTableSort'
+import { usePermissions } from '../composables/usePermissions'
+import { useConfirm } from '../composables/useConfirm'
 import BoatRegistrationForm from '../components/BoatRegistrationForm.vue'
 import ListHeader from '../components/shared/ListHeader.vue'
 import ListFilters from '../components/shared/ListFilters.vue'
@@ -274,209 +289,250 @@ import LoadingSpinner from '../components/base/LoadingSpinner.vue'
 import EmptyState from '../components/base/EmptyState.vue'
 import { formatAverageAge } from '../utils/formatters'
 
-export default {
-  name: 'BoatsView',
-  components: {
-    BoatRegistrationForm,
-    ListHeader,
-    ListFilters,
-    BaseButton,
-    StatusBadge,
-    LoadingSpinner,
-    EmptyState
-  },
-  setup() {
-    const router = useRouter()
-    const boatStore = useBoatStore()
-    const raceStore = useRaceStore()
-    const { t } = useI18n()
+const router = useRouter()
+const boatStore = useBoatStore()
+const raceStore = useRaceStore()
+const { t } = useI18n()
+const { canPerformAction, getPermissionMessage, initialize: initializePermissions, loading: permissionsLoading } = usePermissions()
+const { confirm } = useConfirm()
 
-    const showCreateForm = ref(false)
-    // Load view mode from localStorage or default to 'cards'
-    const viewMode = ref(localStorage.getItem('boatsViewMode') || 'cards')
-    const statusFilter = ref('all')
-    const boatRequestFilter = ref('all')
-    const searchQuery = ref('')
+const showCreateForm = ref(false)
+// Load view mode from localStorage or default to 'cards'
+const viewMode = ref(localStorage.getItem('boatsViewMode') || 'cards')
+const statusFilter = ref('all')
+const boatRequestFilter = ref('all')
+const searchQuery = ref('')
 
-    // Watch for view mode changes and save to localStorage
-    watch(viewMode, (newMode) => {
-      localStorage.setItem('boatsViewMode', newMode)
-    })
+// Watch for view mode changes and save to localStorage
+watch(viewMode, (newMode) => {
+  localStorage.setItem('boatsViewMode', newMode)
+})
 
-    const boatRegistrations = computed(() => {
-      let boats = boatStore.boatRegistrations
+const boatRegistrations = computed(() => {
+  let boats = boatStore.boatRegistrations
+  
+  // Apply status filter
+  if (statusFilter.value !== 'all') {
+    boats = boats.filter(boat => boat.registration_status === statusFilter.value)
+  }
+
+  // Apply boat request filter
+  if (boatRequestFilter.value !== 'all') {
+    boats = boats.filter(boat => {
+      const hasRequest = boat.boat_request_enabled === true
+      const hasFulfilled = hasRequest && boat.assigned_boat_identifier
       
-      // Apply status filter
-      if (statusFilter.value !== 'all') {
-        boats = boats.filter(boat => boat.registration_status === statusFilter.value)
+      switch (boatRequestFilter.value) {
+        case 'with':
+          return hasRequest
+        case 'without':
+          return !hasRequest
+        case 'pending':
+          return hasRequest && !hasFulfilled
+        case 'fulfilled':
+          return hasFulfilled
+        default:
+          return true
       }
-
-      // Apply boat request filter
-      if (boatRequestFilter.value !== 'all') {
-        boats = boats.filter(boat => {
-          const hasRequest = boat.boat_request_enabled === true
-          const hasFulfilled = hasRequest && boat.assigned_boat_identifier
-          
-          switch (boatRequestFilter.value) {
-            case 'with':
-              return hasRequest
-            case 'without':
-              return !hasRequest
-            case 'pending':
-              return hasRequest && !hasFulfilled
-            case 'fulfilled':
-              return hasFulfilled
-            default:
-              return true
-          }
-        })
-      }
-
-      // Apply search query
-      if (searchQuery.value) {
-        const query = searchQuery.value.toLowerCase()
-        boats = boats.filter(boat => {
-          const firstRower = getFirstRowerLastName(boat).toLowerCase()
-          const eventType = boat.event_type?.toLowerCase() || ''
-          const boatType = boat.boat_type?.toLowerCase() || ''
-          const raceName = getRaceName(boat)?.toLowerCase() || ''
-          
-          return firstRower.includes(query) ||
-                 eventType.includes(query) ||
-                 boatType.includes(query) ||
-                 raceName.includes(query)
-        })
-      }
-
-      return boats
     })
+  }
 
-    // Set up table sorting
-    const boatsForSorting = computed(() => boatRegistrations.value)
-    const { sortedData, sortBy, getSortIndicator } = useTableSort(boatsForSorting)
-    
-    // Use sorted data for display
-    const displayBoats = computed(() => sortedData.value)
-
-    const getFilledSeatsCount = (boat) => {
-      if (!boat.seats) return 0
-      return boat.seats.filter(seat => seat.crew_member_id).length
-    }
-
-    const getFirstRowerLastName = (boat) => {
-      if (!boat.seats || boat.seats.length === 0) return '-'
-      // Find stroke seat (highest position number that is a rower)
-      const rowers = boat.seats.filter(seat => seat.type === 'rower')
-      if (rowers.length === 0) return '-'
-      const strokeSeat = rowers.reduce((max, seat) => seat.position > max.position ? seat : max, rowers[0])
-      return strokeSeat?.crew_member_last_name || '-'
-    }
-
-    const getBoatStatus = (boat) => {
-      if (boat.forfait) return 'forfait'
-      return boat.registration_status || 'incomplete'
-    }
-
-    const getRowClass = (boat) => {
-      if (boat.forfait) return 'row-forfait'
-      return `row-status-${boat.registration_status || 'incomplete'}`
-    }
-
-    const getCrewGenderCategory = (boat) => {
-      if (!boat.crew_composition) return '-'
-      const gender = boat.crew_composition.gender_category
-      if (gender === 'men') return t('boat.men')
-      if (gender === 'women') return t('boat.women')
-      if (gender === 'mixed') return t('boat.mixed')
-      return '-'
-    }
-
-    const getCrewAverageAge = (boat) => {
-      if (!boat.crew_composition || !boat.crew_composition.avg_age) return '-'
-      return formatAverageAge(boat.crew_composition.avg_age)
-    }
-
-    const formatDate = (dateString) => {
-      if (!dateString) return '-'
-      const date = new Date(dateString)
-      return date.toLocaleDateString(undefined, { 
-        year: 'numeric', 
-        month: 'short', 
-        day: 'numeric' 
-      })
-    }
-
-    const getRaceName = (boat) => {
-      if (!boat.race_id) return null
-      const race = raceStore.races.find(r => r.race_id === boat.race_id)
-      if (!race || !race.name) return null
+  // Apply search query
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    boats = boats.filter(boat => {
+      const firstRower = getFirstRowerLastName(boat).toLowerCase()
+      const eventType = boat.event_type?.toLowerCase() || ''
+      const boatType = boat.boat_type?.toLowerCase() || ''
+      const raceName = getRaceName(boat)?.toLowerCase() || ''
       
-      // Try to get translation, fallback to original name if not found
-      const translationKey = `races.${race.name}`
-      const translated = t(translationKey)
-      // If translation key is returned as-is, it means no translation exists
-      return translated === translationKey ? race.name : translated
-    }
-
-    const handleBoatCreated = (newBoat) => {
-      showCreateForm.value = false
-      // Navigate to boat detail page
-      router.push(`/boats/${newBoat.boat_registration_id}`)
-    }
-
-    const viewBoat = (boat) => {
-      router.push(`/boats/${boat.boat_registration_id}`)
-    }
-
-    const deleteBoat = async (boat) => {
-      if (confirm(t('boat.confirmDelete', { name: `${boat.event_type} ${boat.boat_type}` }))) {
-        try {
-          await boatStore.deleteBoatRegistration(boat.boat_registration_id)
-        } catch (error) {
-          console.error('Failed to delete boat:', error)
-        }
-      }
-    }
-
-    const clearFilters = () => {
-      statusFilter.value = 'all'
-      boatRequestFilter.value = 'all'
-      searchQuery.value = ''
-    }
-
-    onMounted(async () => {
-      // Load races if not already loaded
-      if (raceStore.races.length === 0) {
-        await raceStore.fetchRaces()
-      }
-      await boatStore.fetchBoatRegistrations()
+      return firstRower.includes(query) ||
+             eventType.includes(query) ||
+             boatType.includes(query) ||
+             raceName.includes(query)
     })
+  }
 
-    return {
-      boatStore,
-      showCreateForm,
-      viewMode,
-      statusFilter,
-      boatRequestFilter,
-      searchQuery,
-      boatRegistrations: displayBoats,
-      getFilledSeatsCount,
-      getFirstRowerLastName,
-      getBoatStatus,
-      getRowClass,
-      getCrewGenderCategory,
-      getCrewAverageAge,
-      formatDate,
-      getRaceName,
-      handleBoatCreated,
-      viewBoat,
-      deleteBoat,
-      clearFilters,
-      sortBy,
-      getSortIndicator
+  return boats
+})
+
+// Set up table sorting
+const boatsForSorting = computed(() => boatRegistrations.value)
+const { sortedData, sortBy, getSortIndicator } = useTableSort(boatsForSorting)
+
+// Use sorted data for display
+const displayBoats = computed(() => sortedData.value)
+
+// Permission check functions
+const canEditBoat = (boat) => {
+  if (permissionsLoading.value) return false
+  const resourceContext = {
+    resource_type: 'boat_registration',
+    resource_id: boat.boat_registration_id,
+    resource_state: {
+      paid: boat.registration_status === 'paid'
     }
   }
+  return canPerformAction('edit_boat_registration', resourceContext)
 }
+
+const canDeleteBoat = (boat) => {
+  if (permissionsLoading.value) return false
+  const resourceContext = {
+    resource_type: 'boat_registration',
+    resource_id: boat.boat_registration_id,
+    resource_state: {
+      paid: boat.registration_status === 'paid'
+    }
+  }
+  return canPerformAction('delete_boat_registration', resourceContext)
+}
+
+const getEditTooltip = (boat) => {
+  if (canEditBoat(boat)) return ''
+  const resourceContext = {
+    resource_type: 'boat_registration',
+    resource_id: boat.boat_registration_id,
+    resource_state: {
+      paid: boat.registration_status === 'paid'
+    }
+  }
+  return getPermissionMessage('edit_boat_registration', resourceContext)
+}
+
+const getDeleteTooltip = (boat) => {
+  if (canDeleteBoat(boat)) return ''
+  const resourceContext = {
+    resource_type: 'boat_registration',
+    resource_id: boat.boat_registration_id,
+    resource_state: {
+      paid: boat.registration_status === 'paid'
+    }
+  }
+  return getPermissionMessage('delete_boat_registration', resourceContext)
+}
+
+const canCreateBoatRegistration = computed(() => {
+  if (permissionsLoading.value) return false
+  return canPerformAction('create_boat_registration', {
+    resource_type: 'boat_registration'
+  })
+})
+
+const createBoatRegistrationTooltip = computed(() => {
+  if (canCreateBoatRegistration.value) return ''
+  return getPermissionMessage('create_boat_registration', {
+    resource_type: 'boat_registration'
+  })
+})
+
+const getFilledSeatsCount = (boat) => {
+  if (!boat.seats) return 0
+  return boat.seats.filter(seat => seat.crew_member_id).length
+}
+
+const getFirstRowerLastName = (boat) => {
+  if (!boat.seats || boat.seats.length === 0) return '-'
+  // Find stroke seat (highest position number that is a rower)
+  const rowers = boat.seats.filter(seat => seat.type === 'rower')
+  if (rowers.length === 0) return '-'
+  const strokeSeat = rowers.reduce((max, seat) => seat.position > max.position ? seat : max, rowers[0])
+  return strokeSeat?.crew_member_last_name || '-'
+}
+
+const getBoatStatus = (boat) => {
+  if (boat.forfait) return 'forfait'
+  return boat.registration_status || 'incomplete'
+}
+
+const getRowClass = (boat) => {
+  if (boat.forfait) return 'row-forfait'
+  return `row-status-${boat.registration_status || 'incomplete'}`
+}
+
+const getCrewGenderCategory = (boat) => {
+  if (!boat.crew_composition) return '-'
+  const gender = boat.crew_composition.gender_category
+  if (gender === 'men') return t('boat.men')
+  if (gender === 'women') return t('boat.women')
+  if (gender === 'mixed') return t('boat.mixed')
+  return '-'
+}
+
+const getCrewAverageAge = (boat) => {
+  if (!boat.crew_composition || !boat.crew_composition.avg_age) return '-'
+  return formatAverageAge(boat.crew_composition.avg_age)
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return '-'
+  const date = new Date(dateString)
+  return date.toLocaleDateString(undefined, { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric' 
+  })
+}
+
+const getRaceName = (boat) => {
+  if (!boat.race_id) return null
+  const race = raceStore.races.find(r => r.race_id === boat.race_id)
+  if (!race || !race.name) return null
+  
+  // Try to get translation, fallback to original name if not found
+  const translationKey = `races.${race.name}`
+  const translated = t(translationKey)
+  // If translation key is returned as-is, it means no translation exists
+  return translated === translationKey ? race.name : translated
+}
+
+const handleBoatCreated = (newBoat) => {
+  showCreateForm.value = false
+  // Navigate to boat detail page
+  router.push(`/boats/${newBoat.boat_registration_id}`)
+}
+
+const viewBoat = (boat) => {
+  router.push(`/boats/${boat.boat_registration_id}`)
+}
+
+const deleteBoat = async (boat) => {
+  const confirmed = await confirm({
+    title: t('boat.confirmDeleteTitle'),
+    message: t('boat.confirmDelete', { name: `${boat.event_type} ${boat.boat_type}` }),
+    confirmText: t('common.delete'),
+    cancelText: t('common.cancel'),
+    variant: 'danger'
+  })
+
+  if (!confirmed) {
+    return
+  }
+
+  try {
+    await boatStore.deleteBoatRegistration(boat.boat_registration_id)
+  } catch (error) {
+    console.error('Failed to delete boat:', error)
+  }
+}
+
+const clearFilters = () => {
+  statusFilter.value = 'all'
+  boatRequestFilter.value = 'all'
+  searchQuery.value = ''
+}
+
+onMounted(async () => {
+  // Initialize permissions
+  await initializePermissions()
+  
+  // Load races if not already loaded
+  if (raceStore.races.length === 0) {
+    await raceStore.fetchRaces()
+  }
+  await boatStore.fetchBoatRegistrations()
+})
+
 </script>
 
 <style scoped>

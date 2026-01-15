@@ -491,6 +491,58 @@ class ApiStack(Stack):
             'Export races with all related data as JSON for frontend formatting',
             timeout=60
         )
+        
+        # Permission configuration functions
+        self.lambda_functions['get_permission_config'] = self._create_lambda_function(
+            'GetPermissionConfigFunction',
+            'admin/get_permission_config',
+            'Get current permission configuration'
+        )
+        
+        self.lambda_functions['update_permission_config'] = self._create_lambda_function(
+            'UpdatePermissionConfigFunction',
+            'admin/update_permission_config',
+            'Update permission configuration'
+        )
+        
+        self.lambda_functions['reset_permission_config'] = self._create_lambda_function(
+            'ResetPermissionConfigFunction',
+            'admin/reset_permission_config',
+            'Reset permission configuration to defaults'
+        )
+        
+        # Temporary access grant functions
+        self.lambda_functions['grant_temporary_access'] = self._create_lambda_function(
+            'GrantTemporaryAccessFunction',
+            'admin/grant_temporary_access',
+            'Grant temporary access to a team manager'
+        )
+        
+        self.lambda_functions['revoke_temporary_access'] = self._create_lambda_function(
+            'RevokeTemporaryAccessFunction',
+            'admin/revoke_temporary_access',
+            'Revoke temporary access grant'
+        )
+        
+        self.lambda_functions['list_temporary_access_grants'] = self._create_lambda_function(
+            'ListTemporaryAccessGrantsFunction',
+            'admin/list_temporary_access_grants',
+            'List all temporary access grants'
+        )
+        
+        # Permission audit logs function
+        self.lambda_functions['get_permission_audit_logs'] = self._create_lambda_function(
+            'GetPermissionAuditLogsFunction',
+            'admin/get_permission_audit_logs',
+            'Get permission audit logs with filtering and pagination'
+        )
+        
+        # Clear audit logs function
+        self.lambda_functions['clear_audit_logs'] = self._create_lambda_function(
+            'ClearAuditLogsFunction',
+            'admin/clear_audit_logs',
+            'Clear all permission audit logs (admin only)'
+        )
     
     def _create_public_functions(self):
         """Create public Lambda functions (no authentication required)"""
@@ -982,6 +1034,128 @@ class ApiStack(Stack):
         team_managers_resource.add_method(
             'GET',
             list_team_managers_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Permission configuration routes
+        # /admin/permissions resource
+        permissions_resource = admin_resource.add_resource('permissions')
+        
+        # /admin/permissions/config resource
+        permissions_config_resource = permissions_resource.add_resource('config')
+        
+        # GET /admin/permissions/config - Get current permission configuration (admin only)
+        get_permission_config_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['get_permission_config'],
+            proxy=True
+        )
+        permissions_config_resource.add_method(
+            'GET',
+            get_permission_config_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # PUT /admin/permissions/config - Update permission configuration (admin only)
+        update_permission_config_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['update_permission_config'],
+            proxy=True
+        )
+        permissions_config_resource.add_method(
+            'PUT',
+            update_permission_config_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # /admin/permissions/reset resource
+        permissions_reset_resource = permissions_resource.add_resource('reset')
+        
+        # POST /admin/permissions/reset - Reset permission configuration to defaults (admin only)
+        reset_permission_config_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['reset_permission_config'],
+            proxy=True
+        )
+        permissions_reset_resource.add_method(
+            'POST',
+            reset_permission_config_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # /admin/permissions/audit-logs resource
+        permissions_audit_logs_resource = permissions_resource.add_resource('audit-logs')
+        
+        # GET /admin/permissions/audit-logs - Get permission audit logs (admin only)
+        get_permission_audit_logs_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['get_permission_audit_logs'],
+            proxy=True
+        )
+        permissions_audit_logs_resource.add_method(
+            'GET',
+            get_permission_audit_logs_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # DELETE /admin/permissions/audit-logs - Clear all audit logs (admin only)
+        clear_audit_logs_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['clear_audit_logs'],
+            proxy=True
+        )
+        permissions_audit_logs_resource.add_method(
+            'DELETE',
+            clear_audit_logs_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Temporary access grant routes
+        # /admin/temporary-access resource
+        temp_access_resource = admin_resource.add_resource('temporary-access')
+        
+        # /admin/temporary-access/grant resource
+        temp_access_grant_resource = temp_access_resource.add_resource('grant')
+        
+        # POST /admin/temporary-access/grant - Grant temporary access (admin only)
+        grant_temporary_access_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['grant_temporary_access'],
+            proxy=True
+        )
+        temp_access_grant_resource.add_method(
+            'POST',
+            grant_temporary_access_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # /admin/temporary-access/revoke resource
+        temp_access_revoke_resource = temp_access_resource.add_resource('revoke')
+        
+        # POST /admin/temporary-access/revoke - Revoke temporary access (admin only)
+        revoke_temporary_access_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['revoke_temporary_access'],
+            proxy=True
+        )
+        temp_access_revoke_resource.add_method(
+            'POST',
+            revoke_temporary_access_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # /admin/temporary-access/list resource
+        temp_access_list_resource = temp_access_resource.add_resource('list')
+        
+        # GET /admin/temporary-access/list - List temporary access grants (admin only)
+        list_temporary_access_grants_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['list_temporary_access_grants'],
+            proxy=True
+        )
+        temp_access_list_resource.add_method(
+            'GET',
+            list_temporary_access_grants_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )

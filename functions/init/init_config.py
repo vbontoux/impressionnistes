@@ -41,6 +41,7 @@ def lambda_handler(event, context):
             initialize_race_timing_config(table)
             initialize_race_definitions(table)
             initialize_rowing_clubs(table)
+            initialize_permission_matrix(table)
             
             print("Configuration initialized successfully")
             return send_response(event, context, 'SUCCESS', {
@@ -340,6 +341,86 @@ def initialize_race_definitions(table):
             pass
     
     print(f"Initialized {len(all_races)} race definitions (14 marathon + {len(semi_marathon_races)} semi-marathon)")
+
+
+def initialize_permission_matrix(table):
+    """Initialize permission matrix with default values"""
+    permission_matrix = {
+        'PK': 'CONFIG',
+        'SK': 'PERMISSIONS',
+        'permissions': {
+            'create_crew_member': {
+                'before_registration': False,
+                'during_registration': True,
+                'after_registration': False,
+                'after_payment_deadline': False,
+            },
+            'edit_crew_member': {
+                'before_registration': False,
+                'during_registration': True,
+                'after_registration': False,
+                'after_payment_deadline': False,
+                'requires_not_assigned': True,
+            },
+            'delete_crew_member': {
+                'before_registration': False,
+                'during_registration': True,
+                'after_registration': False,
+                'after_payment_deadline': False,
+                'requires_not_assigned': True,
+            },
+            'create_boat_registration': {
+                'before_registration': False,
+                'during_registration': True,
+                'after_registration': False,
+                'after_payment_deadline': False,
+            },
+            'edit_boat_registration': {
+                'before_registration': False,
+                'during_registration': True,
+                'after_registration': False,
+                'after_payment_deadline': False,
+                'requires_not_paid': True,
+            },
+            'delete_boat_registration': {
+                'before_registration': False,
+                'during_registration': True,
+                'after_registration': False,
+                'after_payment_deadline': False,
+                'requires_not_paid': True,
+            },
+            'process_payment': {
+                'before_registration': False,
+                'during_registration': True,
+                'after_registration': True,
+                'after_payment_deadline': False,
+            },
+            'view_data': {
+                'before_registration': True,
+                'during_registration': True,
+                'after_registration': True,
+                'after_payment_deadline': True,
+            },
+            'export_data': {
+                'before_registration': True,
+                'during_registration': True,
+                'after_registration': True,
+                'after_payment_deadline': True,
+            },
+        },
+        'created_at': datetime.utcnow().isoformat() + 'Z',
+        'updated_at': datetime.utcnow().isoformat() + 'Z',
+        'updated_by': 'system',
+    }
+    
+    try:
+        table.put_item(
+            Item=permission_matrix,
+            ConditionExpression='attribute_not_exists(PK)'
+        )
+        print("Permission matrix initialized")
+    except dynamodb.meta.client.exceptions.ConditionalCheckFailedException:
+        print("Permission matrix already exists - skipping")
 
 
 def initialize_rowing_clubs(table):
