@@ -22,9 +22,15 @@ Welcome to the Course des Impressionnistes Registration System documentation.
 - [Design System Showcase Guide](design-system-showcase-guide.md) - Living style guide maintenance
 
 ### Guides
-- [GDPR Compliance](guides/GDPR_COMPLIANCE.md) - **NEW** Privacy and consent implementation
+- [GDPR Compliance](guides/GDPR_COMPLIANCE.md) - Privacy and consent implementation
+- [Payment History](guides/payment-history.md) - **NEW** View payment history and download invoices
 - [Email System](guides/EMAIL_SYSTEM_SUMMARY.md) - Email configuration and usage
 - [Payment Testing](guides/PAYMENT_TESTING.md) - Test payment flows
+
+### Admin Guides
+- [Payment Analytics](guides/admin/payment-analytics.md) - **NEW** View payment analytics and revenue trends
+- [Centralized Access Control](guides/admin/centralized-access-control.md) - Permission management
+- [Admin Impersonation](guides/admin/admin-impersonation.md) - Impersonate team managers
 
 ## Documentation Structure
 
@@ -46,6 +52,18 @@ docs/
 ```
 
 ## What's New
+
+### Payment History & Analytics (January 2026)
+
+The system now includes comprehensive payment tracking features:
+
+- **Payment History**: Team managers can view all their payment transactions
+- **Payment Summary**: Dashboard widget showing total paid and outstanding balance
+- **PDF Invoices**: Download payment invoices for expense reporting
+- **Admin Analytics**: Revenue trends, payment statistics, and top payers
+- **Event Program Export**: Payment balance included in Excel exports
+
+See the [Payment History Guide](guides/payment-history.md) and [Payment Analytics Guide](guides/admin/payment-analytics.md) for complete documentation.
 
 ### GDPR Compliance (January 2026)
 
@@ -70,6 +88,8 @@ See the [GDPR Compliance Guide](guides/GDPR_COMPLIANCE.md) for complete document
 - Boat registration (crew registration in UI)
 - Race assignment and eligibility
 - Payment processing with Stripe
+- Payment history and invoice downloads
+- Outstanding balance tracking
 
 ### GDPR Compliance
 - Privacy Policy and Terms & Conditions
@@ -265,6 +285,6 @@ make describe-infra
 
 ---
 
-**Last Updated**: January 2, 2026
+**Last Updated**: January 16, 2026
 
-**Documentation Version**: 2.0 (Added GDPR compliance)
+**Documentation Version**: 2.1 (Added Payment History & Analytics)

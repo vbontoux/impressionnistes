@@ -14,6 +14,7 @@ const BoatDetail = () => import('../views/BoatDetail.vue');
 const Payment = () => import('../views/Payment.vue');
 const PaymentCheckout = () => import('../views/PaymentCheckout.vue');
 const PaymentSuccess = () => import('../views/PaymentSuccess.vue');
+const PaymentHistory = () => import('../views/PaymentHistory.vue');
 const Profile = () => import('../views/Profile.vue');
 const AdminDashboard = () => import('../views/admin/AdminDashboard.vue');
 const AdminEventConfig = () => import('../views/admin/AdminEventConfig.vue');
@@ -25,6 +26,7 @@ const AdminClubManagers = () => import('../views/admin/AdminClubManagers.vue');
 const AdminPermissionConfig = () => import('../views/admin/AdminPermissionConfig.vue');
 const AdminTemporaryAccessGrants = () => import('../views/admin/AdminTemporaryAccessGrants.vue');
 const AdminPermissionAuditLogs = () => import('../views/admin/AdminPermissionAuditLogs.vue');
+const AdminPaymentAnalytics = () => import('../views/admin/AdminPaymentAnalytics.vue');
 const PrivacyPolicy = () => import('../views/legal/PrivacyPolicy.vue');
 const TermsConditions = () => import('../views/legal/TermsConditions.vue');
 const DesignSystemShowcase = () => import('../views/DesignSystemShowcase.vue');
@@ -116,6 +118,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/payment/history',
+    name: 'PaymentHistory',
+    component: PaymentHistory,
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/profile',
     name: 'Profile',
     component: Profile,
@@ -179,6 +187,12 @@ const routes = [
     path: '/admin/audit-logs',
     name: 'AdminPermissionAuditLogs',
     component: AdminPermissionAuditLogs,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/payment-analytics',
+    name: 'AdminPaymentAnalytics',
+    component: AdminPaymentAnalytics,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
 ];

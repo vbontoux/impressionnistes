@@ -24,7 +24,10 @@ function getCrewMemberListHeaders(locale) {
       race: 'Race',
       raceNumber: 'Race #',
       stroke: 'Stroke',
-      bowNumber: 'Bow #'
+      bowNumber: 'Bow #',
+      totalPaid: 'Total Paid (EUR)',
+      outstandingBalance: 'Outstanding Balance (EUR)',
+      paymentStatus: 'Payment Status'
     }
   }
   // Default to French
@@ -37,7 +40,10 @@ function getCrewMemberListHeaders(locale) {
     race: 'Course',
     raceNumber: 'N° Course',
     stroke: 'Nage',
-    bowNumber: 'N° Dossard'
+    bowNumber: 'N° Dossard',
+    totalPaid: 'Total payé (EUR)',
+    outstandingBalance: 'Solde impayé (EUR)',
+    paymentStatus: 'Statut de paiement'
   }
 }
 
@@ -180,6 +186,12 @@ export function generateCrewMemberList(jsonData, boatAssignments, raceAssignment
       if (processedCrewMembers.has(uniqueKey)) continue
       processedCrewMembers.add(uniqueKey)
       
+      // Get team manager payment data
+      const teamManager = teamManagersDict[boat.team_manager_id] || {}
+      const totalPaid = teamManager.total_paid !== undefined ? teamManager.total_paid.toFixed(2) : '0.00'
+      const outstandingBalance = teamManager.outstanding_balance !== undefined ? teamManager.outstanding_balance.toFixed(2) : '0.00'
+      const paymentStatus = teamManager.payment_status || 'No Payment'
+      
       crewMemberRows.push({
         [headers.lastName]: crewMember.last_name || '',
         [headers.firstName]: crewMember.first_name || '',
@@ -189,7 +201,10 @@ export function generateCrewMemberList(jsonData, boatAssignments, raceAssignment
         [headers.race]: raceName,
         [headers.raceNumber]: assignment.raceNumber,
         [headers.stroke]: strokeName,
-        [headers.bowNumber]: assignment.bowNumber
+        [headers.bowNumber]: assignment.bowNumber,
+        [headers.totalPaid]: totalPaid,
+        [headers.outstandingBalance]: outstandingBalance,
+        [headers.paymentStatus]: paymentStatus
       })
     }
   }

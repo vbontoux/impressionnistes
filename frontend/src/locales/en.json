@@ -49,6 +49,7 @@
     "boats": "Crews",
     "boatRentals": "Rental Requests",
     "payment": "Payment",
+    "paymentHistory": "Payment History",
     "profile": "Profile",
     "logout": "Logout",
     "toggleMenu": "Toggle menu",
@@ -58,7 +59,8 @@
     "boatInventory": "Rental Requests",
     "crewMembers": "Crew Members",
     "boatRegistrations": "Crews",
-    "dataExports": "Data Exports"
+    "dataExports": "Data Exports",
+    "paymentAnalytics": "Payment Analytics"
   },
   "admin": {
     "impersonation": {
@@ -474,6 +476,28 @@
       "clearing": "Clearing...",
       "clearSuccess": "All logs have been cleared successfully. {count} entries deleted.",
       "clearError": "Error clearing logs"
+    },
+    "paymentAnalytics": {
+      "title": "Payment Analytics",
+      "subtitle": "View payment statistics and trends",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "groupBy": "Group By",
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "totalRevenue": "Total Revenue",
+      "totalPayments": "Total Payments",
+      "outstandingBalance": "Outstanding Balance",
+      "boatsPaid": "Boats Paid",
+      "topPayers": "Top Payers",
+      "rank": "Rank",
+      "teamManager": "Team Manager",
+      "totalPaid": "Total Paid",
+      "payments": "Payments",
+      "boats": "Boats",
+      "exportCSV": "Export CSV",
+      "errorLoading": "Failed to load payment analytics"
     }
   },
   "session": {
@@ -883,6 +907,39 @@
       "viewBoats": "View My Boats",
       "goToDashboard": "Go to Dashboard",
       "receiptInfo": "A receipt has been sent to your email address."
+    },
+    "history": {
+      "title": "Payment History",
+      "subtitle": "View your past payments and download invoices",
+      "search": "Search payments...",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "date": "Date",
+      "amount": "Amount",
+      "crews": "Crews",
+      "crewDetails": "Crew Details",
+      "status": "Status",
+      "noPayments": "No payments found",
+      "viewReceipt": "View Receipt",
+      "downloadInvoice": "Download Invoice",
+      "errorLoading": "Failed to load payment history",
+      "errorDownloading": "Failed to download invoice",
+      "receiptTitle": "Payment Receipt",
+      "paymentDetails": "Payment Details",
+      "paymentId": "Payment ID",
+      "noReceiptNote": "Stripe receipt is not available for this payment. It may have been created before receipts were stored.",
+      "openInNewTab": "Open in New Tab"
+    },
+    "summary": {
+      "title": "Payment Summary",
+      "viewAll": "View All",
+      "totalPaid": "Total Paid",
+      "paymentCount": "Payments",
+      "boatsPaid": "Boats Paid",
+      "outstanding": "Outstanding Balance",
+      "unpaidBoats": "Unpaid Boats",
+      "makePayment": "Make Payment",
+      "errorLoading": "Failed to load payment summary"
     }
   },
   "dashboard": {

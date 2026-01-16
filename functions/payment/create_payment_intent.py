@@ -69,11 +69,18 @@ def validate_boat_registrations(
 def calculate_total_amount(
     boats: List[Dict[str, Any]],
     crew_members: List[Dict[str, Any]],
-    pricing_config: Dict[str, Any]
+    pricing_config: Dict[str, Any],
+    db=None
 ) -> Decimal:
     """
     Calculate total amount for all boats
     Server-side calculation - never trust frontend
+    
+    Args:
+        boats: List of boat registrations
+        crew_members: List of crew members
+        pricing_config: Pricing configuration
+        db: Database client (optional) - if provided, will store pricing in boat records
     
     Returns:
         Total amount as Decimal
@@ -83,6 +90,12 @@ def calculate_total_amount(
     for boat in boats:
         pricing = calculate_boat_pricing(boat, crew_members, pricing_config)
         total += pricing['total']
+        
+        # Store pricing in boat record if db client provided
+        if db and 'PK' in boat and 'SK' in boat:
+            boat['pricing'] = pricing
+            db.put_item(boat)
+            logger.info(f"Stored pricing for boat {boat.get('boat_registration_id')}: {pricing['total']} EUR")
     
     return total
 
@@ -168,7 +181,7 @@ def lambda_handler(event, context):
         pk=f'TEAM#{team_manager_id}',
         sk_prefix='CREW#'
     )
-    total_amount = calculate_total_amount(boats, crew_members, pricing_config)
+    total_amount = calculate_total_amount(boats, crew_members, pricing_config, db)
     
     logger.info(f"Calculated total amount: {total_amount} EUR ({len(boats)} boats)")
     

@@ -375,6 +375,27 @@ class ApiStack(Stack):
             'payment/get_payment_receipt',
             'Get payment receipt details'
         )
+        
+        # List payments function (payment history)
+        self.lambda_functions['list_payments'] = self._create_lambda_function(
+            'ListPaymentsFunction',
+            'payment/list_payments',
+            'List payment history for team manager'
+        )
+        
+        # Get payment summary function
+        self.lambda_functions['get_payment_summary'] = self._create_lambda_function(
+            'GetPaymentSummaryFunction',
+            'payment/get_payment_summary',
+            'Get payment summary with total paid and outstanding balance'
+        )
+        
+        # Get payment invoice function (PDF generation)
+        self.lambda_functions['get_payment_invoice'] = self._create_lambda_function(
+            'GetPaymentInvoiceFunction',
+            'payment/get_payment_invoice',
+            'Generate PDF invoice for a payment'
+        )
     
     def _create_admin_functions(self):
         """Create admin configuration Lambda functions"""
@@ -542,6 +563,19 @@ class ApiStack(Stack):
             'ClearAuditLogsFunction',
             'admin/clear_audit_logs',
             'Clear all permission audit logs (admin only)'
+        )
+        
+        # Admin payment functions
+        self.lambda_functions['list_all_payments'] = self._create_lambda_function(
+            'ListAllPaymentsFunction',
+            'admin/list_all_payments',
+            'List all payments across all team managers (admin only)'
+        )
+        
+        self.lambda_functions['get_payment_analytics'] = self._create_lambda_function(
+            'GetPaymentAnalyticsFunction',
+            'admin/get_payment_analytics',
+            'Get payment analytics and trends (admin only)'
         )
     
     def _create_public_functions(self):
@@ -959,6 +993,46 @@ class ApiStack(Stack):
             authorization_type=apigateway.AuthorizationType.COGNITO
         )
         
+        # GET /payment/history - List payment history (auth required)
+        history_resource = payment_resource.add_resource('history')
+        list_payments_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['list_payments'],
+            proxy=True
+        )
+        history_resource.add_method(
+            'GET',
+            list_payments_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # GET /payment/summary - Get payment summary (auth required)
+        summary_resource = payment_resource.add_resource('summary')
+        payment_summary_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['get_payment_summary'],
+            proxy=True
+        )
+        summary_resource.add_method(
+            'GET',
+            payment_summary_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # GET /payment/invoice/{payment_id} - Download payment invoice as PDF (auth required)
+        invoice_resource = payment_resource.add_resource('invoice')
+        invoice_payment_id_resource = invoice_resource.add_resource('{payment_id}')
+        invoice_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['get_payment_invoice'],
+            proxy=True
+        )
+        invoice_payment_id_resource.add_method(
+            'GET',
+            invoice_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
         # Create /admin resource (admin only)
         admin_resource = self.api.root.add_resource('admin')
         
@@ -1199,6 +1273,37 @@ class ApiStack(Stack):
         races_json_export_resource.add_method(
             'GET',
             export_races_json_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Admin payment routes
+        # /admin/payments resource
+        admin_payments_resource = admin_resource.add_resource('payments')
+        
+        # GET /admin/payments - List all payments across all team managers (admin only)
+        list_all_payments_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['list_all_payments'],
+            proxy=True
+        )
+        admin_payments_resource.add_method(
+            'GET',
+            list_all_payments_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # /admin/payments/analytics resource
+        admin_payments_analytics_resource = admin_payments_resource.add_resource('analytics')
+        
+        # GET /admin/payments/analytics - Get payment analytics (admin only)
+        get_payment_analytics_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['get_payment_analytics'],
+            proxy=True
+        )
+        admin_payments_analytics_resource.add_method(
+            'GET',
+            get_payment_analytics_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )

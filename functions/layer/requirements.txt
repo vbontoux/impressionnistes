@@ -1,0 +1,5 @@
+# Lambda Layer Dependencies
+# These packages are shared across all Lambda functions
+
+# PDF generation for invoices
+reportlab==4.0.7

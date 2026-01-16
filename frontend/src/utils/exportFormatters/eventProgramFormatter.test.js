@@ -455,3 +455,208 @@ describe('Consistency Tests - Event Program vs CrewTimer', () => {
     expect(result.map(b => b.boat_registration_id)).toEqual(['boat1', 'boat4'])
   })
 })
+
+
+describe('Payment Balance Integration', () => {
+  it('should include payment balance columns in crew member list', () => {
+    const mockDataWithPayments = {
+      data: {
+        boats: [
+          {
+            boat_registration_id: 'boat1',
+            race_id: 'race1',
+            registration_status: 'complete',
+            forfait: false,
+            team_manager_id: 'user1',
+            boat_club_display: 'Club A',
+            seats: [
+              { crew_member_id: 'crew1', position: 1, type: 'rower' }
+            ]
+          }
+        ],
+        crew_members: [
+          { crew_member_id: 'crew1', first_name: 'John', last_name: 'Doe' }
+        ],
+        team_managers: [
+          {
+            user_id: 'user1',
+            club_affiliation: 'Club A',
+            total_paid: 150.00,
+            outstanding_balance: 50.00,
+            payment_status: 'Partial Payment'
+          }
+        ]
+      }
+    }
+
+    const races = [
+      { race_id: 'race1', display_order: 1, distance: 42, short_name: 'MW4X+', name: 'Master Women 4X+' }
+    ]
+    const config = {
+      marathon_bow_start: 1,
+      semi_marathon_bow_start: 41
+    }
+
+    const eligibleBoats = filterEligibleBoats(mockDataWithPayments.data.boats)
+    const { raceAssignments, boatAssignments } = assignRaceAndBowNumbers(races, eligibleBoats, config)
+
+    const result = generateCrewMemberList(mockDataWithPayments, boatAssignments, raceAssignments, 'fr')
+
+    expect(result).toHaveLength(1)
+    expect(result[0]).toHaveProperty('Total payé (EUR)')
+    expect(result[0]).toHaveProperty('Solde impayé (EUR)')
+    expect(result[0]).toHaveProperty('Statut de paiement')
+    expect(result[0]['Total payé (EUR)']).toBe('150.00')
+    expect(result[0]['Solde impayé (EUR)']).toBe('50.00')
+    expect(result[0]['Statut de paiement']).toBe('Partial Payment')
+  })
+
+  it('should format currency values with 2 decimal places', () => {
+    const mockDataWithPayments = {
+      data: {
+        boats: [
+          {
+            boat_registration_id: 'boat1',
+            race_id: 'race1',
+            registration_status: 'complete',
+            forfait: false,
+            team_manager_id: 'user1',
+            boat_club_display: 'Club A',
+            seats: [
+              { crew_member_id: 'crew1', position: 1, type: 'rower' }
+            ]
+          }
+        ],
+        crew_members: [
+          { crew_member_id: 'crew1', first_name: 'John', last_name: 'Doe' }
+        ],
+        team_managers: [
+          {
+            user_id: 'user1',
+            club_affiliation: 'Club A',
+            total_paid: 100.5,  // Should become 100.50
+            outstanding_balance: 25.123,  // Should become 25.12
+            payment_status: 'Partial Payment'
+          }
+        ]
+      }
+    }
+
+    const races = [
+      { race_id: 'race1', display_order: 1, distance: 42, short_name: 'MW4X+', name: 'Master Women 4X+' }
+    ]
+    const config = {
+      marathon_bow_start: 1,
+      semi_marathon_bow_start: 41
+    }
+
+    const eligibleBoats = filterEligibleBoats(mockDataWithPayments.data.boats)
+    const { raceAssignments, boatAssignments } = assignRaceAndBowNumbers(races, eligibleBoats, config)
+
+    const result = generateCrewMemberList(mockDataWithPayments, boatAssignments, raceAssignments, 'fr')
+
+    // Verify currency formatting with exactly 2 decimal places
+    expect(result[0]['Total payé (EUR)']).toBe('100.50')
+    expect(result[0]['Solde impayé (EUR)']).toBe('25.12')
+  })
+
+  it('should include payment balance columns in English locale', () => {
+    const mockDataWithPayments = {
+      data: {
+        boats: [
+          {
+            boat_registration_id: 'boat1',
+            race_id: 'race1',
+            registration_status: 'complete',
+            forfait: false,
+            team_manager_id: 'user1',
+            boat_club_display: 'Club A',
+            seats: [
+              { crew_member_id: 'crew1', position: 1, type: 'rower' }
+            ]
+          }
+        ],
+        crew_members: [
+          { crew_member_id: 'crew1', first_name: 'John', last_name: 'Doe' }
+        ],
+        team_managers: [
+          {
+            user_id: 'user1',
+            club_affiliation: 'Club A',
+            total_paid: 200.00,
+            outstanding_balance: 0.00,
+            payment_status: 'Paid in Full'
+          }
+        ]
+      }
+    }
+
+    const races = [
+      { race_id: 'race1', display_order: 1, distance: 42, short_name: 'MW4X+', name: 'Master Women 4X+' }
+    ]
+    const config = {
+      marathon_bow_start: 1,
+      semi_marathon_bow_start: 41
+    }
+
+    const eligibleBoats = filterEligibleBoats(mockDataWithPayments.data.boats)
+    const { raceAssignments, boatAssignments } = assignRaceAndBowNumbers(races, eligibleBoats, config)
+
+    const result = generateCrewMemberList(mockDataWithPayments, boatAssignments, raceAssignments, 'en')
+
+    expect(result[0]).toHaveProperty('Total Paid (EUR)')
+    expect(result[0]).toHaveProperty('Outstanding Balance (EUR)')
+    expect(result[0]).toHaveProperty('Payment Status')
+    expect(result[0]['Total Paid (EUR)']).toBe('200.00')
+    expect(result[0]['Outstanding Balance (EUR)']).toBe('0.00')
+    expect(result[0]['Payment Status']).toBe('Paid in Full')
+  })
+
+  it('should handle missing payment data gracefully', () => {
+    const mockDataWithoutPayments = {
+      data: {
+        boats: [
+          {
+            boat_registration_id: 'boat1',
+            race_id: 'race1',
+            registration_status: 'complete',
+            forfait: false,
+            team_manager_id: 'user1',
+            boat_club_display: 'Club A',
+            seats: [
+              { crew_member_id: 'crew1', position: 1, type: 'rower' }
+            ]
+          }
+        ],
+        crew_members: [
+          { crew_member_id: 'crew1', first_name: 'John', last_name: 'Doe' }
+        ],
+        team_managers: [
+          {
+            user_id: 'user1',
+            club_affiliation: 'Club A'
+            // No payment data
+          }
+        ]
+      }
+    }
+
+    const races = [
+      { race_id: 'race1', display_order: 1, distance: 42, short_name: 'MW4X+', name: 'Master Women 4X+' }
+    ]
+    const config = {
+      marathon_bow_start: 1,
+      semi_marathon_bow_start: 41
+    }
+
+    const eligibleBoats = filterEligibleBoats(mockDataWithoutPayments.data.boats)
+    const { raceAssignments, boatAssignments } = assignRaceAndBowNumbers(races, eligibleBoats, config)
+
+    const result = generateCrewMemberList(mockDataWithoutPayments, boatAssignments, raceAssignments, 'fr')
+
+    // Should default to 0.00 and 'No Payment'
+    expect(result[0]['Total payé (EUR)']).toBe('0.00')
+    expect(result[0]['Solde impayé (EUR)']).toBe('0.00')
+    expect(result[0]['Statut de paiement']).toBe('No Payment')
+  })
+})

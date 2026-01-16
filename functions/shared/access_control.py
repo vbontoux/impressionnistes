@@ -168,6 +168,24 @@ DEFAULT_PERMISSIONS = {
         "after_registration": True,
         "after_payment_deadline": True,
     },
+    "view_payment_history": {
+        "before_registration": True,
+        "during_registration": True,
+        "after_registration": True,
+        "after_payment_deadline": True,
+    },
+    "view_payment_analytics": {
+        "before_registration": True,
+        "during_registration": True,
+        "after_registration": True,
+        "after_payment_deadline": True,
+    },
+    "download_payment_invoice": {
+        "before_registration": True,
+        "during_registration": True,
+        "after_registration": True,
+        "after_payment_deadline": True,
+    },
 }
 
 # Denial reason messages (English)

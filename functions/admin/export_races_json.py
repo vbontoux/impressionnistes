@@ -145,6 +145,58 @@ def lambda_handler(event, context):
                 'last_name': tm.get('last_name', '')
             }
         
+        # Calculate payment balance for each team manager
+        logger.info("Calculating payment balances for team managers")
+        for user_id in team_manager_cache.keys():
+            # Query payments for this team manager
+            payments_response = db.table.query(
+                KeyConditionExpression='PK = :pk AND begins_with(SK, :sk_prefix)',
+                ExpressionAttributeValues={
+                    ':pk': f'TEAM#{user_id}',
+                    ':sk_prefix': 'PAYMENT#'
+                }
+            )
+            payments = payments_response.get('Items', [])
+            
+            # Calculate total paid
+            total_paid = sum(float(p.get('amount', 0)) for p in payments)
+            
+            # Query unpaid boats (status='complete')
+            unpaid_boats_response = db.table.query(
+                KeyConditionExpression='PK = :pk AND begins_with(SK, :sk_prefix)',
+                FilterExpression='registration_status = :status',
+                ExpressionAttributeValues={
+                    ':pk': f'TEAM#{user_id}',
+                    ':sk_prefix': 'BOAT#',
+                    ':status': 'complete'
+                }
+            )
+            unpaid_boats = unpaid_boats_response.get('Items', [])
+            
+            # Calculate outstanding balance
+            outstanding_balance = 0.0
+            for boat in unpaid_boats:
+                # Use locked_pricing if available, otherwise pricing
+                if boat.get('locked_pricing') and boat['locked_pricing'].get('total'):
+                    outstanding_balance += float(boat['locked_pricing']['total'])
+                elif boat.get('pricing') and boat['pricing'].get('total'):
+                    outstanding_balance += float(boat['pricing']['total'])
+            
+            # Determine payment status
+            if outstanding_balance == 0 and total_paid > 0:
+                payment_status = 'Paid in Full'
+            elif total_paid > 0 and outstanding_balance > 0:
+                payment_status = 'Partial Payment'
+            else:
+                payment_status = 'No Payment'
+            
+            # Add payment fields to team manager cache
+            team_manager_cache[user_id]['total_paid'] = round(total_paid, 2)
+            team_manager_cache[user_id]['outstanding_balance'] = round(outstanding_balance, 2)
+            team_manager_cache[user_id]['payment_status'] = payment_status
+        
+        logger.info(f"Calculated payment balances for {len(team_manager_cache)} team managers")
+        
         # Simplify boat data for export (keep essential fields)
         simplified_boats = []
         for boat in boats:

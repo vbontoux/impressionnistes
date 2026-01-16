@@ -85,6 +85,11 @@
       </div>
     </section>
 
+    <!-- Payment Summary Widget -->
+    <section class="payment-summary-section">
+      <PaymentSummaryWidget />
+    </section>
+
     <!-- Quick Actions -->
     <section class="actions-section">
       <h2>{{ $t('dashboard.quickActions') }}</h2>
@@ -198,6 +203,7 @@ import { ref, onMounted } from 'vue';
 import { useAuthStore } from '../stores/authStore';
 import { useCrewStore } from '../stores/crewStore';
 import { useBoatStore } from '../stores/boatStore';
+import PaymentSummaryWidget from '../components/PaymentSummaryWidget.vue';
 
 const authStore = useAuthStore();
 const crewStore = useCrewStore();

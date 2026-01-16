@@ -666,8 +666,289 @@ curl -X DELETE https://your-api-url/dev/boat/BOAT_ID \
 
 ---
 
+## Payment Endpoints
+
+### GET /payments
+
+List all payment transactions for the authenticated team manager.
+
+**Authentication**: Required (Cognito JWT token)
+
+**Headers**:
+```
+Authorization: Bearer <cognito-jwt-token>
+```
+
+**Query Parameters** (all optional):
+- `start_date`: ISO 8601 date (e.g., "2026-01-01") - Filter payments from this date
+- `end_date`: ISO 8601 date (e.g., "2026-12-31") - Filter payments until this date
+- `limit`: Number (default: 50) - Maximum number of results per page
+- `last_evaluated_key`: String - Pagination token from previous response
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "payments": [
+      {
+        "payment_id": "uuid-here",
+        "stripe_payment_intent_id": "pi_xxx",
+        "amount": 150.00,
+        "currency": "EUR",
+        "status": "succeeded",
+        "paid_at": "2026-01-15T10:30:00Z",
+        "stripe_receipt_url": "https://pay.stripe.com/receipts/...",
+        "boat_registration_ids": ["boat-1", "boat-2"],
+        "boat_count": 2
+      }
+    ],
+    "summary": {
+      "total_payments": 5,
+      "total_amount": 750.00,
+      "currency": "EUR"
+    },
+    "last_evaluated_key": null
+  },
+  "timestamp": "2026-01-16T12:00:00Z"
+}
+```
+
+**cURL Example**:
+```bash
+curl -X GET "https://your-api-url/dev/payments?start_date=2026-01-01&end_date=2026-12-31" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+---
+
+### GET /payments/summary
+
+Get payment summary including total paid and outstanding balance for the authenticated team manager.
+
+**Authentication**: Required (Cognito JWT token)
+
+**Headers**:
+```
+Authorization: Bearer <cognito-jwt-token>
+```
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "total_paid": 750.00,
+    "outstanding_balance": 300.00,
+    "currency": "EUR",
+    "unpaid_boats": [
+      {
+        "boat_registration_id": "boat-3",
+        "event_type": "21km",
+        "boat_type": "4+",
+        "estimated_amount": 150.00,
+        "registration_status": "complete"
+      },
+      {
+        "boat_registration_id": "boat-4",
+        "event_type": "42km",
+        "boat_type": "skiff",
+        "estimated_amount": 150.00,
+        "registration_status": "complete"
+      }
+    ]
+  },
+  "timestamp": "2026-01-16T12:00:00Z"
+}
+```
+
+**cURL Example**:
+```bash
+curl -X GET https://your-api-url/dev/payments/summary \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+---
+
+### GET /payments/{payment_id}/invoice
+
+Download a payment invoice as PDF.
+
+**Authentication**: Required (Cognito JWT token)
+
+**Headers**:
+```
+Authorization: Bearer <cognito-jwt-token>
+```
+
+**Response (200 OK)**:
+- **Content-Type**: `application/pdf`
+- **Content-Disposition**: `attachment; filename="invoice-payment-{payment_id}-{date}.pdf"`
+- **Body**: PDF binary data (base64 encoded)
+
+**PDF Contents**:
+- Event branding (Course des Impressionnistes)
+- Payment date, amount, currency, payment ID
+- Team manager name, club affiliation, email
+- List of boats paid (event type, boat type)
+- Link to Stripe receipt (if available)
+
+**cURL Example**:
+```bash
+curl -X GET https://your-api-url/dev/payments/PAYMENT_ID/invoice \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -o invoice.pdf
+```
+
+---
+
+## Admin Payment Endpoints
+
+### GET /admin/payments
+
+List all payment transactions across all team managers (admin only).
+
+**Authentication**: Required (Cognito JWT token with admin role)
+
+**Headers**:
+```
+Authorization: Bearer <cognito-jwt-token>
+```
+
+**Query Parameters** (all optional):
+- `team_manager_id`: String - Filter by specific team manager
+- `start_date`: ISO 8601 date - Filter payments from this date
+- `end_date`: ISO 8601 date - Filter payments until this date
+- `sort_by`: String (default: "paid_at") - Sort field (paid_at, amount, team_manager_name)
+- `sort_order`: String (default: "desc") - Sort order (asc, desc)
+- `limit`: Number (default: 50) - Maximum results per page
+- `last_evaluated_key`: String - Pagination token
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "payments": [
+      {
+        "payment_id": "uuid-1",
+        "team_manager_id": "tm-1",
+        "team_manager_name": "Jean Dupont",
+        "team_manager_email": "jean@club.com",
+        "club_affiliation": "Rowing Club Paris",
+        "amount": 150.00,
+        "currency": "EUR",
+        "status": "succeeded",
+        "paid_at": "2026-01-15T10:30:00Z",
+        "boat_count": 2
+      }
+    ],
+    "summary": {
+      "total_payments": 25,
+      "total_amount": 3750.00,
+      "currency": "EUR"
+    },
+    "last_evaluated_key": null
+  },
+  "timestamp": "2026-01-16T12:00:00Z"
+}
+```
+
+**cURL Example**:
+```bash
+curl -X GET "https://your-api-url/dev/admin/payments?sort_by=amount&sort_order=desc" \
+  -H "Authorization: Bearer YOUR_ADMIN_JWT_TOKEN"
+```
+
+---
+
+### GET /admin/payments/analytics
+
+Get payment analytics and trends (admin only).
+
+**Authentication**: Required (Cognito JWT token with admin role)
+
+**Headers**:
+```
+Authorization: Bearer <cognito-jwt-token>
+```
+
+**Query Parameters** (all optional):
+- `start_date`: ISO 8601 date - Filter analytics from this date
+- `end_date`: ISO 8601 date - Filter analytics until this date
+- `group_by`: String (default: "day") - Time grouping (day, week, month)
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "summary": {
+      "total_revenue": 3750.00,
+      "total_payments": 25,
+      "total_boats_paid": 50,
+      "unique_payers": 10,
+      "outstanding_balance": 1200.00,
+      "currency": "EUR"
+    },
+    "timeline": [
+      {
+        "period": "2026-01-15",
+        "payment_count": 5,
+        "total_amount": 750.00
+      },
+      {
+        "period": "2026-01-16",
+        "payment_count": 3,
+        "total_amount": 450.00
+      }
+    ],
+    "top_payers": [
+      {
+        "team_manager_id": "tm-1",
+        "team_manager_name": "Jean Dupont",
+        "club_affiliation": "Rowing Club Paris",
+        "total_paid": 450.00,
+        "payment_count": 3,
+        "boat_count": 6
+      }
+    ]
+  },
+  "timestamp": "2026-01-16T12:00:00Z"
+}
+```
+
+**cURL Example**:
+```bash
+curl -X GET "https://your-api-url/dev/admin/payments/analytics?group_by=week" \
+  -H "Authorization: Bearer YOUR_ADMIN_JWT_TOKEN"
+```
+
+---
+
+## Access Control
+
+### Payment Permissions
+
+| Permission | Team Manager | Admin |
+|------------|--------------|-------|
+| View own payment history | ✓ | ✓ |
+| View own payment summary | ✓ | ✓ |
+| Download payment invoice | ✓ | ✓ |
+| View all payments | ✗ | ✓ |
+| View payment analytics | ✗ | ✓ |
+| Export payment data | ✗ | ✓ |
+
+### Access Control Rules
+
+1. **Team managers** can only access their own payment data
+2. **Admins** can access all payment data across all team managers
+3. Attempting to access another team manager's payment returns 404 Not Found
+4. Attempting to access admin endpoints without admin role returns 403 Forbidden
+
+---
+
 ## Next Steps
 
-- Add payment endpoints (/payment/*)
 - Add admin endpoints (/admin/*)
 - Add contact form endpoint (/contact)

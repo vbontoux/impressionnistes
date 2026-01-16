@@ -7,6 +7,7 @@ import logging
 from datetime import datetime
 from decimal import Decimal
 import uuid
+import copy
 
 # Import from Lambda layer
 from responses import success_response, validation_error, internal_error
@@ -25,10 +26,21 @@ def create_payment_record(
     amount: Decimal,
     currency: str,
     receipt_url: str,
+    boat_details: list,
     db
 ) -> str:
     """
     Create a payment record in DynamoDB
+    
+    Args:
+        payment_intent_id: Stripe payment intent ID
+        team_manager_id: Team manager user ID
+        boat_registration_ids: List of boat registration IDs
+        amount: Payment amount
+        currency: Payment currency
+        receipt_url: Stripe receipt URL
+        boat_details: List of boat registration dicts with pricing snapshot
+        db: Database client
     
     Returns:
         Payment ID
@@ -43,6 +55,7 @@ def create_payment_record(
         'stripe_payment_intent_id': payment_intent_id,
         'team_manager_id': team_manager_id,
         'boat_registration_ids': boat_registration_ids,
+        'boat_details': boat_details,  # Store snapshot of boats with pricing
         'amount': amount,
         'currency': currency,
         'status': 'succeeded',
@@ -74,7 +87,7 @@ def update_boat_status_to_paid(
         pk = f'TEAM#{team_manager_id}'
         sk = f'BOAT#{boat_id}'
         
-        boat = db.get_item(pk=pk, sk=sk)
+        boat = db.get_item(pk, sk)
         
         if boat:
             # Ensure PK and SK are present (uppercase as required by DynamoDB)
@@ -87,9 +100,9 @@ def update_boat_status_to_paid(
             boat['paid_at'] = timestamp
             boat['updated_at'] = timestamp
             
-            # Lock the pricing
+            # Lock the pricing (deep copy to prevent reference issues)
             if 'pricing' in boat:
-                boat['locked_pricing'] = boat['pricing']
+                boat['locked_pricing'] = copy.deepcopy(boat['pricing'])
             
             db.put_item(boat)
             logger.info(f"Updated boat {boat_id} status to 'paid'")
@@ -139,7 +152,31 @@ def handle_payment_succeeded(event_data: dict, db):
     # Get receipt URL
     receipt_url = get_charge_receipt_url(payment_intent_id)
     
-    # Create payment record
+    # Get boat details for payment record snapshot
+    boat_details = []
+    for boat_id in boat_registration_ids:
+        boat = db.get_item(f'TEAM#{team_manager_id}', f'BOAT#{boat_id}')
+        if boat:
+            # Get stroke seat name (seat 1)
+            stroke_seat_name = None
+            seats = boat.get('seats', [])
+            if seats and len(seats) > 0:
+                stroke_seat = seats[0]  # Seat 1 is stroke
+                if stroke_seat.get('crew_member_id'):
+                    stroke_seat_name = f"{stroke_seat.get('first_name', '')} {stroke_seat.get('last_name', '')}".strip()
+            
+            # Create a snapshot with essential fields including pricing
+            boat_snapshot = {
+                'boat_registration_id': boat.get('boat_registration_id'),
+                'event_type': boat.get('event_type'),
+                'boat_type': boat.get('boat_type'),
+                'boat_number': boat.get('boat_number'),
+                'stroke_seat_name': stroke_seat_name,
+                'pricing': copy.deepcopy(boat.get('pricing', {}))  # Snapshot of pricing at payment time
+            }
+            boat_details.append(boat_snapshot)
+    
+    # Create payment record with boat details snapshot
     payment_id = create_payment_record(
         payment_intent_id=payment_intent_id,
         team_manager_id=team_manager_id,
@@ -147,18 +184,19 @@ def handle_payment_succeeded(event_data: dict, db):
         amount=amount,
         currency=currency.upper(),
         receipt_url=receipt_url or '',
+        boat_details=boat_details,
         db=db
     )
     
-    # Get boat details for email
-    boat_details = []
+    # Get boat details again for email (full details)
+    boats_for_email = []
     for boat_id in boat_registration_ids:
-        boat = db.get_item(pk=f'TEAM#{team_manager_id}', sk=f'BOAT#{boat_id}')
+        boat = db.get_item(f'TEAM#{team_manager_id}', f'BOAT#{boat_id}')
         if boat:
-            boat_details.append(boat)
+            boats_for_email.append(boat)
     
     # Get team manager details
-    team_manager = db.get_item(pk=f'TEAM#{team_manager_id}', sk='METADATA')
+    team_manager = db.get_item(f'TEAM#{team_manager_id}', 'METADATA')
     team_manager_name = 'Cher membre'
     if team_manager:
         first_name = team_manager.get('first_name', '')
@@ -217,7 +255,7 @@ def handle_payment_succeeded(event_data: dict, db):
             recipient_email=receipt_email,
             team_manager_name=team_manager_name,
             payment_details=payment_details,
-            boat_registrations=boat_details,
+            boat_registrations=boats_for_email,
             rental_boats=[],  # Rental feature removed
             receipt_url=receipt_url
         )
@@ -253,7 +291,7 @@ def handle_payment_failed(event_data: dict, db):
     # Get team manager details for notification
     team_manager_name = 'Unknown User'
     if team_manager_id:
-        team_manager = db.get_item(pk=f'TEAM#{team_manager_id}', sk='METADATA')
+        team_manager = db.get_item(f'TEAM#{team_manager_id}', 'METADATA')
         if team_manager:
             first_name = team_manager.get('first_name', '')
             last_name = team_manager.get('last_name', '')

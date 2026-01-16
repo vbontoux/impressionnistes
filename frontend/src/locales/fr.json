@@ -49,6 +49,7 @@
     "boats": "Équipages",
     "boatRentals": "Demandes de location",
     "payment": "Paiement",
+    "paymentHistory": "Historique des paiements",
     "profile": "Profil",
     "logout": "Déconnexion",
     "toggleMenu": "Basculer le menu",
@@ -58,7 +59,8 @@
     "boatInventory": "Demandes de location",
     "crewMembers": "Équipiers",
     "boatRegistrations": "Équipages",
-    "dataExports": "Exports de Données"
+    "dataExports": "Exports de Données",
+    "paymentAnalytics": "Analytique des Paiements"
   },
   "admin": {
     "impersonation": {
@@ -474,6 +476,28 @@
       "clearing": "Effacement...",
       "clearSuccess": "Tous les journaux ont été effacés avec succès. {count} entrées supprimées.",
       "clearError": "Erreur lors de l'effacement des journaux"
+    },
+    "paymentAnalytics": {
+      "title": "Analytique des Paiements",
+      "subtitle": "Consulter les statistiques et tendances des paiements",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "groupBy": "Grouper par",
+      "day": "Jour",
+      "week": "Semaine",
+      "month": "Mois",
+      "totalRevenue": "Revenu Total",
+      "totalPayments": "Paiements Totaux",
+      "outstandingBalance": "Solde Impayé",
+      "boatsPaid": "Équipages Payés",
+      "topPayers": "Meilleurs Payeurs",
+      "rank": "Rang",
+      "teamManager": "Manager de Club",
+      "totalPaid": "Total Payé",
+      "payments": "Paiements",
+      "boats": "Équipages",
+      "exportCSV": "Exporter CSV",
+      "errorLoading": "Échec du chargement de l'analytique des paiements"
     }
   },
   "session": {
@@ -883,6 +907,39 @@
       "viewBoats": "Voir mes bateaux",
       "goToDashboard": "Aller au tableau de bord",
       "receiptInfo": "Un reçu a été envoyé à votre adresse e-mail."
+    },
+    "history": {
+      "title": "Historique des paiements",
+      "subtitle": "Consultez vos paiements passés et téléchargez les factures",
+      "search": "Rechercher des paiements...",
+      "startDate": "Date de début",
+      "endDate": "Date de fin",
+      "date": "Date",
+      "amount": "Montant",
+      "crews": "Équipages",
+      "crewDetails": "Détails des équipages",
+      "status": "Statut",
+      "noPayments": "Aucun paiement trouvé",
+      "viewReceipt": "Voir le reçu",
+      "downloadInvoice": "Télécharger la facture",
+      "errorLoading": "Échec du chargement de l'historique des paiements",
+      "errorDownloading": "Échec du téléchargement de la facture",
+      "receiptTitle": "Reçu de paiement",
+      "paymentDetails": "Détails du paiement",
+      "paymentId": "ID de paiement",
+      "noReceiptNote": "Le reçu Stripe n'est pas disponible pour ce paiement. Il a peut-être été créé avant que les reçus ne soient enregistrés.",
+      "openInNewTab": "Ouvrir dans un nouvel onglet"
+    },
+    "summary": {
+      "title": "Résumé des paiements",
+      "viewAll": "Voir tout",
+      "totalPaid": "Total payé",
+      "paymentCount": "Paiements",
+      "boatsPaid": "Bateaux payés",
+      "outstanding": "Solde impayé",
+      "unpaidBoats": "Bateaux impayés",
+      "makePayment": "Effectuer un paiement",
+      "errorLoading": "Échec du chargement du résumé des paiements"
     }
   },
   "dashboard": {
