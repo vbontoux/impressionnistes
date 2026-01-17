@@ -49,25 +49,39 @@ def count_boats_in_payments(payments):
     return total_boats
 
 
-def calculate_outstanding_balance(boats, pricing_config=None):
+def calculate_outstanding_balance(boats, pricing_config=None, all_crew_members=None):
     """
     Calculate outstanding balance from unpaid boats
     
     Args:
         boats: List of boat registration records (status='complete')
-        pricing_config: Optional pricing configuration (if not using locked pricing)
+        pricing_config: Optional pricing configuration
+        all_crew_members: Optional list of all crew members for recalculating pricing
     
     Returns:
         Decimal: Total outstanding balance
     """
+    from pricing import calculate_boat_pricing
+    
     total = Decimal('0')
     
     for boat in boats:
-        # Use locked pricing if available, otherwise use current pricing
-        if 'pricing' in boat and boat['pricing']:
+        # Use locked pricing if available (pricing locked at payment time)
+        if 'locked_pricing' in boat and boat['locked_pricing']:
+            amount = boat['locked_pricing'].get('total', 0)
+        # Otherwise, recalculate pricing dynamically based on current crew
+        elif all_crew_members is not None and pricing_config:
+            try:
+                pricing = calculate_boat_pricing(boat, all_crew_members, pricing_config)
+                amount = pricing.get('total', 0)
+            except Exception as e:
+                logger.warning(f"Failed to calculate pricing for boat {boat.get('boat_registration_id')}: {e}")
+                amount = 0
+        # Fallback to stored pricing (may be stale - should be avoided)
+        elif 'pricing' in boat and boat['pricing']:
             amount = boat['pricing'].get('total_amount', 0)
+        # Last resort: simplified calculation from config
         elif pricing_config:
-            # Calculate from pricing config (fallback)
             amount = _calculate_boat_price(boat, pricing_config)
         else:
             amount = 0
