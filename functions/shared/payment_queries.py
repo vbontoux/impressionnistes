@@ -50,7 +50,7 @@ def query_payments_by_team(db, team_manager_id, start_date=None, end_date=None, 
                 query_params['FilterExpression'] = ' AND '.join(filter_expressions)
         
         # Execute query
-        response = db.query(**query_params)
+        response = db.table.query(**query_params)
         payments = response.get('Items', [])
         
         logger.info(f"Found {len(payments)} payments for team manager {team_manager_id}")
@@ -104,7 +104,7 @@ def scan_all_payments(db, start_date=None, end_date=None):
             if last_evaluated_key:
                 scan_params['ExclusiveStartKey'] = last_evaluated_key
             
-            response = db.scan(**scan_params)
+            response = db.table.scan(**scan_params)
             payments.extend(response.get('Items', []))
             
             last_evaluated_key = response.get('LastEvaluatedKey')
@@ -158,7 +158,7 @@ def query_unpaid_boats(db, team_manager_id):
         List of boat registration records
     """
     try:
-        response = db.query(
+        response = db.table.query(
             KeyConditionExpression='PK = :pk AND begins_with(SK, :sk_prefix)',
             FilterExpression='registration_status = :status',
             ExpressionAttributeValues={

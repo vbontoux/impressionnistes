@@ -1,8 +1,18 @@
 <template>
   <div class="payment-view">
     <div class="header">
-      <h1>{{ $t('payment.title') }}</h1>
-      <p class="subtitle">{{ $t('payment.subtitle') }}</p>
+      <div class="header-content">
+        <div class="header-text">
+          <h1>{{ $t('payment.title') }}</h1>
+          <p class="subtitle">{{ $t('payment.subtitle') }}</p>
+        </div>
+        <router-link to="/payment/history" class="view-history-link">
+          {{ $t('payment.summary.viewAll') }}
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="arrow-icon">
+            <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </router-link>
+      </div>
     </div>
 
     <!-- Loading State -->
@@ -179,6 +189,17 @@ onMounted(async () => {
   margin-bottom: 2rem;
 }
 
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.header-text {
+  flex: 1;
+}
+
 .header h1 {
   margin: 0 0 0.5rem 0;
   color: #333;
@@ -188,6 +209,28 @@ onMounted(async () => {
   color: #666;
   font-size: 1rem;
   margin: 0;
+}
+
+.view-history-link {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  transition: color 0.2s ease;
+  white-space: nowrap;
+  margin-top: 0.25rem;
+}
+
+.view-history-link:hover {
+  color: var(--color-primary-hover, #5568d3);
+}
+
+.arrow-icon {
+  width: 16px;
+  height: 16px;
 }
 
 .loading {
@@ -330,12 +373,22 @@ onMounted(async () => {
     margin-bottom: 1.5rem;
   }
 
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
   .header h1 {
     font-size: 1.5rem;
   }
 
   .subtitle {
     font-size: 0.875rem;
+  }
+
+  .view-history-link {
+    font-size: var(--font-size-base);
   }
 
   .empty-state {

@@ -199,6 +199,10 @@ apiClient.interceptors.response.use(
       if (token && error.message === 'Network Error') {
         console.warn('⚠️ Network error with auth token present - likely CORS error from 401');
         
+        // Check if request has skipAuthRedirect flag
+        const skipAuthRedirect = originalRequest?.skipAuthRedirect === true;
+        console.log('🔍 Skip auth redirect?', skipAuthRedirect);
+        
         // Check if token is actually expired
         const tokenExpired = isTokenExpired(token);
         console.log('🔍 Token expired?', tokenExpired);
@@ -214,7 +218,8 @@ apiClient.interceptors.response.use(
           error.userMessage = 'Your session has expired. Please log in again.';
         }
         
-        if (!isRedirecting) {
+        // Only redirect if not explicitly skipped
+        if (!skipAuthRedirect && !isRedirecting) {
           isRedirecting = true;
           console.log('🚪 Redirecting to login due to suspected authentication error (CORS)...');
           
@@ -239,6 +244,8 @@ apiClient.interceptors.response.use(
           setTimeout(() => {
             isRedirecting = false;
           }, 1000);
+        } else if (skipAuthRedirect) {
+          console.log('⏭️ Skipping auth redirect due to skipAuthRedirect flag');
         }
         
         return Promise.reject(error);
@@ -259,6 +266,10 @@ apiClient.interceptors.response.use(
     if (status === 401) {
       console.warn('🔒 Authentication error (401):', errorData);
 
+      // Check if request has skipAuthRedirect flag
+      const skipAuthRedirect = originalRequest?.skipAuthRedirect === true;
+      console.log('🔍 Skip auth redirect?', skipAuthRedirect);
+
       // API Gateway Cognito authorizer returns: {"message":"The incoming token has expired"}
       // Backend returns: {"success": false, "error": {"code": "UNAUTHORIZED", "message": "..."}}
       const errorMessage = errorData?.message || errorData?.error?.message || '';
@@ -266,8 +277,8 @@ apiClient.interceptors.response.use(
       // For 401, we always treat it as session expired/invalid
       error.userMessage = 'Your session has expired. Please log in again.';
       
-      // Clear auth data and redirect to login (only once)
-      if (!isRedirecting) {
+      // Clear auth data and redirect to login (only once, and only if not skipped)
+      if (!skipAuthRedirect && !isRedirecting) {
         isRedirecting = true;
         console.log('🚪 Redirecting to login due to authentication error...');
         console.log('🔍 Error message was:', errorMessage);
@@ -294,6 +305,8 @@ apiClient.interceptors.response.use(
         setTimeout(() => {
           isRedirecting = false;
         }, 1000);
+      } else if (skipAuthRedirect) {
+        console.log('⏭️ Skipping auth redirect due to skipAuthRedirect flag');
       } else {
         console.log('⏳ Already redirecting, skipping...');
       }

@@ -30,6 +30,25 @@ def calculate_total_paid(payments):
     return total
 
 
+def count_boats_in_payments(payments):
+    """
+    Count total number of boats across all payments
+    
+    Args:
+        payments: List of payment records
+    
+    Returns:
+        int: Total number of boats paid for
+    """
+    total_boats = 0
+    for payment in payments:
+        if payment.get('status') == 'succeeded':
+            boat_ids = payment.get('boat_registration_ids', [])
+            total_boats += len(boat_ids)
+    
+    return total_boats
+
+
 def calculate_outstanding_balance(boats, pricing_config=None):
     """
     Calculate outstanding balance from unpaid boats

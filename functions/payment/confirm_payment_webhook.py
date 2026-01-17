@@ -162,8 +162,14 @@ def handle_payment_succeeded(event_data: dict, db):
             seats = boat.get('seats', [])
             if seats and len(seats) > 0:
                 stroke_seat = seats[0]  # Seat 1 is stroke
-                if stroke_seat.get('crew_member_id'):
-                    stroke_seat_name = f"{stroke_seat.get('first_name', '')} {stroke_seat.get('last_name', '')}".strip()
+                stroke_crew_id = stroke_seat.get('crew_member_id')
+                if stroke_crew_id:
+                    # Fetch crew member details
+                    crew_member = db.get_item(f'TEAM#{team_manager_id}', f'CREW#{stroke_crew_id}')
+                    if crew_member:
+                        first_name = crew_member.get('first_name', '')
+                        last_name = crew_member.get('last_name', '')
+                        stroke_seat_name = f"{first_name} {last_name}".strip()
             
             # Create a snapshot with essential fields including pricing
             boat_snapshot = {

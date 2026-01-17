@@ -53,12 +53,26 @@
     />
 
     <!-- Card View (Mobile) -->
-    <div v-else-if="viewMode === 'cards'" class="payment-grid">
-      <DataCard
-        v-for="payment in sortedPayments"
-        :key="payment.payment_id"
-        :title="formatDate(payment.paid_at)"
-      >
+    <div v-else-if="viewMode === 'cards'" class="payment-grid-container">
+      <!-- Sort controls for card view -->
+      <div class="card-sort-controls">
+        <label>{{ $t('common.sortBy') }}:</label>
+        <select v-model="sortField" class="sort-select">
+          <option value="paid_at">{{ $t('payment.history.date') }}</option>
+          <option value="amount">{{ $t('payment.history.amount') }}</option>
+        </select>
+        <button @click="toggleSortDirection" class="sort-direction-btn">
+          <span v-if="sortDirection === 'desc'">↓ {{ $t('common.newest') }}</span>
+          <span v-else>↑ {{ $t('common.oldest') }}</span>
+        </button>
+      </div>
+      
+      <div class="payment-grid">
+        <DataCard
+          v-for="payment in sortedPayments"
+          :key="payment.payment_id"
+          :title="formatDate(payment.paid_at)"
+        >
         <div class="card-field">
           <span class="label">{{ $t('payment.history.amount') }}:</span>
           <span class="value amount">{{ formatCurrency(payment.amount, payment.currency) }}</span>
@@ -81,19 +95,20 @@
           <BaseButton 
             size="small" 
             variant="secondary"
-            @click="viewReceipt(payment)"
+            @click.stop="viewReceipt(payment)"
           >
             {{ $t('payment.history.viewReceipt') }}
           </BaseButton>
           <BaseButton 
             size="small" 
             variant="primary"
-            @click="downloadInvoice(payment)"
+            @click.stop="downloadInvoice(payment)"
           >
             {{ $t('payment.history.downloadInvoice') }}
           </BaseButton>
         </template>
       </DataCard>
+    </div>
     </div>
 
     <!-- Table View (Desktop) -->
@@ -135,14 +150,14 @@
               <BaseButton 
                 size="small" 
                 variant="secondary"
-                @click="viewReceipt(payment)"
+                @click.stop="viewReceipt(payment)"
               >
                 {{ $t('payment.history.viewReceipt') }}
               </BaseButton>
               <BaseButton 
                 size="small" 
                 variant="primary"
-                @click="downloadInvoice(payment)"
+                @click.stop="downloadInvoice(payment)"
               >
                 {{ $t('payment.history.downloadInvoice') }}
               </BaseButton>
@@ -218,7 +233,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useTableSort } from '../composables/useTableSort';
 import paymentService from '../services/paymentService';
 import ListHeader from '../components/shared/ListHeader.vue';
 import ListFilters from '../components/shared/ListFilters.vue';
@@ -249,8 +263,32 @@ const showReceiptModal = ref(false);
 const receiptUrl = ref('');
 const selectedPayment = ref(null);
 
-// Sorting
-const { sortField, sortDirection, handleSort, getSortIndicator } = useTableSort('paid_at', 'desc');
+// Sorting - initialize with correct parameters (no data array needed, we handle sorting manually)
+const sortField = ref('paid_at');
+const sortDirection = ref('desc');
+
+// Get sort indicator for display
+const getSortIndicator = (field) => {
+  if (sortField.value !== field) return '';
+  return sortDirection.value === 'asc' ? '▲' : '▼';
+};
+
+// Handle sort for table headers
+const handleSort = (field) => {
+  if (sortField.value === field) {
+    // Toggle direction if clicking same field
+    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+  } else {
+    // New field, set to descending for dates (newest first)
+    sortField.value = field;
+    sortDirection.value = field === 'paid_at' ? 'desc' : 'asc';
+  }
+};
+
+// Toggle sort direction for card view
+const toggleSortDirection = () => {
+  sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
+};
 
 // Fetch payments
 const fetchPayments = async () => {
@@ -304,6 +342,16 @@ const sortedPayments = computed(() => {
     if (sortField.value === 'paid_at') {
       aVal = new Date(aVal).getTime();
       bVal = new Date(bVal).getTime();
+      
+      // Debug: log if we get NaN
+      if (isNaN(aVal) || isNaN(bVal)) {
+        console.warn('Invalid date in payment:', { 
+          a: a.paid_at, 
+          b: b.paid_at,
+          aVal,
+          bVal
+        });
+      }
     }
     
     // Handle numeric sorting
@@ -320,16 +368,33 @@ const sortedPayments = computed(() => {
   return sorted;
 });
 
-// Format date
+// Format date - converts UTC to local timezone
 const formatDate = (dateString) => {
   if (!dateString) return '-';
-  const date = new Date(dateString);
-  return date.toLocaleDateString(undefined, {
+  
+  // Ensure the date string is treated as UTC
+  // If it doesn't end with 'Z', append it to indicate UTC
+  let utcDateString = dateString;
+  if (!dateString.endsWith('Z') && !dateString.includes('+')) {
+    utcDateString = dateString + 'Z';
+  }
+  
+  const date = new Date(utcDateString);
+  
+  // Verify the date is valid
+  if (isNaN(date.getTime())) {
+    console.warn('Invalid date:', dateString);
+    return '-';
+  }
+  
+  // Use the browser's locale and timezone
+  return date.toLocaleString(undefined, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
+    timeZoneName: 'short'
   });
 };
 
@@ -361,10 +426,20 @@ const viewReceipt = (payment) => {
   showReceiptModal.value = true;
 };
 
-// Download invoice
+// Download invoice - with guard to prevent double downloads
+const downloadingInvoice = ref(false);
+
 const downloadInvoice = async (payment) => {
+  // Prevent multiple simultaneous downloads
+  if (downloadingInvoice.value) {
+    console.log('⚠️ Download already in progress, ignoring duplicate click');
+    return;
+  }
+  
   console.log('📄 Download Invoice clicked');
   console.log('Payment ID:', payment.payment_id);
+  
+  downloadingInvoice.value = true;
   
   try {
     const blob = await paymentService.downloadInvoice(payment.payment_id);
@@ -383,6 +458,11 @@ const downloadInvoice = async (payment) => {
   } catch (err) {
     console.error('❌ Error downloading invoice:', err);
     error.value = err.response?.data?.error || t('payment.history.errorDownloading');
+  } finally {
+    // Reset the guard after a short delay to allow the download to complete
+    setTimeout(() => {
+      downloadingInvoice.value = false;
+    }, 1000);
   }
 };
 
@@ -437,11 +517,54 @@ onMounted(() => {
 }
 
 /* Card View */
+.payment-grid-container {
+  margin-top: var(--spacing-lg);
+}
+
+.card-sort-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--color-white);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.card-sort-controls label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-dark);
+}
+
+.sort-select {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: var(--font-size-base);
+  background: var(--color-white);
+  cursor: pointer;
+}
+
+.sort-direction-btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-white);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.sort-direction-btn:hover {
+  background: var(--color-light);
+}
+
 .payment-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: var(--spacing-lg);
-  margin-top: var(--spacing-lg);
 }
 
 .card-field {

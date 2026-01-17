@@ -23,7 +23,10 @@
     "deleting": "Suppression...",
     "previous": "Précédent",
     "next": "Suivant",
-    "pageInfo": "Page {current} sur {total}"
+    "pageInfo": "Page {current} sur {total}",
+    "sortBy": "Trier par",
+    "newest": "Plus récent",
+    "oldest": "Plus ancien"
   },
   "errors": {
     "permission": {
@@ -79,6 +82,7 @@
       "totalCrewMembers": "Équipiers inscrits",
       "totalBoatRegistrations": "Équipages inscrits",
       "totalPayments": "Paiements effectués",
+      "totalRevenue": "Revenu total",
       "rentalBoatsReserved": "Demandes de location",
       "configuration": "Configuration",
       "configurationDesc": "Gérer les paramètres de l'événement, les tarifs et les données",
@@ -932,7 +936,7 @@
     },
     "summary": {
       "title": "Résumé des paiements",
-      "viewAll": "Voir tout",
+      "viewAll": "Voir l'historique des paiements",
       "totalPaid": "Total payé",
       "paymentCount": "Paiements",
       "boatsPaid": "Bateaux payés",
@@ -975,7 +979,8 @@
     "status": {
       "incomplete": "Incomplet",
       "complete": "Complet",
-      "paid": "Payé"
+      "paid": "Payé",
+      "free": "Gratuit"
     },
     "emptyState": {
       "title": "Commencez votre inscription",

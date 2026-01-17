@@ -23,7 +23,10 @@
     "retry": "Retry",
     "previous": "Previous",
     "next": "Next",
-    "pageInfo": "Page {current} of {total}"
+    "pageInfo": "Page {current} of {total}",
+    "sortBy": "Sort by",
+    "newest": "Newest first",
+    "oldest": "Oldest first"
   },
   "errors": {
     "permission": {
@@ -79,6 +82,7 @@
       "totalCrewMembers": "Registered Crew Members",
       "totalBoatRegistrations": "Registered Crews",
       "totalPayments": "Completed Payments",
+      "totalRevenue": "Total Revenue",
       "rentalBoatsReserved": "Rental Requests",
       "configuration": "Configuration",
       "configurationDesc": "Manage event settings, pricing, and data",
@@ -932,7 +936,7 @@
     },
     "summary": {
       "title": "Payment Summary",
-      "viewAll": "View All",
+      "viewAll": "View Payment History",
       "totalPaid": "Total Paid",
       "paymentCount": "Payments",
       "boatsPaid": "Boats Paid",
@@ -975,7 +979,8 @@
     "status": {
       "incomplete": "Incomplete",
       "complete": "Complete",
-      "paid": "Paid"
+      "paid": "Paid",
+      "free": "Free"
     },
     "emptyState": {
       "title": "Get Started with Your Registration",

@@ -85,9 +85,66 @@
       </div>
     </section>
 
-    <!-- Payment Summary Widget -->
-    <section class="payment-summary-section">
-      <PaymentSummaryWidget />
+    <!-- Payment Summary and Registration Status Side by Side -->
+    <section v-if="stats.boats > 0" class="summary-grid-section">
+      <!-- Payment Summary -->
+      <div class="summary-widget">
+        <h2>{{ $t('payment.summary.title') }}</h2>
+        <PaymentSummaryWidget :show-title="false" />
+      </div>
+
+      <!-- Registration Status -->
+      <div class="summary-widget">
+        <h2>{{ $t('dashboard.registrationStatus') }}</h2>
+        <div class="status-card">
+          <div class="status-row">
+            <span class="status-label">{{ $t('dashboard.status.incomplete') }}</span>
+            <div class="status-bar">
+              <div 
+                class="status-fill incomplete" 
+                :style="{ width: getPercentage(stats.incompleteBoats) + '%' }"
+              ></div>
+            </div>
+            <span class="status-value">{{ stats.incompleteBoats }}</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">{{ $t('dashboard.status.complete') }}</span>
+            <div class="status-bar">
+              <div 
+                class="status-fill complete" 
+                :style="{ width: getPercentage(stats.completeBoats) + '%' }"
+              ></div>
+            </div>
+            <span class="status-value">{{ stats.completeBoats }}</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">{{ $t('dashboard.status.paid') }}</span>
+            <div class="status-bar">
+              <div 
+                class="status-fill paid" 
+                :style="{ width: getPercentage(stats.paidBoats) + '%' }"
+              ></div>
+            </div>
+            <span class="status-value">{{ stats.paidBoats }}</span>
+          </div>
+          <div class="status-row">
+            <span class="status-label">{{ $t('dashboard.status.free') }}</span>
+            <div class="status-bar">
+              <div 
+                class="status-fill free" 
+                :style="{ width: getPercentage(stats.freeBoats) + '%' }"
+              ></div>
+            </div>
+            <span class="status-value">{{ stats.freeBoats }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Payment Summary Only (when no boats) -->
+    <section v-else class="payment-summary-section">
+      <h2>{{ $t('payment.summary.title') }}</h2>
+      <PaymentSummaryWidget :show-title="false" />
     </section>
 
     <!-- Quick Actions -->
@@ -149,43 +206,6 @@
       </div>
     </section>
 
-    <!-- Registration Status -->
-    <section v-if="stats.boats > 0" class="status-section">
-      <h2>{{ $t('dashboard.registrationStatus') }}</h2>
-      <div class="status-card">
-        <div class="status-row">
-          <span class="status-label">{{ $t('dashboard.status.incomplete') }}</span>
-          <div class="status-bar">
-            <div 
-              class="status-fill incomplete" 
-              :style="{ width: getPercentage(stats.incompleteBoats) + '%' }"
-            ></div>
-          </div>
-          <span class="status-value">{{ stats.incompleteBoats }}</span>
-        </div>
-        <div class="status-row">
-          <span class="status-label">{{ $t('dashboard.status.complete') }}</span>
-          <div class="status-bar">
-            <div 
-              class="status-fill complete" 
-              :style="{ width: getPercentage(stats.completeBoats) + '%' }"
-            ></div>
-          </div>
-          <span class="status-value">{{ stats.completeBoats }}</span>
-        </div>
-        <div class="status-row">
-          <span class="status-label">{{ $t('dashboard.status.paid') }}</span>
-          <div class="status-bar">
-            <div 
-              class="status-fill paid" 
-              :style="{ width: getPercentage(stats.paidBoats) + '%' }"
-            ></div>
-          </div>
-          <span class="status-value">{{ stats.paidBoats }}</span>
-        </div>
-      </div>
-    </section>
-
     <!-- Empty State -->
     <section v-if="!loading && stats.crewMembers === 0 && stats.boats === 0" class="empty-state">
       <div class="empty-icon">🚀</div>
@@ -215,7 +235,8 @@ const stats = ref({
   boats: 0,
   incompleteBoats: 0,
   completeBoats: 0,
-  paidBoats: 0
+  paidBoats: 0,
+  freeBoats: 0
 });
 
 const loadDashboardData = async () => {
@@ -236,6 +257,7 @@ const loadDashboardData = async () => {
     stats.value.incompleteBoats = boatStore.boatRegistrations.filter(b => b.registration_status === 'incomplete').length;
     stats.value.completeBoats = boatStore.boatRegistrations.filter(b => b.registration_status === 'complete').length;
     stats.value.paidBoats = boatStore.boatRegistrations.filter(b => b.registration_status === 'paid').length;
+    stats.value.freeBoats = boatStore.boatRegistrations.filter(b => b.registration_status === 'free').length;
     
   } catch (error) {
     console.error('Failed to load dashboard data:', error);
@@ -433,6 +455,22 @@ section h2 {
   transform: translateX(4px);
 }
 
+/* Summary Grid Section - Side by Side Layout */
+.summary-grid-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.summary-widget {
+  /* Each widget takes up its grid cell */
+}
+
+.payment-summary-section {
+  margin-bottom: 2rem;
+}
+
 /* Status Section */
 .status-card {
   background: white;
@@ -481,6 +519,10 @@ section h2 {
 
 .status-fill.paid {
   background: #4CAF50;
+}
+
+.status-fill.free {
+  background: #2196F3;
 }
 
 .status-value {
@@ -553,6 +595,12 @@ section h2 {
   section h2 {
     font-size: 1.25rem;
     margin-bottom: 1rem;
+  }
+
+  /* Summary Grid - Stack vertically on mobile */
+  .summary-grid-section {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
   /* Stats Grid - Stack vertically on mobile */

@@ -97,7 +97,7 @@ def lambda_handler(event, context):
         # Query payments for team manager
         scan_forward = (sort_order == 'asc')
         payments = query_payments_by_team(
-            db=db.table,  # Pass the table resource, not DatabaseClient
+            db=db,  # Pass DatabaseClient instance
             team_manager_id=team_manager_id,
             start_date=start_date,
             end_date=end_date,

@@ -76,7 +76,7 @@
       <!-- Card View -->
       <div v-else-if="viewMode === 'cards'" class="boat-cards">
         <div
-          v-for="boat in boatRegistrations"
+          v-for="boat in displayBoats"
           :key="boat.boat_registration_id"
           class="boat-card"
           :class="`status-${boat.registration_status}`"
@@ -201,7 +201,7 @@
             </tr>
           </thead>
           <tbody>
-            <template v-for="boat in boatRegistrations" :key="boat.boat_registration_id">
+            <template v-for="boat in displayBoats" :key="boat.boat_registration_id">
               <tr 
                 :class="getRowClass(boat)"
               >
@@ -345,11 +345,13 @@ const boatRegistrations = computed(() => {
       const eventType = boat.event_type?.toLowerCase() || ''
       const boatType = boat.boat_type?.toLowerCase() || ''
       const raceName = getRaceName(boat)?.toLowerCase() || ''
+      const boatNumber = boat.boat_number?.toLowerCase() || ''
       
       return firstRower.includes(query) ||
              eventType.includes(query) ||
              boatType.includes(query) ||
-             raceName.includes(query)
+             raceName.includes(query) ||
+             boatNumber.includes(query)
     })
   }
 

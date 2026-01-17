@@ -1,7 +1,16 @@
 <template>
   <div class="payment-summary-widget">
-    <div class="widget-header">
+    <div v-if="showTitle" class="widget-header">
       <h3>{{ $t('payment.summary.title') }}</h3>
+      <router-link to="/payment/history" class="view-all-link">
+        {{ $t('payment.summary.viewAll') }}
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="arrow-icon">
+          <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </router-link>
+    </div>
+
+    <div v-else class="widget-header-no-title">
       <router-link to="/payment/history" class="view-all-link">
         {{ $t('payment.summary.viewAll') }}
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="arrow-icon">
@@ -60,18 +69,6 @@
           {{ summary.outstanding?.boat_count || 0 }}
         </div>
       </div>
-
-      <!-- Action Button -->
-      <div v-if="hasOutstanding" class="widget-action">
-        <BaseButton 
-          variant="primary" 
-          size="medium"
-          :full-width="true"
-          @click="goToPayment"
-        >
-          {{ $t('payment.summary.makePayment') }}
-        </BaseButton>
-      </div>
     </div>
   </div>
 </template>
@@ -79,14 +76,19 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
 import paymentService from '../services/paymentService';
 import LoadingSpinner from './base/LoadingSpinner.vue';
 import MessageAlert from './composite/MessageAlert.vue';
-import BaseButton from './base/BaseButton.vue';
+
+// Props
+const props = defineProps({
+  showTitle: {
+    type: Boolean,
+    default: true
+  }
+});
 
 const { t } = useI18n();
-const router = useRouter();
 
 // Data
 const summary = ref({});
@@ -123,11 +125,6 @@ const fetchSummary = async () => {
   }
 };
 
-// Go to payment
-const goToPayment = () => {
-  router.push('/payment');
-};
-
 // Load on mount
 onMounted(() => {
   fetchSummary();
@@ -151,6 +148,13 @@ onMounted(() => {
   border-bottom: 1px solid var(--color-border);
 }
 
+.widget-header-no-title {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
 .widget-header h3 {
   margin: 0;
   font-size: var(--font-size-xl);
@@ -164,7 +168,7 @@ onMounted(() => {
   gap: var(--spacing-xs);
   color: var(--color-primary);
   text-decoration: none;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-base);
   font-weight: var(--font-weight-medium);
   transition: color 0.2s ease;
 }
@@ -222,10 +226,6 @@ onMounted(() => {
   height: 1px;
   background-color: var(--color-border);
   margin: var(--spacing-sm) 0;
-}
-
-.widget-action {
-  margin-top: var(--spacing-lg);
 }
 
 /* Mobile Responsive */

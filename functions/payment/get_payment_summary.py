@@ -76,18 +76,14 @@ def lambda_handler(event, context):
         config_manager = ConfigurationManager()
         pricing_config = config_manager.get_pricing_config()
         
-        # Get crew members for pricing calculation
-        crew_members = db.query_by_pk(
-            pk=f'TEAM#{team_manager_id}',
-            sk_prefix='CREW#'
-        )
-        
         # Calculate outstanding balance
-        total_outstanding, boat_details = calculate_outstanding_balance(
-            unpaid_boats=unpaid_boats,
-            crew_members=crew_members,
+        total_outstanding = calculate_outstanding_balance(
+            boats=unpaid_boats,
             pricing_config=pricing_config
         )
+        
+        # Use unpaid boats as boat details
+        boat_details = unpaid_boats
         
         # Calculate total registered boats
         all_boats = db.query_by_pk(
