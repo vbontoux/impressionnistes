@@ -143,14 +143,56 @@ def lambda_handler(event, context):
                 break
             scan_kwargs['ExclusiveStartKey'] = response['LastEvaluatedKey']
         
-        # Calculate outstanding balance
+        # Calculate outstanding balance with dynamic pricing recalculation
         outstanding_balance = Decimal('0')
         outstanding_boats = 0
         
+        # Group boats by team manager for efficient crew member lookup
+        boats_by_team = defaultdict(list)
         for boat in all_boats:
-            if boat.get('pricing', {}).get('total'):
-                outstanding_balance += Decimal(str(boat['pricing']['total']))
-                outstanding_boats += 1
+            team_id = boat.get('PK', '').replace('TEAM#', '')
+            if team_id:
+                boats_by_team[team_id].append(boat)
+        
+        # Calculate outstanding for each team
+        from pricing import calculate_boat_pricing
+        
+        for team_id, team_boats in boats_by_team.items():
+            # Get all crew members for this team
+            try:
+                crew_response = db.table.query(
+                    KeyConditionExpression='PK = :pk AND begins_with(SK, :sk)',
+                    ExpressionAttributeValues={
+                        ':pk': f'TEAM#{team_id}',
+                        ':sk': 'CREW#'
+                    }
+                )
+                team_crew_members = crew_response.get('Items', [])
+            except Exception as e:
+                logger.warning(f"Failed to get crew for team {team_id}: {e}")
+                team_crew_members = []
+            
+            # Calculate pricing for each boat
+            for boat in team_boats:
+                try:
+                    # Use locked pricing if available
+                    if 'locked_pricing' in boat and boat['locked_pricing']:
+                        amount = Decimal(str(boat['locked_pricing'].get('total', 0)))
+                    # Otherwise recalculate dynamically
+                    elif team_crew_members:
+                        pricing = calculate_boat_pricing(boat, team_crew_members, pricing_config)
+                        amount = pricing.get('total', Decimal('0'))
+                    # Fallback to stored pricing (may be stale)
+                    elif boat.get('pricing', {}).get('total'):
+                        amount = Decimal(str(boat['pricing']['total']))
+                    else:
+                        amount = Decimal('0')
+                    
+                    outstanding_balance += amount
+                    outstanding_boats += 1
+                except Exception as e:
+                    logger.warning(f"Failed to calculate pricing for boat {boat.get('boat_registration_id')}: {e}")
+                    continue
         
         # Group payments by time period
         payment_timeline = defaultdict(lambda: {
