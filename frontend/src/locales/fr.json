@@ -284,6 +284,7 @@
       "allStatuses": "Tous les statuts",
       "clearFilters": "Effacer les filtres",
       "addBoat": "Ajouter un équipage",
+      "assignBoat": "Assigner un bateau",
       "totalCount": "{count} équipages",
       "boatNumber": "N° Équipe",
       "teamManager": "Manager de Club",

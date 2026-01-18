@@ -284,6 +284,7 @@
       "allStatuses": "All statuses",
       "clearFilters": "Clear Filters",
       "addBoat": "Add Crew",
+      "assignBoat": "Assign a boat",
       "totalCount": "{count} crews",
       "boatNumber": "Crew #",
       "teamManager": "Club Manager",

@@ -160,7 +160,7 @@
               size="small"
               @click="editBoat(boat)"
             >
-              {{ $t('common.edit') }}
+              {{ $t('admin.boats.assignBoat') }}
             </BaseButton>
             <BaseButton 
               size="small"
@@ -249,10 +249,10 @@
                       size="small"
                       variant="secondary"
                       @click="editBoat(boat)"
-                      :title="$t('common.edit')"
+                      :title="$t('admin.boats.assignBoat')"
                       fullWidth
                     >
-                      {{ $t('common.edit') }}
+                      {{ $t('admin.boats.assignBoat') }}
                     </BaseButton>
                     <BaseButton 
                       size="small"

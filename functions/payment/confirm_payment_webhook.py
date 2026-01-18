@@ -238,6 +238,7 @@ def handle_payment_succeeded(event_data: dict, db):
                 amount=float(amount),
                 currency=currency.upper(),
                 boat_count=len(boat_registration_ids),
+                rental_count=0,  # Rental feature removed
                 payment_id=payment_id,
                 environment=environment
             )
