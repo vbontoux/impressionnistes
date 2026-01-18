@@ -27,6 +27,7 @@ const AdminPermissionConfig = () => import('../views/admin/AdminPermissionConfig
 const AdminTemporaryAccessGrants = () => import('../views/admin/AdminTemporaryAccessGrants.vue');
 const AdminPermissionAuditLogs = () => import('../views/admin/AdminPermissionAuditLogs.vue');
 const AdminPaymentAnalytics = () => import('../views/admin/AdminPaymentAnalytics.vue');
+const AdminLicenseChecker = () => import('../views/admin/AdminLicenseChecker.vue');
 const PrivacyPolicy = () => import('../views/legal/PrivacyPolicy.vue');
 const TermsConditions = () => import('../views/legal/TermsConditions.vue');
 const DesignSystemShowcase = () => import('../views/DesignSystemShowcase.vue');
@@ -193,6 +194,12 @@ const routes = [
     path: '/admin/payment-analytics',
     name: 'AdminPaymentAnalytics',
     component: AdminPaymentAnalytics,
+    meta: { requiresAuth: true, requiresAdmin: true },
+  },
+  {
+    path: '/admin/license-checker',
+    name: 'AdminLicenseChecker',
+    component: AdminLicenseChecker,
     meta: { requiresAuth: true, requiresAdmin: true },
   },
 ];

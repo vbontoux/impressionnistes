@@ -63,7 +63,8 @@
     "crewMembers": "Crew Members",
     "boatRegistrations": "Crews",
     "dataExports": "Data Exports",
-    "paymentAnalytics": "Payment Analytics"
+    "paymentAnalytics": "Payment Analytics",
+    "licenseChecker": "License Checker"
   },
   "admin": {
     "impersonation": {
@@ -502,6 +503,38 @@
       "boats": "Boats",
       "exportCSV": "Export CSV",
       "errorLoading": "Failed to load payment analytics"
+    },
+    "licenseChecker": {
+      "title": "License Verification",
+      "subtitle": "Verify the validity of FFAviron licenses for crew members",
+      "cookieConfig": "Cookie Configuration",
+      "cookieHelp": "To verify licenses, you must provide cookies from your FFAviron session.",
+      "cookieExample": "Example of cookies to copy from developer tools (F12 → Network → Select a request → Headers → Cookie):",
+      "cookieExampleValue": "XSRF-TOKEN=eyJpdiI6IkNW...; ffaviron_session=eyJpdiI6ImJpb1...; _ga=GA1.1.106...",
+      "cookieLabel": "FFAviron Cookies",
+      "cookieHelpText": "Open developer tools (F12), go to Network, select a request to ffaviron.fr, and copy the complete 'Cookie' header value",
+      "cookiePlaceholder": "XSRF-TOKEN=...; ffaviron_session=...; _ga=...",
+      "cookieRequired": "FFAviron cookies are required to verify licenses",
+      "searchPlaceholder": "Search by name, license, or manager...",
+      "filterByTeamManager": "Filter by manager",
+      "filterByStatus": "Filter by status",
+      "allStatuses": "All statuses",
+      "unchecked": "Unchecked",
+      "valid": "Valid",
+      "invalid": "Invalid",
+      "error": "Error",
+      "selectAll": "Select all",
+      "selectedCount": "{count} selected",
+      "clearSelection": "Clear selection",
+      "checkSelected": "Check {count} license(s)",
+      "checking": "Checking",
+      "noSelection": "Please select at least one crew member",
+      "progress": "Checking {current} of {total}...",
+      "checkComplete": "Check complete: {valid} valid, {invalid} invalid, {error} error(s)",
+      "totalCount": "{count} crew members",
+      "status": "Status",
+      "details": "Details",
+      "loadError": "Failed to load crew members"
     }
   },
   "session": {

@@ -63,7 +63,8 @@
     "crewMembers": "Équipiers",
     "boatRegistrations": "Équipages",
     "dataExports": "Exports de Données",
-    "paymentAnalytics": "Analytique des Paiements"
+    "paymentAnalytics": "Analytique des Paiements",
+    "licenseChecker": "Vérification Licences"
   },
   "admin": {
     "impersonation": {
@@ -502,6 +503,38 @@
       "boats": "Équipages",
       "exportCSV": "Exporter CSV",
       "errorLoading": "Échec du chargement de l'analytique des paiements"
+    },
+    "licenseChecker": {
+      "title": "Vérification des Licences",
+      "subtitle": "Vérifier la validité des licences FFAviron des équipiers",
+      "cookieConfig": "Configuration des Cookies",
+      "cookieHelp": "Pour vérifier les licences, vous devez fournir les cookies de votre session FFAviron.",
+      "cookieExample": "Exemple de cookies à copier depuis les outils de développement (F12 → Réseau → Sélectionner une requête → Headers → Cookie) :",
+      "cookieExampleValue": "XSRF-TOKEN=eyJpdiI6IkNW...; ffaviron_session=eyJpdiI6ImJpb1...; _ga=GA1.1.106...",
+      "cookieLabel": "Cookies FFAviron",
+      "cookieHelpText": "Ouvrez les outils de développement (F12), allez dans Réseau, sélectionnez une requête vers ffaviron.fr, et copiez la valeur complète du header 'Cookie'",
+      "cookiePlaceholder": "XSRF-TOKEN=...; ffaviron_session=...; _ga=...",
+      "cookieRequired": "Les cookies FFAviron sont requis pour vérifier les licences",
+      "searchPlaceholder": "Rechercher par nom, licence ou manager...",
+      "filterByTeamManager": "Filtrer par manager",
+      "filterByStatus": "Filtrer par statut",
+      "allStatuses": "Tous les statuts",
+      "unchecked": "Non vérifié",
+      "valid": "Valide",
+      "invalid": "Invalide",
+      "error": "Erreur",
+      "selectAll": "Tout sélectionner",
+      "selectedCount": "{count} sélectionné(s)",
+      "clearSelection": "Effacer la sélection",
+      "checkSelected": "Vérifier {count} licence(s)",
+      "checking": "Vérification en cours",
+      "noSelection": "Veuillez sélectionner au moins un équipier",
+      "progress": "Vérification {current} sur {total}...",
+      "checkComplete": "Vérification terminée : {valid} valide(s), {invalid} invalide(s), {error} erreur(s)",
+      "totalCount": "{count} équipiers",
+      "status": "Statut",
+      "details": "Détails",
+      "loadError": "Échec du chargement des équipiers"
     }
   },
   "session": {

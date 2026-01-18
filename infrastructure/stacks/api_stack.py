@@ -459,6 +459,13 @@ class ApiStack(Stack):
             'Admin delete crew member for any team manager'
         )
         
+        # HTML Proxy function (generic CORS proxy for external websites)
+        self.lambda_functions['html_proxy'] = self._create_lambda_function(
+            'HtmlProxyFunction',
+            'admin/html_proxy',
+            'Generic HTML proxy to bypass CORS restrictions'
+        )
+        
         # Admin boat management functions (bypass date restrictions)
         self.lambda_functions['admin_list_all_boats'] = self._create_lambda_function(
             'AdminListAllBoatsFunction',
@@ -1412,6 +1419,19 @@ class ApiStack(Stack):
         admin_boat_resource.add_method(
             'DELETE',
             admin_delete_boat_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # POST /admin/html-proxy - Generic HTML proxy for CORS bypass (admin only)
+        html_proxy_resource = admin_resource.add_resource('html-proxy')
+        html_proxy_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['html_proxy'],
+            proxy=True
+        )
+        html_proxy_resource.add_method(
+            'POST',
+            html_proxy_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )
