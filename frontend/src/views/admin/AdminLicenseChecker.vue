@@ -559,7 +559,7 @@ onMounted(() => {
 <style scoped>
 .admin-license-checker {
   padding: var(--spacing-lg);
-  max-width: 1400px;
+  max-width: 100%;
   margin: 0 auto;
 }
 

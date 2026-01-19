@@ -963,7 +963,7 @@ export default {
 
 .admin-boats {
   padding: 0;
-  max-width: 1400px;
+  max-width: 100%;
   margin: 0 auto;
 }
 

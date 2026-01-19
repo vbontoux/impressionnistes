@@ -657,7 +657,7 @@ onMounted(async () => {
 /* Mobile-first base styles */
 .boats-view {
   padding: 0;
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
 }
 

@@ -473,7 +473,7 @@ onMounted(async () => {
 
 <style scoped>
 .admin-audit-logs {
-  max-width: 1400px;
+  max-width: 100%;
   width: 100%;
   margin: 0 auto;
   padding: var(--spacing-xxl);
