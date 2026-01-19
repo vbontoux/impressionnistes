@@ -91,77 +91,69 @@
 
     <!-- Table View -->
     <div v-else class="crew-table-container">
-      <table class="crew-table">
-        <thead>
-          <tr>
-            <th class="sortable-header" @click="handleSort('first_name')">
-              {{ $t('crew.form.firstName') }} {{ getSortIndicator('first_name') }}
-            </th>
-            <th class="sortable-header" @click="handleSort('last_name')">
-              {{ $t('crew.form.lastName') }} {{ getSortIndicator('last_name') }}
-            </th>
-            <th class="sortable-header" @click="handleSort('date_of_birth')">
-              {{ $t('crew.list.age') }} {{ getSortIndicator('date_of_birth') }}
-            </th>
-            <th class="sortable-header" @click="handleSort('gender')">
-              {{ $t('crew.form.gender') }} {{ getSortIndicator('gender') }}
-            </th>
-            <th>{{ $t('crew.card.category') }}</th>
-            <th class="sortable-header" @click="handleSort('club_affiliation')">
-              {{ $t('crew.card.club') }} {{ getSortIndicator('club_affiliation') }}
-            </th>
-            <th class="sortable-header" @click="handleSort('assigned_boat_id')">
-              {{ $t('crew.card.assigned') }} {{ getSortIndicator('assigned_boat_id') }}
-            </th>
-            <th>{{ $t('common.actions') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr 
-            v-for="member in sortedCrewMembers" 
-            :key="member.crew_member_id"
-            :class="{ 'row-assigned': member.assigned_boat_id, 'row-flagged': member.flagged_issues?.length }"
-          >
-            <td>{{ member.first_name }}</td>
-            <td>{{ member.last_name }}</td>
-            <td>{{ calculateAge(member.date_of_birth) }}</td>
-            <td>{{ member.gender === 'M' ? $t('crew.form.male') : $t('crew.form.female') }}</td>
-            <td>
-              <span class="category-badge" :class="`category-${getAgeCategoryForMember(member.date_of_birth)}`">
-                {{ $t(`boat.${getAgeCategoryForMember(member.date_of_birth)}`) }}
-                <span v-if="getAgeCategoryForMember(member.date_of_birth) === 'master'" class="master-letter">
-                  {{ getMasterCategoryLetter(member.date_of_birth) }}
-                </span>
-              </span>
-            </td>
-            <td><span class="club-box">{{ member.club_affiliation }}</span></td>
-            <td>
-              <span v-if="member.assigned_boat_id" class="badge badge-assigned">{{ $t('crew.card.assigned') }}</span>
-              <span v-else class="badge badge-unassigned">{{ $t('crew.card.unassigned') }}</span>
-            </td>
-            <td class="actions-cell">
-              <BaseButton 
-                size="small" 
-                variant="secondary"
-                :disabled="!canEditMember(member)"
-                :title="getEditTooltip(member)"
-                @click="handleEdit(member)"
-              >
-                {{ $t('common.edit') }}
-              </BaseButton>
-              <BaseButton 
-                size="small" 
-                variant="danger"
-                :disabled="!canDeleteMember(member)"
-                :title="getDeleteTooltip(member)"
-                @click="handleDelete(member)"
-              >
-                {{ $t('common.delete') }}
-              </BaseButton>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <SortableTable
+        :columns="tableColumns"
+        :data="sortedCrewMembers"
+        :initial-sort-field="'last_name'"
+        :initial-sort-direction="'asc'"
+        aria-label="Crew members table"
+        @sort="handleSort"
+      >
+        <!-- Custom cell: Age -->
+        <template #cell-age="{ row }">
+          {{ calculateAge(row.date_of_birth) }}
+        </template>
+
+        <!-- Custom cell: Gender -->
+        <template #cell-gender="{ row }">
+          {{ row.gender === 'M' ? $t('crew.form.male') : $t('crew.form.female') }}
+        </template>
+
+        <!-- Custom cell: Category -->
+        <template #cell-category="{ row }">
+          <span class="category-badge" :class="`category-${getAgeCategoryForMember(row.date_of_birth)}`">
+            {{ $t(`boat.${getAgeCategoryForMember(row.date_of_birth)}`) }}
+            <span v-if="getAgeCategoryForMember(row.date_of_birth) === 'master'" class="master-letter">
+              {{ getMasterCategoryLetter(row.date_of_birth) }}
+            </span>
+          </span>
+        </template>
+
+        <!-- Custom cell: Club -->
+        <template #cell-club_affiliation="{ value }">
+          <span class="club-box">{{ value }}</span>
+        </template>
+
+        <!-- Custom cell: Assigned status -->
+        <template #cell-assigned="{ row }">
+          <span v-if="row.assigned_boat_id" class="badge badge-assigned">{{ $t('crew.card.assigned') }}</span>
+          <span v-else class="badge badge-unassigned">{{ $t('crew.card.unassigned') }}</span>
+        </template>
+
+        <!-- Custom cell: Actions -->
+        <template #cell-actions="{ row }">
+          <div class="action-buttons">
+            <BaseButton 
+              size="small" 
+              variant="secondary"
+              :disabled="!canEditMember(row)"
+              :title="getEditTooltip(row)"
+              @click="handleEdit(row)"
+            >
+              {{ $t('common.edit') }}
+            </BaseButton>
+            <BaseButton 
+              size="small" 
+              variant="danger"
+              :disabled="!canDeleteMember(row)"
+              :title="getDeleteTooltip(row)"
+              @click="handleDelete(row)"
+            >
+              {{ $t('common.delete') }}
+            </BaseButton>
+          </div>
+        </template>
+      </SortableTable>
     </div>
 
     <!-- Create/Edit Modal -->
@@ -191,7 +183,6 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useCrewStore } from '../stores/crewStore';
 import { calculateAge, getAgeCategory, getMasterCategory } from '../utils/raceEligibility';
-import { useTableSort } from '../composables/useTableSort';
 import { usePermissions } from '../composables/usePermissions';
 import { useConfirm } from '../composables/useConfirm';
 import CrewMemberCard from './CrewMemberCard.vue';
@@ -202,6 +193,7 @@ import BaseButton from './base/BaseButton.vue';
 import LoadingSpinner from './base/LoadingSpinner.vue';
 import EmptyState from './base/EmptyState.vue';
 import MessageAlert from './composite/MessageAlert.vue';
+import SortableTable from './composite/SortableTable.vue';
 
 const { t } = useI18n();
 const crewStore = useCrewStore();
@@ -212,6 +204,68 @@ const searchQuery = ref('');
 const filter = ref('all');
 const genderFilter = ref('all');
 const categoryFilter = ref('all');
+
+// Column definitions for SortableTable
+const tableColumns = computed(() => [
+  {
+    key: 'first_name',
+    label: t('crew.form.firstName'),
+    sortable: true,
+    minWidth: '120px',
+    responsive: 'always'
+  },
+  {
+    key: 'last_name',
+    label: t('crew.form.lastName'),
+    sortable: true,
+    minWidth: '120px',
+    responsive: 'always'
+  },
+  {
+    key: 'age',
+    label: t('crew.list.age'),
+    sortable: true,
+    width: '80px',
+    responsive: 'hide-below-1024'
+  },
+  {
+    key: 'gender',
+    label: t('crew.form.gender'),
+    sortable: true,
+    width: '100px',
+    responsive: 'hide-below-1024'
+  },
+  {
+    key: 'category',
+    label: t('crew.card.category'),
+    sortable: false,
+    width: '120px',
+    responsive: 'always'
+  },
+  {
+    key: 'club_affiliation',
+    label: t('crew.card.club'),
+    sortable: true,
+    minWidth: '150px',
+    responsive: 'hide-below-1024'
+  },
+  {
+    key: 'assigned',
+    label: t('crew.card.assigned'),
+    sortable: true,
+    width: '120px',
+    responsive: 'always'
+  },
+  {
+    key: 'actions',
+    label: t('common.actions'),
+    sortable: false,
+    width: '180px',
+    align: 'right',
+    sticky: 'right',
+    responsive: 'always'
+  }
+]);
 
 // Computed: count of unassigned crew members
 const unassignedCount = computed(() => {
@@ -377,13 +431,47 @@ const filteredCrewMembers = computed(() => {
   return members;
 });
 
-// Use table sort composable for sorting
-const filteredCrewMembersRef = computed(() => filteredCrewMembers.value);
-const { sortedData: sortedCrewMembers, sortBy: handleSort, getSortIndicator } = useTableSort(
-  filteredCrewMembersRef,
-  'last_name',
-  'asc'
-);
+// Sorting state for SortableTable
+const sortField = ref('last_name');
+const sortDirection = ref('asc');
+
+// Sort handler for SortableTable
+const handleSort = ({ field, direction }) => {
+  sortField.value = field;
+  sortDirection.value = direction;
+};
+
+// Sorted crew members (manual sorting since SortableTable handles display)
+const sortedCrewMembers = computed(() => {
+  const members = [...filteredCrewMembers.value];
+  
+  return members.sort((a, b) => {
+    let aVal, bVal;
+    
+    // Handle special sorting cases
+    if (sortField.value === 'age') {
+      aVal = calculateAge(a.date_of_birth);
+      bVal = calculateAge(b.date_of_birth);
+    } else if (sortField.value === 'assigned') {
+      aVal = a.assigned_boat_id ? 1 : 0;
+      bVal = b.assigned_boat_id ? 1 : 0;
+    } else {
+      aVal = a[sortField.value] || '';
+      bVal = b[sortField.value] || '';
+    }
+    
+    if (typeof aVal === 'string') {
+      aVal = aVal.toLowerCase();
+      bVal = bVal.toLowerCase();
+    }
+    
+    if (sortDirection.value === 'asc') {
+      return aVal > bVal ? 1 : -1;
+    } else {
+      return aVal < bVal ? 1 : -1;
+    }
+  });
+});
 
 const handleEdit = (member) => {
   editingMember.value = member;
@@ -462,16 +550,12 @@ const createCrewMemberTooltip = computed(() => {
   padding: 0;
 }
 
-.filter-group {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm, 0.5rem);
-}
-
 .filter-group label {
   font-weight: var(--font-weight-medium, 500);
   white-space: nowrap;
 }
+
+/* Removed custom filter-group flex styles - now handled by ListFilters component */
 
 .filter-select {
   padding: var(--spacing-sm, 0.5rem);
@@ -567,59 +651,24 @@ const createCrewMemberTooltip = computed(() => {
   border-radius: 8px;
   overflow-x: auto;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: var(--spacing-lg);
 }
 
-.crew-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 800px;
+/* Action buttons in table */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 
-.crew-table thead {
-  background-color: var(--color-light, #f8f9fa);
-}
-
-.crew-table th {
-  padding: var(--spacing-lg, 1rem);
-  text-align: left;
-  font-weight: var(--font-weight-semibold, 600);
-  color: #495057;
-  border-bottom: 2px solid var(--color-border, #dee2e6);
-}
-
-.sortable-header {
-  cursor: pointer;
-  user-select: none;
-  transition: background-color 0.2s ease;
-}
-
-.sortable-header:hover {
-  background-color: var(--color-bg-hover, rgba(0, 0, 0, 0.05));
-}
-
-.crew-table td {
-  padding: var(--spacing-lg, 1rem);
-  border-bottom: 1px solid var(--color-border, #dee2e6);
-}
-
-.crew-table tbody tr:hover {
-  background-color: var(--color-light, #f8f9fa);
-}
-
-.crew-table tbody tr.row-assigned {
-  border-left: 4px solid var(--color-success, #4CAF50);
-}
-
-.crew-table tbody tr.row-flagged {
-  border-left: 4px solid var(--color-warning, #ffc107);
-}
-
+/* Badge styles */
 .badge {
   display: inline-block;
   padding: var(--badge-padding, 0.25rem 0.75rem);
   border-radius: var(--badge-border-radius, 12px);
   font-size: var(--badge-font-size, 0.75rem);
   font-weight: var(--badge-font-weight, 500);
+  width: fit-content;
 }
 
 .badge-assigned {
@@ -630,12 +679,6 @@ const createCrewMemberTooltip = computed(() => {
 .badge-unassigned {
   background-color: var(--color-warning, #ffc107);
   color: var(--color-dark, #212529);
-}
-
-.actions-cell {
-  display: flex;
-  gap: var(--spacing-sm, 0.5rem);
-  flex-direction: column;
 }
 
 /* Mobile Responsive */
@@ -669,15 +712,7 @@ const createCrewMemberTooltip = computed(() => {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     position: relative;
-  }
-
-  .crew-table {
-    min-width: 800px;
-  }
-
-  /* Action buttons - reduce padding on mobile */
-  .actions-cell {
-    padding: var(--spacing-sm, 0.5rem);
+    padding: var(--spacing-md);
   }
 
   /* Modals - bottom sheet style on mobile */

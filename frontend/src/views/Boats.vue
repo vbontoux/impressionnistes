@@ -33,6 +33,15 @@
           </select>
         </div>
         <div class="filter-group">
+          <label>{{ $t('admin.boats.filterByRace') }}&nbsp;:</label>
+          <select v-model="raceFilter" class="filter-select">
+            <option value="all">{{ $t('admin.boats.allRaces') }}</option>
+            <option v-for="race in availableRaces" :key="race.race_id" :value="race.race_id">
+              {{ formatRaceName(race, $t) }}
+            </option>
+          </select>
+        </div>
+        <div class="filter-group">
           <label>{{ $t('boat.filter.boatRequest') }}&nbsp;:</label>
           <select v-model="boatRequestFilter" class="filter-select">
             <option value="all">{{ $t('boat.filter.allRequests') }}</option>
@@ -93,6 +102,11 @@
               <span v-else class="no-race-text">{{ $t('boat.noRaceAssigned') }}</span>
             </div>
             <div class="detail-row">
+              <span class="label">{{ $t('boat.selectedRace') }}&nbsp;:</span>
+              <span v-if="getRaceName(boat)" class="race-name-cell">{{ getRaceName(boat) }}</span>
+              <span v-else class="no-race-text">-</span>
+            </div>
+            <div class="detail-row">
               <span class="label">{{ $t('boat.firstRower') }}&nbsp;:</span>
               <span>{{ getFirstRowerLastName(boat) }}</span>
             </div>
@@ -149,10 +163,6 @@
             </div>
           </div>
 
-          <div v-if="getRaceName(boat)" class="race-name">
-            <strong>{{ $t('boat.selectedRace') }}&nbsp;:</strong> {{ getRaceName(boat) }}
-          </div>
-
           <div class="boat-actions">
             <BaseButton 
               variant="secondary"
@@ -178,94 +188,94 @@
 
       <!-- Table View -->
       <div v-else class="boat-table-container">
-        <table class="boat-table">
-          <thead>
-            <tr>
-              <th class="sortable-header" @click="sortBy('boat_number')">
-                {{ $t('boat.boatNumber') }} {{ getSortIndicator('boat_number') }}
-              </th>
-              <th class="sortable-header" @click="sortBy('event_type')">
-                {{ $t('boat.eventType') }} {{ getSortIndicator('event_type') }}
-              </th>
-              <th>{{ $t('boat.boatType') }}</th>
-              <th>{{ $t('boat.firstRower') }}</th>
-              <th>{{ $t('boat.gender') }}</th>
-              <th>{{ $t('boat.averageAge') }}</th>
-              <th class="sortable-header" @click="sortBy('boat_club_display')">
-                {{ $t('admin.boats.club') }} {{ getSortIndicator('boat_club_display') }}
-              </th>
-              <th>{{ $t('boat.seats') }}</th>
-              <th>{{ $t('boat.boatRequest.status') }}</th>
-              <th>{{ $t('boat.status.label') }}</th>
-              <th>{{ $t('common.actions') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <template v-for="boat in displayBoats" :key="boat.boat_registration_id">
-              <tr 
-                :class="getRowClass(boat)"
+        <SortableTable
+          :columns="tableColumns"
+          :data="displayBoats"
+          :initial-sort-field="'boat_number'"
+          :initial-sort-direction="'asc'"
+          aria-label="Boats table"
+          @sort="handleSort"
+        >
+          <!-- Custom cell: Boat number -->
+          <template #cell-boat_number="{ value }">
+            <span v-if="value" class="boat-number-text">{{ value }}</span>
+            <span v-else class="no-race-text">-</span>
+          </template>
+
+          <!-- Custom cell: Race name -->
+          <template #cell-race_name="{ row }">
+            <span v-if="getRaceName(row)" class="race-name-cell">{{ getRaceName(row) }}</span>
+            <span v-else class="no-race-text">-</span>
+          </template>
+
+          <!-- Custom cell: First rower -->
+          <template #cell-first_rower="{ row }">
+            {{ getFirstRowerLastName(row) }}
+          </template>
+
+          <!-- Custom cell: Gender -->
+          <template #cell-gender="{ row }">
+            {{ getCrewGenderCategory(row) }}
+          </template>
+
+          <!-- Custom cell: Average age -->
+          <template #cell-average_age="{ row }">
+            {{ getCrewAverageAge(row) }}
+          </template>
+
+          <!-- Custom cell: Club -->
+          <template #cell-boat_club_display="{ value }">
+            <span class="club-box">{{ value }}</span>
+          </template>
+
+          <!-- Custom cell: Seats -->
+          <template #cell-seats="{ row }">
+            {{ getFilledSeatsCount(row) }} / {{ row.seats?.length || 0 }}
+          </template>
+
+          <!-- Custom cell: Boat request status -->
+          <template #cell-boat_request_status="{ row }">
+            <span v-if="!row.boat_request_enabled" class="no-request">-</span>
+            <span 
+              v-else-if="row.assigned_boat_identifier" 
+              class="boat-assigned-table"
+            >
+              ✓ {{ $t('boat.boatRequest.assigned') }}: {{ row.assigned_boat_identifier }}
+            </span>
+            <span v-else class="boat-requested">
+              {{ $t('boat.boatRequest.waitingAssignment') }}
+            </span>
+          </template>
+
+          <!-- Custom cell: Status -->
+          <template #cell-status="{ row }">
+            <StatusBadge :status="getBoatStatus(row)" size="medium" />
+          </template>
+
+          <!-- Custom cell: Actions -->
+          <template #cell-actions="{ row }">
+            <div class="action-buttons">
+              <BaseButton 
+                size="small"
+                variant="secondary"
+                :disabled="!canEditBoat(row)"
+                :title="getEditTooltip(row)"
+                @click="viewBoat(row)"
               >
-                <td>
-                  <span v-if="boat.boat_number" class="boat-number-cell">{{ boat.boat_number }}</span>
-                  <span v-else class="no-race-cell">-</span>
-                </td>
-                <td>{{ boat.event_type }}</td>
-                <td>{{ boat.boat_type }}</td>
-                <td>{{ getFirstRowerLastName(boat) }}</td>
-                <td>{{ getCrewGenderCategory(boat) }}</td>
-                <td>{{ getCrewAverageAge(boat) }}</td>
-                <td>
-                  <span class="club-box">{{ boat.boat_club_display }}</span>
-                </td>
-                <td>
-                  {{ getFilledSeatsCount(boat) }} / {{ boat.seats?.length || 0 }}
-                </td>
-                <td>
-                  <span v-if="!boat.boat_request_enabled" class="no-request">-</span>
-                  <span 
-                    v-else-if="boat.assigned_boat_identifier" 
-                    class="boat-assigned-table"
-                  >
-                    ✓ {{ $t('boat.boatRequest.assigned') }}: {{ boat.assigned_boat_identifier }}
-                  </span>
-                  <span v-else class="boat-requested">
-                    {{ $t('boat.boatRequest.waitingAssignment') }}
-                  </span>
-                </td>
-                <td>
-                  <StatusBadge :status="getBoatStatus(boat)" size="medium" />
-                </td>
-                <td class="actions-cell">
-                  <BaseButton 
-                    size="small"
-                    variant="secondary"
-                    :disabled="!canEditBoat(boat)"
-                    :title="getEditTooltip(boat)"
-                    @click="viewBoat(boat)"
-                    fullWidth
-                  >
-                    {{ $t('common.edit') }}
-                  </BaseButton>
-                  <BaseButton 
-                    size="small"
-                    variant="danger"
-                    :disabled="!canDeleteBoat(boat)"
-                    :title="getDeleteTooltip(boat)"
-                    @click="deleteBoat(boat)"
-                    fullWidth
-                  >
-                    {{ $t('common.delete') }}
-                  </BaseButton>
-                </td>
-              </tr>
-              <tr v-if="getRaceName(boat)" class="race-row" :class="`row-status-${boat.registration_status}`">
-                <td colspan="11" class="race-cell">
-                  <span class="race-label">{{ $t('boat.selectedRace') }}&nbsp;:</span> {{ getRaceName(boat) }}
-                </td>
-              </tr>
-            </template>
-          </tbody>
-        </table>
+                {{ $t('common.edit') }}
+              </BaseButton>
+              <BaseButton 
+                size="small"
+                variant="danger"
+                :disabled="!canDeleteBoat(row)"
+                :title="getDeleteTooltip(row)"
+                @click="deleteBoat(row)"
+              >
+                {{ $t('common.delete') }}
+              </BaseButton>
+            </div>
+          </template>
+        </SortableTable>
       </div>
     </div>
   </div>
@@ -277,7 +287,6 @@ import { useRouter } from 'vue-router'
 import { useBoatStore } from '../stores/boatStore'
 import { useRaceStore } from '../stores/raceStore'
 import { useI18n } from 'vue-i18n'
-import { useTableSort } from '../composables/useTableSort'
 import { usePermissions } from '../composables/usePermissions'
 import { useConfirm } from '../composables/useConfirm'
 import BoatRegistrationForm from '../components/BoatRegistrationForm.vue'
@@ -287,7 +296,8 @@ import BaseButton from '../components/base/BaseButton.vue'
 import StatusBadge from '../components/base/StatusBadge.vue'
 import LoadingSpinner from '../components/base/LoadingSpinner.vue'
 import EmptyState from '../components/base/EmptyState.vue'
-import { formatAverageAge } from '../utils/formatters'
+import SortableTable from '../components/composite/SortableTable.vue'
+import { formatAverageAge, formatRaceName } from '../utils/formatters'
 
 const router = useRouter()
 const boatStore = useBoatStore()
@@ -300,6 +310,7 @@ const showCreateForm = ref(false)
 // Load view mode from localStorage or default to 'cards'
 const viewMode = ref(localStorage.getItem('boatsViewMode') || 'cards')
 const statusFilter = ref('all')
+const raceFilter = ref('all')
 const boatRequestFilter = ref('all')
 const searchQuery = ref('')
 
@@ -308,12 +319,120 @@ watch(viewMode, (newMode) => {
   localStorage.setItem('boatsViewMode', newMode)
 })
 
+// Computed: available races for filter (from raceStore)
+const availableRaces = computed(() => {
+  return raceStore.races.slice().sort((a, b) => {
+    // Sort by event_type first (42km before 21km), then by short_name
+    if (a.event_type !== b.event_type) {
+      return a.event_type === '42km' ? -1 : 1
+    }
+    return (a.short_name || a.name).localeCompare(b.short_name || b.name)
+  })
+})
+
+// Column definitions for SortableTable
+const tableColumns = computed(() => [
+  {
+    key: 'boat_number',
+    label: t('boat.boatNumber'),
+    sortable: true,
+    width: '100px',
+    sticky: 'left',
+    responsive: 'always'
+  },
+  {
+    key: 'event_type',
+    label: t('boat.eventType'),
+    sortable: true,
+    minWidth: '80px',
+    responsive: 'always'
+  },
+  {
+    key: 'boat_type',
+    label: t('boat.boatType'),
+    sortable: true,
+    minWidth: '80px',
+    responsive: 'hide-below-1024'
+  },
+  {
+    key: 'race_name',
+    label: t('boat.selectedRace'),
+    sortable: true,
+    minWidth: '100px',
+    responsive: 'always'
+  },
+  {
+    key: 'first_rower',
+    label: t('boat.firstRower'),
+    sortable: false,
+    minWidth: '120px',
+    responsive: 'hide-below-1024'
+  },
+  {
+    key: 'gender',
+    label: t('boat.gender'),
+    sortable: false,
+    minWidth: '80px',
+    responsive: 'hide-below-1024'
+  },
+  {
+    key: 'average_age',
+    label: t('boat.averageAge'),
+    sortable: false,
+    minWidth: '100px',
+    responsive: 'hide-below-1024'
+  },
+  {
+    key: 'boat_club_display',
+    label: t('admin.boats.club'),
+    sortable: true,
+    minWidth: '150px',
+    responsive: 'always'
+  },
+  {
+    key: 'seats',
+    label: t('boat.seats'),
+    sortable: false,
+    width: '80px',
+    responsive: 'hide-below-1024'
+  },
+  {
+    key: 'boat_request_status',
+    label: t('boat.boatRequest.status'),
+    sortable: false,
+    minWidth: '180px',
+    responsive: 'hide-below-1024'
+  },
+  {
+    key: 'status',
+    label: t('boat.status.label'),
+    sortable: false,
+    width: '120px',
+    align: 'center',
+    responsive: 'always'
+  },
+  {
+    key: 'actions',
+    label: t('common.actions'),
+    sortable: false,
+    width: '180px',
+    align: 'right',
+    sticky: 'right',
+    responsive: 'always'
+  }
+])
+
 const boatRegistrations = computed(() => {
   let boats = boatStore.boatRegistrations
   
   // Apply status filter
   if (statusFilter.value !== 'all') {
     boats = boats.filter(boat => boat.registration_status === statusFilter.value)
+  }
+
+  // Apply race filter
+  if (raceFilter.value !== 'all') {
+    boats = boats.filter(boat => boat.race_id === raceFilter.value)
   }
 
   // Apply boat request filter
@@ -358,12 +477,14 @@ const boatRegistrations = computed(() => {
   return boats
 })
 
-// Set up table sorting
-const boatsForSorting = computed(() => boatRegistrations.value)
-const { sortedData, sortBy, getSortIndicator } = useTableSort(boatsForSorting)
+// Sort handler for SortableTable
+const handleSort = ({ field, direction }) => {
+  console.log(`Sorted by ${field} ${direction}`)
+  // SortableTable handles sorting internally
+}
 
-// Use sorted data for display
-const displayBoats = computed(() => sortedData.value)
+// Use filtered data for display
+const displayBoats = computed(() => boatRegistrations.value)
 
 // Permission check functions
 const canEditBoat = (boat) => {
@@ -479,13 +600,7 @@ const formatDate = (dateString) => {
 const getRaceName = (boat) => {
   if (!boat.race_id) return null
   const race = raceStore.races.find(r => r.race_id === boat.race_id)
-  if (!race || !race.name) return null
-  
-  // Try to get translation, fallback to original name if not found
-  const translationKey = `races.${race.name}`
-  const translated = t(translationKey)
-  // If translation key is returned as-is, it means no translation exists
-  return translated === translationKey ? race.name : translated
+  return formatRaceName(race, t)
 }
 
 const handleBoatCreated = (newBoat) => {
@@ -520,6 +635,7 @@ const deleteBoat = async (boat) => {
 
 const clearFilters = () => {
   statusFilter.value = 'all'
+  raceFilter.value = 'all'
   boatRequestFilter.value = 'all'
   searchQuery.value = ''
 }
@@ -545,16 +661,7 @@ onMounted(async () => {
   margin: 0 auto;
 }
 
-.filter-group {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-
-.filter-group label {
-  font-weight: var(--font-weight-medium);
-  white-space: nowrap;
-}
+/* Removed custom filter-group styles - now handled by ListFilters component */
 
 .filter-select {
   padding: var(--form-input-padding);
@@ -753,32 +860,21 @@ onMounted(async () => {
 /* Table View Styles */
 .boat-table-container {
   background-color: var(--color-bg-white);
-  border-radius: 0;
+  border-radius: var(--card-border-radius);
   overflow-x: auto;
   box-shadow: var(--card-shadow);
-  margin: 0 -1rem;
+  padding: var(--spacing-lg);
   -webkit-overflow-scrolling: touch;
 }
 
-.boat-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 1200px;
-  table-layout: fixed;
+/* Action buttons in table */
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
 }
 
-.boat-table th:nth-child(1) { width: 90px; }  /* Boat Number */
-.boat-table th:nth-child(2) { width: 70px; }  /* Event Type */
-.boat-table th:nth-child(3) { width: 70px; }  /* Boat Type */
-.boat-table th:nth-child(4) { width: 110px; } /* First Rower */
-.boat-table th:nth-child(5) { width: 70px; }  /* Gender */
-.boat-table th:nth-child(6) { width: 90px; }  /* Average Age */
-.boat-table th:nth-child(7) { width: 180px; } /* Club */
-.boat-table th:nth-child(8) { width: 60px; }  /* Seats - REDUCED */
-.boat-table th:nth-child(9) { width: 160px; } /* Boat Request - INCREASED */
-.boat-table th:nth-child(10) { width: 100px; } /* Status - INCREASED */
-.boat-table th:nth-child(11) { width: 140px; } /* Actions - INCREASED */
-
+/* Boat request status styles */
 .no-request {
   color: var(--color-secondary);
 }
@@ -794,7 +890,7 @@ onMounted(async () => {
   font-weight: var(--font-weight-semibold);
 }
 
-/* Boat Request Section Styles */
+/* Boat Request Section Styles (for card view) */
 .boat-request-section {
   margin-bottom: var(--spacing-lg);
 }
@@ -841,88 +937,6 @@ onMounted(async () => {
   margin-top: var(--spacing-sm);
   font-size: var(--font-size-base);
   color: var(--color-success-text);
-}
-
-.info-icon {
-  margin-left: var(--spacing-xs);
-  font-size: var(--font-size-base);
-  cursor: help;
-}
-
-.boat-table thead {
-  background-color: var(--table-header-bg);
-}
-
-.boat-table th {
-  padding: var(--table-cell-padding-mobile);
-  text-align: left;
-  font-weight: var(--table-header-font-weight);
-  color: #495057;
-  border-bottom: 2px solid var(--table-border-color);
-  font-size: var(--font-size-base);
-}
-
-.sortable-header {
-  cursor: pointer;
-  user-select: none;
-  transition: background-color var(--transition-normal);
-}
-
-.sortable-header:hover {
-  background-color: #e9ecef;
-}
-
-.boat-table td {
-  padding: var(--table-cell-padding-mobile);
-  border-bottom: 1px solid var(--table-border-color);
-  font-size: var(--font-size-base);
-}
-
-.boat-table tbody tr.row-status-complete {
-  border-left: 4px solid var(--color-success);
-}
-
-.boat-table tbody tr.row-status-free {
-  border-left: 4px solid var(--color-primary);
-}
-
-.boat-table tbody tr.row-status-paid {
-  border-left: 4px solid var(--color-primary);
-}
-
-.boat-table tbody tr.row-status-incomplete {
-  border-left: 4px solid var(--color-warning);
-}
-
-.boat-table tbody tr.row-forfait {
-  border-left: 4px solid var(--color-danger);
-  background-color: #fff5f5;
-}
-
-.boat-table .race-row {
-  background-color: var(--color-light);
-  border-left-width: 4px;
-}
-
-.boat-table .race-cell {
-  padding: var(--spacing-sm) var(--table-cell-padding-mobile);
-  font-size: var(--font-size-sm);
-  font-style: italic;
-  color: #495057;
-}
-
-.boat-table .race-label {
-  font-weight: var(--font-weight-semibold);
-  font-style: normal;
-  color: var(--color-dark);
-}
-
-.actions-cell {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
-  padding: var(--table-cell-padding-mobile) !important;
-  min-width: 120px;
 }
 
 /* Mobile Responsive */
@@ -974,30 +988,6 @@ onMounted(async () => {
   .boat-table-container {
     border-radius: var(--card-border-radius);
     margin: 0;
-  }
-
-  .boat-table th {
-    padding: var(--table-cell-padding-desktop);
-    font-size: var(--font-size-md);
-  }
-
-  .boat-table td {
-    padding: var(--table-cell-padding-desktop);
-    font-size: var(--font-size-md);
-  }
-
-  .boat-table tbody tr:hover {
-    background-color: var(--table-hover-bg);
-  }
-
-  .boat-table .race-cell {
-    padding: var(--spacing-sm) var(--table-cell-padding-desktop);
-    font-size: var(--font-size-base);
-  }
-
-  .actions-cell {
-    flex-direction: column;
-    gap: var(--spacing-sm);
   }
 }
 </style>

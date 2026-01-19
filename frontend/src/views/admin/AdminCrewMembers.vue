@@ -63,67 +63,59 @@
     <div v-if="!loading && !error && viewMode === 'table'" class="crew-table-container">
       <p class="count">{{ $t('admin.crewMembers.totalCount', { count: filteredCrewMembers.length }) }}</p>
       
-      <table class="crew-table">
-        <thead>
-          <tr>
-            <th @click="sortBy('last_name')" class="sortable">
-              Nom
-              <span v-if="sortField === 'last_name'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-            </th>
-            <th>{{ $t('crew.list.age') }} / {{ $t('crew.card.category') }}</th>
-            <th>{{ $t('crew.form.gender') }}</th>
-            <th>{{ $t('crew.form.licenseNumber') }}</th>
-            <th @click="sortBy('club_affiliation')" class="sortable">
-              {{ $t('crew.card.club') }}
-              <span v-if="sortField === 'club_affiliation'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-            </th>
-            <th>{{ $t('crew.card.assigned') }}</th>
-            <th @click="sortBy('team_manager_name')" class="sortable">
-              {{ $t('admin.crewMembers.teamManager') }}
-              <span v-if="sortField === 'team_manager_name'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-            </th>
-            <th>{{ $t('common.actions') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="crew in paginatedCrewMembers" :key="crew.crew_member_id">
-            <td>
-              <div class="name-cell">
-                <strong>{{ crew.first_name }} {{ crew.last_name }}</strong>
-              </div>
-            </td>
-            <td>
-              <div class="age-category-cell">
-                <span class="age">{{ crew._age }} ans</span>
-                <span class="category-badge" :class="`category-${crew._category}`">
-                  {{ $t(`boat.${crew._category}`) }}
-                  <span v-if="crew._category === 'master'" class="master-letter">
-                    {{ crew._masterLetter }}
-                  </span>
-                </span>
-              </div>
-            </td>
-            <td>{{ crew.gender === 'M' ? $t('crew.form.male') : $t('crew.form.female') }}</td>
-            <td>{{ crew.license_number }}</td>
-            <td><span class="club-box">{{ crew.club_affiliation || crew.team_manager_club }}</span></td>
-            <td>
-              <span v-if="crew.assigned_boat_id" class="badge badge-assigned">{{ $t('crew.card.assigned') }}</span>
-              <span v-else class="badge badge-unassigned">{{ $t('crew.card.unassigned') }}</span>
-            </td>
-            <td>
-              <div class="team-manager-info">
-                <div>{{ crew.team_manager_name }}</div>
-                <div class="email">{{ crew.team_manager_email }}</div>
-              </div>
-            </td>
-            <td class="actions-cell">
-              <BaseButton size="small" variant="secondary" @click="editCrewMember(crew)">
-                {{ $t('common.edit') }}
-              </BaseButton>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <SortableTable
+        :columns="tableColumns"
+        :data="paginatedCrewMembers"
+        :initial-sort-field="'team_manager_name'"
+        :initial-sort-direction="'asc'"
+        aria-label="Crew members table"
+      >
+        <!-- Custom cell: Name -->
+        <template #cell-name="{ row }">
+          <div class="name-cell">
+            <strong>{{ row._original.first_name }} {{ row._original.last_name }}</strong>
+          </div>
+        </template>
+
+        <!-- Custom cell: Age / Category -->
+        <template #cell-age_category="{ row }">
+          <div class="age-category-cell">
+            <span class="age">{{ row._age }} ans</span>
+            <span class="category-badge" :class="`category-${row._category}`">
+              {{ $t(`boat.${row._category}`) }}
+              <span v-if="row._category === 'master'" class="master-letter">
+                {{ row._masterLetter }}
+              </span>
+            </span>
+          </div>
+        </template>
+
+        <!-- Custom cell: Club -->
+        <template #cell-club_affiliation="{ value }">
+          <span class="club-box">{{ value }}</span>
+        </template>
+
+        <!-- Custom cell: Assigned Status -->
+        <template #cell-assigned="{ row }">
+          <span v-if="row._original.assigned_boat_id" class="badge badge-assigned">{{ $t('crew.card.assigned') }}</span>
+          <span v-else class="badge badge-unassigned">{{ $t('crew.card.unassigned') }}</span>
+        </template>
+
+        <!-- Custom cell: Team Manager -->
+        <template #cell-team_manager_name="{ row }">
+          <div class="team-manager-info">
+            <div>{{ row._original.team_manager_name }}</div>
+            <div class="email">{{ row._original.team_manager_email }}</div>
+          </div>
+        </template>
+
+        <!-- Custom cell: Actions -->
+        <template #cell-actions="{ row }">
+          <BaseButton size="small" variant="secondary" @click="editCrewMember(row._original)">
+            {{ $t('common.edit') }}
+          </BaseButton>
+        </template>
+      </SortableTable>
     </div>
 
     <!-- Card View -->
@@ -275,17 +267,18 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import apiClient from '../../services/apiClient';
 import { calculateAge, getAgeCategory, getMasterCategory } from '../../utils/raceEligibility';
+import SortableTable from '../../components/composite/SortableTable.vue';
 import ListHeader from '../../components/shared/ListHeader.vue';
 import ListFilters from '../../components/shared/ListFilters.vue';
 import BaseButton from '../../components/base/BaseButton.vue';
 import BaseModal from '../../components/base/BaseModal.vue';
 import LoadingSpinner from '../../components/base/LoadingSpinner.vue';
 import MessageAlert from '../../components/composite/MessageAlert.vue';
-import { useTableSort } from '../../composables/useTableSort';
 
 export default {
   name: 'AdminCrewMembers',
   components: {
+    SortableTable,
     ListHeader,
     ListFilters,
     BaseButton,
@@ -399,25 +392,96 @@ export default {
       return filtered;
     });
 
-    // Use table sort composable
-    const { sortedData, sortField, sortDirection, sortBy } = useTableSort(filteredCrewMembers, 'team_manager_name');
+    // Column definitions for SortableTable
+    const tableColumns = computed(() => [
+      {
+        key: 'name',
+        label: 'Nom',
+        sortable: true,
+        minWidth: '150px',
+        sticky: 'left',
+        responsive: 'always'
+      },
+      {
+        key: 'age_category',
+        label: `${t('crew.list.age')} / ${t('crew.card.category')}`,
+        sortable: false,
+        width: '150px',
+        responsive: 'always'
+      },
+      {
+        key: 'gender',
+        label: t('crew.form.gender'),
+        sortable: false,
+        width: '100px',
+        responsive: 'hide-below-1024'
+      },
+      {
+        key: 'license_number',
+        label: t('crew.form.licenseNumber'),
+        sortable: false,
+        minWidth: '120px',
+        responsive: 'hide-below-1024'
+      },
+      {
+        key: 'club_affiliation',
+        label: t('crew.card.club'),
+        sortable: true,
+        minWidth: '150px',
+        responsive: 'always'
+      },
+      {
+        key: 'assigned',
+        label: t('crew.card.assigned'),
+        sortable: false,
+        width: '120px',
+        align: 'center',
+        responsive: 'always'
+      },
+      {
+        key: 'team_manager_name',
+        label: t('admin.crewMembers.teamManager'),
+        sortable: true,
+        minWidth: '180px',
+        responsive: 'hide-below-1024'
+      },
+      {
+        key: 'actions',
+        label: t('common.actions'),
+        sortable: false,
+        width: '120px',
+        align: 'right',
+        sticky: 'right',
+        responsive: 'always'
+      }
+    ]);
+
+    // Prepare data for SortableTable with computed fields
+    const tableData = computed(() => {
+      return filteredCrewMembers.value.map(crew => ({
+        ...crew,
+        _original: crew,
+        name: `${crew.first_name} ${crew.last_name}`,
+        _age: calculateAge(crew.date_of_birth),
+        _category: getAgeCategory(calculateAge(crew.date_of_birth)),
+        _masterLetter: getMasterCategory(calculateAge(crew.date_of_birth)),
+        age_category: `${calculateAge(crew.date_of_birth)} ans`,
+        gender: crew.gender === 'M' ? t('crew.form.male') : t('crew.form.female'),
+        club_affiliation: crew.club_affiliation || crew.team_manager_club,
+        assigned: crew.assigned_boat_id ? 'assigned' : 'unassigned'
+      }));
+    });
+
+    // Use table sort composable - removed, now handled by SortableTable
 
     const totalPages = computed(() => {
-      return Math.ceil(sortedData.value.length / itemsPerPage);
+      return Math.ceil(tableData.value.length / itemsPerPage);
     });
 
     const paginatedCrewMembers = computed(() => {
       const start = (currentPage.value - 1) * itemsPerPage;
       const end = start + itemsPerPage;
-      const paginated = sortedData.value.slice(start, end);
-      
-      // Pre-calculate age and category for each crew member to avoid repeated calculations in template
-      return paginated.map(crew => ({
-        ...crew,
-        _age: calculateAge(crew.date_of_birth),
-        _category: getAgeCategory(calculateAge(crew.date_of_birth)),
-        _masterLetter: getMasterCategory(calculateAge(crew.date_of_birth))
-      }));
+      return tableData.value.slice(start, end);
     });
 
     // Methods
@@ -571,8 +635,6 @@ export default {
       filterTeamManager,
       categoryFilter,
       assignedFilter,
-      sortField,
-      sortDirection,
       currentPage,
       totalPages,
       viewMode,
@@ -580,6 +642,8 @@ export default {
       unassignedCrewCount,
       filteredCrewMembers,
       paginatedCrewMembers,
+      tableColumns,
+      tableData,
       showEditCrewModal,
       showDeleteModal,
       crewToDelete,
@@ -588,7 +652,6 @@ export default {
       saving,
       deleting,
       fetchCrewMembers,
-      sortBy,
       clearFilters,
       formatDate,
       editCrewMember,
@@ -617,7 +680,6 @@ export default {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  flex: 1;
   min-width: 200px;
 }
 
@@ -658,39 +720,34 @@ export default {
   color: var(--color-muted);
 }
 
-.crew-table {
-  width: 100%;
-  border-collapse: collapse;
+/* Custom cell styling */
+.name-cell strong {
+  color: var(--color-dark, #2c3e50);
 }
 
-.crew-table thead {
-  background: var(--color-light);
+.age-category-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm, 0.5rem);
 }
 
-.crew-table th {
-  padding: var(--spacing-lg);
-  text-align: left;
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-muted);
-  border-bottom: 2px solid var(--color-border);
-  user-select: none;
+.age {
+  color: var(--color-muted, #666);
+  font-size: var(--font-size-base, 0.9rem);
+  white-space: nowrap;
 }
 
-.crew-table th.sortable {
-  cursor: pointer;
-}
-
-.crew-table th.sortable:hover {
-  background: #e9ecef;
-}
-
-.crew-table td {
-  padding: var(--spacing-lg);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.crew-table tbody tr:hover {
-  background: var(--color-light);
+.club-box {
+  display: inline-block;
+  max-width: 200px;
+  padding: var(--spacing-xs, 0.25rem) var(--spacing-sm, 0.5rem);
+  background-color: var(--color-light, #f5f5f5);
+  border: 1px solid var(--color-border, #ddd);
+  border-radius: 4px;
+  font-size: var(--font-size-sm, 0.75rem);
+  line-height: 1.3;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .team-manager-info {
@@ -702,11 +759,6 @@ export default {
 .email {
   font-size: var(--font-size-sm);
   color: var(--color-secondary);
-}
-
-.actions-cell {
-  display: flex;
-  gap: var(--spacing-sm);
 }
 
 .pagination {
@@ -826,23 +878,6 @@ button:disabled {
     min-height: 44px;
   }
 
-  .crew-table-container {
-    padding: var(--spacing-lg);
-  }
-
-  .crew-table {
-    min-width: 900px;
-  }
-
-  .crew-table th,
-  .crew-table td {
-    white-space: nowrap;
-  }
-
-  .actions-cell {
-    flex-wrap: nowrap;
-  }
-
   .pagination {
     flex-wrap: wrap;
     gap: var(--spacing-sm);
@@ -864,14 +899,7 @@ button:disabled {
 }
 
 @media (min-width: 768px) {
-  .crew-table {
-    min-width: auto;
-  }
-
-  .crew-table td,
-  .crew-table th {
-    white-space: normal;
-  }
+  /* Table view handled by SortableTable component */
 }
 
 .team-manager-select {

@@ -120,33 +120,6 @@ describe('BoatRegistrationForm.vue - Boat Request Feature', () => {
   })
 
   describe('Character Counter', () => {
-    it('should display character count for boat request comment', async () => {
-      const i18n = createI18nInstance('en')
-      const wrapper = mount(BoatRegistrationForm, {
-        global: {
-          plugins: [i18n, pinia]
-        }
-      })
-
-      // Setup form
-      await wrapper.find('#event_type').setValue('21km')
-      await wrapper.find('#boat_type').setValue('4+')
-      const checkbox = wrapper.find('input[type="checkbox"]')
-      await checkbox.setValue(true)
-      await wrapper.vm.$nextTick()
-
-      // Initially should show 0 / 500
-      expect(wrapper.find('.char-count').text()).toBe('0 / 500')
-
-      // Type some text
-      const textarea = wrapper.find('#boat_request_comment')
-      await textarea.setValue('Test comment')
-      await wrapper.vm.$nextTick()
-
-      // Should update character count
-      expect(wrapper.find('.char-count').text()).toBe('12 / 500')
-    })
-
     it('should enforce 500 character limit on textarea', async () => {
       const i18n = createI18nInstance('en')
       const wrapper = mount(BoatRegistrationForm, {

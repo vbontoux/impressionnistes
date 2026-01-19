@@ -90,6 +90,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRaceStore } from '../stores/raceStore'
 import { getRaceDisplay } from '../utils/raceEligibility'
+import { formatRaceName } from '../utils/formatters'
 
 const props = defineProps({
   boat: {
@@ -143,12 +144,11 @@ const getRaceName = (boat) => {
   // Find the race in the store
   const race = raceStore.races.find(r => r.race_id === boat.race_id)
   
-  if (race && race.name) {
-    // Try to get translation, fallback to original name if not found
-    const translationKey = `races.${race.name}`
-    const translated = t(translationKey)
-    // If translation key is returned as-is, it means no translation exists
-    return translated === translationKey ? race.name : translated
+  // Use centralized formatter
+  const raceName = formatRaceName(race, t)
+  
+  if (raceName) {
+    return raceName
   } else if (race) {
     // Fallback to generic display if no name
     return getRaceDisplay(race)

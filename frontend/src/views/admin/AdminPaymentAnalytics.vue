@@ -124,29 +124,23 @@
         </div>
 
         <div class="table-container">
-          <table class="analytics-table">
-            <thead>
-              <tr>
-                <th>{{ $t('admin.paymentAnalytics.rank') }}</th>
-                <th>{{ $t('admin.paymentAnalytics.teamManager') }}</th>
-                <th>{{ $t('admin.paymentAnalytics.totalPaid') }}</th>
-                <th>{{ $t('admin.paymentAnalytics.payments') }}</th>
-                <th>{{ $t('admin.paymentAnalytics.boats') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr 
-                v-for="(payer, index) in analytics.top_team_managers" 
-                :key="payer.team_manager_id"
-              >
-                <td class="rank-cell">{{ index + 1 }}</td>
-                <td>{{ payer.name }}</td>
-                <td class="amount-cell">{{ formatCurrency(payer.total_paid) }}</td>
-                <td>{{ payer.payment_count }}</td>
-                <td>{{ payer.boat_count }}</td>
-              </tr>
-            </tbody>
-          </table>
+          <SortableTable
+            :columns="tableColumns"
+            :data="tableData"
+            :initial-sort-field="'rank'"
+            :initial-sort-direction="'asc'"
+            aria-label="Top payers table"
+          >
+            <!-- Custom cell: Rank -->
+            <template #cell-rank="{ value }">
+              <span class="rank-cell">{{ value }}</span>
+            </template>
+
+            <!-- Custom cell: Total Paid -->
+            <template #cell-total_paid="{ value }">
+              <span class="amount-cell">{{ formatCurrency(value) }}</span>
+            </template>
+          </SortableTable>
         </div>
       </div>
     </div>
@@ -154,7 +148,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import paymentService from '../../services/paymentService';
 import ListHeader from '../../components/shared/ListHeader.vue';
@@ -162,6 +156,7 @@ import ListFilters from '../../components/shared/ListFilters.vue';
 import LoadingSpinner from '../../components/base/LoadingSpinner.vue';
 import MessageAlert from '../../components/composite/MessageAlert.vue';
 import BaseButton from '../../components/base/BaseButton.vue';
+import SortableTable from '../../components/composite/SortableTable.vue';
 
 const { t } = useI18n();
 
@@ -174,6 +169,63 @@ const groupBy = ref('day');
 const analytics = ref({});
 const loading = ref(false);
 const error = ref('');
+
+// Column definitions for SortableTable
+const tableColumns = computed(() => [
+  {
+    key: 'rank',
+    label: t('admin.paymentAnalytics.rank'),
+    sortable: true,
+    width: '80px',
+    sticky: 'left',
+    responsive: 'always'
+  },
+  {
+    key: 'name',
+    label: t('admin.paymentAnalytics.teamManager'),
+    sortable: true,
+    minWidth: '200px',
+    responsive: 'always'
+  },
+  {
+    key: 'total_paid',
+    label: t('admin.paymentAnalytics.totalPaid'),
+    sortable: true,
+    width: '150px',
+    align: 'right',
+    responsive: 'always'
+  },
+  {
+    key: 'payment_count',
+    label: t('admin.paymentAnalytics.payments'),
+    sortable: true,
+    width: '120px',
+    align: 'center',
+    responsive: 'hide-below-1024'
+  },
+  {
+    key: 'boat_count',
+    label: t('admin.paymentAnalytics.boats'),
+    sortable: true,
+    width: '100px',
+    align: 'center',
+    responsive: 'hide-below-1024'
+  }
+]);
+
+// Table data with computed columns
+const tableData = computed(() => {
+  if (!analytics.value.top_team_managers) return [];
+  
+  return analytics.value.top_team_managers.map((payer, index) => ({
+    rank: index + 1,
+    name: payer.name,
+    total_paid: payer.total_paid,
+    payment_count: payer.payment_count,
+    boat_count: payer.boat_count,
+    team_manager_id: payer.team_manager_id
+  }));
+});
 
 // Format currency
 const formatCurrency = (amount, currency = 'EUR') => {
@@ -385,30 +437,7 @@ onMounted(() => {
 
 .table-container {
   overflow-x: auto;
-}
-
-.analytics-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.analytics-table thead {
-  background-color: var(--color-light);
-}
-
-.analytics-table th {
-  padding: var(--spacing-md);
-  text-align: left;
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-sm);
-  color: var(--color-dark);
-  border-bottom: 2px solid var(--color-border);
-}
-
-.analytics-table td {
-  padding: var(--spacing-md);
-  border-bottom: 1px solid var(--color-border);
-  font-size: var(--font-size-base);
+  -webkit-overflow-scrolling: touch;
 }
 
 .rank-cell {
@@ -437,8 +466,8 @@ onMounted(() => {
     gap: var(--spacing-md);
   }
 
-  .table-container {
-    margin: 0 -1rem;
+  .top-payers-section {
+    padding: var(--spacing-md);
   }
 }
 </style>

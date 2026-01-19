@@ -113,58 +113,58 @@
 
     <!-- Table View (Desktop) -->
     <div v-else class="payment-table-container">
-      <table class="payment-table">
-        <thead>
-          <tr>
-            <th class="sortable-header" @click="handleSort('paid_at')">
-              {{ $t('payment.history.date') }} {{ getSortIndicator('paid_at') }}
-            </th>
-            <th class="sortable-header" @click="handleSort('amount')">
-              {{ $t('payment.history.amount') }} {{ getSortIndicator('amount') }}
-            </th>
-            <th>{{ $t('payment.history.crewDetails') }}</th>
-            <th>{{ $t('common.actions') }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr 
-            v-for="payment in sortedPayments" 
-            :key="payment.payment_id"
-          >
-            <td>{{ formatDate(payment.paid_at) }}</td>
-            <td class="amount">{{ formatCurrency(payment.amount, payment.currency) }}</td>
-            <td>
-              <div v-if="payment.boat_details && payment.boat_details.length > 0" class="crew-details">
-                <div v-for="(boat, index) in payment.boat_details" :key="index" class="crew-item">
-                  <span class="boat-number-text">{{ boat.boat_number || 'N/A' }}</span>
-                  <span v-if="boat.stroke_seat_name" class="stroke-name">
-                    ({{ boat.stroke_seat_name }})
-                  </span>
-                </div>
-              </div>
-              <span v-else class="no-race-text">
-                {{ payment.boat_registration_ids.length }} {{ $t('payment.history.crews') }}
+      <SortableTable
+        :columns="columns"
+        :data="filteredPayments"
+        :initial-sort-field="sortField"
+        :initial-sort-direction="sortDirection"
+        @sort="handleSort"
+      >
+        <!-- Date column -->
+        <template #cell-paid_at="{ row }">
+          {{ formatDate(row.paid_at) }}
+        </template>
+
+        <!-- Amount column -->
+        <template #cell-amount="{ row }">
+          <span class="amount">{{ formatCurrency(row.amount, row.currency) }}</span>
+        </template>
+
+        <!-- Crew Details column -->
+        <template #cell-crew_details="{ row }">
+          <div v-if="row.boat_details && row.boat_details.length > 0" class="crew-details">
+            <div v-for="(boat, index) in row.boat_details" :key="index" class="crew-item">
+              <span class="boat-number-text">{{ boat.boat_number || 'N/A' }}</span>
+              <span v-if="boat.stroke_seat_name" class="stroke-name">
+                ({{ boat.stroke_seat_name }})
               </span>
-            </td>
-            <td class="actions-cell">
-              <BaseButton 
-                size="small" 
-                variant="secondary"
-                @click.stop="viewReceipt(payment)"
-              >
-                {{ $t('payment.history.viewReceipt') }}
-              </BaseButton>
-              <BaseButton 
-                size="small" 
-                variant="primary"
-                @click.stop="downloadInvoice(payment)"
-              >
-                {{ $t('payment.history.downloadInvoice') }}
-              </BaseButton>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            </div>
+          </div>
+          <span v-else class="no-race-text">
+            {{ row.boat_registration_ids.length }} {{ $t('payment.history.crews') }}
+          </span>
+        </template>
+
+        <!-- Actions column -->
+        <template #cell-actions="{ row }">
+          <div class="actions-cell">
+            <BaseButton 
+              size="small" 
+              variant="secondary"
+              @click.stop="viewReceipt(row)"
+            >
+              {{ $t('payment.history.viewReceipt') }}
+            </BaseButton>
+            <BaseButton 
+              size="small" 
+              variant="primary"
+              @click.stop="downloadInvoice(row)"
+            >
+              {{ $t('payment.history.downloadInvoice') }}
+            </BaseButton>
+          </div>
+        </template>
+      </SortableTable>
     </div>
   </div>
 
@@ -242,8 +242,44 @@ import EmptyState from '../components/base/EmptyState.vue';
 import DataCard from '../components/composite/DataCard.vue';
 import BaseButton from '../components/base/BaseButton.vue';
 import BaseModal from '../components/base/BaseModal.vue';
+import SortableTable from '../components/composite/SortableTable.vue';
 
 const { t } = useI18n();
+
+// Column definitions for SortableTable
+const columns = computed(() => [
+  {
+    key: 'paid_at',
+    label: t('payment.history.date'),
+    sortable: true,
+    width: '200px',
+    minWidth: '180px'
+  },
+  {
+    key: 'amount',
+    label: t('payment.history.amount'),
+    sortable: true,
+    width: '150px',
+    minWidth: '120px',
+    align: 'left'
+  },
+  {
+    key: 'crew_details',
+    label: t('payment.history.crewDetails'),
+    sortable: false,
+    width: 'auto',
+    minWidth: '200px'
+  },
+  {
+    key: 'actions',
+    label: t('common.actions'),
+    sortable: false,
+    width: '280px',
+    minWidth: '280px',
+    align: 'right',
+    sticky: 'right'
+  }
+]);
 
 // View mode - restore from localStorage or default to 'cards'
 const viewMode = ref(localStorage.getItem('paymentHistoryViewMode') || 'cards');
@@ -263,26 +299,14 @@ const showReceiptModal = ref(false);
 const receiptUrl = ref('');
 const selectedPayment = ref(null);
 
-// Sorting - initialize with correct parameters (no data array needed, we handle sorting manually)
+// Sorting - SortableTable handles the sorting, we just track state
 const sortField = ref('paid_at');
 const sortDirection = ref('desc');
 
-// Get sort indicator for display
-const getSortIndicator = (field) => {
-  if (sortField.value !== field) return '';
-  return sortDirection.value === 'asc' ? '▲' : '▼';
-};
-
-// Handle sort for table headers
-const handleSort = (field) => {
-  if (sortField.value === field) {
-    // Toggle direction if clicking same field
-    sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
-  } else {
-    // New field, set to descending for dates (newest first)
-    sortField.value = field;
-    sortDirection.value = field === 'paid_at' ? 'desc' : 'asc';
-  }
+// Handle sort event from SortableTable
+const handleSort = ({ key, direction }) => {
+  sortField.value = key;
+  sortDirection.value = direction;
 };
 
 // Toggle sort direction for card view
@@ -330,7 +354,7 @@ const filteredPayments = computed(() => {
   });
 });
 
-// Sorted payments
+// Sorted payments for card view (table view uses SortableTable's internal sorting)
 const sortedPayments = computed(() => {
   const sorted = [...filteredPayments.value];
   
@@ -593,50 +617,17 @@ onMounted(() => {
   border-radius: 8px;
   padding: var(--spacing-lg);
   margin-top: var(--spacing-lg);
-  overflow-x: auto;
-}
-
-.payment-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.payment-table thead {
-  background-color: var(--color-light);
-}
-
-.payment-table th {
-  padding: var(--spacing-md);
-  text-align: left;
-  font-weight: var(--font-weight-semibold);
-  font-size: var(--font-size-sm);
-  color: var(--color-dark);
-  border-bottom: 2px solid var(--color-border);
-}
-
-.payment-table td {
-  padding: var(--spacing-md);
-  border-bottom: 1px solid var(--color-border);
-  font-size: var(--font-size-base);
-}
-
-.payment-table td.amount {
-  color: var(--color-primary);
-  font-weight: var(--font-weight-semibold);
-}
-
-.sortable-header {
-  cursor: pointer;
-  user-select: none;
-}
-
-.sortable-header:hover {
-  background-color: var(--color-bg-hover);
 }
 
 .actions-cell {
   display: flex;
   gap: var(--spacing-sm);
+  justify-content: flex-end;
+}
+
+.amount {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
 }
 
 /* Receipt Modal */

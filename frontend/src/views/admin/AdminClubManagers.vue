@@ -50,77 +50,60 @@
       
       <!-- Table View -->
       <div v-if="viewMode === 'table'" class="managers-table-container">
-        <table class="managers-table">
-          <thead>
-            <tr>
-              <th class="checkbox-col">
-                <input 
-                  type="checkbox" 
-                  :checked="allSelected"
-                  @change="toggleSelectAll"
-                  :aria-label="$t('admin.clubManagers.selectAll')"
-                />
-              </th>
-              <th @click="sortBy('last_name')">
-                {{ $t('admin.clubManagers.name') }}
-                <span v-if="sortField === 'last_name'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-              </th>
-              <th @click="sortBy('email')">
-                {{ $t('admin.clubManagers.email') }}
-                <span v-if="sortField === 'email'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-              </th>
-              <th @click="sortBy('phone_number')">
-                {{ $t('admin.clubManagers.phone') }}
-                <span v-if="sortField === 'phone_number'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-              </th>
-              <th @click="sortBy('club_affiliation')">
-                {{ $t('admin.clubManagers.clubAffiliation') }}
-                <span v-if="sortField === 'club_affiliation'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-              </th>
-              <th @click="sortBy('is_admin')">
-                {{ $t('admin.clubManagers.role') }}
-                <span v-if="sortField === 'is_admin'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr 
-              v-for="manager in filteredManagers" 
-              :key="manager.user_id"
-              :class="{ 'selected': selectedIds.has(manager.user_id) }"
+        <SortableTable
+          :columns="tableColumns"
+          :data="filteredManagers"
+          :initial-sort-field="'last_name'"
+          :initial-sort-direction="'asc'"
+          aria-label="Club managers table"
+          @sort="handleSort"
+        >
+          <!-- Custom cell: Checkbox -->
+          <template #cell-checkbox="{ row }">
+            <input 
+              type="checkbox" 
+              :checked="selectedIds.has(row.user_id)"
+              @change="toggleSelection(row.user_id)"
+              :aria-label="$t('admin.clubManagers.selectManager', { name: `${row.first_name} ${row.last_name}` })"
+              class="row-checkbox"
+            />
+          </template>
+
+          <!-- Custom cell: Name -->
+          <template #cell-name="{ row }">
+            {{ row.first_name }} {{ row.last_name }}
+          </template>
+
+          <!-- Custom cell: Email -->
+          <template #cell-email="{ value }">
+            <a :href="`mailto:${value}`" class="email-link">
+              {{ value }}
+            </a>
+          </template>
+
+          <!-- Custom cell: Phone -->
+          <template #cell-phone_number="{ value }">
+            <a 
+              v-if="value" 
+              :href="`tel:${value}`" 
+              class="phone-link"
             >
-              <td class="checkbox-col">
-                <input 
-                  type="checkbox" 
-                  :checked="selectedIds.has(manager.user_id)"
-                  @change="toggleSelection(manager.user_id)"
-                  :aria-label="$t('admin.clubManagers.selectManager', { name: `${manager.first_name} ${manager.last_name}` })"
-                />
-              </td>
-              <td>{{ manager.first_name }} {{ manager.last_name }}</td>
-              <td>
-                <a :href="`mailto:${manager.email}`" class="email-link">
-                  {{ manager.email }}
-                </a>
-              </td>
-              <td>
-                <a 
-                  v-if="manager.phone_number" 
-                  :href="`tel:${manager.phone_number}`" 
-                  class="phone-link"
-                >
-                  {{ manager.phone_number }}
-                </a>
-                <span v-else class="no-data">-</span>
-              </td>
-              <td><span class="club-box">{{ manager.club_affiliation || '-' }}</span></td>
-              <td>
-                <span v-if="manager.is_admin" class="admin-badge">{{ $t('admin.clubManagers.admin') }}</span>
-                <span v-else class="no-data">-</span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              {{ value }}
+            </a>
+            <span v-else class="no-data">-</span>
+          </template>
+
+          <!-- Custom cell: Club -->
+          <template #cell-club_affiliation="{ value }">
+            <span class="club-box">{{ value || '-' }}</span>
+          </template>
+
+          <!-- Custom cell: Role -->
+          <template #cell-is_admin="{ value }">
+            <span v-if="value" class="admin-badge">{{ $t('admin.clubManagers.admin') }}</span>
+            <span v-else class="no-data">-</span>
+          </template>
+        </SortableTable>
       </div>
 
       <!-- Card View -->
@@ -215,6 +198,7 @@ import BaseButton from '../../components/base/BaseButton.vue'
 import LoadingSpinner from '../../components/base/LoadingSpinner.vue'
 import EmptyState from '../../components/base/EmptyState.vue'
 import MessageAlert from '../../components/composite/MessageAlert.vue'
+import SortableTable from '../../components/composite/SortableTable.vue'
 
 export default {
   name: 'AdminClubManagers',
@@ -224,7 +208,8 @@ export default {
     BaseButton,
     LoadingSpinner,
     EmptyState,
-    MessageAlert
+    MessageAlert,
+    SortableTable
   },
   setup() {
     const { t } = useI18n()
@@ -244,6 +229,52 @@ export default {
     const defaultViewMode = isMobile.value ? 'cards' : (savedViewMode || 'table')
     const viewMode = ref(defaultViewMode)
     const selectedIds = ref(new Set())
+
+    // Column definitions for SortableTable
+    const tableColumns = computed(() => [
+      {
+        key: 'checkbox',
+        label: '',
+        sortable: false,
+        width: '50px',
+        responsive: 'always'
+      },
+      {
+        key: 'name',
+        label: t('admin.clubManagers.name'),
+        sortable: true,
+        minWidth: '150px',
+        responsive: 'always'
+      },
+      {
+        key: 'email',
+        label: t('admin.clubManagers.email'),
+        sortable: true,
+        minWidth: '200px',
+        responsive: 'always'
+      },
+      {
+        key: 'phone_number',
+        label: t('admin.clubManagers.phone'),
+        sortable: true,
+        minWidth: '130px',
+        responsive: 'hide-below-1024'
+      },
+      {
+        key: 'club_affiliation',
+        label: t('admin.clubManagers.clubAffiliation'),
+        sortable: true,
+        minWidth: '150px',
+        responsive: 'hide-below-1024'
+      },
+      {
+        key: 'is_admin',
+        label: t('admin.clubManagers.role'),
+        sortable: true,
+        width: '100px',
+        responsive: 'always'
+      }
+    ])
 
     // Handle window resize
     const handleResize = () => {
@@ -266,7 +297,7 @@ export default {
       }
     }
 
-    // Computed: filtered managers
+    // Computed: filtered managers (without sorting - handled by SortableTable)
     const filteredManagers = computed(() => {
       let result = managers.value
 
@@ -284,25 +315,14 @@ export default {
         })
       }
 
-      // Apply sorting
-      result = [...result].sort((a, b) => {
-        let aVal = a[sortField.value] || ''
-        let bVal = b[sortField.value] || ''
-        
-        if (typeof aVal === 'string') {
-          aVal = aVal.toLowerCase()
-          bVal = bVal.toLowerCase()
-        }
-
-        if (sortDirection.value === 'asc') {
-          return aVal > bVal ? 1 : -1
-        } else {
-          return aVal < bVal ? 1 : -1
-        }
-      })
-
       return result
     })
+
+    // Sort handler for SortableTable
+    const handleSort = ({ field, direction }) => {
+      sortField.value = field
+      sortDirection.value = direction
+    }
 
     // Computed: all selected
     const allSelected = computed(() => {
@@ -311,15 +331,6 @@ export default {
     })
 
     // Methods
-    const sortBy = (field) => {
-      if (sortField.value === field) {
-        sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
-      } else {
-        sortField.value = field
-        sortDirection.value = 'asc'
-      }
-    }
-
     const clearFilters = () => {
       searchTerm.value = ''
     }
@@ -390,8 +401,9 @@ export default {
       filteredManagers,
       allSelected,
       isMobile,
+      tableColumns,
       fetchClubManagers,
-      sortBy,
+      handleSort,
       clearFilters,
       toggleSelection,
       toggleSelectAll,
@@ -427,59 +439,8 @@ export default {
   overflow-x: auto;
 }
 
-.managers-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 600px;
-}
-
-.managers-table thead {
-  background-color: var(--color-light);
-}
-
-.managers-table th {
-  padding: var(--spacing-md);
-  text-align: left;
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-dark);
-  border-bottom: 2px solid var(--color-border);
-  cursor: pointer;
-  user-select: none;
-  white-space: nowrap;
-  transition: background-color 0.2s;
-}
-
-.managers-table th.checkbox-col {
-  width: 50px;
-  cursor: default;
-}
-
-.managers-table th:not(.checkbox-col):hover {
-  background-color: #e9ecef;
-}
-
-.managers-table td {
-  padding: var(--spacing-md);
-  border-bottom: 1px solid var(--color-border);
-}
-
-.managers-table td.checkbox-col {
-  width: 50px;
-}
-
-.managers-table tbody tr {
-  transition: background-color 0.2s;
-}
-
-.managers-table tbody tr:hover {
-  background-color: var(--color-light);
-}
-
-.managers-table tbody tr.selected {
-  background-color: #f0f8ff;
-}
-
-.managers-table input[type="checkbox"] {
+/* Checkbox styling */
+.row-checkbox {
   width: 18px;
   height: 18px;
   cursor: pointer;

@@ -1335,6 +1335,22 @@ import DataCard from '@/components/composite/DataCard.vue'
           </SortableTable>
         </div>
 
+        <!-- Column Width Management Demo -->
+        <div class="component-demo">
+          <h4>Column Width Management</h4>
+          <p class="demo-description">
+            Columns support <code>width</code> and <code>minWidth</code> properties with any CSS units (px, %, rem, etc.).
+          </p>
+          <SortableTable
+            :columns="widthDemoColumns"
+            :data="widthDemoData"
+            :hoverable="true"
+          />
+          <p class="demo-note">
+            <strong>Note:</strong> ID has fixed width (80px), Name has minWidth (150px), Description auto-sizes, Actions has both width and minWidth.
+          </p>
+        </div>
+
         <!-- Code Example -->
         <div class="code-example">
           <h4>Usage</h4>
@@ -1344,10 +1360,10 @@ import SortableTable from '@/components/composite/SortableTable.vue'
 &lt;!-- Define columns --&gt;
 const columns = [
   { key: 'boat_number', label: 'Boat #', sortable: true, width: '120px' },
-  { key: 'event_type', label: 'Event', sortable: true },
+  { key: 'event_type', label: 'Event', sortable: true, minWidth: '150px' },
   { key: 'team_manager', label: 'Manager', sortable: true },
   { key: 'status', label: 'Status', sortable: true, align: 'center' },
-  { key: 'actions', label: 'Actions', sortable: false, align: 'right' }
+  { key: 'actions', label: 'Actions', sortable: false, align: 'right', width: '200px', minWidth: '180px' }
 ]
 
 &lt;!-- Basic usage --&gt;
@@ -2248,6 +2264,20 @@ const boatTableData = ref([
   { id: 2, boat_number: 'SM.2.3', event_type: '2x Femme - 21km', team_manager: 'Marie Martin', status: 'complete', registration_status: 'complete' },
   { id: 3, boat_number: 'M.1.5', event_type: '8+ Mixte - 21km', team_manager: 'Pierre Durand', status: 'paid', registration_status: 'paid' },
   { id: 4, boat_number: 'SM.3.2', event_type: '1x Homme - 21km', team_manager: 'Sophie Bernard', status: 'forfait', registration_status: 'forfait' }
+])
+
+// Width management demo data
+const widthDemoColumns = [
+  { key: 'id', label: 'ID', sortable: true, width: '80px', align: 'center' },
+  { key: 'name', label: 'Name', sortable: true, minWidth: '150px' },
+  { key: 'description', label: 'Description', sortable: false }, // auto-size
+  { key: 'actions', label: 'Actions', sortable: false, width: '200px', minWidth: '180px', align: 'right' }
+]
+
+const widthDemoData = ref([
+  { id: 1, name: 'Short', description: 'This is a short description', actions: 'Edit' },
+  { id: 2, name: 'Medium Length Name', description: 'This is a medium length description with more text', actions: 'Edit' },
+  { id: 3, name: 'Very Long Name That Tests MinWidth', description: 'This is a very long description that demonstrates how the table handles content that exceeds the container width and triggers horizontal scrolling', actions: 'Edit' }
 ])
 </script>
 

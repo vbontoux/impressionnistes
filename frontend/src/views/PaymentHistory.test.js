@@ -9,6 +9,15 @@ import { createI18n } from 'vue-i18n';
 import PaymentHistory from './PaymentHistory.vue';
 import paymentService from '../services/paymentService';
 
+// Mock localStorage
+const localStorageMock = {
+  getItem: vi.fn(() => 'table'),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn()
+};
+global.localStorage = localStorageMock;
+
 // Mock payment service
 vi.mock('../services/paymentService', () => ({
   default: {
@@ -91,7 +100,9 @@ describe('PaymentHistory', () => {
           EmptyState: true,
           DataCard: true,
           StatusBadge: true,
-          BaseButton: true
+          BaseButton: true,
+          SortableTable: true,
+          BaseModal: true
         }
       }
     });
@@ -123,7 +134,9 @@ describe('PaymentHistory', () => {
           EmptyState: true,
           DataCard: true,
           StatusBadge: true,
-          BaseButton: true
+          BaseButton: true,
+          SortableTable: true,
+          BaseModal: true
         }
       }
     });

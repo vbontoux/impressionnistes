@@ -508,7 +508,7 @@ h2 {
   gap: var(--spacing-sm);
   position: sticky;
   top: 0;
-  z-index: var(--z-index-dropdown);
+  z-index: var(--z-index-fixed);
 }
 
 .menu-toggle {

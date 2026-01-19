@@ -147,6 +147,10 @@
   --border-radius-md: 8px;
   --border-radius-lg: 12px;
   
+  /* Scrollbar */
+  --scrollbar-height: 12px;
+  --scrollbar-border-radius: 6px;
+  
   /* Shadows */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.15);
@@ -159,6 +163,11 @@
   --table-cell-padding-desktop: 1rem;
   --table-border-color: var(--color-border);
   --table-hover-bg: #f8f9fa;
+  --table-status-border-width: 4px;
+  --table-sticky-separator-width: 1px;
+  --table-sticky-shadow-left: 2px 0 4px rgba(0, 0, 0, 0.05);
+  --table-sticky-shadow-right: -2px 0 4px rgba(0, 0, 0, 0.05);
+  --table-sort-indicator-width: 12px;
   
   /* Modals */
   --modal-border-radius-desktop: 8px;
