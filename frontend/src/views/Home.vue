@@ -6,23 +6,39 @@
         <h1>{{ $t('home.hero.title') }}</h1>
         <p class="hero-subtitle">{{ $t('home.hero.subtitle') }}</p>
         <div v-if="!authStore.isAuthenticated" class="hero-actions">
-          <router-link to="/register" class="btn btn-primary">
-            {{ $t('home.hero.register') }}
-          </router-link>
+          <a :href="eventWebsite" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
+            {{ $t('home.hero.eventWebsite') }}
+          </a>
+          <a href="/Avant-programme 2026 FR.pdf" download class="btn btn-outline">
+            <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {{ $t('nav.downloadProgram') }}
+          </a>
           <router-link to="/login" class="btn btn-secondary">
             {{ $t('home.hero.login') }}
           </router-link>
+          <router-link to="/register" class="btn btn-primary">
+            {{ $t('home.hero.register') }}
+          </router-link>
+        </div>
+        <div v-else class="hero-actions">
           <a :href="eventWebsite" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
             {{ $t('home.hero.eventWebsite') }}
           </a>
-        </div>
-        <div v-else class="hero-actions">
+          <a href="/Avant-programme 2026 FR.pdf" download class="btn btn-outline">
+            <svg class="btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            {{ $t('nav.downloadProgram') }}
+          </a>
           <router-link to="/dashboard" class="btn btn-primary">
             {{ $t('nav.dashboard') }}
           </router-link>
-          <a :href="eventWebsite" target="_blank" rel="noopener noreferrer" class="btn btn-outline">
-            {{ $t('home.hero.eventWebsite') }}
-          </a>
         </div>
       </div>
     </section>
@@ -454,7 +470,14 @@ onMounted(async () => {
   text-decoration: none;
   font-weight: 600;
   transition: all 0.3s;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-icon {
+  flex-shrink: 0;
 }
 
 .btn-primary {
