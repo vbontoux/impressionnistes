@@ -142,7 +142,8 @@ def lambda_handler(event, context):
                 'club_affiliation': tm.get('club_affiliation', ''),
                 'email': tm.get('email', ''),
                 'first_name': tm.get('first_name', ''),
-                'last_name': tm.get('last_name', '')
+                'last_name': tm.get('last_name', ''),
+                'phone': tm.get('mobile_number', '')  # Database field is 'mobile_number'
             }
         
         # Calculate payment balance for each team manager
@@ -217,6 +218,9 @@ def lambda_handler(event, context):
                 'seats': boat.get('seats', []),
                 'crew_composition': boat.get('crew_composition', {}),
                 'is_multi_club_crew': boat.get('is_multi_club_crew', False),
+                'assigned_boat_identifier': boat.get('assigned_boat_identifier'),
+                'assigned_boat_name': boat.get('assigned_boat_identifier'),  # Use identifier as name for now
+                'assigned_boat_comment': boat.get('assigned_boat_comment'),
                 'created_at': boat.get('created_at'),
                 'updated_at': boat.get('updated_at'),
                 'paid_at': boat.get('paid_at')
