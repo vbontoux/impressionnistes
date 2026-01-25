@@ -109,7 +109,7 @@
             </div>
             <div class="detail-row">
               <span class="label">{{ $t('boat.firstRower') }}&nbsp;:</span>
-              <span>{{ getFirstRowerName(boat) }}</span>
+              <span>{{ boat.first_rower }}</span>
             </div>
             <div class="detail-row">
               <span class="label">{{ $t('boat.filledSeats') }}&nbsp;:</span>
@@ -138,7 +138,7 @@
             </div>
           </div>
 
-          <div class="boat-actions">
+          <div v-if="boat.boat_request_enabled" class="boat-actions">
             <!-- Pending: Show team manager's request -->
             <div v-if="!boat.assigned_boat_identifier" class="boat-request-pending">
               <div class="request-header">
@@ -218,7 +218,7 @@
 
           <!-- Custom cell: Boat Request Status -->
           <template #cell-boat_request_status="{ row }">
-            <span v-if="row._original.boat_request_enabled === false" class="no-request">-</span>
+            <span v-if="!row._original.boat_request_enabled" class="no-request">-</span>
             <span 
               v-else-if="row._original.assigned_boat_identifier" 
               class="boat-assigned-admin"
