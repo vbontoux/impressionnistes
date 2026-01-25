@@ -8,9 +8,15 @@ Cette fonctionnalité permet à tous les visiteurs du site (authentifiés ou non
 
 ### 1. Fichier PDF
 
-**Emplacement:** `frontend/public/Avant-programme 2026 FR.pdf`
+**Emplacement:** `frontend/public/avant-programme-fr.pdf`
 
-Le fichier PDF est placé dans le dossier `public` du frontend, ce qui le rend accessible directement via l'URL `/Avant-programme 2026 FR.pdf`.
+Le fichier PDF est placé dans le dossier `public` du frontend, ce qui le rend accessible directement via l'URL `/avant-programme-fr.pdf`.
+
+**Nom du fichier:**
+- Format : `avant-programme-fr.pdf`
+- Sans espaces (meilleure compatibilité URL)
+- Sans année (pas besoin de renommer chaque année)
+- Suffixe `-fr` pour la version française (permet d'ajouter `-en` pour l'anglais)
 
 ### 2. Bouton de Téléchargement
 
@@ -54,29 +60,39 @@ Le bouton utilise les design tokens existants et suit les conventions de style d
 ### Pour les Visiteurs
 
 1. Accéder au site Course des Impressionnistes
-2. Cliquer sur le bouton "Avant-programme" dans l'en-tête
-3. Le fichier PDF se télécharge automatiquement
+2. Cliquer sur le bouton "Avant-programme" dans la bannière hero
+3. Le PDF s'ouvre dans un nouvel onglet du navigateur
+4. L'utilisateur peut le consulter en ligne ou le télécharger via le navigateur
+
+**Comportement:**
+- Le PDF s'affiche dans le navigateur (pas de téléchargement automatique)
+- Ouverture dans un nouvel onglet (`target="_blank"`)
+- L'utilisateur garde le contrôle : consultation en ligne ou téléchargement manuel
+- Comportement cohérent sur tous les navigateurs
 
 ### Pour les Administrateurs
 
 #### Mettre à Jour l'Avant-Programme
 
-1. Remplacer le fichier dans `frontend/public/Avant-programme 2026 FR.pdf`
+1. Remplacer le fichier dans `frontend/public/avant-programme-fr.pdf`
 2. Rebuild le frontend : `cd frontend && npm run build`
 3. Déployer : `cd infrastructure && make deploy-frontend-dev` (ou `-prod`)
+
+**Important :** Gardez le même nom de fichier (`avant-programme-fr.pdf`) pour ne pas avoir à modifier le code chaque année.
 
 #### Ajouter une Version Anglaise
 
 Pour ajouter une version anglaise de l'avant-programme :
 
-1. Placer le fichier dans `frontend/public/Avant-programme 2026 EN.pdf`
-2. Modifier `frontend/src/App.vue` pour détecter la langue :
+1. Placer le fichier dans `frontend/public/avant-programme-en.pdf`
+2. Modifier `frontend/src/views/Home.vue` pour détecter la langue :
 
 ```vue
 <a 
-  :href="$i18n.locale === 'fr' ? '/Avant-programme 2026 FR.pdf' : '/Avant-programme 2026 EN.pdf'"
-  download 
-  class="btn-header btn-program"
+  :href="$i18n.locale === 'fr' ? '/avant-programme-fr.pdf' : '/avant-programme-en.pdf'"
+  target="_blank" 
+  rel="noopener noreferrer"
+  class="btn btn-outline"
 >
 ```
 
@@ -103,7 +119,10 @@ Pour ajouter une version anglaise de l'avant-programme :
 - Le fichier PDF est servi statiquement depuis le dossier `public`
 - Aucune authentification requise
 - Pas d'appel API nécessaire
-- Le téléchargement est géré par le navigateur (attribut `download`)
+- Le PDF s'ouvre dans un nouvel onglet (`target="_blank"`)
+- Attribut `rel="noopener noreferrer"` pour la sécurité
+- Pas d'attribut `download` : le navigateur affiche le PDF au lieu de le télécharger automatiquement
+- L'utilisateur peut télécharger le PDF via les contrôles du navigateur s'il le souhaite
 
 ## Évolutions Futures
 
