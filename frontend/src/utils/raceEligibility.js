@@ -276,11 +276,20 @@ export function getEligibleRaces(crewMembers, availableRaces) {
     }
     
     // For master races, check if the race has a specific master category
+    // Special rule: Category G can race in F (since no G races exist)
+    // All other categories must match exactly
     if (crewAge === "master" && race.master_category) {
       const crewMasterCat = crewAnalysis.masterCategory;
       const raceMasterCat = race.master_category;
+      
       console.log(`getEligibleRaces - Master category check: crew=${crewMasterCat}, race=${raceMasterCat} (${race.race_id})`);
-      if (crewMasterCat !== raceMasterCat) {
+      
+      // Special exception: G can race in F
+      if (crewMasterCat === 'G' && raceMasterCat === 'F') {
+        // Allow this combination
+      } else if (crewMasterCat !== raceMasterCat) {
+        // All other categories must match exactly
+        console.log(`getEligibleRaces - Category mismatch, race filtered out`);
         return;
       }
     }
@@ -368,6 +377,25 @@ export function validateRaceSelection(crewMembers, selectedRace) {
       reason: `Age category mismatch: Master race requires crew members aged 27+`,
       crewAnalysis
     };
+  }
+  
+  // For master races with specific categories, validate category matching
+  // Special rule: Category G can race in F (since no G races exist)
+  // All other categories must match exactly
+  if (raceAge === "master" && selectedRace.master_category) {
+    const crewMasterCat = crewAnalysis.masterCategory;
+    const raceMasterCat = selectedRace.master_category;
+    
+    // Special exception: G can race in F
+    if (crewMasterCat === 'G' && raceMasterCat === 'F') {
+      // Allow this combination
+    } else if (crewMasterCat !== raceMasterCat) {
+      return {
+        valid: false,
+        reason: `Master category mismatch: Category ${crewMasterCat} crew must race in category ${crewMasterCat} (or F if category G)`,
+        crewAnalysis
+      };
+    }
   }
   
   return {

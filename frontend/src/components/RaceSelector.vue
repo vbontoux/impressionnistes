@@ -42,6 +42,9 @@
             <span class="race-detail">
               {{ $t('boat.ageCategory') }}&nbsp;: {{ $t(`boat.${race.age_category}`) }}
               <span v-if="race.master_category" class="master-category-badge">{{ race.master_category }}</span>
+              <span v-if="isRacingInYoungerCategory(race)" class="younger-category-note">
+                ({{ $t('boat.racingInYoungerCategory') }})
+              </span>
             </span>
           </div>
         </div>
@@ -213,6 +216,15 @@ export default {
       return translated === translationKey ? race.name : translated
     }
 
+    const isRacingInYoungerCategory = (race) => {
+      if (!crewAnalysis.value || !race.master_category || !crewAnalysis.value.masterCategory) {
+        return false
+      }
+      
+      // Only show note for G racing in F (special exception)
+      return crewAnalysis.value.masterCategory === 'G' && race.master_category === 'F'
+    }
+
     return {
       eligibleRaces,
       crewDescription,
@@ -221,7 +233,8 @@ export default {
       noRacesReason,
       selectRace,
       getRaceDisplay,
-      getTranslatedRaceName
+      getTranslatedRaceName,
+      isRacingInYoungerCategory
     }
   }
 }
@@ -346,6 +359,14 @@ export default {
   padding: 0.125rem 0.5rem;
   border-radius: 4px;
   font-weight: 600;
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+}
+
+.younger-category-note {
+  display: inline-block;
+  color: #0c5460;
+  font-style: italic;
   margin-left: 0.5rem;
   font-size: 0.75rem;
 }

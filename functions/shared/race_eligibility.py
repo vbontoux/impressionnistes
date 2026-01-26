@@ -264,10 +264,17 @@ def get_eligible_races(crew_members: List[Dict[str, Any]], available_races: List
             continue
         
         # For master races, check if the race has a specific master category
+        # Special rule: Category G can race in F (since no G races exist)
+        # All other categories must match exactly
         if crew_age == "master" and 'master_category' in race:
             crew_master_cat = crew_analysis.get('master_category')
             race_master_cat = race['master_category']
-            if crew_master_cat != race_master_cat:
+            
+            # Special exception: G can race in F
+            if crew_master_cat == 'G' and race_master_cat == 'F':
+                pass  # Allow this combination
+            elif crew_master_cat != race_master_cat:
+                # All other categories must match exactly
                 continue
         
         eligible_races.append(race)
@@ -343,6 +350,23 @@ def validate_race_selection(crew_members: List[Dict[str, Any]], selected_race: D
             'reason': f"Age category mismatch: Master race requires crew members aged 27+",
             'crew_analysis': crew_analysis
         }
+    
+    # For master races with specific categories, validate category matching
+    # Special rule: Category G can race in F (since no G races exist)
+    # All other categories must match exactly
+    if race_age == "master" and 'master_category' in selected_race:
+        crew_master_cat = crew_analysis.get('master_category')
+        race_master_cat = selected_race['master_category']
+        
+        # Special exception: G can race in F
+        if crew_master_cat == 'G' and race_master_cat == 'F':
+            pass  # Allow this combination
+        elif crew_master_cat != race_master_cat:
+            return {
+                'valid': False,
+                'reason': f"Master category mismatch: Category {crew_master_cat} crew must race in category {crew_master_cat} (or F if category G)",
+                'crew_analysis': crew_analysis
+            }
     
     return {
         'valid': True,
