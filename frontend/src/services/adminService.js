@@ -140,6 +140,43 @@ const adminService = {
     
     const response = await apiClient.get(url)
     return response.data
+  },
+
+  /**
+   * Update license verification status for a single crew member
+   * @param {string} teamManagerId - Team manager ID
+   * @param {string} crewMemberId - Crew member ID
+   * @param {string} status - Verification status ('verified_valid', 'verified_invalid', 'manually_verified_valid', 'manually_verified_invalid')
+   * @param {string} details - Verification details (optional, max 500 chars)
+   * @returns {Promise<Object>} Updated crew member
+   */
+  async updateCrewMemberLicenseVerification(teamManagerId, crewMemberId, status, details = '') {
+    const response = await apiClient.patch(
+      `/admin/crew/${teamManagerId}/${crewMemberId}/license-verification`,
+      {
+        team_manager_id: teamManagerId,
+        license_verification_status: status,
+        license_verification_details: details
+      }
+    )
+    return response.data
+  },
+
+  /**
+   * Bulk update license verification status for multiple crew members
+   * @param {Array} verifications - Array of verification objects
+   * @param {string} verifications[].team_manager_id - Team manager ID
+   * @param {string} verifications[].crew_member_id - Crew member ID
+   * @param {string} verifications[].license_verification_status - Verification status
+   * @param {string} verifications[].license_verification_details - Verification details (optional)
+   * @returns {Promise<Object>} Bulk update results
+   */
+  async bulkUpdateLicenseVerification(verifications) {
+    const response = await apiClient.post(
+      '/admin/crew/bulk-license-verification',
+      { verifications }
+    )
+    return response.data
   }
 }
 

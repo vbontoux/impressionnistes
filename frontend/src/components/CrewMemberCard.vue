@@ -40,6 +40,15 @@
           <span class="label">{{ $t('crew.card.club') }}&nbsp;:</span>
           <span class="value club-box">{{ crewMember.club_affiliation }}</span>
         </div>
+        <div class="detail-row">
+          <span class="label">{{ $t('crew.list.licenseVerification') }}&nbsp;:</span>
+          <span v-if="crewMember.license_verification_status" :class="['verification-badge', getVerificationBadgeClass(crewMember.license_verification_status)]">
+            {{ getVerificationLabel(crewMember.license_verification_status) }}
+          </span>
+          <span v-else class="verification-badge verification-not-verified">
+            {{ $t('crew.list.notVerified') }}
+          </span>
+        </div>
       </div>
 
       <!-- Flagged Issues -->
@@ -157,6 +166,33 @@ const getMasterCategoryLetter = (dateOfBirth) => {
   const age = calculateAge(dateOfBirth);
   return getMasterCategory(age);
 };
+
+// Helper methods for license verification display
+const getVerificationBadgeClass = (status) => {
+  if (!status) return 'verification-not-verified'
+  
+  if (status === 'verified_valid' || status === 'manually_verified_valid') {
+    return 'verification-valid'
+  }
+  if (status === 'verified_invalid' || status === 'manually_verified_invalid') {
+    return 'verification-invalid'
+  }
+  
+  return 'verification-not-verified'
+}
+
+const getVerificationLabel = (status) => {
+  if (!status) return t('crew.list.notVerified')
+  
+  if (status === 'verified_valid' || status === 'manually_verified_valid') {
+    return t('crew.list.verified')
+  }
+  if (status === 'verified_invalid' || status === 'manually_verified_invalid') {
+    return t('crew.list.invalid')
+  }
+  
+  return t('crew.list.notVerified')
+}
 </script>
 
 <style scoped>
@@ -311,5 +347,30 @@ const getMasterCategoryLetter = (dateOfBirth) => {
 
 .issue-list li {
   margin-bottom: var(--spacing-xs, 0.25rem);
+}
+
+/* License Verification Badge Styles */
+.verification-badge {
+  display: inline-block;
+  padding: var(--badge-padding, 0.25rem 0.75rem);
+  border-radius: var(--badge-border-radius, 12px);
+  font-size: var(--badge-font-size, 0.75rem);
+  font-weight: var(--font-weight-medium, 500);
+  width: fit-content;
+}
+
+.verification-valid {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.verification-invalid {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.verification-not-verified {
+  background-color: var(--color-light, #f5f5f5);
+  color: var(--color-muted, #666);
 }
 </style>

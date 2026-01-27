@@ -97,7 +97,12 @@
           </svg>
           <div class="warning-content">
             <strong>{{ $t('crew.form.licenseWarningTitle') }}</strong>
-            <p v-show="warningExpanded">{{ $t('crew.form.licenseWarningText') }}</p>
+            <p v-show="warningExpanded">
+              {{ $t('crew.form.licenseWarningText') }}
+              <a href="https://intranet.ffaviron.fr/licences/recherche" target="_blank" rel="noopener noreferrer" class="ffaviron-link">
+                {{ $t('crew.form.verifyLicenseLink') }}
+              </a>
+            </p>
           </div>
           <svg class="expand-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <polyline points="6 9 12 15 18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -599,6 +604,17 @@ input:disabled, select:disabled {
   line-height: 1.4;
   margin: 0;
   margin-top: var(--spacing-xs);
+}
+
+.warning-content .ffaviron-link {
+  color: var(--color-primary);
+  text-decoration: underline;
+  font-weight: var(--font-weight-medium);
+  margin-left: var(--spacing-xs);
+}
+
+.warning-content .ffaviron-link:hover {
+  color: #0056b3;
 }
 
 .expand-icon {

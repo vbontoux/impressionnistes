@@ -584,6 +584,19 @@ class ApiStack(Stack):
             'admin/get_payment_analytics',
             'Get payment analytics and trends (admin only)'
         )
+        
+        # License verification functions
+        self.lambda_functions['update_crew_member_license_verification'] = self._create_lambda_function(
+            'UpdateCrewMemberLicenseVerificationFunction',
+            'admin/update_crew_member_license_verification',
+            'Update license verification status for a single crew member (admin only)'
+        )
+        
+        self.lambda_functions['bulk_update_license_verification'] = self._create_lambda_function(
+            'BulkUpdateLicenseVerificationFunction',
+            'admin/bulk_update_license_verification',
+            'Bulk update license verification status for multiple crew members (admin only)'
+        )
     
     def _create_public_functions(self):
         """Create public Lambda functions (no authentication required)"""
@@ -1365,6 +1378,32 @@ class ApiStack(Stack):
         admin_crew_member_resource.add_method(
             'DELETE',
             admin_delete_crew_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # PATCH /admin/crew/{team_manager_id}/{crew_member_id}/license-verification - Update license verification (admin only)
+        license_verification_resource = admin_crew_member_resource.add_resource('license-verification')
+        update_license_verification_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['update_crew_member_license_verification'],
+            proxy=True
+        )
+        license_verification_resource.add_method(
+            'PATCH',
+            update_license_verification_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # POST /admin/crew/bulk-license-verification - Bulk update license verification (admin only)
+        bulk_license_verification_resource = admin_crew_resource.add_resource('bulk-license-verification')
+        bulk_update_license_verification_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['bulk_update_license_verification'],
+            proxy=True
+        )
+        bulk_license_verification_resource.add_method(
+            'POST',
+            bulk_update_license_verification_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )

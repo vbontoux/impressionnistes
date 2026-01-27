@@ -82,6 +82,11 @@ def lambda_handler(event, context):
                 crew_members.extend(response.get('Items', []))
         
         # Get team manager information for each crew member
+        # Note: Crew members include license verification fields if present:
+        # - license_verification_status
+        # - license_verification_date
+        # - license_verification_details
+        # - license_verified_by
         team_manager_cache = {}
         for crew in crew_members:
             team_manager_id = crew.get('PK', '').replace('TEAM#', '')

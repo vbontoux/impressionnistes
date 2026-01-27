@@ -543,6 +543,7 @@
       "subtitle": "Vérifier la validité des licences FFAviron des équipiers",
       "cookieConfig": "Configuration des Cookies",
       "cookieHelp": "Pour vérifier les licences, vous devez fournir les cookies de votre session FFAviron.",
+      "openFFAviron": "Ouvrir l'Intranet FFAviron (pour obtenir les cookies)",
       "cookieExample": "Exemple de cookies à copier depuis les outils de développement (F12 → Réseau → Sélectionner une requête → Headers → Cookie) :",
       "cookieExampleValue": "XSRF-TOKEN=eyJpdiI6IkNW...; ffaviron_session=eyJpdiI6ImJpb1...; _ga=GA1.1.106...",
       "cookieLabel": "Cookies FFAviron",
@@ -568,7 +569,19 @@
       "totalCount": "{count} équipiers",
       "status": "Statut",
       "details": "Détails",
-      "loadError": "Échec du chargement des équipiers"
+      "loadError": "Échec du chargement des équipiers",
+      "markAsValid": "Marquer comme valide",
+      "markAsInvalid": "Marquer comme invalide",
+      "manuallyMarkedValid": "Marqué manuellement comme valide par l'admin",
+      "manuallyMarkedInvalid": "Marqué manuellement comme invalide par l'admin",
+      "markedAsValid": "{count} équipier(s) marqué(s) comme valide(s)",
+      "markedAsInvalid": "{count} équipier(s) marqué(s) comme invalide(s)",
+      "saveSuccess": "{success} sur {total} statuts de vérification enregistrés avec succès",
+      "savePartialFailure": "{failed} vérification(s) n'ont pas pu être enregistrée(s)",
+      "saveError": "Échec de l'enregistrement du statut de vérification",
+      "manual": "Manuel",
+      "auto": "Auto",
+      "unsaved": "Non enregistré"
     }
   },
   "session": {
@@ -657,6 +670,7 @@
       "licenseHint": "6-24 caractères (lettres, chiffres, caractères spéciaux acceptés)",
       "licenseWarningTitle": "AVERTISSEMENT IMPORTANT",
       "licenseWarningText": "En validant l'inscription, vous attestez que le rameur ou la rameuse possède une licence compétition valide pour la saison en cours et pour la catégorie dans laquelle vous l'inscrivez à la régate (incluant sur-classement éventuel). En cas de défaut, l'équipage ne pourra pas prendre le départ de la course.",
+      "verifyLicenseLink": "Les licences peuvent être vérifiées ici.",
       "clubAffiliation": "Club d'affiliation",
       "clubPlaceholder": "Laissez vide pour utiliser votre club",
       "clubHint": "Laissez vide pour utiliser le club du manager de club",
@@ -715,7 +729,11 @@
       "noMembers": "Aucun membre d'équipage trouvé",
       "confirmDelete": "Confirmer la suppression",
       "confirmDeleteMessage": "Êtes-vous sûr de vouloir supprimer {name} ?",
-      "deleteError": "Impossible de supprimer le membre d'équipage"
+      "deleteError": "Impossible de supprimer le membre d'équipage",
+      "licenseVerification": "Licence",
+      "notVerified": "Non vérifié",
+      "verified": "Vérifié",
+      "invalid": "Invalide"
     },
     "delete": {
       "title": "Supprimer le membre d'équipage",

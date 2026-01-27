@@ -24,6 +24,10 @@ def lambda_handler(event, context):
     """
     List all crew members for the authenticated team manager
     
+    Note: License verification fields (license_verification_status, license_verification_date,
+    license_verification_details, license_verified_by) are automatically included in the response
+    if they exist on crew member records. No special handling needed.
+    
     Returns:
         List of crew member objects
     """

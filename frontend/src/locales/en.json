@@ -543,6 +543,7 @@
       "subtitle": "Verify the validity of FFAviron licenses for crew members",
       "cookieConfig": "Cookie Configuration",
       "cookieHelp": "To verify licenses, you must provide cookies from your FFAviron session.",
+      "openFFAviron": "Open FFAviron Intranet (to get cookies)",
       "cookieExample": "Example of cookies to copy from developer tools (F12 → Network → Select a request → Headers → Cookie):",
       "cookieExampleValue": "XSRF-TOKEN=eyJpdiI6IkNW...; ffaviron_session=eyJpdiI6ImJpb1...; _ga=GA1.1.106...",
       "cookieLabel": "FFAviron Cookies",
@@ -568,7 +569,19 @@
       "totalCount": "{count} crew members",
       "status": "Status",
       "details": "Details",
-      "loadError": "Failed to load crew members"
+      "loadError": "Failed to load crew members",
+      "markAsValid": "Mark as Valid",
+      "markAsInvalid": "Mark as Invalid",
+      "manuallyMarkedValid": "Manually marked as valid by admin",
+      "manuallyMarkedInvalid": "Manually marked as invalid by admin",
+      "markedAsValid": "{count} crew member(s) marked as valid",
+      "markedAsInvalid": "{count} crew member(s) marked as invalid",
+      "saveSuccess": "Saved {success} of {total} verification status updates successfully",
+      "savePartialFailure": "{failed} verification(s) failed to save",
+      "saveError": "Failed to save verification status",
+      "manual": "Manual",
+      "auto": "Auto",
+      "unsaved": "Unsaved"
     }
   },
   "session": {
@@ -657,6 +670,7 @@
       "licenseHint": "6-24 characters (letters, numbers, special characters accepted)",
       "licenseWarningTitle": "IMPORTANT WARNING",
       "licenseWarningText": "By validating this registration, you certify that the rower holds a valid competition license for the current season and for the category in which you are registering them for the regatta (including any applicable up-classification). If this requirement is not met, the crew will not be allowed to start the race.",
+      "verifyLicenseLink": "Licenses can be verified here.",
       "clubAffiliation": "Club Affiliation",
       "clubPlaceholder": "Leave empty to use your club",
       "clubHint": "Leave empty to use club manager's club",
@@ -715,7 +729,11 @@
       "noMembers": "No crew members found",
       "confirmDelete": "Confirm Delete",
       "confirmDeleteMessage": "Are you sure you want to delete {name}?",
-      "deleteError": "Failed to delete crew member"
+      "deleteError": "Failed to delete crew member",
+      "licenseVerification": "License",
+      "notVerified": "Not verified",
+      "verified": "Verified",
+      "invalid": "Invalid"
     },
     "delete": {
       "title": "Delete Crew Member",

@@ -10,6 +10,13 @@
       <h3>{{ $t('admin.licenseChecker.cookieConfig') }}</h3>
       <p class="help-text">{{ $t('admin.licenseChecker.cookieHelp') }}</p>
       
+      <!-- Link to FFAviron -->
+      <div class="ffaviron-link">
+        <a href="https://intranet.ffaviron.fr/licences/recherche" target="_blank" rel="noopener noreferrer" class="external-link">
+          🔗 {{ $t('admin.licenseChecker.openFFAviron') }}
+        </a>
+      </div>
+      
       <!-- Cookie Example -->
       <div class="cookie-example">
         <p class="example-label">{{ $t('admin.licenseChecker.cookieExample') }}</p>
@@ -95,6 +102,37 @@
           {{ checking 
             ? $t('admin.licenseChecker.checking') 
             : $t('admin.licenseChecker.checkSelected', { count: selectedCount })
+          }}
+        </BaseButton>
+
+        <BaseButton
+          variant="success"
+          size="medium"
+          :disabled="selectedCount === 0 || checking || saving"
+          @click="markSelectedAsValid"
+        >
+          {{ $t('admin.licenseChecker.markAsValid') }}
+        </BaseButton>
+
+        <BaseButton
+          variant="danger"
+          size="medium"
+          :disabled="selectedCount === 0 || checking || saving"
+          @click="markSelectedAsInvalid"
+        >
+          {{ $t('admin.licenseChecker.markAsInvalid') }}
+        </BaseButton>
+
+        <BaseButton
+          variant="primary"
+          size="medium"
+          :disabled="!hasUnsavedChanges || checking || saving"
+          :loading="saving"
+          @click="saveVerificationStatus"
+        >
+          {{ saving 
+            ? $t('common.saving') 
+            : $t('common.save')
           }}
         </BaseButton>
 
@@ -213,24 +251,51 @@
               </div>
             </td>
             <td>
-              <span v-if="crew._checking" class="status-badge status-checking">
-                {{ $t('admin.licenseChecker.checking') }}...
-              </span>
-              <span v-else-if="crew._licenseStatus === 'valid'" class="status-badge status-valid">
-                ✓ {{ $t('admin.licenseChecker.valid') }}
-              </span>
-              <span v-else-if="crew._licenseStatus === 'invalid'" class="status-badge status-invalid">
-                ✗ {{ $t('admin.licenseChecker.invalid') }}
-              </span>
-              <span v-else-if="crew._licenseStatus === 'error'" class="status-badge status-error">
-                ⚠ {{ $t('admin.licenseChecker.error') }}
-              </span>
+              <!-- Show DB status if exists (priority) -->
+              <div v-if="crew.license_verification_status" class="verification-status">
+                <span :class="['status-badge', getVerificationStatusClass(crew.license_verification_status)]">
+                  {{ getVerificationStatusLabel(crew.license_verification_status) }}
+                </span>
+                <span class="verification-method">
+                  {{ crew.license_verification_status.startsWith('manually_') 
+                    ? $t('admin.licenseChecker.manual') 
+                    : $t('admin.licenseChecker.auto') 
+                  }}
+                </span>
+              </div>
+              <!-- Show temporary check status if no DB status -->
+              <div v-else-if="crew._licenseStatus" class="verification-status">
+                <span v-if="crew._checking" class="status-badge status-checking">
+                  {{ $t('admin.licenseChecker.checking') }}...
+                </span>
+                <span v-else-if="crew._licenseStatus === 'valid'" class="status-badge status-valid">
+                  ✓ {{ $t('admin.licenseChecker.valid') }}
+                </span>
+                <span v-else-if="crew._licenseStatus === 'invalid'" class="status-badge status-invalid">
+                  ✗ {{ $t('admin.licenseChecker.invalid') }}
+                </span>
+                <span v-else-if="crew._licenseStatus === 'error'" class="status-badge status-error">
+                  ⚠ {{ $t('admin.licenseChecker.error') }}
+                </span>
+                <span v-if="unsavedChanges.has(crew.crew_member_id)" class="status-unsaved">
+                  {{ $t('admin.licenseChecker.unsaved') }}
+                </span>
+              </div>
+              <!-- Show "Not verified" if neither exists -->
               <span v-else class="status-badge status-unchecked">
                 {{ $t('admin.licenseChecker.unchecked') }}
               </span>
             </td>
             <td>
-              <div class="details-cell">
+              <!-- Show DB details if exists -->
+              <div v-if="crew.license_verification_status" class="details-cell">
+                <div>{{ crew.license_verification_details || '-' }}</div>
+                <div v-if="crew.license_verification_date" class="verification-meta">
+                  {{ formatDate(crew.license_verification_date) }}
+                </div>
+              </div>
+              <!-- Show temporary check details if no DB details -->
+              <div v-else class="details-cell">
                 {{ crew._licenseDetails || '-' }}
               </div>
             </td>
@@ -267,7 +332,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ListHeader from '@/components/shared/ListHeader.vue'
 import ListFilters from '@/components/shared/ListFilters.vue'
@@ -283,14 +348,25 @@ const { t } = useI18n()
 // State
 const loading = ref(false)
 const checking = ref(false)
+const saving = ref(false)
 const error = ref('')
 const errorMessage = ref('')
 const successMessage = ref('')
-const cookieString = ref('')
+const cookieString = ref(localStorage.getItem('ffaviron_cookie') || '')
+
+// Watch cookieString and save to localStorage
+watch(cookieString, (newValue) => {
+  if (newValue) {
+    localStorage.setItem('ffaviron_cookie', newValue)
+  } else {
+    localStorage.removeItem('ffaviron_cookie')
+  }
+})
 
 const crewMembers = ref([])
 const selectedMembers = ref(new Set())
 const checkProgress = ref({ current: 0, total: 0 })
+const unsavedChanges = ref(new Map()) // Track unsaved verification changes
 
 // Filters
 const searchTerm = ref('')
@@ -403,6 +479,10 @@ const progressPercentage = computed(() => {
   return Math.round((checkProgress.value.current / checkProgress.value.total) * 100)
 })
 
+const hasUnsavedChanges = computed(() => {
+  return unsavedChanges.value.size > 0
+})
+
 // Methods
 const loadCrewMembers = async () => {
   loading.value = true
@@ -509,6 +589,14 @@ const checkSelectedLicenses = async () => {
       crew._licenseStatus = result.valid ? 'valid' : 'invalid'
       crew._licenseDetails = result.details
       
+      // Track this as an unsaved change
+      unsavedChanges.value.set(crew.crew_member_id, {
+        team_manager_id: crew.team_manager_id,
+        crew_member_id: crew.crew_member_id,
+        status: result.valid ? 'verified_valid' : 'verified_invalid',
+        details: result.details
+      })
+      
       if (result.valid) {
         validCount++
       } else {
@@ -518,6 +606,7 @@ const checkSelectedLicenses = async () => {
       crew._licenseStatus = 'error'
       crew._licenseDetails = err.message
       errorCount++
+      // Don't add errors to unsaved changes - they need manual review
     } finally {
       crew._checking = false
       checkProgress.value.current++
@@ -548,6 +637,139 @@ const clearFilters = () => {
   searchTerm.value = ''
   filterTeamManager.value = ''
   statusFilter.value = 'all'
+}
+
+const markSelectedAsValid = () => {
+  const selectedCrewMembers = crewMembers.value.filter(crew => 
+    selectedMembers.value.has(crew.crew_member_id)
+  )
+
+  console.log('Marking as valid:', selectedCrewMembers.length, 'members')
+
+  selectedCrewMembers.forEach(crew => {
+    crew._licenseStatus = 'valid'
+    crew._licenseDetails = t('admin.licenseChecker.manuallyMarkedValid')
+    
+    // Track this change for saving
+    unsavedChanges.value.set(crew.crew_member_id, {
+      team_manager_id: crew.team_manager_id,
+      crew_member_id: crew.crew_member_id,
+      status: 'manually_verified_valid',
+      details: t('admin.licenseChecker.manuallyMarkedValid')
+    })
+  })
+
+  console.log('Unsaved changes size:', unsavedChanges.value.size)
+  console.log('Has unsaved changes:', hasUnsavedChanges.value)
+
+  successMessage.value = t('admin.licenseChecker.markedAsValid', { count: selectedCrewMembers.length })
+}
+
+const markSelectedAsInvalid = () => {
+  const selectedCrewMembers = crewMembers.value.filter(crew => 
+    selectedMembers.value.has(crew.crew_member_id)
+  )
+
+  selectedCrewMembers.forEach(crew => {
+    crew._licenseStatus = 'invalid'
+    crew._licenseDetails = t('admin.licenseChecker.manuallyMarkedInvalid')
+    
+    // Track this change for saving
+    unsavedChanges.value.set(crew.crew_member_id, {
+      team_manager_id: crew.team_manager_id,
+      crew_member_id: crew.crew_member_id,
+      status: 'manually_verified_invalid',
+      details: t('admin.licenseChecker.manuallyMarkedInvalid')
+    })
+  })
+
+  successMessage.value = t('admin.licenseChecker.markedAsInvalid', { count: selectedCrewMembers.length })
+}
+
+const saveVerificationStatus = async () => {
+  if (unsavedChanges.value.size === 0) {
+    return
+  }
+
+  saving.value = true
+  errorMessage.value = ''
+  successMessage.value = ''
+
+  try {
+    // Convert unsaved changes to array
+    const verifications = Array.from(unsavedChanges.value.values())
+
+    // Call bulk update API
+    const response = await adminService.bulkUpdateLicenseVerification(verifications)
+
+    // Clear unsaved changes
+    unsavedChanges.value.clear()
+
+    // Show success message
+    successMessage.value = t('admin.licenseChecker.saveSuccess', {
+      success: response.success_count,
+      total: verifications.length
+    })
+
+    // If there were failures, show them
+    if (response.failure_count > 0) {
+      errorMessage.value = t('admin.licenseChecker.savePartialFailure', {
+        failed: response.failure_count
+      })
+    }
+  } catch (err) {
+    console.error('Failed to save verification status:', err)
+    errorMessage.value = err.response?.data?.message || t('admin.licenseChecker.saveError')
+    
+    // Keep status as "not verified" on error (don't update UI)
+    // The unsaved changes remain so user can retry
+  } finally {
+    saving.value = false
+  }
+}
+
+// Helper methods for verification status display
+const getVerificationStatusClass = (status) => {
+  if (!status) return 'status-unchecked'
+  
+  if (status === 'verified_valid' || status === 'manually_verified_valid') {
+    return 'status-valid'
+  }
+  if (status === 'verified_invalid' || status === 'manually_verified_invalid') {
+    return 'status-invalid'
+  }
+  
+  return 'status-unchecked'
+}
+
+const getVerificationStatusLabel = (status) => {
+  if (!status) return t('admin.licenseChecker.unchecked')
+  
+  if (status === 'verified_valid' || status === 'manually_verified_valid') {
+    return '✓ ' + t('admin.licenseChecker.valid')
+  }
+  if (status === 'verified_invalid' || status === 'manually_verified_invalid') {
+    return '✗ ' + t('admin.licenseChecker.invalid')
+  }
+  
+  return t('admin.licenseChecker.unchecked')
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  
+  try {
+    const date = new Date(dateString)
+    return date.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  } catch (err) {
+    return dateString
+  }
 }
 
 // Lifecycle
@@ -582,6 +804,28 @@ onMounted(() => {
   margin: 0 0 var(--spacing-md) 0;
   color: var(--color-muted);
   font-size: var(--font-size-sm);
+}
+
+.ffaviron-link {
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: #e3f2fd;
+  border: 1px solid #2196f3;
+  border-radius: 6px;
+}
+
+.external-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-base);
+}
+
+.external-link:hover {
+  text-decoration: underline;
 }
 
 .cookie-example {
@@ -836,6 +1080,30 @@ onMounted(() => {
 .status-error {
   background: #fff3cd;
   color: #856404;
+}
+
+.verification-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.verification-method {
+  font-size: var(--font-size-xs);
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+.status-unsaved {
+  font-size: var(--font-size-xs);
+  color: var(--color-warning);
+  font-weight: var(--font-weight-semibold);
+}
+
+.verification-meta {
+  font-size: var(--font-size-xs);
+  color: var(--color-muted);
+  margin-top: var(--spacing-xs);
 }
 
 .details-cell {
