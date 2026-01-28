@@ -563,6 +563,8 @@
       "selectAll": "Tout sélectionner",
       "selectedCount": "{count} sélectionné(s)",
       "clearSelection": "Effacer la sélection",
+      "emailSelected": "Envoyer un email",
+      "noEmailsFound": "Aucune adresse email trouvée pour les équipiers sélectionnés",
       "checkSelected": "Vérifier {count} licence(s)",
       "checking": "Vérification en cours",
       "noSelection": "Veuillez sélectionner au moins un équipier",

@@ -563,6 +563,8 @@
       "selectAll": "Select all",
       "selectedCount": "{count} selected",
       "clearSelection": "Clear selection",
+      "emailSelected": "Email Selected",
+      "noEmailsFound": "No email addresses found for selected crew members",
       "checkSelected": "Check {count} license(s)",
       "checking": "Checking",
       "noSelection": "Please select at least one crew member",

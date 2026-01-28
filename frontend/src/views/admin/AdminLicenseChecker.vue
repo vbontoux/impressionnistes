@@ -144,6 +144,15 @@
         >
           {{ $t('admin.licenseChecker.clearSelection') }}
         </BaseButton>
+
+        <BaseButton
+          variant="secondary"
+          size="medium"
+          :disabled="selectedCount === 0"
+          @click="emailSelected"
+        >
+          {{ $t('admin.licenseChecker.emailSelected') }}
+        </BaseButton>
       </div>
     </div>
 
@@ -546,6 +555,83 @@ const toggleSelectAllFiltered = () => {
 
 const clearSelection = () => {
   selectedMembers.value.clear()
+}
+
+const emailSelected = () => {
+  const selectedCrew = filteredCrewMembers.value.filter(
+    c => selectedMembers.value.has(c.crew_member_id)
+  )
+  
+  if (selectedCrew.length === 0) return
+  
+  // Prevent double-triggering
+  if (emailSelected.processing) return
+  emailSelected.processing = true
+  
+  setTimeout(() => {
+    emailSelected.processing = false
+  }, 1000)
+  
+  // Group by club (using team_manager_club from backend)
+  const crewByClub = {}
+  selectedCrew.forEach(crew => {
+    const club = crew.team_manager_club || crew.club_affiliation || 'Club non spécifié / Club not specified'
+    if (!crewByClub[club]) {
+      crewByClub[club] = []
+    }
+    crewByClub[club].push(crew)
+  })
+  
+  // Sort clubs alphabetically
+  const sortedClubs = Object.keys(crewByClub).sort()
+  
+  // Build French section
+  let body = "Bonjour,\n\n"
+  body += "Veuillez vérifier les licences FFAviron suivantes pour vos équipiers :\n\n"
+  
+  sortedClubs.forEach(club => {
+    body += `${club}\n`
+    crewByClub[club].forEach(crew => {
+      body += `- ${crew.first_name} ${crew.last_name} - Licence: ${crew.license_number || 'N/A'}\n`
+    })
+    body += "\n"
+  })
+  
+  body += "Vous pouvez vérifier les licences sur :\n"
+  body += "https://intranet.ffaviron.fr/licences/recherche\n\n"
+  body += "Merci,\nL'équipe d'organisation des Impressionnistes\n\n"
+  
+  // Build English section
+  body += "---\n\nHello,\n\n"
+  body += "Please verify the following FFAviron licenses for your crew members:\n\n"
+  
+  sortedClubs.forEach(club => {
+    body += `${club}\n`
+    crewByClub[club].forEach(crew => {
+      body += `- ${crew.first_name} ${crew.last_name} - License: ${crew.license_number || 'N/A'}\n`
+    })
+    body += "\n"
+  })
+  
+  body += "You can verify licenses at:\n"
+  body += "https://intranet.ffaviron.fr/licences/recherche\n\n"
+  body += "Thank you,\nThe Impressionnistes organizing team"
+  
+  // Get unique emails for BCC
+  const emails = [...new Set(
+    selectedCrew
+      .map(c => c.team_manager_email)
+      .filter(e => e)
+  )]
+  
+  if (emails.length === 0) {
+    errorMessage.value = t('admin.licenseChecker.noEmailsFound')
+    return
+  }
+  
+  const subject = "Vérification des licences FFAviron requise / FFAviron License Verification Required"
+  
+  window.location.href = `mailto:?bcc=${encodeURIComponent(emails.join(','))}&subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
 }
 
 const checkSelectedLicenses = async () => {
