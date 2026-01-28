@@ -102,6 +102,8 @@
       "boatRegistrationsDesc": "View and manage all crews",
       "dataExports": "Data Exports",
       "dataExportsDesc": "Export crew members and crews",
+      "licenseChecker": "License Verification",
+      "licenseCheckerDesc": "Verify the validity of FFAviron licenses for crew members",
       "permissionsAccess": "Permissions & Access",
       "permissionsAccessDesc": "Manage permissions, impersonation, and temporary access"
     },
@@ -528,7 +530,7 @@
       "totalRevenue": "Total Revenue",
       "totalPayments": "Total Payments",
       "outstandingBalance": "Outstanding Balance",
-      "boatsPaid": "Boats Paid",
+      "boatsPaid": "Paid Crews",
       "topPayers": "Top Payers",
       "rank": "Rank",
       "teamManager": "Team Manager",

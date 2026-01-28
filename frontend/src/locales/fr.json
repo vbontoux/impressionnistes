@@ -102,6 +102,8 @@
       "boatRegistrationsDesc": "Voir et gérer tous les équipages",
       "dataExports": "Exports de données",
       "dataExportsDesc": "Exporter les équipiers et les équipages",
+      "licenseChecker": "Vérification des Licences",
+      "licenseCheckerDesc": "Vérifier la validité des licences FFAviron des équipiers",
       "permissionsAccess": "Permissions et Accès",
       "permissionsAccessDesc": "Gérer les permissions, l'emprunt d'identité et les accès temporaires"
     },
