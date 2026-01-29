@@ -17,6 +17,9 @@
             <p class="contact-info">
               <strong>Rowing Club de Port Marly (RCPM)</strong><br>
               Course des Impressionnistes<br>
+              12bis Rue de Paris<br>
+              78560 Le Port-Marly<br>
+              France<br>
               Email: {{ contactEmail }}<br>
               Website: {{ eventWebsite }}
             </p>
@@ -65,11 +68,11 @@
             <ul>
               <li><strong>User Accounts:</strong> Generally deleted before reopening registration for the next edition (typically within 1 year). This ensures data freshness and avoids issues with obsolete information, forgotten passwords, or changed contact details.</li>
               <li><strong>Club Manager Contact Information:</strong> Retained year-to-year to send invitations for subsequent editions of the event</li>
-              <li><strong>Historical Race Results:</strong> Crew member names and race results are preserved indefinitely as part of the event's historical records</li>
+              <li><strong>Historical Race Results:</strong> Crew member names and race results are retained for 50 years for sports archival purposes, in accordance with our legitimate interest in preserving the event's sporting heritage. You may request removal or anonymization of your name from historical results by contacting us with a justified reason. We will evaluate such requests on a case-by-case basis, balancing your privacy rights with the historical and sporting interest of the records.</li>
               <li><strong>Payment Records:</strong> 7 years (legal requirement for financial records in France)</li>
               <li><strong>Registration Data:</strong> Typically not retained on the registration server for more than 1 year, except for historical results and club manager contact information as noted above</li>
             </ul>
-            <p>After these periods, data will be securely deleted or anonymized, except for historical race results which are preserved for archival purposes.</p>
+            <p>After these periods, data will be securely deleted or anonymized.</p>
           </section>
 
           <section>
@@ -126,10 +129,50 @@
           <section>
             <h2>10. Cookies</h2>
             <p>
-              We use cookies to improve your experience on our website. Essential cookies are required for the site to function.
-              You can manage your cookie preferences using the cookie banner or the "Cookie Preferences" link in the footer.
+              We use cookies to improve your experience on our website. Below are the types of cookies we use:
             </p>
-            <p>For more information, see our Cookie Policy (accessible via the cookie banner).</p>
+            
+            <h3>Essential Cookies (Required)</h3>
+            <p>
+              These cookies are strictly necessary for the website to function and cannot be disabled. They do not require your consent under GDPR.
+            </p>
+            <ul>
+              <li><strong>Authentication cookies:</strong> To keep you logged in during your session (AWS Cognito)</li>
+              <li><strong>Security cookies:</strong> To protect against cross-site request forgery (CSRF) attacks</li>
+              <li><strong>Session cookies:</strong> To maintain your preferences during your visit</li>
+            </ul>
+
+            <h3>Functional Cookies (Optional)</h3>
+            <p>
+              These cookies enhance functionality and personalization but are not essential. They require your consent.
+            </p>
+            <ul>
+              <li><strong>Language preference:</strong> To remember your language choice (French/English)</li>
+              <li><strong>Cookie consent:</strong> To remember your cookie preferences</li>
+            </ul>
+
+            <h3>Analytics Cookies (Optional)</h3>
+            <p>
+              We do not currently use analytics or tracking cookies. If we implement analytics in the future, we will:
+            </p>
+            <ul>
+              <li>Request your explicit consent before placing any analytics cookies</li>
+              <li>Use privacy-friendly analytics tools with IP anonymization</li>
+              <li>Allow you to opt-out at any time</li>
+            </ul>
+
+            <h3>Managing Your Cookie Preferences</h3>
+            <p>
+              You can manage your cookie preferences at any time:
+            </p>
+            <ul>
+              <li>Use the cookie banner that appears on your first visit</li>
+              <li>Click the "Cookie Preferences" link in the footer</li>
+              <li>Configure your browser settings to block or delete cookies</li>
+            </ul>
+            <p>
+              Note: Blocking essential cookies may prevent certain features of the website from functioning properly.
+            </p>
           </section>
 
           <section>
@@ -141,11 +184,105 @@
           </section>
 
           <section>
-            <h2>12. Children's Privacy</h2>
+            <h2>12. Children's Privacy and Parental Consent</h2>
+            
+            <h3>Age Requirements and Parental Responsibility</h3>
             <p>
-              Our service is intended for rowing club managers (adults). However, we process data of junior rowers (ages 14-18) as part of crew registrations.
-              Club managers are responsible for obtaining parental consent for junior participants.
+              Our registration platform is intended for use by adult rowing club managers (18 years and older). However, we process personal data of minor rowers (under 18 years old) as part of crew registrations for the Course des Impressionnistes competition.
             </p>
+
+            <h3>Categories of Minors</h3>
+            <ul>
+              <li><strong>Junior rowers (14-17 years):</strong> Eligible to participate in junior categories</li>
+              <li><strong>Minors under 14 years:</strong> Not eligible to participate in this competition</li>
+            </ul>
+
+            <h3>How Parental Consent is Obtained</h3>
+            <p>
+              The rowing club manager registering a minor crew member is responsible for:
+            </p>
+            <ul>
+              <li><strong>Obtaining written parental consent</strong> before registering the minor in our system</li>
+              <li><strong>Informing parents</strong> about:
+                <ul>
+                  <li>The personal data collected (name, date of birth, gender, license number, club affiliation)</li>
+                  <li>The purpose of data processing (event registration, race management, results publication)</li>
+                  <li>The retention period (50 years for historical race results, with possibility of removal)</li>
+                  <li>Parents' rights to access, rectify, or request deletion of their child's data</li>
+                </ul>
+              </li>
+              <li><strong>Keeping proof of parental consent</strong> on file at the rowing club for verification purposes</li>
+              <li><strong>Ensuring compliance</strong> with French Rowing Federation (FFA) regulations regarding minor participation</li>
+            </ul>
+
+            <h3>Data Collected for Minors</h3>
+            <p>
+              For minor crew members, we collect only the data strictly necessary for competition participation:
+            </p>
+            <ul>
+              <li>Full name</li>
+              <li>Date of birth (to verify age eligibility)</li>
+              <li>Gender (for race category assignment)</li>
+              <li>Rowing license number (for FFA compliance)</li>
+              <li>Club affiliation</li>
+            </ul>
+            <p>
+              We do <strong>not</strong> collect email addresses, phone numbers, or other contact information directly from minors.
+            </p>
+
+            <h3>Parental Rights</h3>
+            <p>
+              Parents or legal guardians of minor participants have the right to:
+            </p>
+            <ul>
+              <li><strong>Access:</strong> Request a copy of all personal data we hold about their child</li>
+              <li><strong>Rectification:</strong> Correct any inaccurate or incomplete data</li>
+              <li><strong>Erasure:</strong> Request deletion of their child's data from our active registration system</li>
+              <li><strong>Object to processing:</strong> Object to the processing of their child's data for specific purposes</li>
+              <li><strong>Withdraw consent:</strong> Withdraw consent at any time (note: this may prevent participation in the event)</li>
+              <li><strong>Request anonymization:</strong> Request that their child's name be anonymized in historical race results</li>
+            </ul>
+
+            <h3>How to Exercise Parental Rights</h3>
+            <p>
+              Parents or legal guardians can exercise their rights by:
+            </p>
+            <ol>
+              <li><strong>Contacting their rowing club manager</strong> who registered the minor, or</li>
+              <li><strong>Contacting us directly</strong> at {{ contactEmail }} with:
+                <ul>
+                  <li>The minor's full name and date of birth</li>
+                  <li>Proof of parental authority (copy of ID and family record book or equivalent)</li>
+                  <li>A clear description of the request (access, rectification, deletion, etc.)</li>
+                </ul>
+              </li>
+            </ol>
+            <p>
+              We will respond to parental requests within <strong>30 days</strong> and may request additional verification to ensure the request comes from a legitimate parent or guardian.
+            </p>
+
+            <h3>Special Considerations for Historical Results</h3>
+            <p>
+              Race results containing minors' names are retained for 50 years for sports archival purposes. Parents may request:
+            </p>
+            <ul>
+              <li><strong>Anonymization:</strong> Replacing the minor's full name with initials or a pseudonym in published results</li>
+              <li><strong>Removal:</strong> Complete removal from historical records (evaluated case-by-case)</li>
+            </ul>
+            <p>
+              Such requests will be evaluated balancing the child's privacy rights with the legitimate interest in preserving sporting heritage, in accordance with CNIL guidelines.
+            </p>
+
+            <h3>Club Manager Responsibilities</h3>
+            <p>
+              Rowing club managers who register minors acknowledge and accept responsibility for:
+            </p>
+            <ul>
+              <li>Obtaining and documenting valid parental consent before registration</li>
+              <li>Ensuring parents are fully informed about data processing</li>
+              <li>Acting as intermediary for parental requests regarding minors' data</li>
+              <li>Complying with all applicable laws and FFA regulations regarding minor participation</li>
+            </ul>
           </section>
 
           <section>
@@ -193,6 +330,9 @@
             <p class="contact-info">
               <strong>Rowing Club de Port Marly (RCPM)</strong><br>
               Course des Impressionnistes<br>
+              12bis Rue de Paris<br>
+              78560 Le Port-Marly<br>
+              France<br>
               Email : {{ contactEmail }}<br>
               Site web : {{ eventWebsite }}
             </p>
@@ -241,11 +381,11 @@
             <ul>
               <li><strong>Comptes utilisateurs :</strong> Généralement supprimés avant la réouverture des inscriptions pour l'édition suivante (typiquement dans un délai d'un an). Cela garantit la fraîcheur des données et évite les problèmes liés aux informations obsolètes, aux mots de passe oubliés ou aux coordonnées modifiées.</li>
               <li><strong>Coordonnées des responsables de club :</strong> Conservées d'une année sur l'autre pour envoyer les invitations aux éditions suivantes de l'événement</li>
-              <li><strong>Résultats historiques des courses :</strong> Les noms des membres d'équipage et les résultats des courses sont conservés indéfiniment dans le cadre des archives historiques de l'événement</li>
+              <li><strong>Résultats historiques des courses :</strong> Les noms des membres d'équipage et les résultats des courses sont conservés pendant 50 ans à des fins d'archivage sportif, conformément à notre intérêt légitime de préserver le patrimoine sportif de l'événement. Vous pouvez demander le retrait ou l'anonymisation de votre nom des résultats historiques en nous contactant avec un motif justifié. Nous évaluerons ces demandes au cas par cas, en équilibrant vos droits à la vie privée avec l'intérêt historique et sportif des archives.</li>
               <li><strong>Enregistrements de paiement :</strong> 7 ans (exigence légale pour les enregistrements financiers en France)</li>
               <li><strong>Données d'inscription :</strong> Généralement non conservées sur le serveur d'inscription pendant plus d'un an, à l'exception des résultats historiques et des coordonnées des responsables de club comme indiqué ci-dessus</li>
             </ul>
-            <p>Après ces périodes, les données seront supprimées ou anonymisées de manière sécurisée, à l'exception des résultats historiques des courses qui sont conservés à des fins d'archivage.</p>
+            <p>Après ces périodes, les données seront supprimées ou anonymisées de manière sécurisée.</p>
           </section>
 
           <section>
@@ -302,10 +442,50 @@
           <section>
             <h2>10. Cookies</h2>
             <p>
-              Nous utilisons des cookies pour améliorer votre expérience sur notre site web. Les cookies essentiels sont requis pour le fonctionnement du site.
-              Vous pouvez gérer vos préférences de cookies en utilisant la bannière de cookies ou le lien "Préférences des cookies" dans le pied de page.
+              Nous utilisons des cookies pour améliorer votre expérience sur notre site web. Voici les types de cookies que nous utilisons :
             </p>
-            <p>Pour plus d'informations, consultez notre Politique de cookies (accessible via la bannière de cookies).</p>
+            
+            <h3>Cookies essentiels (obligatoires)</h3>
+            <p>
+              Ces cookies sont strictement nécessaires au fonctionnement du site web et ne peuvent pas être désactivés. Ils ne nécessitent pas votre consentement en vertu du RGPD.
+            </p>
+            <ul>
+              <li><strong>Cookies d'authentification :</strong> Pour vous maintenir connecté pendant votre session (AWS Cognito)</li>
+              <li><strong>Cookies de sécurité :</strong> Pour protéger contre les attaques de type cross-site request forgery (CSRF)</li>
+              <li><strong>Cookies de session :</strong> Pour maintenir vos préférences pendant votre visite</li>
+            </ul>
+
+            <h3>Cookies fonctionnels (optionnels)</h3>
+            <p>
+              Ces cookies améliorent les fonctionnalités et la personnalisation mais ne sont pas essentiels. Ils nécessitent votre consentement.
+            </p>
+            <ul>
+              <li><strong>Préférence de langue :</strong> Pour mémoriser votre choix de langue (français/anglais)</li>
+              <li><strong>Consentement aux cookies :</strong> Pour mémoriser vos préférences en matière de cookies</li>
+            </ul>
+
+            <h3>Cookies analytiques (optionnels)</h3>
+            <p>
+              Nous n'utilisons actuellement pas de cookies d'analyse ou de suivi. Si nous mettons en place des outils d'analyse à l'avenir, nous :
+            </p>
+            <ul>
+              <li>Demanderons votre consentement explicite avant de placer des cookies analytiques</li>
+              <li>Utiliserons des outils d'analyse respectueux de la vie privée avec anonymisation des adresses IP</li>
+              <li>Vous permettrons de vous désinscrire à tout moment</li>
+            </ul>
+
+            <h3>Gestion de vos préférences en matière de cookies</h3>
+            <p>
+              Vous pouvez gérer vos préférences en matière de cookies à tout moment :
+            </p>
+            <ul>
+              <li>Utiliser la bannière de cookies qui apparaît lors de votre première visite</li>
+              <li>Cliquer sur le lien "Préférences des cookies" dans le pied de page</li>
+              <li>Configurer les paramètres de votre navigateur pour bloquer ou supprimer les cookies</li>
+            </ul>
+            <p>
+              Note : Le blocage des cookies essentiels peut empêcher certaines fonctionnalités du site web de fonctionner correctement.
+            </p>
           </section>
 
           <section>
@@ -317,11 +497,105 @@
           </section>
 
           <section>
-            <h2>12. Confidentialité des enfants</h2>
+            <h2>12. Confidentialité des enfants et consentement parental</h2>
+            
+            <h3>Exigences d'âge et responsabilité parentale</h3>
             <p>
-              Notre service est destiné aux managers de clubs d'aviron (adultes). Cependant, nous traitons les données de rameurs juniors (âgés de 14 à 18 ans) dans le cadre des inscriptions d'équipage.
-              Les managers de club sont responsables d'obtenir le consentement parental pour les participants juniors.
+              Notre plateforme d'inscription est destinée à être utilisée par des responsables de clubs d'aviron adultes (18 ans et plus). Cependant, nous traitons les données personnelles de rameurs mineurs (moins de 18 ans) dans le cadre des inscriptions d'équipage pour la compétition Course des Impressionnistes.
             </p>
+
+            <h3>Catégories de mineurs</h3>
+            <ul>
+              <li><strong>Rameurs juniors (14-17 ans) :</strong> Éligibles pour participer aux catégories juniors</li>
+              <li><strong>Mineurs de moins de 14 ans :</strong> Non éligibles pour participer à cette compétition</li>
+            </ul>
+
+            <h3>Comment le consentement parental est obtenu</h3>
+            <p>
+              Le responsable du club d'aviron qui inscrit un membre d'équipage mineur est responsable de :
+            </p>
+            <ul>
+              <li><strong>Obtenir le consentement parental écrit</strong> avant d'inscrire le mineur dans notre système</li>
+              <li><strong>Informer les parents</strong> sur :
+                <ul>
+                  <li>Les données personnelles collectées (nom, date de naissance, genre, numéro de licence, club d'affiliation)</li>
+                  <li>La finalité du traitement des données (inscription à l'événement, gestion des courses, publication des résultats)</li>
+                  <li>La durée de conservation (50 ans pour les résultats historiques, avec possibilité de retrait)</li>
+                  <li>Les droits des parents d'accéder, rectifier ou demander la suppression des données de leur enfant</li>
+                </ul>
+              </li>
+              <li><strong>Conserver la preuve du consentement parental</strong> dans les dossiers du club d'aviron à des fins de vérification</li>
+              <li><strong>Assurer la conformité</strong> avec les réglementations de la Fédération Française d'Aviron (FFA) concernant la participation des mineurs</li>
+            </ul>
+
+            <h3>Données collectées pour les mineurs</h3>
+            <p>
+              Pour les membres d'équipage mineurs, nous collectons uniquement les données strictement nécessaires à la participation à la compétition :
+            </p>
+            <ul>
+              <li>Nom complet</li>
+              <li>Date de naissance (pour vérifier l'éligibilité d'âge)</li>
+              <li>Genre (pour l'attribution de catégorie de course)</li>
+              <li>Numéro de licence d'aviron (pour la conformité FFA)</li>
+              <li>Club d'affiliation</li>
+            </ul>
+            <p>
+              Nous ne collectons <strong>pas</strong> d'adresses e-mail, de numéros de téléphone ou d'autres informations de contact directement auprès des mineurs.
+            </p>
+
+            <h3>Droits des parents</h3>
+            <p>
+              Les parents ou tuteurs légaux des participants mineurs ont le droit de :
+            </p>
+            <ul>
+              <li><strong>Accès :</strong> Demander une copie de toutes les données personnelles que nous détenons sur leur enfant</li>
+              <li><strong>Rectification :</strong> Corriger toute donnée inexacte ou incomplète</li>
+              <li><strong>Effacement :</strong> Demander la suppression des données de leur enfant de notre système d'inscription actif</li>
+              <li><strong>Opposition au traitement :</strong> S'opposer au traitement des données de leur enfant à des fins spécifiques</li>
+              <li><strong>Retrait du consentement :</strong> Retirer le consentement à tout moment (note : cela peut empêcher la participation à l'événement)</li>
+              <li><strong>Demande d'anonymisation :</strong> Demander que le nom de leur enfant soit anonymisé dans les résultats historiques des courses</li>
+            </ul>
+
+            <h3>Comment exercer les droits parentaux</h3>
+            <p>
+              Les parents ou tuteurs légaux peuvent exercer leurs droits en :
+            </p>
+            <ol>
+              <li><strong>Contactant le responsable de leur club d'aviron</strong> qui a inscrit le mineur, ou</li>
+              <li><strong>Nous contactant directement</strong> à {{ contactEmail }} avec :
+                <ul>
+                  <li>Le nom complet et la date de naissance du mineur</li>
+                  <li>Une preuve de l'autorité parentale (copie de la pièce d'identité et du livret de famille ou équivalent)</li>
+                  <li>Une description claire de la demande (accès, rectification, suppression, etc.)</li>
+                </ul>
+              </li>
+            </ol>
+            <p>
+              Nous répondrons aux demandes parentales dans un délai de <strong>30 jours</strong> et pourrons demander une vérification supplémentaire pour nous assurer que la demande provient d'un parent ou tuteur légitime.
+            </p>
+
+            <h3>Considérations spéciales pour les résultats historiques</h3>
+            <p>
+              Les résultats de course contenant les noms de mineurs sont conservés pendant 50 ans à des fins d'archivage sportif. Les parents peuvent demander :
+            </p>
+            <ul>
+              <li><strong>Anonymisation :</strong> Remplacement du nom complet du mineur par des initiales ou un pseudonyme dans les résultats publiés</li>
+              <li><strong>Retrait :</strong> Suppression complète des archives historiques (évalué au cas par cas)</li>
+            </ul>
+            <p>
+              Ces demandes seront évaluées en équilibrant les droits à la vie privée de l'enfant avec l'intérêt légitime de préserver le patrimoine sportif, conformément aux directives de la CNIL.
+            </p>
+
+            <h3>Responsabilités des responsables de club</h3>
+            <p>
+              Les responsables de clubs d'aviron qui inscrivent des mineurs reconnaissent et acceptent la responsabilité de :
+            </p>
+            <ul>
+              <li>Obtenir et documenter un consentement parental valide avant l'inscription</li>
+              <li>S'assurer que les parents sont pleinement informés du traitement des données</li>
+              <li>Agir en tant qu'intermédiaire pour les demandes parentales concernant les données des mineurs</li>
+              <li>Se conformer à toutes les lois applicables et aux réglementations de la FFA concernant la participation des mineurs</li>
+            </ul>
           </section>
 
           <section>
