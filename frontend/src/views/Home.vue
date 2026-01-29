@@ -49,7 +49,14 @@
         <h2>{{ $t('home.dates.title') }}</h2>
         <div class="dates-grid">
           <div class="date-card">
-            <div class="date-icon">📅</div>
+            <div class="date-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
             <h3>{{ $t('home.dates.registrationOpen') }}</h3>
             <p class="date-value">{{ formattedRegistrationStartDate }}</p>
             <div class="date-rules">
@@ -80,7 +87,12 @@
             </div>
           </div>
           <div class="date-card">
-            <div class="date-icon">🔒</div>
+            <div class="date-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7 11V7C7 5.67392 7.52678 4.40215 8.46447 3.46447C9.40215 2.52678 10.6739 2 12 2C13.3261 2 14.5979 2.52678 15.5355 3.46447C16.4732 4.40215 17 5.67392 17 7V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
             <h3>{{ $t('home.dates.registrationClose') }}</h3>
             <p class="date-value">{{ formattedRegistrationEndDate }}</p>
             <div class="date-rules">
@@ -117,7 +129,12 @@
             </div>
           </div>
           <div class="date-card">
-            <div class="date-icon">💳</div>
+            <div class="date-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="4" width="22" height="16" rx="2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="1" y1="10" x2="23" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
             <h3>{{ $t('home.dates.paymentDeadline') }}</h3>
             <p class="date-value">{{ formattedPaymentDeadline }}</p>
             <div class="date-rules">
@@ -142,7 +159,12 @@
             </div>
           </div>
           <div class="date-card highlight">
-            <div class="date-icon">🏁</div>
+            <div class="date-icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 15C4 15 5 14 8 14C11 14 13 16 16 16C19 16 20 15 20 15V3C20 3 19 4 16 4C13 4 11 2 8 2C5 2 4 3 4 3V15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <line x1="4" y1="22" x2="4" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
             <h3>{{ $t('home.dates.competitionDate') }}</h3>
             <p class="date-value">{{ formattedEventDate }}</p>
             <div class="date-rules">
@@ -259,13 +281,35 @@
           <p class="category-description">{{ $t('home.pricing.seatFees.description') }}</p>
           <div class="pricing-grid">
             <div class="pricing-card">
-              <div class="pricing-icon">🚣</div>
+              <div class="pricing-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="7" cy="3" r="1.5" fill="currentColor"/>
+                  <path d="M7 4.5 L3 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M7 4.5 L8 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="3" y1="7" x2="10" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                  <circle cx="17" cy="3" r="1.5" fill="currentColor"/>
+                  <path d="M17 4.5 L13 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M17 4.5 L18 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="13" y1="7" x2="20" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                  <line x1="1" y1="11" x2="23" y2="11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M1 20C1 20 3 18.5 6 18.5C9 18.5 11 20 14 20C17 20 19 18.5 22 18.5C23 18.5 24 20 24 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
               <h4>{{ $t('home.pricing.seatFees.crew.title') }}</h4>
               <div class="price">€20<span class="price-unit">/{{ $t('home.pricing.seat') }}</span></div>
               <p>{{ $t('home.pricing.seatFees.crew.description') }}</p>
             </div>
             <div class="pricing-card">
-              <div class="pricing-icon">🛶</div>
+              <div class="pricing-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="3" r="1.5" fill="currentColor"/>
+                  <path d="M12 4.5 L8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 4.5 L13 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="8" y1="7" x2="15" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                  <line x1="3" y1="11" x2="21" y2="11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M1 20C1 20 3 18.5 6 18.5C9 18.5 11 20 14 20C17 20 19 18.5 22 18.5C23 18.5 24 20 24 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
               <h4>{{ $t('home.pricing.seatFees.skiff.title') }}</h4>
               <div class="price">€20</div>
               <p>{{ $t('home.pricing.seatFees.skiff.description') }}</p>
@@ -279,13 +323,35 @@
           <p class="category-description">{{ $t('home.pricing.boatRental.description') }}</p>
           <div class="pricing-grid">
             <div class="pricing-card">
-              <div class="pricing-icon">🛶</div>
+              <div class="pricing-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="3" r="1.5" fill="currentColor"/>
+                  <path d="M12 4.5 L8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M12 4.5 L13 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="8" y1="7" x2="15" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                  <line x1="3" y1="11" x2="21" y2="11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M1 20C1 20 3 18.5 6 18.5C9 18.5 11 20 14 20C17 20 19 18.5 22 18.5C23 18.5 24 20 24 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
               <h4>{{ $t('home.pricing.boatRental.skiff.title') }}</h4>
               <div class="price">€50</div>
               <p>{{ $t('home.pricing.boatRental.skiff.description') }}</p>
             </div>
             <div class="pricing-card">
-              <div class="pricing-icon">🚣‍♂️</div>
+              <div class="pricing-icon">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="7" cy="3" r="1.5" fill="currentColor"/>
+                  <path d="M7 4.5 L3 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M7 4.5 L8 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="3" y1="7" x2="10" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                  <circle cx="17" cy="3" r="1.5" fill="currentColor"/>
+                  <path d="M17 4.5 L13 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M17 4.5 L18 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <line x1="13" y1="7" x2="20" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                  <line x1="1" y1="11" x2="23" y2="11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M1 20C1 20 3 18.5 6 18.5C9 18.5 11 20 14 20C17 20 19 18.5 22 18.5C23 18.5 24 20 24 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
               <h4>{{ $t('home.pricing.boatRental.crew.title') }}</h4>
               <div class="price">€20<span class="price-unit">/{{ $t('home.pricing.seat') }}</span></div>
               <p>{{ $t('home.pricing.boatRental.crew.description') }}</p>
@@ -302,19 +368,54 @@
             <h4 class="example-section-title">{{ $t('home.pricing.examples.registrationOnly') }}</h4>
             <div class="examples-grid">
               <div class="example-card">
-                <div class="example-icon">🚣‍♀️</div>
+                <div class="example-icon">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="7" cy="3" r="1.5" fill="currentColor"/>
+                    <path d="M7 4.5 L3 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M7 4.5 L8 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="3" y1="7" x2="10" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                    <circle cx="17" cy="3" r="1.5" fill="currentColor"/>
+                    <path d="M17 4.5 L13 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M17 4.5 L18 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="13" y1="7" x2="20" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                    <line x1="1" y1="11" x2="23" y2="11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M1 20C1 20 3 18.5 6 18.5C9 18.5 11 20 14 20C17 20 19 18.5 22 18.5C23 18.5 24 20 24 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
                 <h5>{{ $t('home.pricing.examples.eight.title') }}</h5>
                 <p class="example-calc">{{ $t('home.pricing.examples.eight.calc') }}</p>
                 <div class="example-total">{{ $t('home.pricing.examples.eight.total') }}</div>
               </div>
               <div class="example-card">
-                <div class="example-icon">🚣</div>
+                <div class="example-icon">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="7" cy="3" r="1.5" fill="currentColor"/>
+                    <path d="M7 4.5 L3 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M7 4.5 L8 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="3" y1="7" x2="10" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                    <circle cx="17" cy="3" r="1.5" fill="currentColor"/>
+                    <path d="M17 4.5 L13 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M17 4.5 L18 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="13" y1="7" x2="20" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                    <line x1="1" y1="11" x2="23" y2="11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M1 20C1 20 3 18.5 6 18.5C9 18.5 11 20 14 20C17 20 19 18.5 22 18.5C23 18.5 24 20 24 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
                 <h5>{{ $t('home.pricing.examples.four.title') }}</h5>
                 <p class="example-calc">{{ $t('home.pricing.examples.four.calc') }}</p>
                 <div class="example-total">{{ $t('home.pricing.examples.four.total') }}</div>
               </div>
               <div class="example-card">
-                <div class="example-icon">🛶</div>
+                <div class="example-icon">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="3" r="1.5" fill="currentColor"/>
+                    <path d="M12 4.5 L8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 4.5 L13 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="8" y1="7" x2="15" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                    <line x1="3" y1="11" x2="21" y2="11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M1 20C1 20 3 18.5 6 18.5C9 18.5 11 20 14 20C17 20 19 18.5 22 18.5C23 18.5 24 20 24 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
                 <h5>{{ $t('home.pricing.examples.skiff.title') }}</h5>
                 <p class="example-calc">{{ $t('home.pricing.examples.skiff.calc') }}</p>
                 <div class="example-total">{{ $t('home.pricing.examples.skiff.total') }}</div>
@@ -327,13 +428,35 @@
             <h4 class="example-section-title">{{ $t('home.pricing.examples.withRental') }}</h4>
             <div class="examples-grid">
               <div class="example-card rental">
-                <div class="example-icon">🚣‍♂️</div>
+                <div class="example-icon">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="7" cy="3" r="1.5" fill="currentColor"/>
+                    <path d="M7 4.5 L3 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M7 4.5 L8 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="3" y1="7" x2="10" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                    <circle cx="17" cy="3" r="1.5" fill="currentColor"/>
+                    <path d="M17 4.5 L13 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M17 4.5 L18 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="13" y1="7" x2="20" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                    <line x1="1" y1="11" x2="23" y2="11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M1 20C1 20 3 18.5 6 18.5C9 18.5 11 20 14 20C17 20 19 18.5 22 18.5C23 18.5 24 20 24 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
                 <h5>{{ $t('home.pricing.examples.fourWithRental.title') }}</h5>
                 <p class="example-calc">{{ $t('home.pricing.examples.fourWithRental.calc') }}</p>
                 <div class="example-total">{{ $t('home.pricing.examples.fourWithRental.total') }}</div>
               </div>
               <div class="example-card rental">
-                <div class="example-icon">🛶</div>
+                <div class="example-icon">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="3" r="1.5" fill="currentColor"/>
+                    <path d="M12 4.5 L8 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M12 4.5 L13 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    <line x1="8" y1="7" x2="15" y2="17" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                    <line x1="3" y1="11" x2="21" y2="11" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M1 20C1 20 3 18.5 6 18.5C9 18.5 11 20 14 20C17 20 19 18.5 22 18.5C23 18.5 24 20 24 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
                 <h5>{{ $t('home.pricing.examples.skiffWithRental.title') }}</h5>
                 <p class="example-calc">{{ $t('home.pricing.examples.skiffWithRental.calc') }}</p>
                 <div class="example-total">{{ $t('home.pricing.examples.skiffWithRental.total') }}</div>
@@ -575,8 +698,22 @@ section h2 {
 }
 
 .date-icon {
-  font-size: 2.5rem;
-  margin-bottom: 0.75rem;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.date-icon svg {
+  width: 100%;
+  height: 100%;
+  color: var(--color-primary);
+}
+
+.date-card.highlight .date-icon svg {
+  color: white;
 }
 
 .date-card h3 {
@@ -816,8 +953,18 @@ section h2 {
 }
 
 .pricing-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pricing-icon svg {
+  width: 100%;
+  height: 100%;
+  color: var(--color-primary);
 }
 
 .pricing-card h4 {
@@ -899,8 +1046,18 @@ section h2 {
 }
 
 .example-icon {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.example-icon svg {
+  width: 100%;
+  height: 100%;
+  color: var(--color-primary);
 }
 
 .example-card h5 {
@@ -1057,8 +1214,9 @@ section h2 {
   }
 
   .date-icon {
-    font-size: 2rem;
-    margin-bottom: 0.5rem;
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 0.5rem;
   }
 
   .date-card h3 {
@@ -1148,7 +1306,8 @@ section h2 {
   }
 
   .pricing-icon {
-    font-size: 2.5rem;
+    width: 56px;
+    height: 56px;
   }
 
   .pricing-card h4 {
@@ -1192,7 +1351,8 @@ section h2 {
   }
 
   .example-icon {
-    font-size: 2rem;
+    width: 48px;
+    height: 48px;
   }
 
   .example-card h5 {
