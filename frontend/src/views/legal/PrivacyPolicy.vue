@@ -314,8 +314,9 @@
               If you have any questions about this Privacy Policy or how we handle your personal data, please contact us:
             </p>
             <p class="contact-info">
-              Email: {{ contactEmail }}<br>
-              Website: {{ eventWebsite }}
+              <strong>By email:</strong> {{ contactEmail }}<br>
+              <strong>By mail:</strong> Rowing Club de Port Marly (RCPM), Course des Impressionnistes, 12bis Rue de Paris, 78560 Le Port-Marly, France<br>
+              <strong>Website:</strong> {{ eventWebsite }}
             </p>
           </section>
         </div>
@@ -627,8 +628,9 @@
               Si vous avez des questions sur cette Politique de confidentialité ou sur la façon dont nous traitons vos données personnelles, veuillez nous contacter :
             </p>
             <p class="contact-info">
-              Email : {{ contactEmail }}<br>
-              Site web : {{ eventWebsite }}
+              <strong>Par email :</strong> {{ contactEmail }}<br>
+              <strong>Par courrier :</strong> Rowing Club de Port Marly (RCPM), Course des Impressionnistes, 12bis Rue de Paris, 78560 Le Port-Marly, France<br>
+              <strong>Site web :</strong> {{ eventWebsite }}
             </p>
           </section>
         </div>

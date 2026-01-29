@@ -181,6 +181,9 @@
             <p class="contact-info">
               <strong>Rowing Club de Port Marly (RCPM)</strong><br>
               Course des Impressionnistes<br>
+              12bis Rue de Paris<br>
+              78560 Le Port-Marly<br>
+              France<br>
               Email: {{ contactEmail }}<br>
               Website: {{ eventWebsite }}
             </p>
@@ -361,6 +364,9 @@
             <p class="contact-info">
               <strong>Rowing Club de Port Marly (RCPM)</strong><br>
               Course des Impressionnistes<br>
+              12bis Rue de Paris<br>
+              78560 Le Port-Marly<br>
+              France<br>
               Email : {{ contactEmail }}<br>
               Site web : {{ eventWebsite }}
             </p>
