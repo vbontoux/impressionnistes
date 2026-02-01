@@ -14,15 +14,32 @@
             <p>
               The data controller responsible for your personal data is:
             </p>
-            <p class="contact-info">
-              <strong>Rowing Club de Port Marly (RCPM)</strong><br>
-              Course des Impressionnistes<br>
-              12bis Rue de Paris<br>
-              78560 Le Port-Marly<br>
-              France<br>
-              Email: {{ contactEmail }}<br>
-              Website: {{ eventWebsite }}
-            </p>
+            <div class="data-controller-table">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Organization</th>
+                    <td>Rowing Club de Port Marly (RCPM) - Course des Impressionnistes</td>
+                  </tr>
+                  <tr>
+                    <th>Address</th>
+                    <td>12bis Rue de Paris<br>78560 Le Port-Marly<br>France</td>
+                  </tr>
+                  <tr>
+                    <th>GDPR Representative</th>
+                    <td>Mr. Norbert Fouques</td>
+                  </tr>
+                  <tr>
+                    <th>Email</th>
+                    <td><a :href="`mailto:${contactEmail}`">{{ contactEmail }}</a></td>
+                  </tr>
+                  <tr>
+                    <th>Website</th>
+                    <td><a :href="eventWebsite" target="_blank" rel="noopener">{{ eventWebsite }}</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </section>
 
           <section>
@@ -313,11 +330,24 @@
             <p>
               If you have any questions about this Privacy Policy or how we handle your personal data, please contact us:
             </p>
-            <p class="contact-info">
-              <strong>By email:</strong> {{ contactEmail }}<br>
-              <strong>By mail:</strong> Rowing Club de Port Marly (RCPM), Course des Impressionnistes, 12bis Rue de Paris, 78560 Le Port-Marly, France<br>
-              <strong>Website:</strong> {{ eventWebsite }}
-            </p>
+            <div class="data-controller-table">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>By email</th>
+                    <td><a :href="`mailto:${contactEmail}`">{{ contactEmail }}</a></td>
+                  </tr>
+                  <tr>
+                    <th>By mail</th>
+                    <td>Rowing Club de Port Marly (RCPM)<br>Course des Impressionnistes<br>12bis Rue de Paris<br>78560 Le Port-Marly<br>France</td>
+                  </tr>
+                  <tr>
+                    <th>Website</th>
+                    <td><a href="https://rcpm-aviron.fr/contactez-nous" target="_blank" rel="noopener">https://rcpm-aviron.fr/contactez-nous</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </section>
         </div>
 
@@ -328,15 +358,32 @@
             <p>
               Le responsable du traitement de vos données personnelles est :
             </p>
-            <p class="contact-info">
-              <strong>Rowing Club de Port Marly (RCPM)</strong><br>
-              Course des Impressionnistes<br>
-              12bis Rue de Paris<br>
-              78560 Le Port-Marly<br>
-              France<br>
-              Email : {{ contactEmail }}<br>
-              Site web : {{ eventWebsite }}
-            </p>
+            <div class="data-controller-table">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Organisation</th>
+                    <td>Rowing Club de Port Marly (RCPM) - Course des Impressionnistes</td>
+                  </tr>
+                  <tr>
+                    <th>Adresse</th>
+                    <td>12bis Rue de Paris<br>78560 Le Port-Marly<br>France</td>
+                  </tr>
+                  <tr>
+                    <th>Correspondant RGPD</th>
+                    <td>M. Norbert Fouques</td>
+                  </tr>
+                  <tr>
+                    <th>Email</th>
+                    <td><a :href="`mailto:${contactEmail}`">{{ contactEmail }}</a></td>
+                  </tr>
+                  <tr>
+                    <th>Site web</th>
+                    <td><a :href="eventWebsite" target="_blank" rel="noopener">{{ eventWebsite }}</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </section>
 
           <section>
@@ -627,11 +674,24 @@
             <p>
               Si vous avez des questions sur cette Politique de confidentialité ou sur la façon dont nous traitons vos données personnelles, veuillez nous contacter :
             </p>
-            <p class="contact-info">
-              <strong>Par email :</strong> {{ contactEmail }}<br>
-              <strong>Par courrier :</strong> Rowing Club de Port Marly (RCPM), Course des Impressionnistes, 12bis Rue de Paris, 78560 Le Port-Marly, France<br>
-              <strong>Site web :</strong> {{ eventWebsite }}
-            </p>
+            <div class="data-controller-table">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Par email</th>
+                    <td><a :href="`mailto:${contactEmail}`">{{ contactEmail }}</a></td>
+                  </tr>
+                  <tr>
+                    <th>Par courrier</th>
+                    <td>Rowing Club de Port Marly (RCPM)<br>Course des Impressionnistes<br>12bis Rue de Paris<br>78560 Le Port-Marly<br>France</td>
+                  </tr>
+                  <tr>
+                    <th>Site web</th>
+                    <td><a href="https://rcpm-aviron.fr/contactez-nous" target="_blank" rel="noopener">https://rcpm-aviron.fr/contactez-nous</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </section>
         </div>
       </div>
@@ -742,6 +802,52 @@ const eventWebsite = computed(() => {
   text-decoration: underline;
 }
 
+/* Data Controller Table */
+.data-controller-table {
+  margin: 1.5rem 0;
+}
+
+.data-controller-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.data-controller-table th {
+  text-align: left;
+  padding: 1rem;
+  background-color: #e9ecef;
+  font-weight: 600;
+  color: #2c3e50;
+  width: 35%;
+  border-bottom: 1px solid #dee2e6;
+  vertical-align: top;
+}
+
+.data-controller-table td {
+  padding: 1rem;
+  color: #333;
+  border-bottom: 1px solid #dee2e6;
+  vertical-align: top;
+}
+
+.data-controller-table tr:last-child th,
+.data-controller-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-controller-table a {
+  color: #4CAF50;
+  text-decoration: none;
+}
+
+.data-controller-table a:hover {
+  text-decoration: underline;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .privacy-policy-page {
@@ -763,6 +869,45 @@ const eventWebsite = computed(() => {
 
   .content-section ul {
     margin-left: 1rem;
+  }
+
+  /* Responsive table for mobile */
+  .data-controller-table table {
+    display: block;
+  }
+
+  .data-controller-table tbody {
+    display: block;
+  }
+
+  .data-controller-table tr {
+    display: block;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 0.5rem;
+  }
+
+  .data-controller-table tr:last-child {
+    border-bottom: none;
+  }
+
+  .data-controller-table th,
+  .data-controller-table td {
+    display: block;
+    width: 100%;
+    border-bottom: none;
+    padding: 0.5rem 1rem;
+  }
+
+  .data-controller-table th {
+    background-color: transparent;
+    font-size: 0.9rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .data-controller-table td {
+    padding-top: 0;
+    padding-bottom: 0.75rem;
   }
 }
 
