@@ -204,6 +204,17 @@ src/
 │   │   ├── LoginForm.vue
 │   │   ├── RegisterForm.vue
 │   │   └── PasswordReset.vue
+│   ├── base/                           # NEW: NFR-7
+│   │   ├── BaseButton.vue
+│   │   ├── StatusBadge.vue
+│   │   ├── BaseModal.vue
+│   │   ├── LoadingSpinner.vue
+│   │   └── EmptyState.vue
+│   ├── composite/                      # NEW: NFR-7
+│   │   ├── DataCard.vue
+│   │   ├── SortableTable.vue
+│   │   ├── FormGroup.vue
+│   │   └── MessageAlert.vue
 │   ├── crew/
 │   │   ├── CrewMemberForm.vue
 │   │   ├── CrewMemberList.vue
@@ -216,12 +227,19 @@ src/
 │   ├── payment/
 │   │   ├── PaymentSummary.vue
 │   │   ├── StripeCheckout.vue
-│   │   └── PaymentHistory.vue
+│   │   ├── PaymentHistory.vue          # NEW: FR-25
+│   │   └── PaymentBalance.vue          # NEW: FR-25
 │   ├── admin/
 │   │   ├── Dashboard.vue
 │   │   ├── ConfigurationPanel.vue
 │   │   ├── RegistrationValidation.vue
-│   │   └── ReportsExport.vue
+│   │   ├── ReportsExport.vue
+│   │   ├── ImpersonationBanner.vue     # NEW: FR-16
+│   │   └── ImpersonationSelector.vue   # NEW: FR-16
+│   ├── shared/
+│   │   ├── PermissionGuard.vue         # NEW: FR-17
+│   │   ├── MobileNav.vue               # NEW: NFR-8
+│   │   └── BottomSheet.vue             # NEW: NFR-8
 │   └── common/
 │       ├── Navigation.vue
 │       ├── LanguageSelector.vue
@@ -230,16 +248,25 @@ src/
 │   ├── HomePage.vue
 │   ├── DashboardView.vue
 │   ├── RegistrationView.vue
-│   └── AdminView.vue
+│   ├── AdminView.vue
+│   └── admin/
+│       └── AdminClubManagers.vue       # NEW: FR-15
+├── composables/
+│   ├── usePermissions.js               # NEW: FR-17
+│   └── useTableSort.js                 # NEW: NFR-9
 ├── stores/
 │   ├── auth.js
 │   ├── registration.js
 │   ├── payment.js
 │   └── admin.js
-└── services/
-    ├── api.js
-    ├── auth.js
-    └── stripe.js
+├── services/
+│   ├── api.js
+│   ├── auth.js
+│   └── stripe.js
+├── utils/
+│   └── exportFormatters.js             # NEW: FR-21
+└── assets/
+    └── design-tokens.css               # NEW: NFR-7
 ```
 
 ### Backend Lambda Functions
@@ -264,12 +291,30 @@ functions/
 ├── payment/
 │   ├── create_payment_intent.py
 │   ├── confirm_payment.py
-│   └── webhook_handler.py
+│   ├── webhook_handler.py
+│   ├── get_payment_history.py          # NEW: FR-25
+│   └── calculate_balance.py            # NEW: FR-25
 ├── admin/
 │   ├── get_dashboard_stats.py
 │   ├── update_configuration.py
 │   ├── validate_registration.py
-│   └── export_data.py
+│   ├── export_data.py
+│   ├── list_club_managers.py           # NEW: FR-15
+│   ├── start_impersonation.py          # NEW: FR-16
+│   ├── end_impersonation.py            # NEW: FR-16
+│   ├── get_impersonation_status.py     # NEW: FR-16
+│   ├── grant_temporary_access.py       # NEW: FR-18
+│   ├── revoke_temporary_access.py      # NEW: FR-18
+│   ├── export_crew_members_json.py     # NEW: FR-21
+│   ├── export_boats_json.py            # NEW: FR-21
+│   ├── export_races_json.py            # NEW: FR-21
+│   ├── export_event_program.py         # NEW: FR-22
+│   ├── verify_license.py               # NEW: FR-24
+│   ├── invalidate_license.py           # NEW: FR-24
+│   └── process_deletion_request.py     # NEW: FR-23
+├── user/
+│   ├── export_my_data.py               # NEW: FR-23
+│   └── request_deletion.py             # NEW: FR-23
 ├── notifications/
 │   ├── send_notification.py
 │   ├── schedule_notifications.py
@@ -279,7 +324,10 @@ functions/
     ├── database.py
     ├── auth_utils.py
     ├── validation.py
-    └── notifications.py
+    ├── notifications.py
+    ├── access_control.py               # NEW: FR-17, TC-7
+    ├── event_phase.py                  # NEW: FR-17
+    └── boat_club_calculator.py         # NEW: FR-19
 ```
 
 ## Data Models
@@ -320,6 +368,93 @@ Using a single DynamoDB table with the following access patterns:
 - Purpose: Enforce license number uniqueness across all crew members in the competition
 - Note: This index enables efficient duplicate detection when adding new crew members
 
+**GSI4: License Verification Index** *(NEW: FR-24)*
+- PK: `license_verification_status`
+- SK: `USER#{user_id}#CREW#{crew_id}`
+- Purpose: Query crew members by verification status
+
+**GSI5: Access Grant Index** *(NEW: FR-18)*
+- PK: `status`
+- SK: `expires_at`
+- Purpose: Query active/expired access grants
+
+#### New Entity Types
+
+**Impersonation Session** *(NEW: FR-16)*
+```python
+{
+    "PK": "ADMIN#{admin_id}",
+    "SK": "IMPERSONATION#{timestamp}",
+    "impersonated_user_id": "string",
+    "started_at": "timestamp",
+    "ended_at": "timestamp"  # optional
+}
+```
+
+**Temporary Access Grant** *(NEW: FR-18)*
+```python
+{
+    "PK": "USER#{user_id}",
+    "SK": "ACCESS_GRANT#{grant_id}",
+    "granted_by": "admin_id",
+    "granted_at": "timestamp",
+    "expires_at": "timestamp",
+    "status": "active|expired|revoked"
+}
+```
+
+**License Verification** *(NEW: FR-24)*
+```python
+# Added to existing crew member entity
+{
+    "PK": "USER#{user_id}",
+    "SK": "CREW#{crew_id}",
+    # ... existing fields ...
+    "license_verification_status": "pending|verified|invalid",
+    "verified_at": "timestamp",  # optional
+    "verified_by": "admin_id"    # optional
+}
+```
+
+**Payment History** *(NEW: FR-25)*
+```python
+{
+    "PK": "USER#{user_id}",
+    "SK": "PAYMENT#{payment_id}",
+    "amount": "decimal",
+    "payment_method": "string",
+    "stripe_payment_intent_id": "string",
+    "boat_ids": ["list"],
+    "created_at": "timestamp",
+    "status": "succeeded|failed|refunded"
+}
+```
+
+**Boat Club Display** *(NEW: FR-19)*
+```python
+# Added to existing boat registration entity
+{
+    "PK": "USER#{user_id}",
+    "SK": "BOAT#{boat_id}",
+    # ... existing fields ...
+    "boat_club_display": "string",
+    "club_list": ["list"]
+}
+```
+
+**Hull Assignment** *(NEW: FR-20, FR-26)*
+```python
+# Added to existing boat registration entity
+{
+    "PK": "USER#{user_id}",
+    "SK": "BOAT#{boat_id}",
+    # ... existing fields ...
+    "hull_assignment": "string",  # optional
+    "hull_requested": "boolean",
+    "hull_request_status": "pending|approved|rejected"
+}
+```
+
 ### Configuration Management
 
 #### Storage Strategy
@@ -359,6 +494,26 @@ notification_config = {
     "email_from": "impressionnistes@rcpm-aviron.fr",
     "slack_webhook_admin": "",
     "slack_webhook_devops": "",
+    "updated_at": "2024-03-15T10:30:00Z"
+}
+
+# NEW: FR-17, FR-18, TC-7
+access_control_config = {
+    "PK": "CONFIG",
+    "SK": "ACCESS_CONTROL",
+    "temporary_access_duration_hours": 48,
+    "permission_cache_ttl_seconds": 60,
+    "event_phase_cache_ttl_seconds": 60,
+    "updated_at": "2024-03-15T10:30:00Z",
+    "updated_by": "admin_user_id"
+}
+
+# NEW: FR-23
+gdpr_config = {
+    "PK": "CONFIG",
+    "SK": "GDPR",
+    "deleted_data_retention_years": 5,
+    "consent_required": True,
     "updated_at": "2024-03-15T10:30:00Z"
 }
 ```
@@ -3302,3 +3457,430 @@ api.add_routes(
 ```
 
 This comprehensive Contact Us feature provides users with an easy way to reach out to admins, while ensuring admins are immediately notified via both email and Slack, with full context about the user if they're authenticated.
+
+
+## Access Control System
+
+### Overview
+
+The Access Control System (FR-17, TC-7) provides centralized permission management for all operations in the registration system. It determines which actions are permitted based on user role, event phase (dates), impersonation status, and data state.
+
+### Architecture
+
+```
+┌─────────────────┐
+│  Event Phase    │
+│   Detection     │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐    ┌──────────────────┐
+│   Permission    │◄───│  Temporary       │
+│     Matrix      │    │  Access Grants   │
+└────────┬────────┘    └──────────────────┘
+         │
+         ▼
+┌─────────────────┐
+│   Backend &     │
+│   Frontend      │
+│   Enforcement   │
+└─────────────────┘
+```
+
+### Event Phase Detection
+
+```python
+# shared/event_phase.py
+from datetime import datetime
+from functools import lru_cache
+from shared.configuration import config_manager
+
+@lru_cache(maxsize=1, ttl=60)  # Cache for 60 seconds
+def get_current_event_phase():
+    """Determine current event phase based on configuration dates"""
+    config = config_manager.get_system_config()
+    now = datetime.utcnow().date()
+    
+    reg_start = datetime.fromisoformat(config['registration_start_date']).date()
+    reg_end = datetime.fromisoformat(config['registration_end_date']).date()
+    payment_deadline = datetime.fromisoformat(config['payment_deadline']).date()
+    
+    if now < reg_start:
+        return 'before_registration'
+    elif reg_start <= now <= reg_end:
+        return 'during_registration'
+    elif reg_end < now <= payment_deadline:
+        return 'after_registration'
+    else:
+        return 'after_payment_deadline'
+```
+
+### Permission Matrix
+
+```python
+# shared/access_control.py
+PERMISSION_MATRIX = {
+    'create_crew_member': {
+        'before_registration': {'club_manager': False, 'admin': True},
+        'during_registration': {'club_manager': True, 'admin': True},
+        'after_registration': {'club_manager': False, 'admin': True},
+        'after_payment_deadline': {'club_manager': False, 'admin': True}
+    },
+    'edit_crew_member': {
+        'before_registration': {'club_manager': False, 'admin': True},
+        'during_registration': {'club_manager': True, 'admin': True},
+        'after_registration': {'club_manager': False, 'admin': True},
+        'after_payment_deadline': {'club_manager': False, 'admin': True}
+    },
+    'delete_crew_member': {
+        'before_registration': {'club_manager': False, 'admin': True},
+        'during_registration': {'club_manager': True, 'admin': True},
+        'after_registration': {'club_manager': False, 'admin': True},
+        'after_payment_deadline': {'club_manager': False, 'admin': True}
+    },
+    'create_boat_registration': {
+        'before_registration': {'club_manager': False, 'admin': True},
+        'during_registration': {'club_manager': True, 'admin': True},
+        'after_registration': {'club_manager': False, 'admin': True},
+        'after_payment_deadline': {'club_manager': False, 'admin': True}
+    },
+    'edit_boat_registration': {
+        'before_registration': {'club_manager': False, 'admin': True},
+        'during_registration': {'club_manager': True, 'admin': True},
+        'after_registration': {'club_manager': False, 'admin': True},
+        'after_payment_deadline': {'club_manager': False, 'admin': True}
+    },
+    'delete_boat_registration': {
+        'before_registration': {'club_manager': False, 'admin': True},
+        'during_registration': {'club_manager': True, 'admin': True},
+        'after_registration': {'club_manager': False, 'admin': True},
+        'after_payment_deadline': {'club_manager': False, 'admin': True}
+    },
+    'process_payment': {
+        'before_registration': {'club_manager': False, 'admin': True},
+        'during_registration': {'club_manager': True, 'admin': True},
+        'after_registration': {'club_manager': True, 'admin': True},
+        'after_payment_deadline': {'club_manager': False, 'admin': True}
+    }
+}
+
+def check_permission(user_id, action, context=None):
+    """
+    Check if user has permission to perform action
+    
+    Returns: PermissionResult(allowed=bool, reason=str)
+    """
+    user = get_user(user_id)
+    role = user.get('role', 'club_manager')
+    
+    # Admins bypass all restrictions
+    if role == 'admin':
+        return PermissionResult(allowed=True, reason='Admin access')
+    
+    # Check for temporary access grant
+    if has_active_access_grant(user_id):
+        return PermissionResult(allowed=True, reason='Temporary access grant')
+    
+    # Check event phase
+    phase = get_current_event_phase()
+    
+    # Check permission matrix
+    if action in PERMISSION_MATRIX:
+        allowed = PERMISSION_MATRIX[action][phase].get(role, False)
+        
+        if not allowed:
+            reason = f"Action '{action}' not permitted during {phase.replace('_', ' ')}"
+            return PermissionResult(allowed=False, reason=reason)
+        
+        # Additional data state checks
+        if context:
+            data_check = check_data_state_restrictions(action, context)
+            if not data_check.allowed:
+                return data_check
+        
+        return PermissionResult(allowed=True, reason='Permission granted')
+    
+    return PermissionResult(allowed=False, reason=f"Unknown action: {action}")
+
+def check_data_state_restrictions(action, context):
+    """Check data state restrictions (paid boats, assigned crew)"""
+    if action == 'delete_boat_registration':
+        if context.get('boat_status') == 'paid':
+            return PermissionResult(allowed=False, reason='Cannot delete paid boat')
+    
+    if action == 'delete_crew_member':
+        if context.get('assigned_to_boat'):
+            return PermissionResult(allowed=False, reason='Cannot delete assigned crew member')
+    
+    return PermissionResult(allowed=True, reason='Data state check passed')
+```
+
+### Frontend Integration
+
+```javascript
+// composables/usePermissions.js
+import { ref, computed } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import api from '@/services/api'
+
+export function usePermissions() {
+    const authStore = useAuthStore()
+    const permissions = ref({})
+    
+    async function loadPermissions() {
+        const response = await api.get('/permissions/current')
+        permissions.value = response.data
+    }
+    
+    function canPerform(action, context = null) {
+        // Check cached permissions
+        const key = context ? `${action}:${JSON.stringify(context)}` : action
+        return permissions.value[key] ?? false
+    }
+    
+    return {
+        loadPermissions,
+        canPerform
+    }
+}
+```
+
+```vue
+<!-- Usage in components -->
+<script setup>
+import { usePermissions } from '@/composables/usePermissions'
+
+const { canPerform } = usePermissions()
+const canCreateCrew = canPerform('create_crew_member')
+</script>
+
+<template>
+  <BaseButton 
+    :disabled="!canCreateCrew" 
+    @click="createCrew"
+  >
+    Create Crew Member
+  </BaseButton>
+</template>
+```
+
+### Temporary Access Grants
+
+```python
+# admin/grant_temporary_access.py
+def lambda_handler(event, context):
+    """Grant temporary access to club manager"""
+    admin_id = get_current_user_id(event)
+    body = json.loads(event['body'])
+    
+    grant = {
+        'PK': f"USER#{body['user_id']}",
+        'SK': f"ACCESS_GRANT#{generate_id()}",
+        'granted_by': admin_id,
+        'granted_at': datetime.utcnow().isoformat(),
+        'expires_at': (datetime.utcnow() + timedelta(hours=body['duration_hours'])).isoformat(),
+        'status': 'active'
+    }
+    
+    table.put_item(Item=grant)
+    
+    return success_response(grant)
+
+def has_active_access_grant(user_id):
+    """Check if user has active temporary access grant"""
+    response = table.query(
+        IndexName='GSI5',
+        KeyConditionExpression=Key('status').eq('active'),
+        FilterExpression=Attr('PK').eq(f'USER#{user_id}') & 
+                        Attr('expires_at').gt(datetime.utcnow().isoformat())
+    )
+    return len(response['Items']) > 0
+```
+
+## Design System and UI Consistency
+
+### Overview
+
+The Design System (NFR-7) provides standardized UI components, styles, and patterns to ensure consistency across the application.
+
+### Design Tokens
+
+```css
+/* assets/design-tokens.css */
+:root {
+  /* Colors - Semantic */
+  --color-primary: #007bff;
+  --color-success: #28a745;
+  --color-warning: #ffc107;
+  --color-danger: #dc3545;
+  --color-secondary: #6c757d;
+  --color-light: #f8f9fa;
+  --color-dark: #212529;
+  --color-muted: #666;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.75rem;
+  --spacing-lg: 1rem;
+  --spacing-xl: 1.5rem;
+  --spacing-2xl: 2rem;
+  
+  /* Typography */
+  --font-size-sm: 0.75rem;
+  --font-size-base: 0.875rem;
+  --font-size-lg: 1rem;
+  --font-size-xl: 1.125rem;
+  --font-size-2xl: 1.5rem;
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Breakpoints */
+  --breakpoint-mobile: 768px;
+  --breakpoint-tablet: 1024px;
+}
+```
+
+### Base Components
+
+See `docs/design-system.md` for complete component documentation including:
+- BaseButton variants and states
+- StatusBadge color mapping
+- BaseModal responsive behavior
+- LoadingSpinner and EmptyState patterns
+- DataCard and SortableTable usage
+- FormGroup and MessageAlert styling
+
+### Mobile Responsiveness (NFR-8)
+
+```css
+/* Mobile-first responsive patterns */
+@media (max-width: 768px) {
+  .button-group {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+  
+  .button {
+    width: 100%;
+    min-height: 44px; /* Touch-friendly */
+  }
+  
+  .modal {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-radius: 12px 12px 0 0; /* Bottom sheet */
+    max-height: 90vh;
+  }
+}
+```
+
+## Export Architecture
+
+### JSON API Pattern (FR-21)
+
+All exports follow a consistent pattern: backend returns JSON, frontend handles formatting.
+
+```python
+# admin/export_crew_members_json.py
+def lambda_handler(event, context):
+    """Export crew members as JSON"""
+    crew_members = []
+    
+    # Paginate through all crew members
+    response = table.scan()
+    crew_members.extend(response['Items'])
+    
+    while 'LastEvaluatedKey' in response:
+        response = table.scan(ExclusiveStartKey=response['LastEvaluatedKey'])
+        crew_members.extend(response['Items'])
+    
+    # Convert Decimal to float for JSON compatibility
+    crew_members = convert_decimals(crew_members)
+    
+    return success_response({
+        'data': crew_members,
+        'count': len(crew_members),
+        'exported_at': datetime.utcnow().isoformat()
+    })
+```
+
+```javascript
+// utils/exportFormatters.js
+export function exportToCSV(data, columns) {
+    const headers = columns.map(c => c.label).join(',')
+    const rows = data.map(row => 
+        columns.map(c => formatCell(row[c.key])).join(',')
+    )
+    return [headers, ...rows].join('\n')
+}
+
+export function exportToExcel(data, columns, sheetName) {
+    const worksheet = XLSX.utils.json_to_sheet(data)
+    const workbook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName)
+    return XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' })
+}
+```
+
+### Event Program Export (FR-22)
+
+Priority export for race day printing with professional formatting.
+
+```python
+# admin/export_event_program.py
+def lambda_handler(event, context):
+    """Generate multi-sheet Excel for race day"""
+    
+    # Sheet 1: Crew Members
+    crew_members = get_all_crew_members()
+    crew_sheet = format_crew_member_sheet(crew_members)
+    
+    # Sheet 2: Race Schedule
+    races = get_all_races()
+    eligible_boats = get_eligible_boats()  # complete/paid/free, not forfait
+    
+    # Assign race and bow numbers
+    race_schedule = []
+    race_number = 1
+    
+    for race in sorted(races, key=lambda r: r['display_order']):
+        boats_in_race = [b for b in eligible_boats if b['race_id'] == race['race_id']]
+        
+        if boats_in_race:
+            bow_number = 1
+            for boat in boats_in_race:
+                race_schedule.append({
+                    'race_number': race_number,
+                    'race_name': race['name'],
+                    'bow_number': bow_number,
+                    'boat_id': boat['boat_id'],
+                    'club': boat['boat_club_display'],
+                    'crew': format_crew_names(boat)
+                })
+                bow_number += 1
+            race_number += 1
+    
+    # Generate Excel with professional formatting
+    workbook = create_formatted_workbook([
+        ('Crew Members', crew_sheet),
+        ('Race Schedule', race_schedule)
+    ])
+    
+    return {
+        'statusCode': 200,
+        'headers': {
+            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition': 'attachment; filename=event-program.xlsx'
+        },
+        'body': base64.b64encode(workbook).decode('utf-8'),
+        'isBase64Encoded': True
+    }
+```
+
+This completes the design document updates with all new components, patterns, and architectural additions from the breakdown specifications.

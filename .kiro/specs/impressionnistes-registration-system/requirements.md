@@ -44,6 +44,18 @@ The Course des Impressionnistes Registration System is a web application that en
 - **Base_Seat_Price**: The standard pricing for any seat (rowing or cox) used for all registrations and rental calculations (default: 20 euros). **Note:** In code/database this is `base_seat_price`, but in UI displayed as "Participation Fee" (covers registration, insurance, organization).
 - **Rental_Price**: The fee for using a physical seat in an RCPM-owned boat (default: 20 euros per seat for crew boats). **Note:** In code/database this is `rental_price` or `boat_rental_price_crew`, but in UI displayed as "Boat Rental (per seat)" (equipment rental fee).
 - **Competition**: The Course des Impressionnistes rowing regatta that takes place every year on May 1st, consisting of 2 main events (21 km and 42 km) with multiple races (see races list in appendix)
+- **Event_Phase**: The current phase of the event based on configuration dates (before_registration, during_registration, after_registration, after_payment_deadline)
+- **Access_Control_System**: Centralized system determining permitted actions based on user role, event phase, and data state
+- **Temporary_Access_Grant**: Time-limited permission granted by admin to bypass date restrictions
+- **Impersonation_Mode**: Admin accessing system as a specific club manager
+- **Boat_Club_Display**: Calculated club name shown for a boat (single club or "Multi-Club")
+- **Club_List**: Unique clubs represented in a boat's crew
+- **Boat_Identifier**: Unique identifier for boats (boat number or hull assignment)
+- **Hull_Assignment**: Physical boat assigned to a registration
+- **License_Verification_Status**: State of license verification (pending, verified, invalid)
+- **Payment_Balance**: Difference between paid seats and registered seats
+- **Design_System**: Collection of reusable UI components and style guidelines
+- **Export_Formatter**: Frontend utility transforming JSON to specific export formats
 
 ### Pricing Terminology
 
@@ -290,6 +302,182 @@ These requirements define what the system does from a business and user perspect
 10. THE Registration_System SHALL provide sorting capabilities by event type, boat type, club manager, club, and registration status
 11. THE Registration_System SHALL log all Admin_User actions on boat registrations with timestamps and user identification for audit purposes
 
+### FR-15: Admin Club Manager Management
+
+**User Story:** As an admin user, I want to view all club managers and send bulk emails, so that I can efficiently communicate with all managers.
+
+#### Acceptance Criteria
+
+1. WHEN an Admin_User accesses the club managers page, THE Registration_System SHALL display a table with all club managers
+2. WHEN displaying club managers, THE Registration_System SHALL show first name, last name, email, and club affiliation for each manager
+3. WHEN an email address is displayed, THE Registration_System SHALL render it as a clickable mailto link
+4. WHEN an Admin_User selects multiple club managers, THE Registration_System SHALL provide a "Email Selected" button
+5. WHEN an Admin_User clicks "Email Selected", THE Registration_System SHALL open the default email client with all selected email addresses in the BCC field
+6. THE Registration_System SHALL provide search and filter capabilities across name, email, and club affiliation fields
+7. THE Registration_System SHALL display the count of selected managers
+8. WHEN no managers are selected, THE Registration_System SHALL disable the "Email Selected" button
+
+### FR-16: Admin Impersonation
+
+**User Story:** As an admin user, I want to impersonate club managers, so that I can troubleshoot issues and assist with registrations.
+
+#### Acceptance Criteria
+
+1. WHEN an Admin_User accesses the impersonation interface, THE Registration_System SHALL display a list of all club managers available for impersonation
+2. WHEN an Admin_User selects a club manager to impersonate, THE Registration_System SHALL switch the session to that club manager's view
+3. WHILE impersonating, THE Registration_System SHALL display a prominent banner showing the impersonated user's name
+4. WHILE impersonating, THE Registration_System SHALL allow the Admin_User to perform all club manager actions
+5. WHEN an Admin_User clicks "Exit Impersonation", THE Registration_System SHALL return to the admin view
+6. THE Registration_System SHALL log all actions performed during impersonation with both admin and impersonated user identifiers
+7. THE Registration_System SHALL restrict impersonation functionality to users with admin role only
+
+### FR-17: Event Phase-Based Access Control
+
+**User Story:** As a club manager, I want my actions to be automatically restricted based on the event phase, so that I comply with the organization's rules.
+
+#### Acceptance Criteria
+
+1. THE Registration_System SHALL determine the current Event_Phase by comparing the current date/time with configured dates (registration_start_date, registration_end_date, payment_deadline)
+2. THE Registration_System SHALL identify four distinct Event_Phases: "before_registration", "during_registration", "after_registration", "after_payment_deadline"
+3. WHILE Event_Phase is "before_registration", THE Registration_System SHALL prevent Club_Managers from creating crew members, boat registrations, or processing payments
+4. WHILE Event_Phase is "during_registration", THE Registration_System SHALL allow Club_Managers to create, edit, and delete crew members and boat registrations
+5. WHILE Event_Phase is "after_registration", THE Registration_System SHALL prevent Club_Managers from creating, editing, or deleting crew members or boat registrations
+6. WHILE Event_Phase is "after_registration", THE Registration_System SHALL allow Club_Managers to process payments only
+7. WHILE Event_Phase is "after_payment_deadline", THE Registration_System SHALL prevent Club_Managers from making any modifications or processing payments
+8. WHEN an action is restricted, THE Registration_System SHALL display a clear error message explaining the restriction
+9. THE Registration_System SHALL enforce the same access control rules in both backend and frontend
+10. THE Registration_System SHALL allow Admin_Users to bypass all date-based restrictions
+
+### FR-18: Temporary Access Grants
+
+**User Story:** As an admin user, I want to grant temporary access to club managers outside normal periods, so that I can handle exceptions.
+
+#### Acceptance Criteria
+
+1. WHEN an Admin_User grants temporary access, THE Registration_System SHALL allow the specified club manager to perform all actions regardless of event phase
+2. WHEN creating a temporary access grant, THE Registration_System SHALL require the admin to specify duration in hours
+3. WHEN a temporary access grant is created, THE Registration_System SHALL automatically expire the grant after the specified duration
+4. WHEN a club manager has temporary access, THE Registration_System SHALL display a notification indicating temporary access is active
+5. THE Registration_System SHALL log all actions performed under a temporary access grant
+6. WHEN an Admin_User revokes a grant, THE Registration_System SHALL immediately terminate the temporary access
+7. THE Registration_System SHALL support action-specific grants in a future phase (Phase 2)
+
+### FR-19: Boat Club Display Calculation
+
+**User Story:** As a system, I want to calculate the appropriate club display for each boat, so that users see accurate club information.
+
+#### Acceptance Criteria
+
+1. WHEN all assigned crew members belong to the team manager's club, THE Registration_System SHALL set boat_club_display to the team manager's club name
+2. WHEN assigned crew members belong to multiple different clubs, THE Registration_System SHALL set boat_club_display to "{team_manager_club} (Multi-Club)"
+3. WHEN all assigned crew members belong to a single club different from the team manager's club, THE Registration_System SHALL set boat_club_display to "{team_manager_club} ({crew_club})"
+4. WHEN a boat has no assigned crew members, THE Registration_System SHALL set boat_club_display to the team manager's club
+5. WHEN comparing club affiliations, THE Registration_System SHALL use case-insensitive comparison
+6. THE Registration_System SHALL store boat_club_display as a string field on each boat registration
+7. THE Registration_System SHALL update boat_club_display whenever crew assignments change
+
+### FR-20: Boat Identifier Management
+
+**User Story:** As a system, I want to assign and manage boat identifiers, so that boats can be uniquely identified.
+
+#### Acceptance Criteria
+
+1. WHEN a boat registration is created, THE Registration_System SHALL automatically assign a unique boat number
+2. WHEN an Admin_User assigns a hull to a boat, THE Registration_System SHALL store the hull assignment
+3. WHEN a boat has a hull assignment, THE Registration_System SHALL display the hull prominently alongside the boat number
+4. THE Registration_System SHALL include both boat number and hull assignment in exports
+5. THE Registration_System SHALL allow boats to proceed without hull assignment (hull assignment is optional)
+6. THE Registration_System SHALL maintain boat number as the primary identifier even when hull is assigned
+
+### FR-21: Enhanced Export Architecture
+
+**User Story:** As an administrator, I want exports to return JSON data, so that the frontend can format data flexibly.
+
+**Priority:** HIGH (CrewTimer export is top priority)
+
+#### Acceptance Criteria
+
+1. WHEN an Admin_User requests crew member export, THE Registration_System SHALL return all crew member records with associated team manager information as JSON
+2. WHEN an Admin_User requests boat registration export, THE Registration_System SHALL return all boat registration records regardless of status as JSON
+3. WHEN an Admin_User requests race export, THE Registration_System SHALL return all races, boats, crew members, and system configuration as JSON
+4. THE Registration_System SHALL provide separate API endpoints for crew members, boats, and races exports
+5. THE Registration_System SHALL implement pagination handling in Lambda functions for large datasets
+6. THE Registration_System SHALL convert DynamoDB Decimal types to standard float/integer types before returning JSON
+7. THE Registration_System SHALL set Lambda function timeouts to 60 seconds for export operations
+8. THE Registration_System SHALL implement frontend formatters to convert JSON to CSV, Excel, and CrewTimer formats
+
+### FR-22: Event Program Export
+
+**User Story:** As an administrator, I want to generate a multi-sheet Excel export for race day, so that I can print professional race programs.
+
+**Priority:** HIGH (top priority export)
+
+#### Acceptance Criteria
+
+1. WHEN an Admin_User requests event program export, THE Registration_System SHALL generate a multi-sheet Excel file
+2. THE Registration_System SHALL include Sheet 1 with crew member list containing all crew member details
+3. THE Registration_System SHALL include Sheet 2 with race schedule containing race names, bow numbers, and boat details
+4. THE Registration_System SHALL include only eligible boats (status: complete, paid, or free; not forfait)
+5. THE Registration_System SHALL assign race numbers sequentially based on race display order
+6. THE Registration_System SHALL assign bow numbers sequentially within each race
+7. THE Registration_System SHALL apply professional formatting suitable for printing
+
+### FR-23: GDPR Compliance Features
+
+**User Story:** As a user, I want to manage my personal data, so that I can exercise my GDPR rights.
+
+#### Acceptance Criteria
+
+1. WHEN a user requests data export, THE Registration_System SHALL provide all user data in a downloadable format
+2. WHEN a user requests account deletion, THE Registration_System SHALL process the deletion request
+3. WHEN an account is deleted, THE Registration_System SHALL anonymize all personal data
+4. THE Registration_System SHALL maintain a 5-year retention period for deleted user data
+5. THE Registration_System SHALL track and record user consent for data processing
+6. THE Registration_System SHALL display privacy policy and require acceptance
+7. THE Registration_System SHALL enforce data retention policies automatically
+
+### FR-24: License Verification Persistence
+
+**User Story:** As an admin user, I want license verification status to persist, so that I don't need to re-verify licenses.
+
+#### Acceptance Criteria
+
+1. THE Registration_System SHALL store license verification status (pending, verified, invalid) in the database
+2. WHEN displaying crew members, THE Registration_System SHALL show verification status badge
+3. WHEN an Admin_User manually verifies a license, THE Registration_System SHALL update the status to verified
+4. WHEN an Admin_User marks a license as invalid, THE Registration_System SHALL update the status to invalid
+5. THE Registration_System SHALL include verification status in all exports
+6. THE Registration_System SHALL record verification timestamp and verifying admin user
+7. THE Registration_System SHALL provide a re-verification workflow for invalid licenses
+
+### FR-25: Payment History and Balance Tracking
+
+**User Story:** As a club manager, I want to see my payment history and balance, so that I understand my payment status.
+
+#### Acceptance Criteria
+
+1. WHEN a club manager accesses the payment page, THE Registration_System SHALL display payment history with timestamps
+2. THE Registration_System SHALL calculate and display payment balance as the difference between paid seats and registered seats
+3. THE Registration_System SHALL show the balance prominently on the payment page
+4. THE Registration_System SHALL support partial payments and track cumulative payment amounts
+5. THE Registration_System SHALL track payment method and Stripe transaction IDs for each payment
+6. THE Registration_System SHALL display refund status if applicable
+7. THE Registration_System SHALL update balance automatically when registrations or payments change
+
+### FR-26: Boat Hull Assignment Requests
+
+**User Story:** As a club manager, I want to request specific hull assignments, so that I can use preferred boats.
+
+#### Acceptance Criteria
+
+1. WHEN a club manager creates or edits a boat registration, THE Registration_System SHALL allow requesting a hull assignment (optional)
+2. WHEN a hull assignment is requested, THE Registration_System SHALL notify admins for review
+3. WHEN an Admin_User approves a hull request, THE Registration_System SHALL assign the hull to the boat and update the boat identifier
+4. WHEN an Admin_User rejects a hull request, THE Registration_System SHALL notify the club manager
+5. THE Registration_System SHALL track hull assignment request history
+6. THE Registration_System SHALL check hull availability before allowing assignment
+7. THE Registration_System SHALL allow boats to proceed without hull assignment
+
 ---
 
 ## 2. Non-Functional Requirements
@@ -354,6 +542,46 @@ These requirements define how the system performs and quality attributes.
 5. THE Registration_System SHALL ensure all notifications are delivered in the user's selected language preference
 6. WHEN significant registration events occur (new registrations, payments, boat rentals), THE Registration_System SHALL send real-time notifications to Admin_Users and DevOps_Users via Slack
 7. THE Registration_System SHALL send Slack notifications for system events including new boat registrations, payment completions, boat rental requests, and system errors
+
+### NFR-7: UI Consistency Requirements
+
+**User Story:** As a user, I want consistent UI patterns across all pages, so that the interface is predictable and easy to use.
+
+#### Acceptance Criteria
+
+1. THE Registration_System SHALL use standardized button styling based on semantic meaning (primary: blue, secondary: grey, danger: red, warning: yellow)
+2. THE Registration_System SHALL use consistent status badge colors (incomplete: yellow, complete: green, paid: blue, forfait: red)
+3. THE Registration_System SHALL implement unified table functionality with sortable columns and consistent styling
+4. THE Registration_System SHALL use consistent typography and spacing across all pages
+5. THE Registration_System SHALL provide a reusable component library for common UI patterns
+6. THE Registration_System SHALL maintain design system documentation at `docs/design-system.md`
+7. THE Registration_System SHALL follow responsive design patterns for all screen sizes
+
+### NFR-8: Mobile Responsiveness Standards
+
+**User Story:** As a user on mobile devices, I want an optimized mobile experience, so that I can use the system effectively on any device.
+
+#### Acceptance Criteria
+
+1. THE Registration_System SHALL provide touch-friendly targets with minimum 44px height on mobile devices
+2. THE Registration_System SHALL implement responsive layouts that adapt to mobile, tablet, and desktop screen sizes
+3. THE Registration_System SHALL provide mobile-optimized navigation patterns
+4. THE Registration_System SHALL enable horizontal scroll for tables on mobile devices
+5. THE Registration_System SHALL use bottom sheet modals on mobile devices
+6. THE Registration_System SHALL optimize performance for mobile networks
+
+### NFR-9: Table Standardization
+
+**User Story:** As a user, I want all tables to behave consistently, so that I can interact with data in a familiar way.
+
+#### Acceptance Criteria
+
+1. THE Registration_System SHALL provide sortable columns with visual indicators (▲ ▼) in all tables
+2. THE Registration_System SHALL use consistent column widths and styling across all tables
+3. THE Registration_System SHALL implement responsive table behavior with horizontal scroll on small screens
+4. THE Registration_System SHALL provide pagination for large datasets
+5. THE Registration_System SHALL use consistent row styling and hover effects
+6. THE Registration_System SHALL standardize action column layout and button placement
 
 ## 3. Technical Constraints
 
@@ -449,6 +677,19 @@ These requirements define the mandatory technical architecture and implementatio
 10. THE Registration_System SHALL update Cognito callback URLs to include custom domains in addition to CloudFront distribution URLs
 11. THE Registration_System SHALL provide comprehensive documentation (`SETUP_CUSTOM_DOMAINS.md`, `DNS_RECORDS_TO_ADD.md`) with step-by-step instructions for certificate creation, DNS configuration, and deployment
 12. WHEN certificates are pending validation, THE Registration_System SHALL provide commands to check certificate status and troubleshoot validation issues
+
+### TC-7: Access Control Architecture Constraint
+
+**Constraint:** The system must implement centralized access control for all operations.
+
+#### Acceptance Criteria
+
+1. THE Registration_System SHALL implement a single permission module used by all backend Lambda functions and frontend components
+2. THE Registration_System SHALL enforce the same access control rules in both backend and frontend
+3. THE Registration_System SHALL define all permission rules in a centralized permission matrix
+4. THE Registration_System SHALL cache event phase detection for 60 seconds to optimize performance
+5. THE Registration_System SHALL log all permission checks for audit purposes
+6. THE Registration_System SHALL complete permission checks in less than 10ms per check
 
 ---
 
@@ -669,6 +910,16 @@ This appendix lists all configurable parameters that must be managed through the
 - **DevOps User Notification Channels**
 - **Admin User Notification Settings**
 
+### B.10 Access Control Parameters
+- **Temporary Access Grant Duration** (default: 48 hours)
+- **Permission Cache TTL** (default: 60 seconds)
+- **Event Phase Detection Interval** (default: 60 seconds)
+
+### B.11 GDPR and Data Retention Parameters
+- **Deleted User Data Retention Period** (default: 5 years)
+- **Data Anonymization Rules**
+- **Consent Tracking Settings**
+
 ## Appendix C: Home Page Content
 
 ### C.1 General Information About Course des Impressionnistes
@@ -760,3 +1011,36 @@ Club managers register their club and crews through a simple online process. Eac
 - April 25: Payment deadline
 - 15 days before closure: RCPM boat exclusive priority ends, external clubs gain equal access
 
+
+
+## Appendix D: Event Phases and Permissions
+
+This appendix defines the four event phases and the actions permitted for each user role during each phase.
+
+### Event Phases
+
+| Phase | Condition | Description |
+|-------|-----------|-------------|
+| **before_registration** | Current date < registration_start_date | Before registration period opens |
+| **during_registration** | registration_start_date ≤ Current date ≤ registration_end_date | Active registration period |
+| **after_registration** | registration_end_date < Current date ≤ payment_deadline | Registration closed, payments still accepted |
+| **after_payment_deadline** | Current date > payment_deadline | All modifications locked |
+
+### Permission Matrix
+
+| Action | Club Manager (before_registration) | Club Manager (during_registration) | Club Manager (after_registration) | Club Manager (after_payment_deadline) | Admin (all phases) |
+|--------|-----------------------------------|-----------------------------------|----------------------------------|--------------------------------------|-------------------|
+| Create crew member | ❌ | ✅ | ❌ | ❌ | ✅ |
+| Edit crew member | ❌ | ✅ | ❌ | ❌ | ✅ |
+| Delete crew member | ❌ | ✅ (if not assigned) | ❌ | ❌ | ✅ (if not assigned) |
+| Create boat registration | ❌ | ✅ | ❌ | ❌ | ✅ |
+| Edit boat registration | ❌ | ✅ | ❌ | ❌ | ✅ |
+| Delete boat registration | ❌ | ✅ (if not paid) | ❌ | ❌ | ✅ (if not paid) |
+| Process payment | ❌ | ✅ | ✅ | ❌ | ✅ |
+| View registrations | ✅ | ✅ | ✅ | ✅ | ✅ |
+| Request boat rental | ❌ | ✅ | ❌ | ❌ | ✅ |
+| Request hull assignment | ❌ | ✅ | ❌ | ❌ | ✅ |
+
+### Temporary Access Grants
+
+Admins can grant temporary access to club managers, allowing them to bypass phase restrictions for a specified duration. When a temporary access grant is active, the club manager has full access to all actions regardless of the current event phase.
