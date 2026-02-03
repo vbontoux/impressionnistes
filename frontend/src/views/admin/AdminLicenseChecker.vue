@@ -216,6 +216,7 @@
               {{ $t('crew.card.club') }}
               <span v-if="sortField === 'club_affiliation'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
             </th>
+            <th>{{ $t('crew.card.assigned') }}</th>
             <th @click="sortBy('team_manager_name')" class="sortable">
               {{ $t('admin.crewMembers.teamManager') }}
               <span v-if="sortField === 'team_manager_name'">{{ sortDirection === 'asc' ? '▲' : '▼' }}</span>
@@ -253,6 +254,14 @@
             </td>
             <td>
               <span class="club-box">{{ crew.club_affiliation || crew.team_manager_club || '-' }}</span>
+            </td>
+            <td>
+              <span v-if="crew.assigned_boat_id" class="badge badge-assigned">
+                {{ $t('crew.card.assigned') }}
+              </span>
+              <span v-else class="badge badge-unassigned">
+                {{ $t('crew.card.unassigned') }}
+              </span>
             </td>
             <td>
               <div class="team-manager-info">
@@ -1198,6 +1207,28 @@ onMounted(() => {
   max-width: 300px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Assigned/Unassigned Badge Styles */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  width: fit-content;
+}
+
+.badge-assigned {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.badge-unassigned {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  border: 1px solid #dee2e6;
 }
 
 .pagination {
