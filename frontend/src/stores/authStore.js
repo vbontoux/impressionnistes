@@ -4,6 +4,8 @@
  */
 import { defineStore } from 'pinia';
 import * as authService from '../services/authService';
+import * as cognitoService from '../services/cognitoService';
+import { mapAuthError } from '../utils/authErrorMapper';
 
 export const useAuthStore = defineStore('auth', {
   state: () => {
@@ -35,6 +37,9 @@ export const useAuthStore = defineStore('auth', {
       // Impersonation state - restore from localStorage
       impersonatedTeamManagerId: impersonatedId,
       impersonatedTeamManager: impersonatedManager,
+      // Session timeout tracking
+      sessionTimeoutReason: null,
+      sessionCheckInterval: null,
     }
   },
 
@@ -112,20 +117,62 @@ export const useAuthStore = defineStore('auth', {
     },
 
     /**
-     * Login user
-     * Note: This should use AWS Cognito SDK
+     * Login user with email and password using Cognito SDK
+     * @param {string} email
+     * @param {string} password
+     * @param {boolean} rememberMe
      */
-    async login(email, password) {
+    async login(email, password, rememberMe = false) {
       this.loading = true;
       this.error = null;
 
       try {
-        // TODO: Implement Cognito authentication
-        // This is a placeholder
-        throw new Error('Login should be implemented using AWS Cognito SDK');
+        // Authenticate with Cognito
+        const tokens = await cognitoService.signIn(email, password);
+        
+        // Store tokens based on rememberMe preference
+        cognitoService.storeTokens(tokens, rememberMe);
+        
+        // Store login time for session tracking
+        sessionStorage.setItem('loginTime', Date.now().toString());
+        sessionStorage.setItem('lastActivityTime', Date.now().toString());
+        
+        // Get user information (pass both accessToken and idToken)
+        const cognitoUser = await cognitoService.getCurrentUser(tokens.accessToken, tokens.idToken);
+        
+        // Fetch full profile from API
+        try {
+          const response = await authService.getProfile();
+          this.user = {
+            ...response.data,
+            groups: cognitoUser.groups || [],
+          };
+        } catch (error) {
+          console.error('Failed to fetch user profile:', error);
+          // Use Cognito user data as fallback
+          this.user = {
+            email: cognitoUser.email,
+            first_name: cognitoUser.given_name,
+            last_name: cognitoUser.family_name,
+            user_id: cognitoUser.sub,
+            groups: cognitoUser.groups || [],
+          };
+        }
+        
+        this.token = tokens.idToken;
+        this.isAuthenticated = true;
+        
+        authService.setToken(tokens.idToken);
+        authService.setUser(this.user);
+        
+        // Initialize activity tracking for session timeout
+        this.initializeActivityTracking();
+        
+        return true;
       } catch (error) {
-        this.error = error.message || 'Login failed';
-        throw error;
+        console.error('Login error:', error);
+        this.error = mapAuthError(error);
+        return false;
       } finally {
         this.loading = false;
       }
@@ -209,17 +256,19 @@ export const useAuthStore = defineStore('auth', {
     },
 
     /**
-     * Request password reset
+     * Request password reset using Cognito
+     * @param {string} email
      */
     async forgotPassword(email) {
       this.loading = true;
       this.error = null;
 
       try {
-        const response = await authService.forgotPassword(email);
-        return response;
+        await cognitoService.forgotPassword(email);
+        return { success: true };
       } catch (error) {
-        this.error = error.response?.data?.error?.message || 'Failed to request password reset';
+        console.error('Forgot password error:', error);
+        this.error = mapAuthError(error);
         throw error;
       } finally {
         this.loading = false;
@@ -227,17 +276,21 @@ export const useAuthStore = defineStore('auth', {
     },
 
     /**
-     * Confirm password reset
+     * Confirm password reset with verification code
+     * @param {string} email
+     * @param {string} code
+     * @param {string} newPassword
      */
     async resetPassword(email, code, newPassword) {
       this.loading = true;
       this.error = null;
 
       try {
-        const response = await authService.resetPassword(email, code, newPassword);
-        return response;
+        await cognitoService.confirmForgotPassword(email, code, newPassword);
+        return { success: true };
       } catch (error) {
-        this.error = error.response?.data?.error?.message || 'Failed to reset password';
+        console.error('Reset password error:', error);
+        this.error = mapAuthError(error);
         throw error;
       } finally {
         this.loading = false;
@@ -247,12 +300,113 @@ export const useAuthStore = defineStore('auth', {
     /**
      * Logout user
      */
-    logout() {
+    async logout() {
+      // Sign out from Cognito
+      const tokens = cognitoService.getStoredTokens();
+      if (tokens && tokens.accessToken) {
+        await cognitoService.signOut(tokens.accessToken);
+      }
+      
+      // Clear all stored data
       authService.logout();
+      cognitoService.clearTokens();
+      
       this.user = null;
       this.token = null;
       this.isAuthenticated = false;
       this.error = null;
+      
+      // Clear session check interval
+      if (this.sessionCheckInterval) {
+        clearInterval(this.sessionCheckInterval);
+        this.sessionCheckInterval = null;
+      }
+    },
+
+    /**
+     * Initialize auth state from stored tokens
+     */
+    async initializeAuth() {
+      const tokens = cognitoService.getStoredTokens();
+      
+      if (tokens && !cognitoService.areTokensExpired(tokens)) {
+        try {
+          const cognitoUser = await cognitoService.getCurrentUser(tokens.accessToken, tokens.idToken);
+          
+          // Fetch full profile from API
+          try {
+            const response = await authService.getProfile();
+            this.user = {
+              ...response.data,
+              groups: cognitoUser.groups || [],
+            };
+          } catch (error) {
+            console.error('Failed to fetch user profile:', error);
+            this.user = {
+              email: cognitoUser.email,
+              first_name: cognitoUser.given_name,
+              last_name: cognitoUser.family_name,
+              user_id: cognitoUser.sub,
+              groups: cognitoUser.groups || [],
+            };
+          }
+          
+          this.token = tokens.idToken;
+          this.isAuthenticated = true;
+          
+          authService.setToken(tokens.idToken);
+          authService.setUser(this.user);
+          
+          // Initialize activity tracking
+          this.initializeActivityTracking();
+        } catch (error) {
+          console.error('Token validation failed:', error);
+          // Token expired or invalid, clear storage
+          await this.logout();
+        }
+      }
+    },
+
+    /**
+     * Initialize activity tracking for session timeout
+     * - 5 hour maximum session duration
+     * - 30 minute inactivity timeout
+     */
+    initializeActivityTracking() {
+      const SESSION_MAX_DURATION = 5 * 60 * 60 * 1000; // 5 hours in ms
+      const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes in ms
+      
+      // Update last activity on user interaction
+      const updateActivity = () => {
+        sessionStorage.setItem('lastActivityTime', Date.now().toString());
+      };
+      
+      // Track user activity
+      const events = ['mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
+      events.forEach(event => {
+        document.addEventListener(event, updateActivity, { passive: true });
+      });
+      
+      // Check session validity periodically
+      this.sessionCheckInterval = setInterval(() => {
+        const now = Date.now();
+        const storedLoginTime = parseInt(sessionStorage.getItem('loginTime') || '0');
+        const storedLastActivity = parseInt(sessionStorage.getItem('lastActivityTime') || '0');
+        
+        // Check if session exceeded max duration
+        if (now - storedLoginTime > SESSION_MAX_DURATION) {
+          this.sessionTimeoutReason = 'max_duration';
+          this.logout();
+          return;
+        }
+        
+        // Check if user has been inactive too long
+        if (now - storedLastActivity > INACTIVITY_TIMEOUT) {
+          this.sessionTimeoutReason = 'inactivity';
+          this.logout();
+          return;
+        }
+      }, 60000); // Check every minute
     },
 
     /**

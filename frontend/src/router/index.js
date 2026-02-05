@@ -6,6 +6,8 @@ const Home = () => import('../views/Home.vue');
 const Login = () => import('../views/Login.vue');
 const Register = () => import('../views/Register.vue');
 const VerifyEmail = () => import('../views/VerifyEmail.vue');
+const ForgotPassword = () => import('../views/ForgotPasswordView.vue');
+const ResetPassword = () => import('../views/ResetPasswordView.vue');
 const Callback = () => import('../views/Callback.vue');
 const Dashboard = () => import('../views/Dashboard.vue');
 const CrewMembers = () => import('../views/CrewMembers.vue');
@@ -54,6 +56,18 @@ const routes = [
     path: '/verify-email',
     name: 'VerifyEmail',
     component: VerifyEmail,
+    meta: { guest: true },
+  },
+  {
+    path: '/forgot-password',
+    name: 'ForgotPassword',
+    component: ForgotPassword,
+    meta: { guest: true },
+  },
+  {
+    path: '/reset-password',
+    name: 'ResetPassword',
+    component: ResetPassword,
     meta: { guest: true },
   },
   {
@@ -216,14 +230,22 @@ router.beforeEach((to, from, next) => {
 
   // Check if route requires authentication
   if (to.meta.requiresAuth && !isAuthenticated) {
-    next('/login');
+    // If there's a session timeout reason, pass it to login
+    if (authStore.sessionTimeoutReason) {
+      next({
+        path: '/login',
+        query: { reason: 'session_expired' },
+      });
+    } else {
+      next('/login');
+    }
   }
   // Check if route requires admin access
   else if (to.meta.requiresAdmin && !authStore.isAdmin) {
     console.warn('Access denied: Admin privileges required');
     next('/dashboard');
   }
-  // Check if route is for guests only (login/register)
+  // Check if route is for guests only (login/register/forgot-password/reset-password)
   else if (to.meta.guest && isAuthenticated) {
     next('/dashboard');
   }

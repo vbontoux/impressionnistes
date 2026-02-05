@@ -6,10 +6,29 @@
       <p class="subtitle">{{ $t('auth.verify.subtitle') }}</p>
     </div>
 
-    <form @submit.prevent="handleSubmit">
+    <!-- Success Message -->
+    <MessageAlert
+      v-if="successMessage"
+      type="success"
+      :message="successMessage"
+      :dismissible="false"
+    />
+
+    <!-- Error Message -->
+    <MessageAlert
+      v-if="errorMessage"
+      type="error"
+      :message="errorMessage"
+      :dismissible="true"
+      @dismiss="errorMessage = ''"
+    />
+
+    <form v-if="!successMessage" @submit.prevent="handleSubmit">
       <!-- Email -->
-      <div class="form-group">
-        <label for="email">{{ $t('auth.verify.email') }} *</label>
+      <FormGroup
+        :label="$t('auth.verify.email')"
+        :required="true"
+      >
         <input
           id="email"
           v-model="form.email"
@@ -17,11 +36,14 @@
           required
           :disabled="loading"
         />
-      </div>
+      </FormGroup>
 
       <!-- Verification Code -->
-      <div class="form-group">
-        <label for="code">{{ $t('auth.verify.code') }} *</label>
+      <FormGroup
+        :label="$t('auth.verify.code')"
+        :required="true"
+        :help-text="$t('auth.verify.codeHint')"
+      >
         <input
           id="code"
           v-model="form.code"
@@ -31,35 +53,34 @@
           placeholder="123456"
           maxlength="6"
         />
-        <small class="hint">{{ $t('auth.verify.codeHint') }}</small>
-      </div>
-
-      <!-- Error Message -->
-      <div v-if="errorMessage" class="alert alert-error">
-        {{ errorMessage }}
-      </div>
-
-      <!-- Success Message -->
-      <div v-if="successMessage" class="alert alert-success">
-        {{ successMessage }}
-      </div>
+      </FormGroup>
 
       <!-- Submit Button -->
-      <button type="submit" class="btn btn-primary" :disabled="loading">
-        <span v-if="loading">{{ $t('common.loading') }}</span>
-        <span v-else>{{ $t('auth.verify.submit') }}</span>
-      </button>
+      <BaseButton
+        type="submit"
+        variant="primary"
+        size="medium"
+        :full-width="true"
+        :loading="loading"
+        :disabled="loading"
+      >
+        {{ loading ? $t('common.loading') : $t('auth.verify.submit') }}
+      </BaseButton>
 
       <!-- Resend Code -->
-      <button 
-        type="button" 
-        @click="resendCode" 
-        class="btn btn-secondary"
-        :disabled="loading || resendDisabled"
-      >
-        {{ $t('auth.verify.resend') }}
-        <span v-if="resendTimer > 0">({{ resendTimer }}s)</span>
-      </button>
+      <div class="resend-button">
+        <BaseButton
+          type="button"
+          variant="secondary"
+          size="medium"
+          :full-width="true"
+          :disabled="loading || resendDisabled"
+          @click="resendCode"
+        >
+          {{ $t('auth.verify.resend') }}
+          <span v-if="resendTimer > 0">({{ resendTimer }}s)</span>
+        </BaseButton>
+      </div>
     </form>
   </div>
 </template>
@@ -68,6 +89,9 @@
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
+import FormGroup from './composite/FormGroup.vue';
+import BaseButton from './base/BaseButton.vue';
+import MessageAlert from './composite/MessageAlert.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -172,119 +196,57 @@ const resendCode = async () => {
 
 <style scoped>
 .verify-email {
-  max-width: 400px;
+  max-width: 450px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: var(--spacing-xl) var(--spacing-lg);
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .form-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xl);
 }
 
 .form-logo {
-  height: 80px;
+  height: 100px;
   width: auto;
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 h2 {
-  margin-bottom: 0.5rem;
-  color: #333;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-dark);
+  text-align: center;
+  font-size: var(--font-size-xl);
 }
 
 .subtitle {
-  color: #666;
-  margin-bottom: 1rem;
+  text-align: center;
+  color: var(--color-muted);
+  margin-bottom: var(--spacing-xl);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
 }
 
-.form-group {
-  margin-bottom: 1.5rem;
+.resend-button {
+  margin-top: var(--spacing-md);
 }
 
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #333;
-}
+/* Mobile responsiveness */
+@media (max-width: 767px) {
+  .verify-email {
+    padding: var(--spacing-lg) var(--spacing-md);
+    margin: var(--spacing-md);
+  }
 
-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
+  .form-logo {
+    height: 80px;
+  }
 
-input:focus {
-  outline: none;
-  border-color: #4CAF50;
-}
-
-input:disabled {
-  background-color: #f5f5f5;
-  cursor: not-allowed;
-}
-
-.hint {
-  display: block;
-  color: #666;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
-
-.alert {
-  padding: 1rem;
-  border-radius: 4px;
-  margin-bottom: 1rem;
-}
-
-.alert-error {
-  background-color: #ffebee;
-  color: #c62828;
-  border: 1px solid #ef5350;
-}
-
-.alert-success {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-  border: 1px solid #66bb6a;
-}
-
-.btn {
-  width: 100%;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  margin-bottom: 0.75rem;
-}
-
-.btn-primary {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #45a049;
-}
-
-.btn-secondary {
-  background-color: #fff;
-  color: #4CAF50;
-  border: 1px solid #4CAF50;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background-color: #f5f5f5;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  h2 {
+    font-size: var(--font-size-lg);
+  }
 }
 </style>

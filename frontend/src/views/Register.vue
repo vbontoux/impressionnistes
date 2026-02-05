@@ -1,6 +1,8 @@
 <template>
-  <div class="register-view">
-    <RegisterForm />
+  <div class="auth-page">
+    <div class="auth-container">
+      <RegisterForm />
+    </div>
   </div>
 </template>
 
@@ -9,7 +11,24 @@ import RegisterForm from '../components/RegisterForm.vue';
 </script>
 
 <style scoped>
-.register-view {
-  padding: 2rem 0;
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: var(--spacing-lg);
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 500px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 767px) {
+  .auth-page {
+    padding: var(--spacing-md);
+  }
 }
 </style>

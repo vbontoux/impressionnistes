@@ -161,34 +161,38 @@
       <!-- Consent Checkboxes -->
       <div class="consent-group">
         <div class="consent-item">
-          <input
-            id="privacyConsent"
-            v-model="form.privacy_consent"
-            type="checkbox"
-            required
-            :disabled="loading"
-          />
-          <label for="privacyConsent" class="consent-label">
-            {{ $t('auth.register.privacyConsent') }}
-            <router-link to="/privacy-policy" target="_blank" class="consent-link">
-              {{ $t('legal.privacyPolicy') }}
-            </router-link>
+          <label class="consent-checkbox-wrapper">
+            <input
+              id="privacyConsent"
+              v-model="form.privacy_consent"
+              type="checkbox"
+              required
+              :disabled="loading"
+            />
+            <span class="consent-label">
+              {{ $t('auth.register.privacyConsent') }}
+              <router-link to="/privacy-policy" target="_blank" class="consent-link">
+                {{ $t('legal.privacyPolicy') }}
+              </router-link>
+            </span>
           </label>
         </div>
         
         <div class="consent-item">
-          <input
-            id="termsConsent"
-            v-model="form.terms_consent"
-            type="checkbox"
-            required
-            :disabled="loading"
-          />
-          <label for="termsConsent" class="consent-label">
-            {{ $t('auth.register.termsConsent') }}
-            <router-link to="/terms-conditions" target="_blank" class="consent-link">
-              {{ $t('legal.termsConditions') }}
-            </router-link>
+          <label class="consent-checkbox-wrapper">
+            <input
+              id="termsConsent"
+              v-model="form.terms_consent"
+              type="checkbox"
+              required
+              :disabled="loading"
+            />
+            <span class="consent-label">
+              {{ $t('auth.register.termsConsent') }}
+              <router-link to="/terms-conditions" target="_blank" class="consent-link">
+                {{ $t('legal.termsConditions') }}
+              </router-link>
+            </span>
           </label>
         </div>
       </div>
@@ -442,79 +446,89 @@ const handleSubmit = async () => {
 
 <style scoped>
 .register-form {
-  max-width: 500px;
+  max-width: 450px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: var(--spacing-xl) var(--spacing-lg);
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
 .form-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--spacing-xl);
 }
 
 .form-logo {
-  height: 80px;
+  height: 100px;
   width: auto;
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 h2 {
-  margin-bottom: 0.5rem;
-  color: #333;
+  margin-bottom: var(--spacing-md);
+  color: var(--color-dark);
+  text-align: center;
+  font-size: var(--font-size-xl);
 }
 
 .subtitle {
-  color: #666;
-  margin-bottom: 1rem;
+  text-align: center;
+  color: var(--color-muted);
+  margin-bottom: var(--spacing-xl);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 label {
   display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #333;
+  margin-bottom: var(--spacing-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-dark);
+  font-size: var(--font-size-sm);
 }
 
 input {
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
+  min-height: 44px;
 }
 
 input:focus {
   outline: none;
-  border-color: #4CAF50;
+  border-color: var(--color-primary);
 }
 
 input:disabled {
-  background-color: #f5f5f5;
+  background-color: var(--color-light);
   cursor: not-allowed;
 }
 
 .error {
   display: block;
-  color: #f44336;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
+  color: var(--color-danger);
+  font-size: var(--font-size-xs);
+  margin-top: var(--spacing-xs);
 }
 
 .hint {
   display: block;
-  color: #666;
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
+  color: var(--color-muted);
+  font-size: var(--font-size-xs);
+  margin-top: var(--spacing-xs);
 }
 
 .alert {
-  padding: 1rem;
+  padding: var(--spacing-md);
   border-radius: 4px;
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-lg);
 }
 
 .alert-error {
@@ -531,22 +545,24 @@ input:disabled {
 
 .btn {
   width: 100%;
-  padding: 0.75rem;
+  padding: var(--spacing-md);
   border: none;
   border-radius: 4px;
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
   cursor: pointer;
   transition: background-color 0.3s;
+  min-height: 44px;
 }
 
 .btn-primary {
-  background-color: #4CAF50;
+  background-color: var(--color-primary);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: #45a049;
+  background-color: var(--color-primary);
+  opacity: 0.9;
 }
 
 .btn:disabled {
@@ -556,13 +572,15 @@ input:disabled {
 
 .text-center {
   text-align: center;
-  margin-top: 1rem;
-  color: #666;
+  margin-top: var(--spacing-lg);
+  color: var(--color-muted);
+  font-size: var(--font-size-sm);
 }
 
 a {
-  color: #4CAF50;
+  color: var(--color-primary);
   text-decoration: none;
+  font-weight: var(--font-weight-medium);
 }
 
 a:hover {
@@ -570,55 +588,55 @@ a:hover {
 }
 
 .password-requirements {
-  margin-top: 0.5rem;
-  padding: 0.75rem;
-  background-color: #f5f5f5;
+  margin-top: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background-color: var(--color-light);
   border-radius: 4px;
-  font-size: 0.875rem;
+  font-size: var(--font-size-xs);
 }
 
 .requirement {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0;
-  color: #666;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) 0;
+  color: var(--color-muted);
   transition: color 0.3s;
 }
 
 .requirement.valid {
-  color: #4CAF50;
-  font-weight: 500;
+  color: var(--color-success);
+  font-weight: var(--font-weight-medium);
 }
 
 .requirement .icon {
-  font-weight: bold;
-  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
   min-width: 1.2rem;
 }
 
 .requirement.valid .icon {
-  color: #4CAF50;
+  color: var(--color-success);
 }
 
 .checkbox-group {
   display: flex;
   align-items: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--spacing-md);
 }
 
 .checkbox-group input[type="checkbox"] {
   width: auto;
-  margin-right: 0.5rem;
+  margin-right: var(--spacing-sm);
 }
 
 .checkbox-label {
   margin-bottom: 0;
-  font-weight: normal;
+  font-weight: var(--font-weight-normal);
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--spacing-sm);
 }
 
 .ffa-logo {
@@ -638,7 +656,7 @@ a:hover {
   max-height: 300px;
   overflow-y: auto;
   background: white;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-top: none;
   border-radius: 0 0 4px 4px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -646,13 +664,13 @@ a:hover {
 }
 
 .autocomplete-item {
-  padding: 0.75rem;
+  padding: var(--spacing-md);
   cursor: pointer;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--color-light);
 }
 
 .autocomplete-item:hover {
-  background-color: #f5f5f5;
+  background-color: var(--color-light);
 }
 
 .autocomplete-item:last-child {
@@ -660,66 +678,90 @@ a:hover {
 }
 
 .club-name {
-  font-weight: 500;
-  color: #333;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-dark);
 }
 
 .club-url {
-  font-size: 0.875rem;
-  color: #666;
-  margin-top: 0.25rem;
+  font-size: var(--font-size-xs);
+  color: var(--color-muted);
+  margin-top: var(--spacing-xs);
 }
 
 .autocomplete-no-results {
-  padding: 0.75rem;
-  color: #666;
+  padding: var(--spacing-md);
+  color: var(--color-muted);
   font-style: italic;
   background: white;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-top: none;
   border-radius: 0 0 4px 4px;
 }
 
 .consent-group {
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  background-color: #f9f9f9;
-  border: 1px solid #e0e0e0;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background-color: var(--color-light);
+  border: 1px solid var(--color-border);
   border-radius: 4px;
 }
 
 .consent-item {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--spacing-md);
 }
 
 .consent-item:last-child {
   margin-bottom: 0;
 }
 
-.consent-item input[type="checkbox"] {
+.consent-checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+.consent-checkbox-wrapper input[type="checkbox"] {
   width: auto;
-  margin-right: 0.75rem;
-  margin-top: 0.25rem;
+  min-width: 20px;
+  height: 20px;
+  margin: 0;
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 .consent-label {
-  margin-bottom: 0;
-  font-weight: normal;
-  font-size: 0.9rem;
-  color: #333;
+  flex: 1;
+  font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-sm);
+  color: var(--color-dark);
   line-height: 1.5;
 }
 
 .consent-link {
-  color: #4CAF50;
+  color: var(--color-primary);
   text-decoration: underline;
-  font-weight: 500;
+  font-weight: var(--font-weight-medium);
 }
 
 .consent-link:hover {
-  color: #45a049;
+  opacity: 0.8;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 767px) {
+  .register-form {
+    padding: var(--spacing-lg) var(--spacing-md);
+    margin: var(--spacing-md);
+  }
+
+  .form-logo {
+    height: 80px;
+  }
+
+  h2 {
+    font-size: var(--font-size-lg);
+  }
 }
 </style>

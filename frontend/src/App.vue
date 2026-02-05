@@ -318,7 +318,7 @@ const getInitials = () => {
 
 const handleLogout = () => {
   authStore.logout();
-  router.push('/login');
+  router.push('/');
   closeSidebar();
   closeUserMenu();
 };

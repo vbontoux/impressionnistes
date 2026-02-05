@@ -1,13 +1,13 @@
 <template>
   <div class="auth-page">
     <div class="auth-container">
-      <LoginForm />
+      <ResetPasswordForm />
     </div>
   </div>
 </template>
 
 <script setup>
-import LoginForm from '../components/LoginForm.vue';
+import ResetPasswordForm from '../components/ResetPasswordForm.vue';
 </script>
 
 <style scoped>
