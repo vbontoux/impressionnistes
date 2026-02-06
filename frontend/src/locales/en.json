@@ -836,7 +836,7 @@
     "selectBoatType": "Select boat type",
     "skiff": "Skiff (1 person)",
     "fourWithoutCox": "Four without coxswain (sweep or scull)",
-    "fourWithCox": "Four with coxswain (sweep or scull)",
+    "fourWithCox": "Four with coxswain (sweep, scull, or Yolette)",
     "eightWithCox": "Eight with coxswain (sweep or scull)",
     "rentBoat": "Rent boat from RCPM",
     "rentalInfo": "Boat rental fees apply",
@@ -879,6 +879,7 @@
     "mixedRule": "At least 1 man AND at least 50% women rowers",
     "coxswainNote": "Note: Coxswains (age 14+) do not count toward age or gender category calculations",
     "crewComposition": "Crew Composition",
+    "crewCompositionDescription": "Assign crew members to seats, select a race, and configure boat rental options for this crew.",
     "selected": "Selected",
     "distance": "Distance",
     "gender": "Gender",
@@ -892,6 +893,7 @@
     "senior": "Senior",
     "master": "Master",
     "boatInformation": "Crew Information",
+    "registrationDetails": "Registration Details",
     "flaggedIssues": "Flagged Issues",
     "flaggedAt": "Flagged at",
     "resolved": "Resolved",
@@ -934,6 +936,15 @@
       "quadWithCox": "Quad scull with coxswain",
       "eightWithCox": "Eight with coxswain",
       "octaWithCox": "Octuple scull with coxswain"
+    },
+    "eligibleBoatTypes": "Eligible Boat Types",
+    "boatTypeExplanations": {
+      "skiff": "This registration is for a single scull (1x). You will race in a skiff.",
+      "2-": "This registration is for a double without coxswain. You can race in either a double scull (2x-) or a coxless pair (2-).",
+      "2+": "This registration is for a double with coxswain. You can race in either a double scull with coxswain (2x+) or a coxed pair (2+).",
+      "4-": "This registration is for a four without coxswain. You can race in either a quad scull (4x-) or a coxless four (4-).",
+      "4+": "This registration is for a four with coxswain. You can race in a quad scull with coxswain (4x+), a coxed four (4+), or optionally a Yolette (4+yolette or 4x+yolette).",
+      "8+": "This registration is for an eight with coxswain. You can race in either an octuple scull (8x+) or a coxed eight (8+)."
     },
     "boatRequest": {
       "title": "Boat Request",

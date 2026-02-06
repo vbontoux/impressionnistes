@@ -19,27 +19,34 @@
           <BaseButton variant="secondary" size="small" @click="goBack" class="btn-back">
             ← {{ $t('common.back') }}
           </BaseButton>
-          <h1>{{ boat.event_type }} - {{ boat.boat_type }}</h1>
-          <StatusBadge :status="boat.registration_status" />
+          <h1>{{ $t('boat.crewComposition') }} - {{ boat.event_type }} - {{ boat.boat_type }}</h1>
+          <p class="page-description">{{ $t('boat.crewCompositionDescription') }}</p>
         </div>
       </div>
 
       <!-- Boat Info -->
       <div class="section">
-        <h2>{{ $t('boat.boatInformation') }}</h2>
-        <div class="info-grid">
-          <div class="info-item">
-            <span class="label">{{ $t('boat.eventType') }}&nbsp;:</span>
-            <span>{{ boat.event_type }}</span>
+        <h2>{{ $t('boat.registrationDetails') }}</h2>
+        <div class="registration-layout">
+          <!-- Left column: Event and Boat Type -->
+          <div class="registration-info">
+            <div class="info-item">
+              <span class="label">{{ $t('boat.eventType') }}&nbsp;:</span>
+              <span>{{ boat.event_type }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">{{ $t('boat.boatType') }}&nbsp;:</span>
+              <span>{{ boat.boat_type }}</span>
+            </div>
           </div>
-          <div class="info-item">
-            <span class="label">{{ $t('boat.boatType') }}&nbsp;:</span>
-            <span>{{ boat.boat_type }}</span>
+          
+          <!-- Right column: Eligible Boat Types Info -->
+          <div class="boat-type-info">
+            <div class="info-text">
+              <strong>{{ $t('boat.eligibleBoatTypes') }}</strong>
+              <p>{{ getBoatTypeExplanation(boat.boat_type) }}</p>
+            </div>
           </div>
-          <!-- RCPM+ badge hidden - club info now shown in club name display -->
-          <!-- <div class="info-item" v-if="boat.is_multi_club_crew || boat.registration_status === 'free'">
-            <span class="multi-club-badge">{{ $t('boat.multiClub') }}</span>
-          </div> -->
         </div>
       </div>
 
@@ -175,7 +182,6 @@ import { useI18n } from 'vue-i18n'
 import SeatAssignment from '../components/SeatAssignment.vue'
 import RaceSelector from '../components/RaceSelector.vue'
 import BaseButton from '../components/base/BaseButton.vue'
-import StatusBadge from '../components/base/StatusBadge.vue'
 import MessageAlert from '../components/composite/MessageAlert.vue'
 import FormGroup from '../components/composite/FormGroup.vue'
 
@@ -185,7 +191,6 @@ export default {
     SeatAssignment,
     RaceSelector,
     BaseButton,
-    StatusBadge,
     MessageAlert,
     FormGroup
   },
@@ -327,6 +332,18 @@ export default {
       return new Date(dateString).toLocaleString()
     }
 
+    const getBoatTypeExplanation = (boatType) => {
+      const explanations = {
+        '4-': t('boat.boatTypeExplanations.4-'),
+        '4+': t('boat.boatTypeExplanations.4+'),
+        '8+': t('boat.boatTypeExplanations.8+'),
+        'skiff': t('boat.boatTypeExplanations.skiff'),
+        '2-': t('boat.boatTypeExplanations.2-'),
+        '2+': t('boat.boatTypeExplanations.2+')
+      }
+      return explanations[boatType] || ''
+    }
+
     // Watch for races being loaded
     watch(availableRaces, (newRaces) => {
       console.log('BoatDetail - Available races changed:', newRaces.length)
@@ -363,7 +380,8 @@ export default {
       handleBoatRequestToggle,
       saveBoat,
       goBack,
-      formatDate
+      formatDate,
+      getBoatTypeExplanation
     }
   }
 }
@@ -395,6 +413,13 @@ export default {
   margin: var(--spacing-sm) 0;
 }
 
+.page-description {
+  margin-top: var(--spacing-md);
+  color: var(--color-secondary);
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+}
+
 .btn-back {
   margin-bottom: var(--spacing-sm);
 }
@@ -410,6 +435,18 @@ export default {
 .section h2 {
   margin: 0 0 var(--spacing-lg) 0;
   color: var(--color-dark);
+}
+
+.registration-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.registration-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
 .info-grid {
@@ -429,6 +466,35 @@ export default {
 .info-item .label {
   font-weight: var(--font-weight-medium);
   color: var(--color-muted);
+}
+
+.boat-type-info {
+  padding: var(--spacing-lg);
+  background-color: #e7f3ff;
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--card-border-radius);
+}
+
+/* Desktop: Two-column layout */
+@media (min-width: 768px) {
+  .registration-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: var(--spacing-xl);
+    align-items: start;
+  }
+}
+
+.info-text strong {
+  display: block;
+  margin-bottom: var(--spacing-xs);
+  color: var(--color-dark);
+}
+
+.info-text p {
+  margin: 0;
+  color: var(--color-dark);
+  line-height: 1.5;
 }
 
 .issues-list {

@@ -836,7 +836,7 @@
     "selectBoatType": "Sélectionner un type de bateau",
     "skiff": "Skiff (1 personne)",
     "fourWithoutCox": "Quatre sans barreur (pointe ou couple)",
-    "fourWithCox": "Quatre avec barreur (pointe ou couple)",
+    "fourWithCox": "Quatre avec barreur (pointe, couple ou Yolette)",
     "eightWithCox": "Huit avec barreur (pointe ou couple)",
     "rentBoat": "Louer un bateau du RCPM",
     "rentalInfo": "Des frais de location de bateau s'appliquent",
@@ -879,6 +879,7 @@
     "mixedRule": "Au moins 1 homme ET au moins 50% de rameuses",
     "coxswainNote": "Note : Les barreurs (âge 14+) ne comptent pas dans les calculs de catégorie d'âge ou de genre",
     "crewComposition": "Composition de l'équipage",
+    "crewCompositionDescription": "Assignez les membres d'équipage aux places, sélectionnez une course et configurez les options de location de bateau pour cet équipage.",
     "selected": "Sélectionné",
     "distance": "Distance",
     "gender": "Genre",
@@ -892,6 +893,7 @@
     "senior": "Senior",
     "master": "Master",
     "boatInformation": "Informations de l'équipage",
+    "registrationDetails": "Détails de l'inscription",
     "flaggedIssues": "Problèmes signalés",
     "flaggedAt": "Signalé le",
     "resolved": "Résolu",
@@ -934,6 +936,15 @@
       "quadWithCox": "Quatre de couple avec barreur",
       "eightWithCox": "Huit avec barreur",
       "octaWithCox": "Huit de couple avec barreur"
+    },
+    "eligibleBoatTypes": "Types de bateaux éligibles",
+    "boatTypeExplanations": {
+      "skiff": "Cette inscription est pour un skiff (1x). Vous courrez en skiff.",
+      "2-": "Cette inscription est pour un double sans barreur. Vous pouvez courir en deux de couple (2x-) ou en deux de pointe (2-).",
+      "2+": "Cette inscription est pour un double avec barreur. Vous pouvez courir en deux de couple avec barreur (2x+) ou en deux de pointe avec barreur (2+).",
+      "4-": "Cette inscription est pour un quatre sans barreur. Vous pouvez courir en quatre de couple (4x-) ou en quatre de pointe (4-).",
+      "4+": "Cette inscription est pour un quatre avec barreur. Vous pouvez courir en quatre de couple avec barreur (4x+), en quatre de pointe avec barreur (4+), ou optionnellement en Yolette (4+yolette ou 4x+yolette).",
+      "8+": "Cette inscription est pour un huit avec barreur. Vous pouvez courir en huit de couple (8x+) ou en huit de pointe (8+)."
     },
     "boatRequest": {
       "title": "Demande de bateau",
