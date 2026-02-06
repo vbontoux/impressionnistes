@@ -227,6 +227,7 @@ import { ref, reactive, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
 import { useI18n } from 'vue-i18n';
+import { mapValidationErrors } from '../utils/validationErrorMapper';
 import axios from 'axios';
 
 const router = useRouter();
@@ -392,9 +393,10 @@ const validatePassword = () => {
 };
 
 const handleSubmit = async () => {
-  // Clear messages
+  // Clear messages and errors
   errorMessage.value = '';
   successMessage.value = '';
+  Object.keys(errors).forEach(key => delete errors[key]);
 
   // Validate all fields
   validateEmail();
@@ -428,11 +430,21 @@ const handleSubmit = async () => {
     console.error('Registration error:', error);
     console.error('Error response:', error.response);
     
-    // Show detailed error message
-    if (error.response?.data?.error?.message) {
+    // Handle validation errors from backend
+    if (error.response?.data?.error?.details) {
+      // Backend returned field-specific validation errors
+      const backendErrors = error.response.data.error.details;
+      console.log('Backend validation errors:', backendErrors);
+      
+      // Map backend errors to translated form errors
+      const translatedErrors = mapValidationErrors(backendErrors, t);
+      Object.assign(errors, translatedErrors);
+      
+      // Show generic message
+      errorMessage.value = t('auth.register.validationError');
+    } else if (error.response?.data?.error?.message) {
+      // Backend returned a general error message
       errorMessage.value = error.response.data.error.message;
-    } else if (error.response?.data?.error) {
-      errorMessage.value = JSON.stringify(error.response.data.error);
     } else if (error.message) {
       errorMessage.value = error.message;
     } else {

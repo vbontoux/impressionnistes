@@ -676,22 +676,28 @@
       "loginLink": "Login here",
       "success": "Registration successful! Please check your email to verify your account.",
       "error": "Registration failed. Please try again.",
+      "validationError": "Please correct the errors below and try again.",
       "privacyConsent": "I have read and accept the",
       "termsConsent": "I have read and accept the",
       "consentRequired": "You must accept the Privacy Policy and Terms & Conditions to register"
     },
     "validation": {
       "invalidEmail": "Invalid email format",
+      "invalidPhoneFormat": "Phone number must be in international format (e.g., +33612345678)",
       "passwordTooShort": "Password must be at least 8 characters",
       "passwordNeedsUppercase": "Password must contain at least one uppercase letter",
       "passwordNeedsLowercase": "Password must contain at least one lowercase letter",
       "passwordNeedsNumber": "Password must contain at least one number",
+      "passwordNeedsSymbol": "Password must contain at least one special character",
       "passwordRequirements": "Password must meet all requirements above",
       "passwordMinLength": "At least 8 characters",
       "passwordHasUppercase": "At least one uppercase letter (A-Z)",
       "passwordHasLowercase": "At least one lowercase letter (a-z)",
       "passwordHasNumber": "At least one number (0-9)",
-      "passwordHasSymbol": "At least one special character (!{'@'}#$%...)"
+      "passwordHasSymbol": "At least one special character (!{'@'}#$%...)",
+      "fieldRequired": "This field is required",
+      "fieldTooLong": "This field is too long",
+      "fieldTooShort": "This field is too short"
     },
     "verify": {
       "title": "Verify Your Email",
