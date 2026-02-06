@@ -1,7 +1,16 @@
 #!/usr/bin/env python3
 """
 Delete a team manager account and all related data from DynamoDB and Cognito
-Usage: python delete_team_manager.py <email> [--environment dev|prod]
+
+This script will delete:
+- User profile (USER#{user_id}#PROFILE)
+- Consent records (USER#{user_id}#CONSENT#*)
+- All boats (TEAM#{user_id}#BOAT#*)
+- All crew members (TEAM#{user_id}#CREW#*)
+- All payments (TEAM#{user_id}#PAYMENT#*)
+- Cognito user account
+
+Usage: python delete_team_manager.py <email> [--environment dev|prod] [--yes]
 """
 import sys
 import boto3
@@ -27,7 +36,14 @@ def get_user_sub_from_email(cognito_client, user_pool_id, email):
 
 def delete_dynamodb_data(table, user_sub):
     """Delete all DynamoDB data for a user"""
-    deleted_count = 0
+    deleted_counts = {
+        'profile': 0,
+        'consent': 0,
+        'boats': 0,
+        'crew_members': 0,
+        'payments': 0,
+        'other': 0
+    }
     
     # Query all items with PK = USER#{user_sub}
     print(f"  Querying USER#{user_sub} items...")
@@ -40,9 +56,19 @@ def delete_dynamodb_data(table, user_sub):
     print(f"  Found {len(items)} USER items")
     
     for item in items:
-        table.delete_item(Key={'PK': item['PK'], 'SK': item['SK']})
-        deleted_count += 1
-        print(f"    Deleted: {item['SK']}")
+        sk = item['SK']
+        table.delete_item(Key={'PK': item['PK'], 'SK': sk})
+        
+        # Categorize what we're deleting
+        if sk == 'PROFILE':
+            deleted_counts['profile'] += 1
+            print(f"    Deleted: {sk} (user profile)")
+        elif sk.startswith('CONSENT#'):
+            deleted_counts['consent'] += 1
+            print(f"    Deleted: {sk} (consent record)")
+        else:
+            deleted_counts['other'] += 1
+            print(f"    Deleted: {sk}")
     
     # Query all items with PK = TEAM#{user_sub}
     print(f"  Querying TEAM#{user_sub} items...")
@@ -55,11 +81,30 @@ def delete_dynamodb_data(table, user_sub):
     print(f"  Found {len(items)} TEAM items")
     
     for item in items:
-        table.delete_item(Key={'PK': item['PK'], 'SK': item['SK']})
-        deleted_count += 1
-        print(f"    Deleted: {item['SK']}")
+        sk = item['SK']
+        table.delete_item(Key={'PK': item['PK'], 'SK': sk})
+        
+        # Categorize what we're deleting
+        if sk.startswith('BOAT#'):
+            deleted_counts['boats'] += 1
+            boat_number = item.get('boat_number', 'N/A')
+            event_type = item.get('event_type', 'N/A')
+            print(f"    Deleted: {sk} (boat: {boat_number}, event: {event_type})")
+        elif sk.startswith('CREW#'):
+            deleted_counts['crew_members'] += 1
+            first_name = item.get('first_name', '')
+            last_name = item.get('last_name', '')
+            print(f"    Deleted: {sk} (crew member: {first_name} {last_name})")
+        elif sk.startswith('PAYMENT#'):
+            deleted_counts['payments'] += 1
+            payment_id = item.get('payment_id', 'N/A')
+            amount = item.get('amount_cents', 0) / 100
+            print(f"    Deleted: {sk} (payment: {payment_id}, €{amount:.2f})")
+        else:
+            deleted_counts['other'] += 1
+            print(f"    Deleted: {sk}")
     
-    return deleted_count
+    return deleted_counts
 
 def delete_cognito_user(cognito_client, user_pool_id, email):
     """Delete user from Cognito"""
@@ -109,12 +154,19 @@ def main():
     print(f"Environment: {env}")
     print(f"Table: {table_name}")
     print(f"Stack: {stack_name}")
+    print(f"\n⚠️  This will permanently delete:")
+    print(f"  - User profile")
+    print(f"  - All consent records")
+    print(f"  - All boats/crew registrations")
+    print(f"  - All crew members")
+    print(f"  - All payment records")
+    print(f"  - Cognito user account")
     print(f"{'='*60}\n")
     
     # Confirm deletion
     if not args.yes:
-        confirm = input(f"⚠️  Are you sure you want to delete {email} and ALL related data? (yes/no): ")
-        if confirm.lower() != 'yes':
+        confirm = input(f"Type 'DELETE {email}' to confirm: ")
+        if confirm != f'DELETE {email}':
             print("Cancelled.")
             sys.exit(0)
     
@@ -164,8 +216,18 @@ def main():
         if user_sub:
             print(f"\nDeleting DynamoDB data...")
             table = dynamodb.Table(table_name)
-            deleted_count = delete_dynamodb_data(table, user_sub)
-            print(f"  ✓ Deleted {deleted_count} DynamoDB items")
+            deleted_counts = delete_dynamodb_data(table, user_sub)
+            
+            total_deleted = sum(deleted_counts.values())
+            print(f"\n  Summary:")
+            print(f"    Profile: {deleted_counts['profile']}")
+            print(f"    Consent records: {deleted_counts['consent']}")
+            print(f"    Boats: {deleted_counts['boats']}")
+            print(f"    Crew members: {deleted_counts['crew_members']}")
+            print(f"    Payments: {deleted_counts['payments']}")
+            if deleted_counts['other'] > 0:
+                print(f"    Other: {deleted_counts['other']}")
+            print(f"    Total: {total_deleted} items")
         else:
             print(f"\n⚠ Skipping DynamoDB deletion (no user_sub found)")
         
