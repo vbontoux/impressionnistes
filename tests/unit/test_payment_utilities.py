@@ -16,7 +16,7 @@ from payment_calculations import (
     count_boats_in_payments
 )
 from payment_formatters import (
-    format_payment_response,
+    format_payment_list_response,
     format_currency,
     sort_payments_by_field
 )
@@ -74,7 +74,7 @@ class TestPaymentFormatters:
             'status': 'succeeded'
         }
         
-        formatted = format_payment_response(payment)
+        formatted = format_payment_list_response([payment])[0]
         
         assert formatted['payment_id'] == 'pay-123'
         assert formatted['amount'] == 100.00

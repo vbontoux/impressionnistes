@@ -4,6 +4,7 @@ Team managers can create boat registrations for their crews
 """
 import json
 import logging
+import os
 import uuid
 
 # Import from Lambda layer
@@ -227,6 +228,47 @@ def lambda_handler(event, context):
     
     db.put_item(boat_registration_item)
     logger.info(f"Boat registration created: {boat_registration_id}")
+    
+    # Send Slack notification for new boat registration
+    try:
+        from slack_utils import notify_new_boat_registration, set_webhook_urls
+        from secrets_manager import get_slack_admin_webhook
+        
+        slack_webhook = get_slack_admin_webhook()
+        
+        if slack_webhook:
+            set_webhook_urls(admin_webhook=slack_webhook)
+            environment = os.environ.get('ENVIRONMENT', 'dev')
+            
+            # Get race name if race is assigned
+            race_name = None
+            if boat_data.get('race_id'):
+                try:
+                    race = db.get_item(pk='RACE', sk=boat_data['race_id'])
+                    if race:
+                        race_name = race.get('race_name', race.get('race_id'))
+                except Exception as e:
+                    logger.warning(f"Failed to fetch race name: {e}")
+            
+            notify_new_boat_registration(
+                boat_number=boat_number,
+                event_type=boat_data['event_type'],
+                boat_type=boat_data['boat_type'],
+                race_name=race_name,
+                team_manager_name=f"{team_manager.get('first_name', '')} {team_manager.get('last_name', '')}".strip(),
+                team_manager_email=team_manager.get('email', ''),
+                club_affiliation=boat_club_display,
+                registration_status=registration_status,
+                boat_request_enabled=boat_data['boat_request_enabled'],
+                boat_request_comment=boat_data.get('boat_request_comment'),
+                environment=environment
+            )
+            logger.info("Slack notification sent for new boat registration")
+        else:
+            logger.info("Slack webhook not configured - skipping notification")
+    except Exception as e:
+        # Don't fail boat creation if Slack notification fails
+        logger.warning(f"Failed to send Slack notification: {e}")
     
     # Return success response
     return success_response(

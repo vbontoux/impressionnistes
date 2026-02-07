@@ -13,6 +13,7 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from slack_utils import (
     notify_new_user_registration,
+    notify_new_boat_registration,
     notify_payment_completed,
     notify_payment_failed,
     notify_system_error,
@@ -72,6 +73,49 @@ def test_new_user_registration(admin_webhook, environment):
         user_name="Test User",
         user_email="test@example.com",
         club_name="Test Rowing Club",
+        environment=environment
+    )
+    
+    if result:
+        print("✓ Notification sent successfully")
+        return True
+    else:
+        print("✗ Failed to send notification")
+        return False
+
+
+def test_new_boat_registration(admin_webhook, environment):
+    """Test new boat registration notification"""
+    print_header("Testing New Boat Registration Notification")
+    
+    if not admin_webhook:
+        print("⚠️  Skipping - webhook not configured")
+        return False
+    
+    set_webhook_urls(admin_webhook=admin_webhook)
+    
+    print("Sending test notification...")
+    print(f"  Boat: 21-001-05")
+    print(f"  Event: 21km")
+    print(f"  Boat Type: 8+")
+    print(f"  Race: 21km - SM - 8+")
+    print(f"  Team Manager: Test Manager")
+    print(f"  Club: Test Rowing Club")
+    print(f"  Status: incomplete")
+    print(f"  Boat Request: Yes (with comment)")
+    print(f"  Environment: {environment}")
+    
+    result = notify_new_boat_registration(
+        boat_number="21-001-05",
+        event_type="21km",
+        boat_type="8+",
+        race_name="21km - SM - 8+",
+        team_manager_name="Test Manager",
+        team_manager_email="manager@example.com",
+        club_affiliation="Test Rowing Club",
+        registration_status="incomplete",
+        boat_request_enabled=True,
+        boat_request_comment="We need a lightweight racing shell for our crew. Prefer carbon fiber if available.",
         environment=environment
     )
     
@@ -222,13 +266,16 @@ def main():
     # Test 1: New user registration
     results.append(("New User Registration", test_new_user_registration(admin_webhook, environment)))
     
-    # Test 2: Payment completed
+    # Test 2: New boat registration
+    results.append(("New Boat Registration", test_new_boat_registration(admin_webhook, environment)))
+    
+    # Test 3: Payment completed
     results.append(("Payment Completed", test_payment_completed(admin_webhook, environment)))
     
-    # Test 3: Payment failed
+    # Test 4: Payment failed
     results.append(("Payment Failed", test_payment_failed(admin_webhook, environment)))
     
-    # Test 4: System error (optional - uses devops webhook)
+    # Test 5: System error (optional - uses devops webhook)
     if devops_webhook:
         results.append(("System Error", test_system_error(devops_webhook, environment)))
     

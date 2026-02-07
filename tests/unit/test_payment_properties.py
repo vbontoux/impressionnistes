@@ -11,7 +11,7 @@ import copy
 import sys
 sys.path.insert(0, 'functions/layer/python')
 
-from payment_formatters import sort_payments_by_field, format_payment_response
+from payment_formatters import sort_payments_by_field, format_payment_list_response
 from payment_queries import query_payments_by_team
 from payment_calculations import calculate_total_paid
 
@@ -100,7 +100,7 @@ class TestPaymentRecordCompleteness:
         }
         
         # Format payment
-        formatted = format_payment_response(payment)
+        formatted = format_payment_list_response([payment])[0]
         
         # Verify all required fields are present
         required_fields = [

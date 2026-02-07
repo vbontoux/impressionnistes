@@ -325,6 +325,134 @@ def notify_payment_failed(
     return send_slack_message(_slack_webhook_admin, message)
 
 
+def notify_new_boat_registration(
+    boat_number: Optional[str],
+    event_type: str,
+    boat_type: str,
+    race_name: Optional[str],
+    team_manager_name: str,
+    team_manager_email: str,
+    club_affiliation: str,
+    registration_status: str,
+    boat_request_enabled: bool,
+    boat_request_comment: Optional[str],
+    environment: str = 'dev'
+) -> bool:
+    """
+    Send notification when a new boat registration is created
+    
+    Args:
+        boat_number: Boat number (if race assigned)
+        event_type: Event type (21km or 42km)
+        boat_type: Boat type (skiff, 4-, 4+, 8+)
+        race_name: Race name (if assigned)
+        team_manager_name: Name of the team manager
+        team_manager_email: Email of the team manager
+        club_affiliation: Rowing club
+        registration_status: Registration status (incomplete/complete)
+        boat_request_enabled: Whether team requested a boat from organizers
+        boat_request_comment: Comment about boat request (if any)
+        environment: Environment (dev/prod)
+    
+    Returns:
+        True if successful, False otherwise
+    """
+    if not _slack_webhook_admin:
+        logger.warning("Admin webhook not configured - skipping notification")
+        return False
+    
+    # Environment emoji
+    env_emoji = "🟢" if environment == "prod" else "🔵"
+    
+    # Build boat identifier
+    boat_identifier = boat_number if boat_number else "No race assigned yet"
+    
+    # Build race info
+    race_info = race_name if race_name else "Not assigned"
+    
+    # Status emoji
+    status_emoji = "✅" if registration_status == "complete" else "⏳"
+    
+    message = {
+        "blocks": [
+            {
+                "type": "header",
+                "text": {
+                    "type": "plain_text",
+                    "text": f"{env_emoji} 🚣 New Boat Registration",
+                    "emoji": True
+                }
+            },
+            {
+                "type": "section",
+                "fields": [
+                    {
+                        "type": "mrkdwn",
+                        "text": f"*Boat:*\n{boat_identifier}"
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": f"*Event:*\n{event_type}"
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": f"*Boat Type:*\n{boat_type}"
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": f"*Race:*\n{race_info}"
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": f"*Team Manager:*\n{team_manager_name}"
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": f"*Club:*\n{club_affiliation}"
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": f"*Status:*\n{status_emoji} {registration_status.title()}"
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": f"*Email:*\n{team_manager_email}"
+                    }
+                ]
+            }
+        ]
+    }
+    
+    # Add boat request info if enabled
+    if boat_request_enabled:
+        boat_request_text = "🚤 *Boat Request:* Team needs a boat from organizers"
+        if boat_request_comment:
+            # Truncate comment if too long for Slack
+            comment = boat_request_comment[:200] + "..." if len(boat_request_comment) > 200 else boat_request_comment
+            boat_request_text += f"\n_{comment}_"
+        
+        message["blocks"].append({
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": boat_request_text
+            }
+        })
+    
+    # Add environment info
+    message["blocks"].append({
+        "type": "context",
+        "elements": [
+            {
+                "type": "mrkdwn",
+                "text": f"Environment: *{environment}*"
+            }
+        ]
+    })
+    
+    return send_slack_message(_slack_webhook_admin, message)
+
+
 def notify_system_error(
     error_type: str,
     error_message: str,
