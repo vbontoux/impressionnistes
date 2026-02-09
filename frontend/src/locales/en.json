@@ -598,7 +598,7 @@
   "auth": {
     "login": {
       "title": "Login",
-      "welcomeMessage": "Sign in to manage your registrations for Course des Impressionnistes",
+      "welcomeMessage": "Manage your registrations for Course des Impressionnistes",
       "email": "Email",
       "emailPlaceholder": "your-email",
       "emailRequired": "Email is required",

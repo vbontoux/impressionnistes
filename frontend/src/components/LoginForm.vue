@@ -79,15 +79,23 @@
       </BaseButton>
     </form>
 
+    <!-- Register Button -->
+    <div class="register-section">
+      <p class="register-prompt">{{ $t('auth.login.noAccount') }}</p>
+      <BaseButton
+        variant="secondary"
+        size="medium"
+        :full-width="true"
+        @click="router.push('/register')"
+      >
+        {{ $t('auth.login.registerLink') }}
+      </BaseButton>
+    </div>
+
     <!-- Links -->
     <div class="links">
       <p class="text-center">
         <router-link to="/forgot-password">{{ $t('auth.login.forgotPassword') }}</router-link>
-      </p>
-
-      <p class="text-center">
-        {{ $t('auth.login.noAccount') }}
-        <router-link to="/register">{{ $t('auth.login.registerLink') }}</router-link>
       </p>
 
       <p class="text-center">
@@ -248,6 +256,19 @@ h2 {
 
 .remember-me input[type="checkbox"] {
   cursor: pointer;
+}
+
+.register-section {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+.register-prompt {
+  text-align: center;
+  color: var(--color-muted);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-md);
 }
 
 .links {

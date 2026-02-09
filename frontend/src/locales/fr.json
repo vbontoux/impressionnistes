@@ -598,7 +598,7 @@
   "auth": {
     "login": {
       "title": "Connexion",
-      "welcomeMessage": "Connectez-vous pour gérer vos inscriptions à la Course des Impressionnistes",
+      "welcomeMessage": "Gérez vos inscriptions à la Course des Impressionnistes",
       "email": "Email",
       "emailPlaceholder": "votre-email",
       "emailRequired": "L'email est requis",

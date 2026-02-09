@@ -208,17 +208,30 @@
       </div>
 
       <!-- Submit Button -->
-      <button type="submit" class="btn btn-primary" :disabled="loading">
-        <span v-if="loading">{{ $t('common.loading') }}</span>
-        <span v-else>{{ $t('auth.register.submit') }}</span>
-      </button>
-
-      <!-- Login Link -->
-      <p class="text-center">
-        {{ $t('auth.register.haveAccount') }}
-        <router-link to="/login">{{ $t('auth.register.loginLink') }}</router-link>
-      </p>
+      <BaseButton
+        type="submit"
+        variant="primary"
+        size="medium"
+        :full-width="true"
+        :loading="loading"
+        :disabled="loading"
+      >
+        {{ loading ? $t('common.loading') : $t('auth.register.submit') }}
+      </BaseButton>
     </form>
+
+    <!-- Login Button -->
+    <div class="login-section">
+      <p class="login-prompt">{{ $t('auth.register.haveAccount') }}</p>
+      <BaseButton
+        variant="secondary"
+        size="medium"
+        :full-width="true"
+        @click="router.push('/login')"
+      >
+        {{ $t('auth.register.loginLink') }}
+      </BaseButton>
+    </div>
   </div>
 </template>
 
@@ -228,6 +241,7 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/authStore';
 import { useI18n } from 'vue-i18n';
 import { mapValidationErrors } from '../utils/validationErrorMapper';
+import BaseButton from './base/BaseButton.vue';
 import axios from 'axios';
 
 const router = useRouter();
@@ -555,31 +569,17 @@ input:disabled {
   border: 1px solid #66bb6a;
 }
 
-.btn {
-  width: 100%;
-  padding: var(--spacing-md);
-  border: none;
-  border-radius: 4px;
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
-  cursor: pointer;
-  transition: background-color 0.3s;
-  min-height: 44px;
+.login-section {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
 }
 
-.btn-primary {
-  background-color: var(--color-primary);
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: var(--color-primary);
-  opacity: 0.9;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.login-prompt {
+  text-align: center;
+  color: var(--color-muted);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-md);
 }
 
 .text-center {
