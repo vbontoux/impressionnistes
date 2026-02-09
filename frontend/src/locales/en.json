@@ -1102,10 +1102,10 @@
       "title": "Payment Summary",
       "viewAll": "View Payment History",
       "totalPaid": "Total Paid",
-      "paymentCount": "Payments",
-      "boatsPaid": "Boats Paid",
+      "paymentCount": "Payments Made",
+      "boatsPaid": "Paid Crews",
       "outstanding": "Outstanding Balance",
-      "unpaidBoats": "Unpaid Boats",
+      "unpaidBoats": "Unpaid Crews",
       "makePayment": "Make Payment",
       "errorLoading": "Failed to load payment summary"
     }
@@ -1116,7 +1116,7 @@
     "quickStats": "Quick Stats",
     "stats": {
       "crewMembers": "Crew Members",
-      "boats": "Total Crews",
+      "boats": "Crews",
       "completeBoats": "Ready for Payment",
       "paidBoats": "Paid Crews"
     },

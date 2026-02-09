@@ -1102,10 +1102,10 @@
       "title": "Résumé des paiements",
       "viewAll": "Voir l'historique des paiements",
       "totalPaid": "Total payé",
-      "paymentCount": "Paiements",
-      "boatsPaid": "Bateaux payés",
+      "paymentCount": "Paiements effectués",
+      "boatsPaid": "Équipages payés",
       "outstanding": "Solde impayé",
-      "unpaidBoats": "Bateaux impayés",
+      "unpaidBoats": "Équipages impayés",
       "makePayment": "Effectuer un paiement",
       "errorLoading": "Échec du chargement du résumé des paiements"
     }
@@ -1116,7 +1116,7 @@
     "quickStats": "Statistiques rapides",
     "stats": {
       "crewMembers": "Membres d'équipage",
-      "boats": "Total d'équipages",
+      "boats": "Équipages",
       "completeBoats": "Prêts pour paiement",
       "paidBoats": "Équipages payés"
     },
@@ -1124,7 +1124,7 @@
     "actions": {
       "manageCrew": {
         "title": "Gérer les équipiers",
-        "description": "Ajouter et gérer vos membres d'équipage"
+        "description": "Ajouter et gérer vos équipiers"
       },
       "manageBoats": {
         "title": "Gérer les équipages",
