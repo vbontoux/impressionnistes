@@ -118,3 +118,18 @@ aws dynamodb describe-table --table-name impressionnistes-registration-dev
 # List Lambda functions
 aws lambda list-functions --query 'Functions[?starts_with(FunctionName, `Impressionnistes`)].FunctionName'
 ```
+
+## Cost Management
+
+See [Cost Management Guide](../guides/operations/cost-management.md) for detailed information.
+
+```bash
+# View project costs (after Feb 10, 2026)
+make costs
+
+# View costs grouped by tags (works immediately)
+make costs-by-tag
+
+# View all AWS account costs
+make costs-all
+```

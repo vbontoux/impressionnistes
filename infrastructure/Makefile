@@ -1,4 +1,4 @@
-.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws list describe-infra costs db-export db-view db-reset db-migrate cognito-create-admin cognito-list-users cognito-add-to-group ses-verify-email ses-list-verified ses-check-email ses-get-quota ses-get-statistics ses-request-production ses-verify-domain ses-get-domain-token ses-enable-dkim ses-check-domain secrets-list secrets-get secrets-create secrets-update test-setup test test-coverage test-email cleanoduction clean test test-backend test-frontend test-email test-setup test-clean test-coverage
+.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws list describe-infra costs costs-all costs-by-tag db-export db-view db-reset db-migrate cognito-create-admin cognito-list-users cognito-add-to-group ses-verify-email ses-list-verified ses-check-email ses-get-quota ses-get-statistics ses-request-production ses-verify-domain ses-get-domain-token ses-enable-dkim ses-check-domain secrets-list secrets-get secrets-create secrets-update test-setup test test-coverage test-email cleanoduction clean test test-backend test-frontend test-email test-setup test-clean test-coverage
 
 # Virtual environment paths
 VENV = venv
@@ -50,7 +50,9 @@ help:
 	@echo "Management:"
 	@echo "  make list           - List all stacks"
 	@echo "  make describe-infra - Show API URL and Cognito details for frontend config"
-	@echo "  make costs          - Show AWS costs for last month (default: last 30 days)"
+	@echo "  make costs          - Show project costs only (filtered by tag)"
+	@echo "  make costs-all      - Show all AWS account costs"
+	@echo "  make costs-by-tag   - Show costs grouped by tags"
 	@echo "  make db-backup         - Create AWS-managed on-demand backup (recommended)"
 	@echo "  make db-backup-local   - Create local JSON backup file"
 	@echo "  make db-list-backups   - List all AWS backups"
@@ -545,6 +547,45 @@ costs:
 	@echo "Period: Last 30 days"
 	@echo "=========================================="
 	@echo ""
+	@echo "Cost by Service (last 30 days) - Project Only:"
+	@aws ce get-cost-and-usage \
+		--time-period Start=$$(date -v-30d +%Y-%m-%d),End=$$(date +%Y-%m-%d) \
+		--granularity MONTHLY \
+		--metrics BlendedCost \
+		--group-by Type=SERVICE \
+		--filter '{"Tags":{"Key":"Project","Values":["CourseDesImpressionnistes"]}}' \
+		--query 'ResultsByTime[0].Groups[?Metrics.BlendedCost.Amount > `0.01`].[Keys[0], Metrics.BlendedCost.Amount]' \
+		--output table | awk 'NR==1 || NR==2 || NR==3 {print} NR>3 {printf "| %-40s | $$%-10.2f |\n", $$2, $$4}'
+	@echo ""
+	@echo "Total cost for last 30 days (Project Only):"
+	@aws ce get-cost-and-usage \
+		--time-period Start=$$(date -v-30d +%Y-%m-%d),End=$$(date +%Y-%m-%d) \
+		--granularity MONTHLY \
+		--metrics BlendedCost \
+		--filter '{"Tags":{"Key":"Project","Values":["CourseDesImpressionnistes"]}}' \
+		--query 'ResultsByTime[0].Total.BlendedCost.[Amount, Unit]' \
+		--output text | awk '{printf "  $$%.2f %s\n", $$1, $$2}'
+	@echo ""
+	@echo "Daily breakdown (last 7 days) - Project Only:"
+	@aws ce get-cost-and-usage \
+		--time-period Start=$$(date -v-7d +%Y-%m-%d),End=$$(date +%Y-%m-%d) \
+		--granularity DAILY \
+		--metrics BlendedCost \
+		--filter '{"Tags":{"Key":"Project","Values":["CourseDesImpressionnistes"]}}' \
+		--query 'ResultsByTime[].[TimePeriod.Start, Total.BlendedCost.Amount]' \
+		--output text | awk '{printf "  %s: $$%.2f\n", $$1, $$2}'
+	@echo ""
+	@echo "=========================================="
+	@echo "Note: Filtered by Project=CourseDesImpressionnistes tag"
+	@echo "To see all AWS costs: make costs-all"
+	@echo "=========================================="
+
+costs-all:
+	@echo "=========================================="
+	@echo "AWS Cost Report - ALL RESOURCES"
+	@echo "Period: Last 30 days"
+	@echo "=========================================="
+	@echo ""
 	@echo "Cost by Service (last 30 days):"
 	@aws ce get-cost-and-usage \
 		--time-period Start=$$(date -v-30d +%Y-%m-%d),End=$$(date +%Y-%m-%d) \
@@ -571,9 +612,35 @@ costs:
 		--output text | awk '{printf "  %s: $$%.2f\n", $$1, $$2}'
 	@echo ""
 	@echo "=========================================="
-	@echo "Note: Shows costs for all resources in your AWS account."
+	@echo "Note: Shows costs for ALL resources in your AWS account."
 	@echo "=========================================="
 
+costs-by-tag:
+	@echo "=========================================="
+	@echo "AWS Cost Report by Tag"
+	@echo "Environment: $(ENV)"
+	@echo "Period: Last 30 days"
+	@echo "=========================================="
+	@echo ""
+	@echo "Cost by Project tag:"
+	@aws ce get-cost-and-usage \
+		--time-period Start=$$(date -v-30d +%Y-%m-%d),End=$$(date +%Y-%m-%d) \
+		--granularity MONTHLY \
+		--metrics BlendedCost \
+		--group-by Type=TAG,Key=Project \
+		--query 'ResultsByTime[0].Groups[].[Keys[0], Metrics.BlendedCost.Amount]' \
+		--output table
+	@echo ""
+	@echo "Cost by Environment tag:"
+	@aws ce get-cost-and-usage \
+		--time-period Start=$$(date -v-30d +%Y-%m-%d),End=$$(date +%Y-%m-%d) \
+		--granularity MONTHLY \
+		--metrics BlendedCost \
+		--group-by Type=TAG,Key=Environment \
+		--query 'ResultsByTime[0].Groups[].[Keys[0], Metrics.BlendedCost.Amount]' \
+		--output table
+	@echo ""
+	@echo "=========================================="
 
 db-backup:
 	@echo "=========================================="
