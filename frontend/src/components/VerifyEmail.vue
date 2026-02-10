@@ -23,7 +23,17 @@
       @dismiss="errorMessage = ''"
     />
 
-    <form v-if="!successMessage" @submit.prevent="handleSubmit">
+    <!-- Info Message for Resend -->
+    <MessageAlert
+      v-if="resendSuccessMessage"
+      type="success"
+      :message="resendSuccessMessage"
+      :dismissible="true"
+      :auto-dismiss="5000"
+      @dismiss="resendSuccessMessage = ''"
+    />
+
+    <form v-if="!verificationComplete" @submit.prevent="handleSubmit">
       <!-- Email -->
       <FormGroup
         :label="$t('auth.verify.email')"
@@ -112,6 +122,8 @@ onMounted(() => {
 const loading = ref(false);
 const errorMessage = ref('');
 const successMessage = ref('');
+const resendSuccessMessage = ref('');
+const verificationComplete = ref(false);
 const resendDisabled = ref(false);
 const resendTimer = ref(0);
 
@@ -121,6 +133,7 @@ const COGNITO_CLIENT_ID = import.meta.env.VITE_COGNITO_CLIENT_ID;
 const handleSubmit = async () => {
   errorMessage.value = '';
   successMessage.value = '';
+  resendSuccessMessage.value = '';
   loading.value = true;
 
   try {
@@ -137,6 +150,7 @@ const handleSubmit = async () => {
     await client.send(command);
     
     successMessage.value = t('auth.verify.success');
+    verificationComplete.value = true;
     
     // Redirect to login after 2 seconds
     setTimeout(() => {
@@ -158,7 +172,13 @@ const handleSubmit = async () => {
 };
 
 const resendCode = async () => {
+  // Prevent double-clicking
+  if (resendDisabled.value || loading.value) {
+    return;
+  }
+
   errorMessage.value = '';
+  resendSuccessMessage.value = '';
   loading.value = true;
   resendDisabled.value = true;
 
@@ -173,7 +193,7 @@ const resendCode = async () => {
 
     await client.send(command);
     
-    successMessage.value = t('auth.verify.resendSuccess');
+    resendSuccessMessage.value = t('auth.verify.resendSuccess');
     
     // Start countdown timer (60 seconds)
     resendTimer.value = 60;
@@ -186,8 +206,23 @@ const resendCode = async () => {
     }, 1000);
   } catch (error) {
     console.error('Resend error:', error);
-    errorMessage.value = error.message || t('auth.verify.resendError');
-    resendDisabled.value = false;
+    
+    // Handle specific Cognito errors
+    if (error.name === 'LimitExceededException' || error.message?.includes('Attempt limit exceeded')) {
+      errorMessage.value = t('auth.verify.rateLimitExceeded');
+      // Keep button disabled for 1 hour (3600 seconds)
+      resendTimer.value = 3600;
+      const interval = setInterval(() => {
+        resendTimer.value--;
+        if (resendTimer.value <= 0) {
+          clearInterval(interval);
+          resendDisabled.value = false;
+        }
+      }, 1000);
+    } else {
+      errorMessage.value = error.message || t('auth.verify.resendError');
+      resendDisabled.value = false;
+    }
   } finally {
     loading.value = false;
   }

@@ -717,7 +717,8 @@
       "expiredCode": "Le code de vérification a expiré. Veuillez en demander un nouveau.",
       "resendSuccess": "Code de vérification envoyé ! Vérifiez votre email.",
       "resendError": "Échec de l'envoi du code. Veuillez réessayer.",
-      "alreadyConfirmed": "Votre email est déjà vérifié ! Redirection vers la connexion..."
+      "alreadyConfirmed": "Votre email est déjà vérifié ! Redirection vers la connexion...",
+      "rateLimitExceeded": "Trop de tentatives. Veuillez attendre 1 heure avant de demander un nouveau code. Vous pouvez toujours utiliser le code de votre dernier email."
     },
     "callback": {
       "processing": "Connexion en cours..."

@@ -717,7 +717,8 @@
       "invalidCode": "Invalid verification code",
       "expiredCode": "Verification code has expired. Please request a new one.",
       "resendSuccess": "Verification code sent! Check your email.",
-      "resendError": "Failed to resend code. Please try again."
+      "resendError": "Failed to resend code. Please try again.",
+      "rateLimitExceeded": "Too many attempts. Please wait 1 hour before requesting a new code. You can still use the code from your last email."
     },
     "callback": {
       "processing": "Signing in..."
