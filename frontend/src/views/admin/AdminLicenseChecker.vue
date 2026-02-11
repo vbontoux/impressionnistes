@@ -269,20 +269,8 @@
               </div>
             </td>
             <td>
-              <!-- Show DB status if exists (priority) -->
-              <div v-if="crew.license_verification_status" class="verification-status">
-                <span :class="['status-badge', getVerificationStatusClass(crew.license_verification_status)]">
-                  {{ getVerificationStatusLabel(crew.license_verification_status) }}
-                </span>
-                <span class="verification-method">
-                  {{ crew.license_verification_status.startsWith('manually_') 
-                    ? $t('admin.licenseChecker.manual') 
-                    : $t('admin.licenseChecker.auto') 
-                  }}
-                </span>
-              </div>
-              <!-- Show temporary check status if no DB status -->
-              <div v-else-if="crew._licenseStatus" class="verification-status">
+              <!-- Show temporary check status if exists (fresh check takes priority) -->
+              <div v-if="crew._licenseStatus" class="verification-status">
                 <span v-if="crew._checking" class="status-badge status-checking">
                   {{ $t('admin.licenseChecker.checking') }}...
                 </span>
@@ -299,22 +287,38 @@
                   {{ $t('admin.licenseChecker.unsaved') }}
                 </span>
               </div>
+              <!-- Show DB status if no fresh check -->
+              <div v-else-if="crew.license_verification_status" class="verification-status">
+                <span :class="['status-badge', getVerificationStatusClass(crew.license_verification_status)]">
+                  {{ getVerificationStatusLabel(crew.license_verification_status) }}
+                </span>
+                <span class="verification-method">
+                  {{ crew.license_verification_status.startsWith('manually_') 
+                    ? $t('admin.licenseChecker.manual') 
+                    : $t('admin.licenseChecker.auto') 
+                  }}
+                </span>
+              </div>
               <!-- Show "Not verified" if neither exists -->
               <span v-else class="status-badge status-unchecked">
                 {{ $t('admin.licenseChecker.unchecked') }}
               </span>
             </td>
             <td>
-              <!-- Show DB details if exists -->
-              <div v-if="crew.license_verification_status" class="details-cell">
+              <!-- Show temporary check details if exists (fresh check takes priority) -->
+              <div v-if="crew._licenseDetails" class="details-cell">
+                {{ crew._licenseDetails }}
+              </div>
+              <!-- Show DB details if no fresh check -->
+              <div v-else-if="crew.license_verification_status" class="details-cell">
                 <div>{{ crew.license_verification_details || '-' }}</div>
                 <div v-if="crew.license_verification_date" class="verification-meta">
                   {{ formatDate(crew.license_verification_date) }}
                 </div>
               </div>
-              <!-- Show temporary check details if no DB details -->
+              <!-- Show dash if neither exists -->
               <div v-else class="details-cell">
-                {{ crew._licenseDetails || '-' }}
+                -
               </div>
             </td>
           </tr>
@@ -601,11 +605,18 @@ const emailSelected = () => {
   sortedClubs.forEach(club => {
     body += `${club}\n`
     crewByClub[club].forEach(crew => {
-      body += `- ${crew.first_name} ${crew.last_name} - Licence: ${crew.license_number || 'N/A'}\n`
+      body += `- ${crew.first_name} ${crew.last_name} - Licence: ${crew.license_number || 'N/A'}`
+      
+      // Add verification details if available
+      if (crew._licenseDetails) {
+        body += `\n  Détails: ${crew._licenseDetails}`
+      }
+      body += "\n"
     })
     body += "\n"
   })
   
+  body += "Merci d'ajuster les noms et numéros de licences conformément à ce qui est enregistré sur le site intranet de la fédération.\n\n"
   body += "Vous pouvez vérifier les licences sur :\n"
   body += "https://intranet.ffaviron.fr/licences/recherche\n\n"
   body += "Merci,\nL'équipe d'organisation des Impressionnistes\n\n"
@@ -617,11 +628,18 @@ const emailSelected = () => {
   sortedClubs.forEach(club => {
     body += `${club}\n`
     crewByClub[club].forEach(crew => {
-      body += `- ${crew.first_name} ${crew.last_name} - License: ${crew.license_number || 'N/A'}\n`
+      body += `- ${crew.first_name} ${crew.last_name} - License: ${crew.license_number || 'N/A'}`
+      
+      // Add verification details if available
+      if (crew._licenseDetails) {
+        body += `\n  Details: ${crew._licenseDetails}`
+      }
+      body += "\n"
     })
     body += "\n"
   })
   
+  body += "Please adjust names and license numbers according to what is registered on the federation's intranet site.\n\n"
   body += "You can verify licenses at:\n"
   body += "https://intranet.ffaviron.fr/licences/recherche\n\n"
   body += "Thank you,\nThe Impressionnistes organizing team"
@@ -678,7 +696,8 @@ const checkSelectedLicenses = async () => {
       const result = await checkLicense(
         `${crew.first_name} ${crew.last_name}`,
         crew.license_number,
-        cookieString.value
+        cookieString.value,
+        t
       )
       
       crew._licenseStatus = result.valid ? 'valid' : 'invalid'

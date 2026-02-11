@@ -585,7 +585,21 @@
       "saveError": "Failed to save verification status",
       "manual": "Manual",
       "auto": "Auto",
-      "unsaved": "Unsaved"
+      "unsaved": "Unsaved",
+      "messages": {
+        "validLicense": "Valid license: {name}, License: {license}, Status: {state}, Type: {type}",
+        "nameMismatch": "License found but name mismatch. Found: {foundName} (expected: {expectedName}). License: {license}, Status: {state}, Type: {type}",
+        "invalidLicense": "Invalid license: {name}, License: {license}. Reason: {reason}",
+        "statusNotActive": "Status is '{state}' (not Active)",
+        "typeNotCompetition": "Type is '{type}' (not competition)",
+        "notFoundByName": "License not found by name '{name}' or license number '{license}'. Person may not be registered in FFAviron database.",
+        "notFoundByLicense": "License number {license} not found in FFAviron database (no results returned)",
+        "notFoundInResults": "License number {license} not found in {count} search result(s). The search returned results but none matched the license number.",
+        "searchFailed": "License number {license} search failed. {error}",
+        "noNameOrLicense": "No name or license number provided for search",
+        "foundByNumber": "License found by number. {details}",
+        "and": "and"
+      }
     }
   },
   "session": {

@@ -585,7 +585,21 @@
       "saveError": "Échec de l'enregistrement du statut de vérification",
       "manual": "Manuel",
       "auto": "Auto",
-      "unsaved": "Non enregistré"
+      "unsaved": "Non enregistré",
+      "messages": {
+        "validLicense": "Licence valide : {name}, Licence : {license}, Statut : {state}, Type : {type}",
+        "nameMismatch": "Licence trouvée mais nom différent. Trouvé : {foundName} (attendu : {expectedName}). Licence : {license}, Statut : {state}, Type : {type}",
+        "invalidLicense": "Licence invalide : {name}, Licence : {license}. Raison : {reason}",
+        "statusNotActive": "Statut '{state}' (pas Actif)",
+        "typeNotCompetition": "Type '{type}' (pas compétition)",
+        "notFoundByName": "Licence non trouvée par nom '{name}' ou numéro de licence '{license}'. La personne n'est peut-être pas enregistrée dans la base FFAviron.",
+        "notFoundByLicense": "Numéro de licence {license} non trouvé dans la base FFAviron (aucun résultat retourné)",
+        "notFoundInResults": "Numéro de licence {license} non trouvé dans {count} résultat(s) de recherche. La recherche a retourné des résultats mais aucun ne correspond au numéro de licence.",
+        "searchFailed": "Échec de la recherche du numéro de licence {license}. {error}",
+        "noNameOrLicense": "Aucun nom ou numéro de licence fourni pour la recherche",
+        "foundByNumber": "Licence trouvée par numéro. {details}",
+        "and": "et"
+      }
     }
   },
   "session": {

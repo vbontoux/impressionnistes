@@ -5,28 +5,26 @@
  * A license is considered valid if:
  * - The state is "Active"
  * - The license type contains "compétition"
+ * 
+ * Search Strategy:
+ * 1. First searches by name
+ * 2. If not found, retries by license number
+ * 3. Provides detailed reasons for any validation issues
  */
 
 import apiClient from '@/services/apiClient'
 
 /**
- * Check if a license is valid (active and competition type)
- * @param {string} name - Name to search for
- * @param {string} licenseNumber - License number to check
- * @param {string} cookieString - Cookie string from browser
- * @returns {Promise<{valid: boolean, details: string}>}
+ * Search FFAviron by query (name or license number)
+ * @param {string} query - Search query
+ * @param {string} cookieString - Cookie string
+ * @returns {Promise<{success: boolean, rows: NodeList|null, error: string|null}>}
  */
-export async function checkLicense(name, licenseNumber, cookieString) {
-  if (!name || !cookieString) {
-    throw new Error('Name and cookie string are required')
-  }
-
-  // Build FFAviron search URL
-  const searchQuery = encodeURIComponent(name)
+async function searchByQuery(query, cookieString) {
+  const searchQuery = encodeURIComponent(query)
   const url = `https://intranet.ffaviron.fr/licences/recherche?licencies_q=${searchQuery}`
 
   try {
-    // Use backend proxy to avoid CORS issues
     const response = await apiClient.post('/admin/html-proxy', {
       url: url,
       cookies: cookieString,
@@ -34,77 +32,266 @@ export async function checkLicense(name, licenseNumber, cookieString) {
     })
 
     const html = response.data.data.html
-    
-    // Parse HTML to find license information
     const parser = new DOMParser()
     const doc = parser.parseFromString(html, 'text/html')
     
-    // Find the results table
     let table = doc.querySelector('table.table-generated')
     if (!table) {
       table = doc.querySelector('table')
     }
     
     if (!table) {
-      return {
-        valid: false,
-        details: 'No results table found'
-      }
+      return { success: false, rows: null, error: 'No results table found' }
     }
 
     const tbody = table.querySelector('tbody')
     if (!tbody) {
-      return {
-        valid: false,
-        details: 'No results found in table'
-      }
+      return { success: false, rows: null, error: 'No results found in table' }
     }
 
     const rows = tbody.querySelectorAll('tr')
     if (rows.length === 0) {
-      return {
-        valid: false,
-        details: 'No data rows found'
-      }
+      return { success: false, rows: null, error: 'No data rows found' }
     }
 
-    // Search through rows for matching license
-    for (const row of rows) {
-      const cells = row.querySelectorAll('td')
-      if (cells.length >= 6) {
-        const rowLicense = cells[0].textContent.trim()
-        const rowName = cells[1].textContent.trim()
-        const rowState = cells[4].textContent.trim()
-        const rowType = cells[5].textContent.trim()
+    return { success: true, rows: rows, error: null }
+  } catch (error) {
+    return { success: false, rows: null, error: error.message }
+  }
+}
 
-        // Check if this row matches our criteria
-        const matchesLicense = licenseNumber && rowLicense === licenseNumber
-        const matchesName = !licenseNumber && rowName.toLowerCase().includes(name.toLowerCase())
+/**
+ * Validate a license row and return detailed result
+ * @param {string} rowLicense - License number from row
+ * @param {string} rowName - Name from row
+ * @param {string} rowState - State from row
+ * @param {string} rowType - Type from row
+ * @param {string} expectedName - Expected name
+ * @param {Function} t - i18n translate function
+ * @returns {{valid: boolean, details: string}}
+ */
+function validateLicenseRow(rowLicense, rowName, rowState, rowType, expectedName, t) {
+  const isActive = rowState.includes('Active')
+  const isCompetition = rowType.toLowerCase().includes('compétition')
+  const nameMatches = expectedName ? rowName.toLowerCase().includes(expectedName.toLowerCase()) : true
 
-        if (matchesLicense || matchesName) {
-          const isActive = rowState.includes('Active')
-          const isCompetition = rowType.toLowerCase().includes('compétition')
+  if (isActive && isCompetition) {
+    if (expectedName && !nameMatches) {
+      return {
+        valid: true,
+        details: t('admin.licenseChecker.messages.nameMismatch', {
+          foundName: rowName,
+          expectedName: expectedName,
+          license: rowLicense,
+          state: rowState,
+          type: rowType
+        })
+      }
+    }
+    return {
+      valid: true,
+      details: t('admin.licenseChecker.messages.validLicense', {
+        name: rowName,
+        license: rowLicense,
+        state: rowState,
+        type: rowType
+      })
+    }
+  } else {
+    const reasons = []
+    if (!isActive) {
+      reasons.push(t('admin.licenseChecker.messages.statusNotActive', { state: rowState }))
+    }
+    if (!isCompetition) {
+      reasons.push(t('admin.licenseChecker.messages.typeNotCompetition', { type: rowType }))
+    }
+    const reasonText = reasons.join(` ${t('admin.licenseChecker.messages.and')} `)
+    return {
+      valid: false,
+      details: t('admin.licenseChecker.messages.invalidLicense', {
+        name: rowName,
+        license: rowLicense,
+        reason: reasonText
+      })
+    }
+  }
+}
 
-          const details = `${rowName} - ${rowLicense} - ${rowState} - ${rowType}`
+/**
+ * Check if a license is valid (active and competition type)
+ * 
+ * Strategy:
+ * 1. First, search by name
+ * 2. If name search fails or doesn't find the license, retry by license number
+ * 3. Provide detailed reasons for any issues found
+ * 
+ * @param {string} name - Name to search for
+ * @param {string} licenseNumber - License number to check
+ * @param {string} cookieString - Cookie string from browser
+ * @param {Function} t - i18n translate function
+ * @returns {Promise<{valid: boolean, details: string}>}
+ */
+export async function checkLicense(name, licenseNumber, cookieString, t) {
+  if (!cookieString) {
+    throw new Error('Cookie string is required')
+  }
 
-          if (isActive && isCompetition) {
-            return {
-              valid: true,
-              details: `Valid: ${details}`
+  let foundInNameSearch = false
+
+  try {
+    // Strategy 1: Search by name
+    if (name) {
+      const nameResult = await searchByQuery(name, cookieString)
+      
+      if (nameResult.success && nameResult.rows) {
+        for (const row of nameResult.rows) {
+          const cells = row.querySelectorAll('td')
+          if (cells.length >= 6) {
+            const rowLicense = cells[0].textContent.trim()
+            const rowName = cells[1].textContent.trim()
+            const rowState = cells[4].textContent.trim()
+            const rowType = cells[5].textContent.trim()
+
+            // If we have a license number, match exactly (normalize for comparison)
+            if (licenseNumber) {
+              const normalizedRowLicense = rowLicense.replace(/\s+/g, '')
+              const normalizedSearchLicense = licenseNumber.replace(/\s+/g, '')
+              
+              if (normalizedRowLicense === normalizedSearchLicense) {
+                foundInNameSearch = true
+                return validateLicenseRow(rowLicense, rowName, rowState, rowType, name, t)
+              }
             }
-          } else {
-            return {
-              valid: false,
-              details: `Invalid: ${details}`
+
+            // If no license number provided, match by name
+            if (!licenseNumber && rowName.toLowerCase().includes(name.toLowerCase())) {
+              foundInNameSearch = true
+              return validateLicenseRow(rowLicense, rowName, rowState, rowType, name, t)
             }
           }
         }
       }
     }
 
-    return {
-      valid: false,
-      details: `License ${licenseNumber || 'for ' + name} not found in ${rows.length} results`
+    // Strategy 2: If name search didn't find the license, try searching by license number
+    if (licenseNumber && !foundInNameSearch) {
+      const licenseResult = await searchByQuery(licenseNumber, cookieString)
+      
+      if (licenseResult.success && licenseResult.rows) {
+        // Check if we found any rows
+        if (licenseResult.rows.length === 0) {
+          return {
+            valid: false,
+            details: t('admin.licenseChecker.messages.notFoundByLicense', { license: licenseNumber })
+          }
+        }
+
+        console.log(`[License Search] Found ${licenseResult.rows.length} rows for license ${licenseNumber}`)
+
+        // Process each row found
+        for (let i = 0; i < licenseResult.rows.length; i++) {
+          const row = licenseResult.rows[i]
+          const cells = row.querySelectorAll('td')
+          
+          console.log(`[License Search] Row ${i}: Found ${cells.length} cells`)
+          
+          if (cells.length >= 6) {
+            const rowLicense = cells[0].textContent.trim()
+            const rowName = cells[1].textContent.trim()
+            const rowState = cells[4].textContent.trim()
+            const rowType = cells[5].textContent.trim()
+
+            console.log(`[License Search] Row ${i} data:`, {
+              rowLicense,
+              rowName,
+              rowState,
+              rowType,
+              searchingFor: licenseNumber
+            })
+
+            // Compare license numbers (normalize both to handle any formatting)
+            const normalizedRowLicense = rowLicense.replace(/\s+/g, '')
+            const normalizedSearchLicense = licenseNumber.replace(/\s+/g, '')
+
+            console.log(`[License Search] Normalized comparison:`, {
+              normalizedRowLicense,
+              normalizedSearchLicense,
+              match: normalizedRowLicense === normalizedSearchLicense
+            })
+
+            if (normalizedRowLicense === normalizedSearchLicense) {
+              console.log(`[License Search] Match found! Checking name...`, {
+                expectedName: name,
+                foundName: rowName,
+                nameProvided: !!name
+              })
+              
+              const result = validateLicenseRow(rowLicense, rowName, rowState, rowType, name, t)
+              
+              console.log(`[License Search] validateLicenseRow result:`, result)
+              
+              // Check for name mismatch
+              if (name && !rowName.toLowerCase().includes(name.toLowerCase())) {
+                console.log(`[License Search] NAME MISMATCH DETECTED!`)
+                return {
+                  valid: result.valid,
+                  details: t('admin.licenseChecker.messages.nameMismatch', {
+                    foundName: rowName,
+                    expectedName: name,
+                    license: rowLicense,
+                    state: rowState,
+                    type: rowType
+                  })
+                }
+              }
+              
+              console.log(`[License Search] Name matches or no name check needed, returning result`)
+              return {
+                valid: result.valid,
+                details: t('admin.licenseChecker.messages.foundByNumber', { details: result.details })
+              }
+            }
+          } else {
+            console.log(`[License Search] Row ${i}: Not enough cells (${cells.length})`)
+          }
+        }
+
+        // If we get here, we found rows but none matched the license number
+        console.log(`[License Search] No matching license found in ${licenseResult.rows.length} rows`)
+        return {
+          valid: false,
+          details: t('admin.licenseChecker.messages.notFoundInResults', {
+            license: licenseNumber,
+            count: licenseResult.rows.length
+          })
+        }
+      } else {
+        return {
+          valid: false,
+          details: t('admin.licenseChecker.messages.searchFailed', {
+            license: licenseNumber,
+            error: licenseResult.error || 'No results returned'
+          })
+        }
+      }
+    }
+
+    // Both strategies failed
+    if (name && licenseNumber) {
+      return {
+        valid: false,
+        details: t('admin.licenseChecker.messages.notFoundByName', { name, license: licenseNumber })
+      }
+    } else if (name) {
+      return {
+        valid: false,
+        details: t('admin.licenseChecker.messages.notFoundByName', { name, license: '' })
+      }
+    } else {
+      return {
+        valid: false,
+        details: t('admin.licenseChecker.messages.noNameOrLicense')
+      }
     }
 
   } catch (error) {
@@ -117,17 +304,18 @@ export async function checkLicense(name, licenseNumber, cookieString) {
  * Check multiple licenses in batch
  * @param {Array<{name: string, license: string}>} members - Array of members to check
  * @param {string} cookieString - Cookie string from browser
+ * @param {Function} t - i18n translate function
  * @param {Function} onProgress - Progress callback (current, total)
  * @returns {Promise<Array<{name: string, license: string, valid: boolean, details: string}>>}
  */
-export async function checkLicensesBatch(members, cookieString, onProgress = null) {
+export async function checkLicensesBatch(members, cookieString, t, onProgress = null) {
   const results = []
   
   for (let i = 0; i < members.length; i++) {
     const member = members[i]
     
     try {
-      const result = await checkLicense(member.name, member.license, cookieString)
+      const result = await checkLicense(member.name, member.license, cookieString, t)
       results.push({
         ...member,
         valid: result.valid,
