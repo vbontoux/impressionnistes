@@ -199,7 +199,7 @@ def lambda_handler(event, context):
         enriched_payments = sort_payments_by_field(
             enriched_payments,
             sort_field,
-            descending=(sort_order == 'desc')
+            reverse=(sort_order == 'desc')
         )
         
         # Apply limit if provided

@@ -28,9 +28,9 @@ class TestPaymentCalculations:
     def test_calculate_total_paid_basic(self):
         """Test total paid calculation with basic case"""
         payments = [
-            {'amount': Decimal('100.00')},
-            {'amount': Decimal('50.00')},
-            {'amount': Decimal('25.50')}
+            {'amount': Decimal('100.00'), 'status': 'succeeded'},
+            {'amount': Decimal('50.00'), 'status': 'succeeded'},
+            {'amount': Decimal('25.50'), 'status': 'succeeded'}
         ]
         
         total = calculate_total_paid(payments)
@@ -48,9 +48,9 @@ class TestPaymentCalculations:
     def test_count_boats_in_payments(self):
         """Test counting boats across payments"""
         payments = [
-            {'boat_registration_ids': ['boat-1', 'boat-2']},
-            {'boat_registration_ids': ['boat-3']},
-            {'boat_registration_ids': []}
+            {'boat_registration_ids': ['boat-1', 'boat-2'], 'status': 'succeeded'},
+            {'boat_registration_ids': ['boat-3'], 'status': 'succeeded'},
+            {'boat_registration_ids': [], 'status': 'succeeded'}
         ]
         
         count = count_boats_in_payments(payments)
@@ -95,7 +95,7 @@ class TestPaymentFormatters:
             {'paid_at': '2026-01-16T10:00:00Z', 'amount': 75}
         ]
         
-        sorted_payments = sort_payments_by_field(payments, 'paid_at', descending=True)
+        sorted_payments = sort_payments_by_field(payments, 'paid_at', reverse=True)
         
         assert sorted_payments[0]['paid_at'] == '2026-01-16T10:00:00Z'
         assert sorted_payments[1]['paid_at'] == '2026-01-15T10:00:00Z'

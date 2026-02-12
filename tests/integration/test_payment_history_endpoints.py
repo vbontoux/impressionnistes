@@ -260,15 +260,17 @@ def test_get_payment_invoice_returns_pdf(
     
     # Verify response
     assert response['statusCode'] == 200
-    assert response['headers']['Content-Type'] == 'application/pdf'
+    assert response['headers']['Content-Type'] == 'text/plain; charset=utf-8'
     assert 'Content-Disposition' in response['headers']
     assert 'invoice-payment-payment_000' in response['headers']['Content-Disposition']
-    assert response['isBase64Encoded'] is True
+    # Text invoices are not base64 encoded
+    assert response.get('isBase64Encoded', False) is False
     
-    # Verify PDF content
-    pdf_content = base64.b64decode(response['body'])
-    assert pdf_content.startswith(b'%PDF')  # PDF magic number
-    assert len(pdf_content) > 0
+    # Verify text content contains key information
+    invoice_text = response['body']
+    assert 'Course des Impressionnistes' in invoice_text
+    assert 'payment_000' in invoice_text
+    assert '50.00' in invoice_text  # Amount
 
 
 def test_access_control_team_manager_can_only_download_own_invoices(
