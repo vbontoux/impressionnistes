@@ -132,6 +132,18 @@
               <span class="label">{{ $t('admin.boats.club') }}&nbsp;:</span>
               <span class="club-box">{{ boat.boat_club_display }}</span>
             </div>
+            <div class="detail-row">
+              <span class="label">{{ $t('admin.boats.licenseStatus') }}&nbsp;:</span>
+              <span v-if="boat.crew_license_status === 'verified'" 
+                    class="verification-badge verification-valid">
+                {{ $t('admin.boats.verified') }}
+              </span>
+              <span v-else-if="boat.crew_license_status === 'invalid'" 
+                    class="verification-badge verification-invalid">
+                {{ $t('admin.boats.invalid') }}
+              </span>
+              <span v-else class="no-race-text">-</span>
+            </div>
             <div v-if="boat.registration_status === 'paid' && boat.paid_at" class="detail-row">
               <span class="label">{{ $t('boat.paidOn') }}&nbsp;:</span>
               <span>{{ formatDate(boat.paid_at) }}</span>
@@ -214,6 +226,19 @@
           <!-- Custom cell: Club Display -->
           <template #cell-boat_club_display="{ value }">
             <span class="club-box">{{ value }}</span>
+          </template>
+
+          <!-- Custom cell: License Status -->
+          <template #cell-crew_license_status="{ row }">
+            <span v-if="row._original.crew_license_status === 'verified'" 
+                  class="verification-badge verification-valid">
+              {{ $t('admin.boats.verified') }}
+            </span>
+            <span v-else-if="row._original.crew_license_status === 'invalid'" 
+                  class="verification-badge verification-invalid">
+              {{ $t('admin.boats.invalid') }}
+            </span>
+            <span v-else class="no-race-text">-</span>
           </template>
 
           <!-- Custom cell: Boat Request Status -->
@@ -497,6 +522,15 @@ export default {
         label: t('admin.boats.club'),
         sortable: true,
         minWidth: '100px', // Reduced from 120px
+        responsive: 'always'
+      },
+      // License status column
+      {
+        key: 'crew_license_status',
+        label: t('admin.boats.licenseStatus'),
+        sortable: false,
+        width: '120px',
+        align: 'center',
         responsive: 'always'
       },
       {
@@ -1451,5 +1485,25 @@ export default {
     width: 100%;
     text-align: center;
   }
+}
+
+/* License Verification Badge Styles */
+.verification-badge {
+  display: inline-block;
+  padding: var(--badge-padding, 0.25rem 0.75rem);
+  border-radius: var(--badge-border-radius, 12px);
+  font-size: var(--badge-font-size, 0.75rem);
+  font-weight: var(--font-weight-medium, 500);
+  width: fit-content;
+}
+
+.verification-valid {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.verification-invalid {
+  background-color: #f8d7da;
+  color: #721c24;
 }
 </style>

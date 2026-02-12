@@ -16,6 +16,54 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
+def calculate_crew_license_status(boat):
+    """
+    Calculate combined license verification status for boat crew.
+    
+    Returns 'verified' only if ALL assigned crew members have valid licenses
+    (verified_valid or manually_verified_valid). Returns 'invalid' if ANY crew
+    member has an invalid, unverified, or null status. Returns None if no crew
+    is assigned to the boat.
+    
+    Args:
+        boat (dict): Boat registration item with seats data
+        
+    Returns:
+        str | None: 'verified', 'invalid', or None
+    """
+    seats = boat.get('seats', [])
+    
+    # No seats defined
+    if not seats:
+        return None
+    
+    # Get all crew members assigned to seats
+    assigned_crew_statuses = []
+    for seat in seats:
+        if seat.get('crew_member_id'):
+            status = seat.get('crew_member_license_verification_status')
+            assigned_crew_statuses.append(status)
+    
+    # No crew assigned
+    if not assigned_crew_statuses:
+        return None
+    
+    # Check if ALL crew members are verified valid
+    valid_statuses = ['verified_valid', 'manually_verified_valid']
+    all_verified = all(
+        status in valid_statuses
+        for status in assigned_crew_statuses
+    )
+    
+    if all_verified:
+        return 'verified'
+    
+    # Any crew member is invalid or not verified
+    # Log for debugging
+    logger.debug(f"Boat has invalid/unverified crew. Statuses: {assigned_crew_statuses}")
+    return 'invalid'
+
+
 def decimal_to_float(obj):
     """Convert Decimal objects to float for JSON serialization"""
     if isinstance(obj, Decimal):
@@ -136,6 +184,24 @@ def lambda_handler(event, context):
                 boat['pricing'] = pricing
             else:
                 boat['pricing'] = None
+            
+            # Enrich seats with crew member license verification status
+            if boat.get('seats'):
+                # Create a lookup dict for crew members by ID
+                crew_lookup = {
+                    cm.get('SK', '').replace('CREW#', ''): cm
+                    for cm in crew_members
+                }
+                
+                # Add license verification status to each seat
+                for seat in boat['seats']:
+                    crew_id = seat.get('crew_member_id')
+                    if crew_id and crew_id in crew_lookup:
+                        crew_member = crew_lookup[crew_id]
+                        seat['crew_member_license_verification_status'] = crew_member.get('license_verification_status')
+            
+            # Calculate combined license verification status
+            boat['crew_license_status'] = calculate_crew_license_status(boat)
         
         # Apply filters
         if filter_club:
