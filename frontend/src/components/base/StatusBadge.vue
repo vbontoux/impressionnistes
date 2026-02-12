@@ -5,6 +5,9 @@
 </template>
 
 <script>
+import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
+
 export default {
   name: 'StatusBadge',
   props: {
@@ -19,27 +22,30 @@ export default {
       validator: (value) => ['small', 'medium'].includes(value)
     }
   },
-  computed: {
-    normalizedStatus() {
-      return this.status.toLowerCase()
-    },
-    badgeClasses() {
+  setup(props) {
+    const { t } = useI18n()
+
+    const normalizedStatus = computed(() => {
+      return props.status.toLowerCase()
+    })
+
+    const badgeClasses = computed(() => {
       return [
         'status-badge',
-        `status-badge--${this.normalizedStatus}`,
-        `status-badge--${this.size}`
+        `status-badge--${normalizedStatus.value}`,
+        `status-badge--${props.size}`
       ]
-    },
-    displayText() {
-      // Capitalize first letter for display (sentence case)
-      const statusMap = {
-        'incomplete': 'Incomplete',
-        'complete': 'Complete',
-        'paid': 'Paid',
-        'forfait': 'Forfait',
-        'free': 'Free'
-      }
-      return statusMap[this.normalizedStatus] || this.status
+    })
+
+    const displayText = computed(() => {
+      // Use i18n translations for status labels
+      return t(`boat.status.${normalizedStatus.value}`)
+    })
+
+    return {
+      normalizedStatus,
+      badgeClasses,
+      displayText
     }
   }
 }
