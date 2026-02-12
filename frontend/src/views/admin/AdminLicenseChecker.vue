@@ -607,9 +607,10 @@ const emailSelected = () => {
     crewByClub[club].forEach(crew => {
       body += `- ${crew.first_name} ${crew.last_name} - Licence: ${crew.license_number || 'N/A'}`
       
-      // Add verification details if available
-      if (crew._licenseDetails) {
-        body += `\n  Détails: ${crew._licenseDetails}`
+      // Add verification details if available (check fresh check first, then DB)
+      const details = crew._licenseDetails || crew.license_verification_details
+      if (details) {
+        body += `\n  Détails: ${details}`
       }
       body += "\n"
     })
@@ -630,9 +631,10 @@ const emailSelected = () => {
     crewByClub[club].forEach(crew => {
       body += `- ${crew.first_name} ${crew.last_name} - License: ${crew.license_number || 'N/A'}`
       
-      // Add verification details if available
-      if (crew._licenseDetails) {
-        body += `\n  Details: ${crew._licenseDetails}`
+      // Add verification details if available (check fresh check first, then DB)
+      const details = crew._licenseDetails || crew.license_verification_details
+      if (details) {
+        body += `\n  Details: ${details}`
       }
       body += "\n"
     })
