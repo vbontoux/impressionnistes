@@ -32,9 +32,19 @@ async function searchByQuery(query, cookieString) {
     })
 
     const html = response.data.data.html
+    const finalUrl = response.data.data.final_url || url
+    
     const parser = new DOMParser()
     const doc = parser.parseFromString(html, 'text/html')
     
+    // Check if we were redirected to a profile page (302 redirect to /personnes/fiche/...)
+    if (finalUrl.includes('/personnes/fiche/')) {
+      console.log('[License Search] Redirected to profile page:', finalUrl)
+      // Extract data from profile page
+      return extractFromProfilePage(doc)
+    }
+    
+    // Otherwise, extract from search results table
     let table = doc.querySelector('table.table-generated')
     if (!table) {
       table = doc.querySelector('table')
@@ -61,6 +71,149 @@ async function searchByQuery(query, cookieString) {
 }
 
 /**
+ * Extract license data from a profile page (when redirected)
+ * Profile pages have a different structure - cards instead of table rows
+ * @param {Document} doc - Parsed HTML document
+ * @returns {{success: boolean, rows: Array|null, error: string|null, personName: string|null}}
+ */
+function extractFromProfilePage(doc) {
+  try {
+    // Extract person's name from page title
+    let personName = null
+    const titleElement = doc.querySelector('title')
+    if (titleElement) {
+      const titleText = titleElement.textContent.trim()
+      // Format: "FFA - Mme LAMOUR Fanny" or "FFA - M. DOE John"
+      const match = titleText.match(/FFA\s*-\s*(?:M\.|Mme\s+)?(.+)/)
+      if (match) {
+        personName = match[1].trim()
+      }
+    }
+    
+    console.log('[License Search] Profile page person name from title:', personName)
+    
+    // Extract license number from breadcrumb
+    let licenseNumber = null
+    const breadcrumbLinks = doc.querySelectorAll('.breadcrumb-item')
+    for (const link of breadcrumbLinks) {
+      const text = link.textContent.trim()
+      // Format: "562066 - Mme LAMOUR Fanny"
+      const match = text.match(/^(\d+)\s*-/)
+      if (match) {
+        licenseNumber = match[1]
+        break
+      }
+    }
+    
+    // If not found in breadcrumb, try to find badge with license number
+    if (!licenseNumber) {
+      const badges = doc.querySelectorAll('.badge-primary')
+      for (const badge of badges) {
+        const text = badge.textContent.trim()
+        // Check if it's a number (license numbers are numeric)
+        if (/^\d+$/.test(text)) {
+          licenseNumber = text
+          break
+        }
+      }
+    }
+    
+    console.log('[License Search] Profile page license number:', licenseNumber)
+    
+    // Find the most recent active license (card with border-left-success)
+    let status = 'Unknown'
+    let licenseType = 'Unknown'
+    
+    // Look for the active license card (green border = success = active)
+    const activeCard = doc.querySelector('.card.border-left-success .card-body')
+    if (activeCard) {
+      status = 'Active'
+      
+      // Extract license type from h6 in the card
+      const h6 = activeCard.querySelector('h6')
+      if (h6) {
+        const typeText = h6.textContent.trim()
+        // Format: "Licence Annuelle compétition" or "Licence Annuelle loisir"
+        if (typeText.includes('compétition')) {
+          licenseType = 'Annuelle compétition'
+        } else if (typeText.includes('loisir')) {
+          licenseType = 'Annuelle loisir'
+        } else {
+          licenseType = typeText
+        }
+      }
+      
+      console.log('[License Search] Found active license card')
+      console.log('[License Search] License type:', licenseType)
+    } else {
+      // No active license found, check for any license card
+      const anyCard = doc.querySelector('.card-body h6')
+      if (anyCard) {
+        const typeText = anyCard.textContent.trim()
+        if (typeText.includes('compétition')) {
+          licenseType = 'Annuelle compétition'
+        } else if (typeText.includes('loisir')) {
+          licenseType = 'Annuelle loisir'
+        } else {
+          licenseType = typeText
+        }
+        status = 'Inactive'
+        console.log('[License Search] No active license found, using first license card')
+      }
+    }
+    
+    console.log('[License Search] Final status:', status)
+    console.log('[License Search] Final license type:', licenseType)
+    
+    // Create a fake row structure that matches what the rest of the code expects
+    // The code expects rows with cells: [license, name, club, ..., status, type]
+    if (licenseNumber && personName) {
+      const fakeRow = {
+        querySelectorAll: (selector) => {
+          if (selector === 'td') {
+            // Return fake cells that match the expected structure
+            return [
+              { textContent: licenseNumber },  // cell 0: license number
+              { textContent: personName },      // cell 1: name
+              { textContent: '' },              // cell 2: club (not available)
+              { textContent: '' },              // cell 3: (not used)
+              { textContent: status },          // cell 4: status
+              { textContent: licenseType }      // cell 5: type
+            ]
+          }
+          return []
+        }
+      }
+      
+      console.log('[License Search] Created fake row from profile page data')
+      return {
+        success: true,
+        rows: [fakeRow],  // Return array with single fake row
+        error: null,
+        personName: personName
+      }
+    }
+    
+    console.log('[License Search] Could not extract license data from profile page')
+    console.log('[License Search] Missing data - licenseNumber:', licenseNumber, 'personName:', personName)
+    return {
+      success: false,
+      rows: null,
+      error: 'Could not extract license data from profile page',
+      personName: personName
+    }
+  } catch (error) {
+    console.error('[License Search] Profile page parsing error:', error)
+    return {
+      success: false,
+      rows: null,
+      error: `Profile page parsing error: ${error.message}`,
+      personName: null
+    }
+  }
+}
+
+/**
  * Check if two names match (ignoring order and case)
  * @param {string} name1 - First name
  * @param {string} name2 - Second name
@@ -69,9 +222,19 @@ async function searchByQuery(query, cookieString) {
 function namesMatch(name1, name2) {
   if (!name1 || !name2) return false
   
+  // List of titles to ignore
+  const titlesToIgnore = ['m', 'm.', 'mme', 'mme.', 'mr', 'mr.', 'ms', 'ms.', 'miss', 'dr', 'dr.']
+  
   // Normalize: lowercase and split into words
-  const words1 = name1.toLowerCase().split(/\s+/).filter(w => w.length > 0).sort()
-  const words2 = name2.toLowerCase().split(/\s+/).filter(w => w.length > 0).sort()
+  const words1 = name1.toLowerCase()
+    .split(/\s+/)
+    .filter(w => w.length > 0 && !titlesToIgnore.includes(w.replace(/\./g, '')))
+    .sort()
+  
+  const words2 = name2.toLowerCase()
+    .split(/\s+/)
+    .filter(w => w.length > 0 && !titlesToIgnore.includes(w.replace(/\./g, '')))
+    .sort()
   
   // Check if all words from one name are in the other
   // This handles different word orders like "Clement GUITET GOUSSIN" vs "GUITET GOUSSIN Clement"

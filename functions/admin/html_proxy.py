@@ -100,16 +100,16 @@ def lambda_handler(event, context):
     # Make request to external website
     try:
         if method == 'GET':
-            response = requests.get(url, cookies=cookies, headers=headers, timeout=15)
+            response = requests.get(url, cookies=cookies, headers=headers, timeout=15, allow_redirects=True)
         elif method == 'POST':
             post_data = body.get('data', {})
-            response = requests.post(url, cookies=cookies, headers=headers, data=post_data, timeout=15)
+            response = requests.post(url, cookies=cookies, headers=headers, data=post_data, timeout=15, allow_redirects=True)
         else:
             return validation_error(f'HTTP method {method} not supported')
         
         response.raise_for_status()
         
-        logger.info(f"Proxy request successful to {domain}")
+        logger.info(f"Proxy request successful to {domain}, final URL: {response.url}")
         
         # Return raw HTML to frontend for parsing
         return success_response(
@@ -117,6 +117,7 @@ def lambda_handler(event, context):
                 'html': response.text,
                 'status_code': response.status_code,
                 'url': url,
+                'final_url': response.url,  # Include final URL after redirects
                 'content_type': response.headers.get('Content-Type', 'text/html')
             }
         )
