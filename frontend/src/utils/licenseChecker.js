@@ -61,6 +61,27 @@ async function searchByQuery(query, cookieString) {
 }
 
 /**
+ * Check if two names match (ignoring order and case)
+ * @param {string} name1 - First name
+ * @param {string} name2 - Second name
+ * @returns {boolean} True if names match
+ */
+function namesMatch(name1, name2) {
+  if (!name1 || !name2) return false
+  
+  // Normalize: lowercase and split into words
+  const words1 = name1.toLowerCase().split(/\s+/).filter(w => w.length > 0).sort()
+  const words2 = name2.toLowerCase().split(/\s+/).filter(w => w.length > 0).sort()
+  
+  // Check if all words from one name are in the other
+  // This handles different word orders like "Clement GUITET GOUSSIN" vs "GUITET GOUSSIN Clement"
+  const allWords1InWords2 = words1.every(w => words2.includes(w))
+  const allWords2InWords1 = words2.every(w => words1.includes(w))
+  
+  return allWords1InWords2 && allWords2InWords1
+}
+
+/**
  * Validate a license row and return detailed result
  * @param {string} rowLicense - License number from row
  * @param {string} rowName - Name from row
@@ -73,21 +94,24 @@ async function searchByQuery(query, cookieString) {
 function validateLicenseRow(rowLicense, rowName, rowState, rowType, expectedName, t) {
   const isActive = rowState.includes('Active')
   const isCompetition = rowType.toLowerCase().includes('compétition')
-  const nameMatches = expectedName ? rowName.toLowerCase().includes(expectedName.toLowerCase()) : true
+  const nameMatches = expectedName ? namesMatch(rowName, expectedName) : true
 
-  if (isActive && isCompetition) {
-    if (expectedName && !nameMatches) {
-      return {
-        valid: true,
-        details: t('admin.licenseChecker.messages.nameMismatch', {
-          foundName: rowName,
-          expectedName: expectedName,
-          license: rowLicense,
-          state: rowState,
-          type: rowType
-        })
-      }
+  // Name mismatch is INVALID - wrong person!
+  if (expectedName && !nameMatches) {
+    return {
+      valid: false,
+      details: t('admin.licenseChecker.messages.nameMismatch', {
+        foundName: rowName,
+        expectedName: expectedName,
+        license: rowLicense,
+        state: rowState,
+        type: rowType
+      })
     }
+  }
+
+  // Check license status and type
+  if (isActive && isCompetition) {
     return {
       valid: true,
       details: t('admin.licenseChecker.messages.validLicense', {
@@ -164,7 +188,7 @@ export async function checkLicense(name, licenseNumber, cookieString, t) {
             }
 
             // If no license number provided, match by name
-            if (!licenseNumber && rowName.toLowerCase().includes(name.toLowerCase())) {
+            if (!licenseNumber && namesMatch(rowName, name)) {
               foundInNameSearch = true
               return validateLicenseRow(rowLicense, rowName, rowState, rowType, name, t)
             }
@@ -231,7 +255,7 @@ export async function checkLicense(name, licenseNumber, cookieString, t) {
               console.log(`[License Search] validateLicenseRow result:`, result)
               
               // Check for name mismatch
-              if (name && !rowName.toLowerCase().includes(name.toLowerCase())) {
+              if (name && !namesMatch(rowName, name)) {
                 console.log(`[License Search] NAME MISMATCH DETECTED!`)
                 return {
                   valid: result.valid,

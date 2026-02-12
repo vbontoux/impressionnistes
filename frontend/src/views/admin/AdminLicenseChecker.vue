@@ -78,9 +78,9 @@
         <label class="checkbox-label">
           <input
             type="checkbox"
-            :checked="allSelected"
-            :indeterminate.prop="someSelected"
-            @change="toggleSelectAll"
+            :checked="allFilteredSelected"
+            :indeterminate.prop="someFilteredSelected"
+            @change="toggleSelectAllFiltered"
           />
           <span>
             {{ selectedCount > 0 
@@ -439,7 +439,28 @@ const filteredCrewMembers = computed(() => {
   // Status filter
   if (statusFilter.value !== 'all') {
     filtered = filtered.filter(crew => {
-      if (statusFilter.value === 'unchecked') return !crew._licenseStatus
+      if (statusFilter.value === 'unchecked') {
+        // Unchecked means no fresh check AND no DB verification
+        return !crew._licenseStatus && !crew.license_verification_status
+      }
+      
+      // For valid/invalid/error, check both fresh status and DB status
+      if (statusFilter.value === 'valid') {
+        return crew._licenseStatus === 'valid' || 
+               crew.license_verification_status === 'verified_valid' ||
+               crew.license_verification_status === 'manually_verified_valid'
+      }
+      
+      if (statusFilter.value === 'invalid') {
+        return crew._licenseStatus === 'invalid' || 
+               crew.license_verification_status === 'verified_invalid' ||
+               crew.license_verification_status === 'manually_verified_invalid'
+      }
+      
+      if (statusFilter.value === 'error') {
+        return crew._licenseStatus === 'error'
+      }
+      
       return crew._licenseStatus === statusFilter.value
     })
   }
