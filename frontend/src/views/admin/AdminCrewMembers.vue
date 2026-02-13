@@ -65,7 +65,7 @@
       
       <SortableTable
         :columns="tableColumns"
-        :data="paginatedCrewMembers"
+        :data="tableData"
         :initial-sort-field="'team_manager_name'"
         :initial-sort-direction="'asc'"
         aria-label="Crew members table"
@@ -120,7 +120,7 @@
 
     <!-- Card View -->
     <div v-if="!loading && !error && viewMode === 'cards'" class="crew-grid">
-      <div v-for="crew in paginatedCrewMembers" :key="crew.crew_member_id" class="crew-card" :class="{ 'assigned': crew.assigned_boat_id }">
+      <div v-for="crew in tableData" :key="crew.crew_member_id" class="crew-card" :class="{ 'assigned': crew.assigned_boat_id }">
         <div class="card-header">
           <div class="member-info">
             <h4>{{ crew.first_name }} {{ crew.last_name }}</h4>
@@ -177,18 +177,7 @@
       </div>
     </div>
 
-    <!-- Pagination -->
-    <div v-if="!loading && !error && totalPages > 1" class="pagination">
-      <BaseButton size="small" variant="secondary" @click="currentPage--" :disabled="currentPage === 1">
-        {{ $t('common.previous') }}
-      </BaseButton>
-      <span class="page-info">
-        {{ $t('common.pageInfo', { current: currentPage, total: totalPages }) }}
-      </span>
-      <BaseButton size="small" variant="secondary" @click="currentPage++" :disabled="currentPage === totalPages">
-        {{ $t('common.next') }}
-      </BaseButton>
-    </div>
+    <!-- Pagination removed - using filters only -->
 
     <!-- Edit Crew Member Modal -->
     <BaseModal :show="showEditCrewModal" :title="$t('admin.crewMembers.editCrewMember')" @close="closeModals">
@@ -299,8 +288,7 @@ export default {
     const filterTeamManager = ref('');
     const categoryFilter = ref('all');
     const assignedFilter = ref('all');
-    const currentPage = ref(1);
-    const itemsPerPage = 50;
+    // Pagination removed - using filters only
     const viewMode = ref(localStorage.getItem('adminCrewViewMode') || 'table');
 
     // Modal state
@@ -472,17 +460,7 @@ export default {
       }));
     });
 
-    // Use table sort composable - removed, now handled by SortableTable
-
-    const totalPages = computed(() => {
-      return Math.ceil(tableData.value.length / itemsPerPage);
-    });
-
-    const paginatedCrewMembers = computed(() => {
-      const start = (currentPage.value - 1) * itemsPerPage;
-      const end = start + itemsPerPage;
-      return tableData.value.slice(start, end);
-    });
+    // Pagination removed - show all filtered results
 
     // Methods
     const fetchCrewMembers = async () => {
@@ -521,7 +499,6 @@ export default {
       filterTeamManager.value = '';
       categoryFilter.value = 'all';
       assignedFilter.value = 'all';
-      currentPage.value = 1;
     };
 
     const getAgeCategoryForMember = (dateOfBirth) => {
@@ -635,13 +612,10 @@ export default {
       filterTeamManager,
       categoryFilter,
       assignedFilter,
-      currentPage,
-      totalPages,
       viewMode,
       assignedCrewCount,
       unassignedCrewCount,
       filteredCrewMembers,
-      paginatedCrewMembers,
       tableColumns,
       tableData,
       showEditCrewModal,
@@ -761,18 +735,7 @@ export default {
   color: var(--color-secondary);
 }
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-lg);
-  border-top: 1px solid var(--color-border);
-}
-
-.page-info {
-  color: var(--color-muted);
-}
+/* Pagination styles removed - using filters only */
 
 .btn-primary,
 .btn-secondary,

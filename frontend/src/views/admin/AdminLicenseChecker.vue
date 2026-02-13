@@ -227,7 +227,7 @@
         </thead>
         <tbody>
           <tr 
-            v-for="crew in paginatedCrewMembers" 
+            v-for="crew in filteredCrewMembers" 
             :key="crew.crew_member_id"
             :class="{ 
               'checking': crew._checking,
@@ -325,30 +325,7 @@
         </tbody>
       </table>
 
-      <!-- Pagination -->
-      <div v-if="totalPages > 1" class="pagination">
-        <BaseButton
-          size="small"
-          variant="secondary"
-          :disabled="currentPage === 1"
-          @click="currentPage--"
-        >
-          {{ $t('common.previous') }}
-        </BaseButton>
-        
-        <span class="page-info">
-          {{ $t('common.pageInfo', { current: currentPage, total: totalPages }) }}
-        </span>
-        
-        <BaseButton
-          size="small"
-          variant="secondary"
-          :disabled="currentPage === totalPages"
-          @click="currentPage++"
-        >
-          {{ $t('common.next') }}
-        </BaseButton>
-      </div>
+      <!-- Pagination removed - using filters only -->
     </div>
   </div>
 </template>
@@ -399,9 +376,7 @@ const statusFilter = ref('all')
 const sortField = ref('last_name')
 const sortDirection = ref('asc')
 
-// Pagination
-const currentPage = ref(1)
-const itemsPerPage = 50
+// Pagination removed - using filters only
 
 // Computed
 const teamManagers = computed(() => {
@@ -485,15 +460,7 @@ const filteredCrewMembers = computed(() => {
   return filtered
 })
 
-const paginatedCrewMembers = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage
-  const end = start + itemsPerPage
-  return filteredCrewMembers.value.slice(start, end)
-})
-
-const totalPages = computed(() => {
-  return Math.ceil(filteredCrewMembers.value.length / itemsPerPage)
-})
+// No pagination - show all filtered results
 
 const selectedCount = computed(() => selectedMembers.value.size)
 
@@ -1273,20 +1240,7 @@ onMounted(() => {
   border: 1px solid #dee2e6;
 }
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-lg);
-  padding-top: var(--spacing-lg);
-  border-top: 1px solid var(--color-border);
-}
-
-.page-info {
-  font-size: var(--font-size-sm);
-  color: var(--color-muted);
-}
+/* Pagination styles removed - using filters only */
 
 @media (max-width: 768px) {
   .admin-license-checker {

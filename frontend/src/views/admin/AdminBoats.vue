@@ -86,7 +86,7 @@
       <!-- Card View -->
       <div v-if="viewMode === 'cards'" class="boat-cards">
         <div
-          v-for="boat in paginatedBoats"
+          v-for="boat in tableData"
           :key="boat.boat_registration_id"
           class="boat-card"
           :class="`status-${getBoatStatus(boat)}`"
@@ -206,7 +206,7 @@
       <div v-else class="boats-table-container">
         <SortableTable
           :columns="tableColumns"
-          :data="paginatedBoats"
+          :data="tableData"
           :initial-sort-field="'team_manager_name'"
           :initial-sort-direction="'asc'"
           aria-label="Boats table"
@@ -296,26 +296,7 @@
         </SortableTable>
       </div>
 
-      <!-- Pagination -->
-      <div v-if="totalPages > 1" class="pagination">
-        <BaseButton 
-          variant="primary"
-          @click="currentPage--"
-          :disabled="currentPage === 1"
-        >
-          {{ $t('common.previous') }}
-        </BaseButton>
-        <span class="page-info">
-          {{ $t('common.pageInfo', { current: currentPage, total: totalPages }) }}
-        </span>
-        <BaseButton 
-          variant="primary"
-          @click="currentPage++"
-          :disabled="currentPage === totalPages"
-        >
-          {{ $t('common.next') }}
-        </BaseButton>
-      </div>
+      <!-- Pagination removed - using filters only -->
     </div>
 
     <!-- Create/Edit Modal -->
@@ -442,8 +423,7 @@ export default {
     const filterRace = ref('')
     const filterBoatRequest = ref('')
     
-    const currentPage = ref(1)
-    const itemsPerPage = 50
+    // Pagination removed - using filters only
     const viewMode = ref(localStorage.getItem('adminBoatsViewMode') || 'table')
     
     const showCreateModal = ref(false)
@@ -709,16 +689,7 @@ export default {
       }))
     })
 
-    // Computed: paginated boats
-    const paginatedBoats = computed(() => {
-      const start = (currentPage.value - 1) * itemsPerPage
-      const end = start + itemsPerPage
-      return tableData.value.slice(start, end)
-    })
-
-    const totalPages = computed(() => {
-      return Math.ceil(tableData.value.length / itemsPerPage)
-    })
+    // Pagination removed - show all filtered results
 
     // Helper functions
     const getFilledSeatsCount = (boat) => {
@@ -790,7 +761,6 @@ export default {
       filterStatus.value = ''
       filterRace.value = ''
       filterBoatRequest.value = ''
-      currentPage.value = 1
     }
 
     const toggleForfait = async (boat) => {
@@ -936,8 +906,6 @@ export default {
       filterStatus,
       filterRace,
       filterBoatRequest,
-      currentPage,
-      totalPages,
       viewMode,
       showCreateModal,
       showEditModal,
@@ -947,7 +915,6 @@ export default {
       filteredBoats,
       tableColumns,
       tableData,
-      paginatedBoats,
       getFilledSeatsCount,
       getFirstRowerLastName,
       getFirstRowerName,
@@ -1119,17 +1086,7 @@ export default {
   flex-direction: column;
 }
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--spacing-lg);
-  margin-top: var(--spacing-xl);
-}
-
-.page-info {
-  color: var(--color-secondary);
-}
+/* Pagination styles removed - using filters only */
 
 /* Form styles for modal */
 .boat-assignment-section {
@@ -1476,15 +1433,7 @@ export default {
     flex-wrap: nowrap;
   }
 
-  .pagination {
-    flex-wrap: wrap;
-    gap: var(--spacing-sm);
-  }
-
-  .page-info {
-    width: 100%;
-    text-align: center;
-  }
+  /* Pagination styles removed - using filters only */
 }
 
 /* License Verification Badge Styles */
