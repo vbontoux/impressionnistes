@@ -383,7 +383,8 @@ export function generateCrewMemberList(jsonData, boatAssignments, raceAssignment
     }
   }
   
-  // Sort by race number (display_order) first, then by last name alphabetically
+  // Sort by race number, then bow number, then seat position
+  // This groups all crew members from the same boat together
   crewMemberRows.sort((a, b) => {
     // First sort by race number (display_order)
     const raceA = a[headers.raceNumber] || 0
@@ -393,10 +394,31 @@ export function generateCrewMemberList(jsonData, boatAssignments, raceAssignment
       return raceA - raceB
     }
     
-    // Then sort by last name
-    const nameA = (a[headers.lastName] || '').toLowerCase()
-    const nameB = (b[headers.lastName] || '').toLowerCase()
-    return nameA.localeCompare(nameB, locale)
+    // Then sort by bow number
+    const bowA = a[headers.bowNumber] || 0
+    const bowB = b[headers.bowNumber] || 0
+    
+    if (bowA !== bowB) {
+      return bowA - bowB
+    }
+    
+    // Finally sort by place in boat (seat position)
+    // Extract position number from strings like "Rameur 1", "Barreur", "Rower 2"
+    const placeA = a[headers.placeInBoat] || ''
+    const placeB = b[headers.placeInBoat] || ''
+    
+    // Cox/Barreur should come last (position 9)
+    const isCoxA = placeA.toLowerCase().includes('cox') || placeA.toLowerCase().includes('barreur')
+    const isCoxB = placeB.toLowerCase().includes('cox') || placeB.toLowerCase().includes('barreur')
+    
+    if (isCoxA && !isCoxB) return 1
+    if (!isCoxA && isCoxB) return -1
+    
+    // For rowers, extract the number and sort numerically
+    const numA = parseInt(placeA.match(/\d+/)?.[0] || '0')
+    const numB = parseInt(placeB.match(/\d+/)?.[0] || '0')
+    
+    return numA - numB
   })
   
   return crewMemberRows
@@ -914,7 +936,7 @@ export async function downloadEventProgramExcel(jsonData, filename = null, local
     printArea: 'B:M', // Columns B to M
     alternateBy: 'crew',
     data: crewMemberList,
-    groupColumn: crewHeaders.boatNumber, // Group by Crew #
+    groupColumn: crewHeaders.bowNumber, // Group by Bow # (so all crew members from same boat are colored together)
     wrapTextColumns: ['H', 'M'] // Enable text wrapping for Club (H) and Assigned Boat (M) columns
   })
   
