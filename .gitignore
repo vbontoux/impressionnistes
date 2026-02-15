@@ -52,6 +52,8 @@ cdk.context.json
 .env.*.local
 .env.prod*
 .env.dev
+.env-sandbox.prod
+frontend/.env-sandbox.prod
 
 # Build outputs
 dist/
@@ -80,6 +82,8 @@ infrastructure/exports/
 # Secrets
 secrets*.json
 **/secrets*.json
+secrets.prod-sandbox.json
+infrastructure/secrets.prod-sandbox.json
 
 # Other
 functions/layer/python/*
