@@ -60,7 +60,9 @@ function getRaceScheduleHeaders(locale) {
       raceShort: 'Race (abbrev)',
       race: 'Race',
       raceNumber: 'Race #',
-      startTime: 'Start Time'
+      startTime: 'Start Time',
+      boatCount: 'Number of Boats',
+      participantCount: 'Number of Participants'
     }
   }
   // Default to French
@@ -68,7 +70,9 @@ function getRaceScheduleHeaders(locale) {
     raceShort: 'Course (abrégé)',
     race: 'Course',
     raceNumber: 'N° Course',
-    startTime: 'Heure de départ'
+    startTime: 'Heure de départ',
+    boatCount: 'Nombre de bateaux',
+    participantCount: 'Nombre de participants'
   }
 }
 
@@ -409,10 +413,30 @@ export function generateCrewMemberList(jsonData, boatAssignments, raceAssignment
  * @returns {Array} - Array of race row objects
  */
 export function generateRaceSchedule(jsonData, raceAssignments, locale = 'fr', t = null) {
-  const { races } = jsonData.data
+  const { races, boats } = jsonData.data
   
   // Get column headers based on locale
   const headers = getRaceScheduleHeaders(locale)
+  
+  // Filter eligible boats
+  const eligibleBoats = filterEligibleBoats(boats)
+  
+  // Count boats and participants per race
+  const raceStats = {}
+  for (const boat of eligibleBoats) {
+    const raceId = boat.race_id
+    if (!raceStats[raceId]) {
+      raceStats[raceId] = {
+        boatCount: 0,
+        participantCount: 0
+      }
+    }
+    
+    raceStats[raceId].boatCount++
+    // Count crew members (seats) in this boat
+    const crewCount = (boat.seats || []).length
+    raceStats[raceId].participantCount += crewCount
+  }
   
   const raceRows = []
   
@@ -439,11 +463,16 @@ export function generateRaceSchedule(jsonData, raceAssignments, locale = 'fr', t
     
     const raceName = t ? t(`races.${race.name}`, race.name) : race.name
     
+    // Get stats for this race (default to 0 if no boats)
+    const stats = raceStats[race.race_id] || { boatCount: 0, participantCount: 0 }
+    
     raceRows.push({
       [headers.raceShort]: translatedRaceShort,
       [headers.race]: raceName,
       [headers.raceNumber]: race.display_order || assignment.raceNumber,
-      [headers.startTime]: formatTime24Hour(assignment.startTime)
+      [headers.startTime]: formatTime24Hour(assignment.startTime),
+      [headers.boatCount]: stats.boatCount,
+      [headers.participantCount]: stats.participantCount
     })
   }
   
