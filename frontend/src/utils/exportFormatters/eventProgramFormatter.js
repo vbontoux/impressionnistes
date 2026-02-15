@@ -16,10 +16,11 @@ import { translateShortNameToFrench } from './crewTimerFormatter.js'
 function getCrewMemberListHeaders(locale) {
   if (locale === 'en') {
     return {
-      raceNumber: 'Race #',
       race: 'Race',
+      raceNumber: 'Race #',
       raceShort: 'Race (abbrev)',
       boatNumber: 'Crew #',
+      bowNumber: 'Bow #',
       lastName: 'Last Name',
       firstName: 'First Name',
       club: 'Club',
@@ -27,16 +28,16 @@ function getCrewMemberListHeaders(locale) {
       gender: 'Gender',
       licenseNumber: 'License #',
       placeInBoat: 'Place in boat',
-      bowNumber: 'Bow #',
       assignedBoat: 'Assigned Boat'
     }
   }
   // Default to French
   return {
-    raceNumber: 'N° Course',
     race: 'Course',
+    raceNumber: 'N° Course',
     raceShort: 'Course (abrégé)',
     boatNumber: 'N° Équipage',
+    bowNumber: 'N° Dossard',
     lastName: 'Nom',
     firstName: 'Prénom',
     club: 'Club',
@@ -44,7 +45,6 @@ function getCrewMemberListHeaders(locale) {
     gender: 'Genre',
     licenseNumber: 'N° Licence',
     placeInBoat: 'Place dans le bateau',
-    bowNumber: 'N° Dossard',
     assignedBoat: 'Bateau assigné'
   }
 }
@@ -75,16 +75,18 @@ function getRaceScheduleHeaders(locale) {
 /**
  * Get column headers for crews in races sheet based on locale
  * @param {string} locale - Locale ('en' or 'fr')
- * @returns {Array} - Array of column header names (50 columns total)
+ * @returns {Array} - Array of column header names (51 columns total)
  */
 function getCrewsInRacesHeaders(locale) {
   const isEnglish = locale === 'en'
   
   const baseHeaders = [
-    isEnglish ? 'Race #' : 'N° Course',
     isEnglish ? 'Race' : 'Course',
+    isEnglish ? 'Start Time' : 'Heure de départ',
+    isEnglish ? 'Race #' : 'N° Course',
     isEnglish ? 'Race (abbrev)' : 'Course (abrégé)',
     isEnglish ? 'Crew #' : 'N° Équipage',
+    isEnglish ? 'Bow #' : 'N° Dossard',
     isEnglish ? 'Boat assignment' : 'Bateau assigné'
   ]
   
@@ -335,10 +337,11 @@ export function generateCrewMemberList(jsonData, boatAssignments, raceAssignment
         
         // Add row with placeholder data
         crewMemberRows.push({
-          [headers.raceNumber]: raceNumber,
           [headers.race]: raceName,
+          [headers.raceNumber]: raceNumber,
           [headers.raceShort]: translatedRaceShort,
           [headers.boatNumber]: boatNumber,
+          [headers.bowNumber]: assignment.bowNumber,
           [headers.lastName]: placeholderMember.last_name,
           [headers.firstName]: placeholderMember.first_name,
           [headers.club]: clubName,
@@ -346,7 +349,6 @@ export function generateCrewMemberList(jsonData, boatAssignments, raceAssignment
           [headers.gender]: placeholderMember.gender,
           [headers.licenseNumber]: placeholderMember.license_number,
           [headers.placeInBoat]: formatSeatType(seat, locale),
-          [headers.bowNumber]: assignment.bowNumber,
           [headers.assignedBoat]: assignedBoat
         })
         continue
@@ -358,12 +360,13 @@ export function generateCrewMemberList(jsonData, boatAssignments, raceAssignment
       if (processedCrewMembers.has(uniqueKey)) continue
       processedCrewMembers.add(uniqueKey)
       
-      // Column order: Race #, Race name, Race (abbrev), Crew #, Last name, First name, Club, Age, Gender, License #, Place in boat, Bow number, Assigned Boat
+      // Column order: Race, Race #, Race (abbrev), Crew #, Bow #, Last name, First name, Club, Age, Gender, License #, Place in boat, Assigned Boat
       crewMemberRows.push({
-        [headers.raceNumber]: raceNumber,
         [headers.race]: raceName,
+        [headers.raceNumber]: raceNumber,
         [headers.raceShort]: translatedRaceShort,
         [headers.boatNumber]: boatNumber,
+        [headers.bowNumber]: assignment.bowNumber,
         [headers.lastName]: crewMember.last_name || '',
         [headers.firstName]: crewMember.first_name || '',
         [headers.club]: clubName,
@@ -371,7 +374,6 @@ export function generateCrewMemberList(jsonData, boatAssignments, raceAssignment
         [headers.gender]: formatGender(crewMember.gender, locale),
         [headers.licenseNumber]: crewMember.license_number || '',
         [headers.placeInBoat]: formatSeatType(seat, locale),
-        [headers.bowNumber]: assignment.bowNumber,
         [headers.assignedBoat]: assignedBoat
       })
     }
@@ -510,6 +512,9 @@ export function generateCrewsInRaces(jsonData, boatAssignments, raceAssignments,
     // Translate race abbreviation to French if locale is French
     const translatedRaceShort = locale === 'fr' ? translateShortNameToFrench(raceShortName) : raceShortName
     
+    // Get start time from race assignment
+    const startTime = formatTime24Hour(raceAssignment.startTime)
+    
     // Get boat number (handle null gracefully)
     const boatNumber = boat.boat_number || (locale === 'en' ? 'TBD' : 'À déterminer')
     
@@ -518,10 +523,12 @@ export function generateCrewsInRaces(jsonData, boatAssignments, raceAssignments,
     
     // Start building the row with base columns
     const row = [
-      raceNumber,
       raceName,
+      startTime,
+      raceNumber,
       translatedRaceShort,
       boatNumber,
+      assignment.bowNumber,
       assignedBoat
     ]
     
