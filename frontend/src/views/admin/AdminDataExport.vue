@@ -284,8 +284,8 @@ const exportEventProgram = async () => {
         totalRaces: racesWithBoats.size
       };
       
-      // Use formatter to generate and download Excel file
-      downloadEventProgramExcel(response.data, null, locale.value, t);
+      // Use formatter to generate and download Excel file (async)
+      await downloadEventProgramExcel(response.data, null, locale.value, t);
       
       success.value = t('admin.dataExport.exportSuccess');
       

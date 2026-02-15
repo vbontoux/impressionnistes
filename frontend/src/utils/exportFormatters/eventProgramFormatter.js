@@ -3,7 +3,7 @@
  * Creates an Excel file with crew member list and race schedule for race day printing
  */
 
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
 import { formatDateForFilename } from './shared.js'
 import { assignRaceAndBowNumbers, filterEligibleBoats } from './raceNumbering.js'
 import { translateShortNameToFrench } from './crewTimerFormatter.js'
@@ -697,13 +697,148 @@ export function generateSynthesis(jsonData, boatAssignments, locale = 'fr', t = 
 }
 
 /**
- * Download Event Program Excel file with multiple sheets
+ * Apply print formatting to a worksheet using ExcelJS
+ * Adds borders, colors, and print area settings
+ * 
+ * @param {Object} worksheet - ExcelJS worksheet object
+ * @param {Object} options - Formatting options
+ * @param {string} options.printArea - Print area range (e.g., "B:M")
+ * @param {string} options.alternateBy - Alternate colors by 'crew', 'race', or 'row'
+ * @param {Array} options.data - Original data array for grouping logic
+ * @param {string} options.groupColumn - Column name to group by (e.g., 'Crew #', 'Race #')
+ * @param {Array} options.wrapTextColumns - Array of column letters to enable text wrapping (e.g., ['G', 'H'])
+ */
+function applyPrintFormatting(worksheet, options = {}) {
+  const { printArea, alternateBy, data, groupColumn, wrapTextColumns = [] } = options
+  
+  // Define colors (blue/gray tones)
+  const headerBg = 'D0E0F0' // Light blue for header
+  const altColor1 = 'F5F5F5' // Light gray
+  const altColor2 = 'FFFFFF' // White
+  
+  // Border styles
+  const thinBorder = {
+    top: { style: 'thin', color: { argb: 'FF000000' } },
+    bottom: { style: 'thin', color: { argb: 'FF000000' } },
+    left: { style: 'thin', color: { argb: 'FF000000' } },
+    right: { style: 'thin', color: { argb: 'FF000000' } }
+  }
+  
+  const thickBorder = {
+    top: { style: 'medium', color: { argb: 'FF000000' } },
+    bottom: { style: 'medium', color: { argb: 'FF000000' } },
+    left: { style: 'medium', color: { argb: 'FF000000' } },
+    right: { style: 'medium', color: { argb: 'FF000000' } }
+  }
+  
+  // Track current group for alternating colors
+  let currentGroup = null
+  let groupIndex = 0
+  
+  // Apply formatting to each row
+  worksheet.eachRow((row, rowNumber) => {
+    // Determine if this is a new group (for alternating colors)
+    if (alternateBy && data && groupColumn && rowNumber > 1) {
+      const dataRow = data[rowNumber - 2] // -2 because rowNumber is 1-based and row 1 is header
+      if (dataRow) {
+        const groupValue = dataRow[groupColumn]
+        if (groupValue !== currentGroup) {
+          currentGroup = groupValue
+          groupIndex++
+        }
+      }
+    }
+    
+    // Determine background color
+    let bgColor = null
+    if (rowNumber === 1) {
+      // Header row
+      bgColor = headerBg
+    } else if (alternateBy === 'row') {
+      // Alternate every row
+      bgColor = (rowNumber % 2 === 0) ? altColor1 : altColor2
+    } else if (alternateBy && groupColumn) {
+      // Alternate by group
+      bgColor = (groupIndex % 2 === 0) ? altColor1 : altColor2
+    }
+    
+    // Apply formatting to each cell in the row
+    row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+      // Apply borders
+      if (rowNumber === 1) {
+        // Header row gets thick border and bold font
+        cell.border = thickBorder
+        cell.font = { bold: true, size: 11 }
+      } else {
+        // Data rows get thin border
+        cell.border = thinBorder
+        cell.font = { size: 10 }
+      }
+      
+      // Apply background color
+      if (bgColor) {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FF' + bgColor }
+        }
+      }
+      
+      // Determine if this column should have text wrapping
+      const columnLetter = String.fromCharCode(64 + colNumber) // Convert column number to letter (1=A, 2=B, etc.)
+      const shouldWrapText = wrapTextColumns.includes(columnLetter)
+      
+      // Center alignment for better readability
+      cell.alignment = {
+        vertical: 'middle',
+        horizontal: 'left',
+        wrapText: shouldWrapText
+      }
+    })
+  })
+  
+  // Set print area if specified
+  if (printArea) {
+    worksheet.pageSetup.printArea = printArea
+  }
+  
+  // Auto-fit columns with reasonable limits
+  worksheet.columns.forEach(column => {
+    let maxLength = 10
+    column.eachCell({ includeEmpty: false }, cell => {
+      const cellValue = cell.value ? cell.value.toString() : ''
+      maxLength = Math.max(maxLength, cellValue.length)
+    })
+    column.width = Math.min(maxLength + 2, 50)
+  })
+  
+  // Set page setup for printing
+  worksheet.pageSetup = {
+    ...worksheet.pageSetup,
+    orientation: 'landscape',
+    fitToPage: true,
+    fitToWidth: 1,
+    fitToHeight: 0, // Allow multiple pages vertically
+    paperSize: 9, // A4
+    margins: {
+      left: 0.5,
+      right: 0.5,
+      top: 0.75,
+      bottom: 0.75,
+      header: 0.3,
+      footer: 0.3
+    }
+  }
+}
+
+/**
+ * Download Event Program Excel file with multiple sheets using ExcelJS
  * @param {Object} jsonData - The JSON response from backend API
  * @param {string} filename - Optional custom filename (without extension)
  * @param {string} locale - Locale for internationalization ('en' or 'fr')
  * @param {Function} t - The i18n translation function
  */
-export function downloadEventProgramExcel(jsonData, filename = null, locale = 'fr', t = null) {
+export async function downloadEventProgramExcel(jsonData, filename = null, locale = 'fr', t = null) {
   if (!jsonData || !jsonData.data) {
     throw new Error('Invalid data format: expected data object')
   }
@@ -752,8 +887,10 @@ export function downloadEventProgramExcel(jsonData, filename = null, locale = 'f
     throw new Error('No synthesis data to export')
   }
   
-  // Create workbook
-  const workbook = XLSX.utils.book_new()
+  // Create workbook using ExcelJS
+  const workbook = new ExcelJS.Workbook()
+  workbook.creator = 'Course des Impressionnistes'
+  workbook.created = new Date()
   
   // Sheet names based on locale
   const crewListSheetName = locale === 'en' ? 'Crew Member List' : 'Liste des équipiers'
@@ -761,28 +898,115 @@ export function downloadEventProgramExcel(jsonData, filename = null, locale = 'f
   const crewsInRacesSheetName = locale === 'en' ? 'Crews in Races' : 'Équipages par course'
   const synthesisSheetName = locale === 'en' ? 'Synthesis' : 'Synthèse'
   
-  // Add crew member list sheet
-  const crewSheet = XLSX.utils.json_to_sheet(crewMemberList)
-  XLSX.utils.book_append_sheet(workbook, crewSheet, crewListSheetName)
+  // Get header objects for grouping
+  const crewHeaders = getCrewMemberListHeaders(locale)
+  const raceHeaders = getRaceScheduleHeaders(locale)
   
-  // Add race schedule sheet
-  const raceSheet = XLSX.utils.json_to_sheet(raceSchedule)
-  XLSX.utils.book_append_sheet(workbook, raceSheet, raceScheduleSheetName)
+  // Add crew member list sheet (Sheet 1)
+  const crewSheet = workbook.addWorksheet(crewListSheetName)
+  const crewColumns = Object.keys(crewMemberList[0] || {}).map(key => ({
+    header: key,
+    key: key
+  }))
+  crewSheet.columns = crewColumns
+  crewSheet.addRows(crewMemberList)
+  applyPrintFormatting(crewSheet, {
+    printArea: 'B:M', // Columns B to M
+    alternateBy: 'crew',
+    data: crewMemberList,
+    groupColumn: crewHeaders.boatNumber, // Group by Crew #
+    wrapTextColumns: ['H', 'M'] // Enable text wrapping for Club (H) and Assigned Boat (M) columns
+  })
+  
+  // Add race schedule sheet (Sheet 2)
+  const raceSheet = workbook.addWorksheet(raceScheduleSheetName)
+  const raceColumns = Object.keys(raceSchedule[0] || {}).map(key => ({
+    header: key,
+    key: key
+  }))
+  raceSheet.columns = raceColumns
+  raceSheet.addRows(raceSchedule)
+  applyPrintFormatting(raceSheet, {
+    printArea: 'A:F', // Columns A to F (all columns)
+    alternateBy: 'race',
+    data: raceSchedule,
+    groupColumn: raceHeaders.raceNumber // Group by Race #
+  })
   
   // Add crews in races sheet (Sheet 3)
-  // Note: generateCrewsInRaces returns 2D array with headers, use aoa_to_sheet
-  const crewsInRacesSheet = XLSX.utils.aoa_to_sheet(crewsInRacesData)
-  XLSX.utils.book_append_sheet(workbook, crewsInRacesSheet, crewsInRacesSheetName)
+  const crewsInRacesSheet = workbook.addWorksheet(crewsInRacesSheetName)
+  const crewsInRacesHeaders = crewsInRacesData[0]
+  const crewsInRacesRows = crewsInRacesData.slice(1)
+  
+  // Convert 2D array to object format for ExcelJS
+  const crewsInRacesObjects = crewsInRacesRows.map(row => {
+    const obj = {}
+    crewsInRacesHeaders.forEach((header, index) => {
+      obj[header] = row[index]
+    })
+    return obj
+  })
+  
+  const crewsInRacesColumns = crewsInRacesHeaders.map(header => ({
+    header: header,
+    key: header
+  }))
+  crewsInRacesSheet.columns = crewsInRacesColumns
+  crewsInRacesSheet.addRows(crewsInRacesObjects)
+  
+  const raceNumHeader = locale === 'en' ? 'Race #' : 'N° Course'
+  applyPrintFormatting(crewsInRacesSheet, {
+    printArea: 'B:L', // Columns B to L (includes Member 1 Club, Age, Gender)
+    alternateBy: 'race',
+    data: crewsInRacesObjects,
+    groupColumn: raceNumHeader, // Group by Race #
+    wrapTextColumns: ['G', 'J'] // Enable text wrapping for Boat assignment (G) and Member 1 Club (J)
+  })
   
   // Add synthesis sheet (Sheet 4)
-  // Note: generateSynthesis returns 2D array with headers, use aoa_to_sheet
-  const synthesisSheet = XLSX.utils.aoa_to_sheet(synthesisData)
-  XLSX.utils.book_append_sheet(workbook, synthesisSheet, synthesisSheetName)
+  const synthesisSheet = workbook.addWorksheet(synthesisSheetName)
+  const synthesisHeaders = synthesisData[0]
+  const synthesisRows = synthesisData.slice(1)
+  
+  // Convert 2D array to object format for ExcelJS
+  const synthesisObjects = synthesisRows.map(row => {
+    const obj = {}
+    synthesisHeaders.forEach((header, index) => {
+      obj[header] = row[index]
+    })
+    return obj
+  })
+  
+  const synthesisColumns = synthesisHeaders.map(header => ({
+    header: header,
+    key: header
+  }))
+  synthesisSheet.columns = synthesisColumns
+  synthesisSheet.addRows(synthesisObjects)
+  
+  applyPrintFormatting(synthesisSheet, {
+    printArea: null, // All columns
+    alternateBy: 'row', // Alternate every row
+    wrapTextColumns: ['A'] // Enable text wrapping for Club column (A)
+  })
   
   // Generate filename with timestamp if not provided
   const timestamp = formatDateForFilename()
   const finalFilename = filename || `programme_evenement_${timestamp}`
   
-  // Write file
-  XLSX.writeFile(workbook, `${finalFilename}.xlsx`)
+  // Write file to buffer and trigger download
+  const buffer = await workbook.xlsx.writeBuffer()
+  const blob = new Blob([buffer], { 
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+  })
+  
+  // Create download link
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = `${finalFilename}.xlsx`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  window.URL.revokeObjectURL(url)
 }

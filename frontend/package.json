@@ -16,6 +16,7 @@
     "@aws-sdk/client-cognito-identity-provider": "^3.0.0",
     "@stripe/stripe-js": "^2.4.0",
     "axios": "^1.6.0",
+    "exceljs": "^4.4.0",
     "pinia": "^2.1.0",
     "vue": "^3.4.0",
     "vue-i18n": "^9.8.0",
