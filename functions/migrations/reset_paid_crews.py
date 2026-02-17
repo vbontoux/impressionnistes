@@ -89,8 +89,9 @@ def run_migration(table_name):
     Returns:
         True if migration succeeded, False otherwise
     """
-    # Use default AWS profile
-    session = boto3.Session(profile_name='default')
+    # Use AWS profile from environment variable if set, otherwise use default
+    profile_name = os.environ.get('AWS_PROFILE', 'default')
+    session = boto3.Session(profile_name=profile_name)
     dynamodb = session.resource('dynamodb')
     table = dynamodb.Table(table_name)
     

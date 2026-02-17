@@ -59,7 +59,7 @@ help:
 	@echo "  make db-restore-backup - Restore from AWS backup (BACKUP_ARN=<arn>)"
 	@echo "  make db-export         - Export DynamoDB table to CSV (default: dev)"
 	@echo "  make db-view           - View DynamoDB table contents (default: dev)"
-	@echo "  make db-migrate        - Run database migration (optional, see functions/migrations/)"
+	@echo "  make db-migrate        - Run database migration (MIGRATION=script_name ENV=dev|prod)"
 	@echo "  make db-reset          - Reset database to initial state (⚠️  DELETES ALL DATA)"
 	@echo "  make db-cleanup-rental-boats-dry-run - Preview old RENTAL_BOAT records to delete"
 	@echo "  make db-cleanup-rental-boats         - Delete old RENTAL_BOAT records (⚠️  destructive!)"
@@ -1027,6 +1027,7 @@ db-migrate:
 	@cd ../functions/migrations && \
 		export TABLE_NAME=impressionnistes-registration-$(ENV) && \
 		export TEAM_MANAGER_ID=$(TEAM_MANAGER_ID) && \
+		export AWS_PROFILE=$(AWS_PROFILE) && \
 		../../infrastructure/$(VENV)/bin/python $(MIGRATION).py
 	@echo ""
 	@echo "=========================================="
