@@ -148,6 +148,7 @@ def handle_payment_succeeded(event_data: dict, db):
     amount = Decimal(amount_cents) / 100
     
     logger.info(f"Processing successful payment: {payment_intent_id} for {amount} {currency}")
+    logger.info(f"Receipt email from Stripe webhook: {receipt_email}")
     
     # Get receipt URL
     receipt_url = get_charge_receipt_url(payment_intent_id)
@@ -204,11 +205,20 @@ def handle_payment_succeeded(event_data: dict, db):
     # Get team manager details
     team_manager = db.get_item(f'TEAM#{team_manager_id}', 'METADATA')
     team_manager_name = 'Cher membre'
+    team_manager_email_fallback = None
     if team_manager:
         first_name = team_manager.get('first_name', '')
         last_name = team_manager.get('last_name', '')
         if first_name or last_name:
             team_manager_name = f"{first_name} {last_name}".strip()
+        team_manager_email_fallback = team_manager.get('email')
+    
+    # Use fallback email if Stripe didn't provide receipt_email
+    if not receipt_email and team_manager_email_fallback:
+        logger.info(f"Using team manager email as fallback: {team_manager_email_fallback}")
+        receipt_email = team_manager_email_fallback
+    elif not receipt_email:
+        logger.warning(f"No receipt email available for payment {payment_id}")
     
     # Update boat registrations to 'paid' status
     update_boat_status_to_paid(
