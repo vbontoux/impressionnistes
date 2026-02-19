@@ -2,207 +2,251 @@
 
 ## Overview
 
-Simplified project structure for the Course des Impressionnistes Registration System.
-
-## Terminology Note
-
-> **Important:** In the codebase (API, database, backend), "boat" refers to a crew registration (the team of rowers). In the user interface, this is displayed as "Crew" (English) or "Équipage" (French). The term "boat" is only used in the UI when referring to physical equipment (boat types, boat rentals).
->
-> **Examples:**
-> - `boat_registration` (database) → "Crew" (UI)
-> - `boat_id` (API) → Internal identifier, not shown in UI
-> - `boat_type` (database/UI) → "Boat Type" (refers to physical boat: skiff, four, eight)
->
-> See the [Requirements Document](../../.kiro/specs/impressionnistes-registration-system/requirements.md#terminology-mapping-databaseapi-vs-ui) for complete details.
+The Impressionnistes Registration System is organized into clear, logical directories with separation of concerns.
 
 ## Directory Structure
 
 ```
 impressionnistes/
-├── functions/                 # Lambda functions and shared utilities
-│   ├── shared/               # Shared Python modules (Lambda Layer)
-│   │   ├── __init__.py
-│   │   ├── auth.py          # Authentication utilities
-│   │   ├── database.py      # DynamoDB utilities
-│   │   ├── responses.py     # Standardized API responses
-│   │   ├── validation.py    # Input validation with Cerberus
-│   │   └── configuration.py # Configuration management
-│   │
-│   ├── auth/                # Authentication functions
-│   │   ├── register.py
-│   │   ├── get_profile.py
-│   │   ├── update_profile.py
-│   │   ├── forgot_password.py
-│   │   └── confirm_password_reset.py
-│   │
-│   ├── crew/                # Crew member management
-│   ├── boat/                # Boat registration (crew registration in UI)
-│   ├── payment/             # Payment processing
-│   ├── admin/               # Admin operations (future)
-│   ├── health/              # Health check endpoint
-│   │   └── health_check.py
-│   ├── init/                # Initialization functions
-│   │   └── init_config.py
-│   │
-│   └── test_live_db.py      # Live database test script
-│
-├── infrastructure/           # AWS CDK infrastructure code
-│   ├── stacks/              # CDK stack definitions
-│   │   ├── database_stack.py
-│   │   ├── auth_stack.py
-│   │   ├── api_stack.py
-│   │   ├── monitoring_stack.py
-│   │   └── frontend_stack.py
-│   ├── app.py               # CDK app entry point
-│   ├── Makefile             # Deployment commands
-│   └── requirements.txt     # CDK dependencies
-│
-├── frontend/                 # Vue.js 3 frontend (future)
-│   └── src/
-│       ├── components/
-│       │   ├── layout/
-│       │   │   └── Footer.vue          # Footer with legal links
-│       │   └── legal/
-│       │       ├── CookieBanner.vue    # Cookie consent banner
-│       │       └── CookiePreferences.vue # Cookie preferences modal
-│       ├── views/
-│       │   └── legal/
-│       │       ├── PrivacyPolicy.vue   # Privacy Policy page
-│       │       └── TermsConditions.vue # Terms & Conditions page
-│       └── locales/
-│           ├── en.json                 # English translations (includes legal)
-│           └── fr.json                 # French translations (includes legal)
-│
-└── .kiro/                   # Kiro spec files
-    └── specs/
-        ├── impressionnistes-registration-system/
-        │   ├── requirements.md
-        │   ├── design.md
-        │   └── tasks.md
-        └── gdpr-compliance/
-            ├── requirements.md
-            ├── design.md
-            └── tasks.md
+├── .github/              # GitHub Actions workflows
+├── .kiro/                # Kiro IDE configuration and steering rules
+├── docs/                 # Documentation
+├── frontend/             # Vue.js frontend application
+├── functions/            # AWS Lambda functions
+├── infrastructure/       # AWS CDK infrastructure code
+├── scripts/              # Operational scripts
+├── tests/                # Integration and unit tests
+└── raw-files/            # Reference files and requirements
 ```
 
-## Key Concepts
+## Detailed Structure
 
-### Simplified Structure
+### Frontend (`frontend/`)
 
-Everything Lambda-related is in `functions/`:
-- **`functions/shared/`** - Shared utilities deployed as a Lambda Layer
-- **`functions/<category>/`** - Lambda function handlers
+Vue.js single-page application.
 
-### Why This Structure?
-
-1. **Simplicity**: All Lambda code in one place
-2. **Lambda Best Practice**: Shared code as a layer, functions import from it
-3. **Clear Organization**: Easy to find both shared code and functions
-4. **No Confusion**: No separate `backend/` directory
-
-## Import Pattern
-
-Lambda functions import shared utilities like this:
-
-```python
-# In functions/auth/register.py
-import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
-from shared.responses import success_response, validation_error
-from shared.validation import validate_team_manager
-from shared.database import get_db_client
+```
+frontend/
+├── public/               # Static assets
+├── src/
+│   ├── assets/          # Images, styles, design tokens
+│   ├── components/      # Reusable Vue components
+│   ├── composables/     # Vue composition functions
+│   ├── locales/         # i18n translations (fr, en)
+│   ├── router/          # Vue Router configuration
+│   ├── services/        # API service layer
+│   ├── stores/          # Pinia state management
+│   ├── styles/          # Global styles
+│   ├── utils/           # Utility functions
+│   ├── views/           # Page components
+│   ├── App.vue          # Root component
+│   └── main.js          # Application entry point
+├── .env                 # Environment variables (local dev)
+├── .env.production      # Production environment variables
+├── index.html           # HTML template
+├── package.json         # Dependencies
+└── vite.config.js       # Vite configuration
 ```
 
-The CDK infrastructure creates a Lambda layer from `functions/shared/`:
+### Backend Functions (`functions/`)
 
-```python
-# In infrastructure/stacks/api_stack.py
-self.shared_layer = lambda_.LayerVersion(
-    self,
-    "SharedLayer",
-    code=lambda_.Code.from_asset("functions/shared"),
-    compatible_runtimes=[lambda_.Runtime.PYTHON_3_11],
-    description="Shared utilities for Lambda functions"
-)
+AWS Lambda functions organized by domain.
+
+```
+functions/
+├── admin/               # Admin-only operations
+├── auth/                # Authentication (register, login, profile)
+├── boat/                # Boat registration management
+├── club/                # Club data
+├── crew/                # Crew member management
+├── health/              # Health checks and public info
+├── init/                # Database initialization
+├── layer/               # Lambda layer (shared dependencies)
+│   └── python/          # Python packages for all Lambdas
+├── payment/             # Payment processing (Stripe)
+├── race/                # Race definitions
+└── shared/              # Shared utilities
+    ├── access_control.py
+    ├── auth_utils.py
+    ├── database.py
+    ├── email_utils.py
+    ├── payment_*.py
+    ├── pricing.py
+    ├── race_eligibility.py
+    ├── responses.py
+    ├── secrets_manager.py
+    ├── slack_utils.py
+    ├── stripe_client.py
+    └── validation.py
 ```
 
-## Deployment
+### Infrastructure (`infrastructure/`)
 
-### Lambda Layer + Functions
-Deployed together when deploying the API stack:
-```bash
-cd infrastructure
-make deploy-api ENV=dev
+AWS CDK infrastructure as code.
+
+```
+infrastructure/
+├── stacks/              # CDK stack definitions
+│   ├── api_stack.py    # API Gateway + Lambda functions
+│   ├── auth_stack.py   # Cognito user pools
+│   ├── database_stack.py # DynamoDB tables
+│   ├── frontend_stack.py # S3 + CloudFront
+│   ├── monitoring_stack.py # CloudWatch alarms
+│   └── secrets_stack.py # Secrets Manager
+├── exports/             # Database exports (gitignored)
+├── app.py               # CDK app entry point
+├── config.py            # Environment configuration
+├── Makefile             # Operational commands
+└── requirements.txt     # Python dependencies
 ```
 
-### All Infrastructure
-```bash
-cd infrastructure
-make deploy ENV=dev  # Deploy all stacks
+### Scripts (`scripts/`)
+
+Operational scripts organized by purpose.
+
+```
+scripts/
+├── deployment/          # Infrastructure deployment
+│   ├── deploy.sh
+│   ├── destroy.sh
+│   ├── clean-all-aws.sh
+│   ├── create-certificates.sh
+│   └── clear-cloudfront-cache.sh
+├── database/            # Database operations & migrations
+│   ├── export-db.py
+│   ├── compare_config_details.py
+│   ├── delete_team_manager.py
+│   ├── reinit_config.py
+│   ├── add_*.py        # Migration scripts
+│   ├── update_*.py     # Migration scripts
+│   └── README.md
+├── testing/             # Testing utilities
+│   └── verify-receipt-email.sh
+└── external/            # External tools
+    └── license_checker.py
 ```
 
-## Development Workflow
+**See:** `scripts/README.md` for detailed script documentation.
 
-1. **Add shared utility**: Edit files in `functions/shared/`
-2. **Add Lambda function**: Create new file in `functions/<category>/`
-3. **Update infrastructure**: Add function to `api_stack.py`
-4. **Deploy**: Run `make deploy-api`
+### Tests (`tests/`)
 
-## Testing
+Integration and unit tests.
 
-### Live Database Test
-```bash
-cd functions
-python3 test_live_db.py
+```
+tests/
+├── integration/         # API integration tests
+│   ├── test_admin_api.py
+│   ├── test_auth_api.py
+│   ├── test_boat_registration_api.py
+│   ├── test_crew_member_api.py
+│   ├── test_payment_*.py
+│   └── ...
+├── unit/                # Unit tests
+│   ├── test_access_control_*.py
+│   ├── test_payment_*.py
+│   └── ...
+├── conftest.py          # Pytest configuration
+└── requirements.txt     # Test dependencies
 ```
 
-### Lambda Functions
-Lambda functions are tested via integration tests after deployment.
+### Documentation (`docs/`)
 
-## Notes
+Project documentation.
 
-- **Single Location**: All Lambda code (shared + functions) in `functions/`
-- **Lambda Layer**: `functions/shared/` becomes a Lambda layer
-- **Function Code**: Function handlers in `functions/<category>/`
-- **Clean Structure**: No redundant `backend/` directory
-
-## GDPR Compliance
-
-The system includes comprehensive GDPR compliance features:
-
-### Legal Pages
-- **Privacy Policy**: `/privacy-policy` - Accessible from all pages
-- **Terms & Conditions**: `/terms-conditions` - Accessible from all pages
-- Both pages are fully bilingual (French/English)
-
-### Cookie Consent
-- **Cookie Banner**: Appears on first visit, obtains consent before non-essential cookies
-- **Cookie Preferences**: Modal for customizing cookie preferences
-- Preferences stored in browser localStorage
-
-### Registration Consent
-- Users must explicitly consent to Privacy Policy and Terms & Conditions
-- Consent validated on both frontend and backend
-- Consent records stored in DynamoDB with timestamp and IP address
-
-### Consent Storage Schema
 ```
-DynamoDB Record:
-PK: USER#{user_id}
-SK: CONSENT#{consent_type}#{timestamp}
-
-Attributes:
-- consent_type: 'privacy_policy' | 'terms_conditions'
-- consent_version: '1.0'
-- consented_at: ISO timestamp
-- ip_address: Optional, for audit trail
+docs/
+├── guides/              # How-to guides
+│   ├── admin/          # Admin guides
+│   ├── development/    # Development guides
+│   ├── operations/     # Operational guides (troubleshooting, etc.)
+│   └── setup/          # Setup guides
+├── reference/           # Technical reference
+│   ├── api-endpoints.md
+│   ├── auth.md
+│   ├── commands.md
+│   ├── project-structure.md (this file)
+│   └── terminology.md
+├── archived/            # Historical documentation
+├── design-system.md     # UI/UX design system
+└── README.md            # Documentation index
 ```
+
+## Key Principles
+
+### Separation of Concerns
+
+- **Frontend:** User interface and client-side logic
+- **Functions:** Business logic and API endpoints
+- **Infrastructure:** AWS resource definitions
+- **Scripts:** Operational utilities
+- **Tests:** Quality assurance
+
+### Shared Code
+
+**Backend:**
+- `functions/shared/` - Utilities used across Lambda functions
+- `functions/layer/python/` - Dependencies for all Lambdas
+
+**Frontend:**
+- `frontend/src/utils/` - Pure utility functions
+- `frontend/src/composables/` - Vue composition functions with state
+- `frontend/src/services/` - API service layer
+
+### Configuration
+
+**Environment-specific:**
+- `infrastructure/config.py` - Infrastructure configuration (dev/prod)
+- `frontend/.env` - Frontend environment variables (local)
+- `frontend/.env.production` - Frontend production variables
+
+**Secrets:**
+- `infrastructure/secrets.{env}.json` - Secrets (gitignored)
+- AWS Secrets Manager - Runtime secrets
+
+## File Naming Conventions
+
+### Python Files
+
+- **Lambda handlers:** `verb_noun.py` (e.g., `create_boat_registration.py`)
+- **Utilities:** `noun_utils.py` (e.g., `email_utils.py`)
+- **Tests:** `test_noun.py` (e.g., `test_pricing.py`)
+- **Migrations:** `verb_noun.py` (e.g., `add_permission_matrix.py`)
+
+### Vue Files
+
+- **Components:** `PascalCase.vue` (e.g., `BaseButton.vue`)
+- **Views:** `PascalCase.vue` (e.g., `BoatRegistrationView.vue`)
+- **Composables:** `camelCase.js` (e.g., `useAuth.js`)
+- **Utils:** `camelCase.js` (e.g., `formatters.js`)
+
+### Shell Scripts
+
+- **Lowercase with hyphens:** `deploy.sh`, `clean-all-aws.sh`
+
+## Important Locations
+
+### Configuration Files
+
+- `infrastructure/config.py` - Infrastructure config
+- `frontend/vite.config.js` - Frontend build config
+- `infrastructure/Makefile` - Operational commands
+- `.kiro/steering/*.md` - Development guidelines
+
+### Entry Points
+
+- `frontend/src/main.js` - Frontend application
+- `infrastructure/app.py` - CDK infrastructure
+- `functions/*/handler.py` - Lambda function handlers
 
 ### Documentation
-See [GDPR Compliance Guide](../guides/GDPR_COMPLIANCE.md) for complete documentation.
 
-### Future Phases
-- Phase 2: Data export and account deletion (Right to Access, Right to Erasure)
-- Phase 3: Data retention enforcement and breach notification procedures
+- `docs/README.md` - Documentation index
+- `scripts/README.md` - Script documentation
+- `tests/README.md` - Testing guide
+
+## Related Documentation
+
+- Script organization: `scripts/README.md`
+- API endpoints: `docs/reference/api-endpoints.md`
+- Development setup: `docs/guides/setup/`
+- Deployment guide: `docs/guides/operations/`
