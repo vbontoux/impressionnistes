@@ -1,80 +1,81 @@
-# French Rowing Federation License Checker
+# Scripts Directory
 
-This script scrapes the FFAviron intranet to check if rowing licenses are valid.
+This directory contains all operational scripts for the Impressionnistes Registration System.
 
-## Requirements
+## Directory Structure
 
-- Python 3.6+
-- requests library
-- beautifulsoup4 library
+```
+scripts/
+├── deployment/     # Infrastructure deployment and AWS management
+├── database/       # Database operations, utilities, and migrations
+├── testing/        # Testing and verification utilities
+└── external/       # External tools (license checker, etc.)
+```
 
-## Installation
+## Quick Reference
+
+### Deployment Scripts
+Located in `deployment/`
+- `deploy.sh` - Deploy infrastructure to AWS
+- `destroy.sh` - Destroy infrastructure stacks
+- `clean-all-aws.sh` - Complete AWS cleanup
+- `create-certificates.sh` - Create SSL certificates for CloudFront
+- `clear-cloudfront-cache.sh` - Invalidate CloudFront cache
+
+**Usage:** See `deployment/README.md`
+
+### Database Scripts
+Located in `database/`
+- **Utilities:** Export, compare, list, delete operations
+- **Migrations:** One-time database updates (add_*, update_*, migrate_*)
+
+**Usage:** See `database/README.md` and `database/MIGRATIONS.md`
+
+### Testing Scripts
+Located in `testing/`
+- `verify-receipt-email.sh` - Verify Stripe receipt email configuration
+
+**Usage:** See `testing/README.md`
+
+### External Tools
+Located in `external/`
+- `license_checker.py` - French Rowing Federation license validation
+
+**Usage:** See `external/README.md`
+
+## Running Scripts
+
+Most scripts are designed to be run via the Makefile in `infrastructure/`:
 
 ```bash
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+cd infrastructure
 
-# Install dependencies
-pip install requests beautifulsoup4
+# Deployment
+make deploy-dev
+make deploy-prod
+make destroy-dev
+
+# Database operations
+make db-export
+make db-view
+make db-migrate MIGRATION=script_name
+
+# Testing
+make test-email EMAIL=your@email.com
 ```
 
-## Usage
+For direct script execution, see individual README files in each subdirectory.
 
-### Getting Cookies
+## Important Notes
 
-1. Log into https://intranet.ffaviron.fr in your browser
-2. Open Developer Tools (F12)
-3. Go to Network tab
-4. Perform a license search
-5. Find the request to `/licences/recherche`
-6. Copy the Cookie header value
+- **Always run from project root or infrastructure directory**
+- **Use Makefile commands when available** (handles environment setup)
+- **Test on dev before prod** for any destructive operations
+- **Migrations are one-time scripts** - delete after running on all environments
 
-### Single License Check
+## Getting Help
 
-```bash
-python license_checker.py --cookies "COOKIE_STRING" --name "Vincent Bontoux" --license "011820"
-```
-
-### Batch Processing
-
-1. Create a CSV file with columns: `name`, `license`
-```csv
-name,license
-Vincent Bontoux,011820
-John Doe,123456
-```
-
-2. Run the script:
-```bash
-python license_checker.py --cookies "COOKIE_STRING" --csv input.csv --output results.csv
-```
-
-The output CSV will include additional columns:
-- `valid`: "Yes" or "No"
-- `details`: Detailed information about the license
-
-## License Validation Rules
-
-A license is considered **VALID** if:
-- State is "Active" (contains "Active")
-- License type contains "compétition"
-
-## Example Output
-
-```
-✓ Vincent Bontoux (011820): VALID
-✗ Vincent Bontoux (445577): INVALID
-
-✓ Results written to results.csv
-```
-
-## Troubleshooting
-
-- **"No results table found"**: Cookie may have expired, get fresh cookies
-- **"Request error"**: Check internet connection and cookie format
-- **"License not found"**: Verify name spelling and license number
-
-## Security Note
-
-Keep your cookies secure and don't share them. They provide access to your FFAviron account.
+- Deployment issues: See `deployment/README.md`
+- Database operations: See `database/README.md`
+- Migration help: See `database/MIGRATIONS.md`
+- Makefile commands: Run `make help` in `infrastructure/`

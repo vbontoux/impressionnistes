@@ -21,7 +21,7 @@ make describe-infra      # Show API URLs and Cognito config
 cd infrastructure
 make db-view             # View database contents
 make db-export           # Export database to CSV
-make db-migrate          # Run database migrations (when needed)
+make db-migrate MIGRATION=script_name ENV=dev  # Run database migration
 ```
 
 **Cognito User Management:**
@@ -47,9 +47,23 @@ cd infrastructure
 make help
 ```
 
+## Script Organization
+
+All operational scripts are now organized in `/scripts/`:
+
+```
+scripts/
+├── deployment/     # Infrastructure deployment (deploy.sh, destroy.sh, etc.)
+├── database/       # Database operations and migrations
+├── testing/        # Testing utilities
+└── external/       # External tools (license checker)
+```
+
+**See:** `scripts/README.md` for detailed documentation.
+
 ## Database Migrations
 
-Database migrations are one-time scripts for data updates. They are located in `functions/migrations/`.
+Database migrations are one-time scripts for data updates. They are located in `scripts/database/`.
 
 ### When Needed
 
@@ -62,12 +76,12 @@ Migrations are only created when you need to:
 
 ```bash
 cd infrastructure
-make db-migrate MIGRATION=migration_name TEAM_MANAGER_ID=your-user-id
+make db-migrate MIGRATION=migration_name ENV=dev
 ```
 
 ### Creating New Migrations
 
-See `functions/migrations/README.md` for:
+See `scripts/database/MIGRATIONS.md` for:
 - Migration template
 - Best practices
 - Troubleshooting guide
@@ -95,13 +109,17 @@ make deploy-frontend-prod # Deploy frontend to production
 ## Backend Testing
 
 ```bash
-cd functions/shared
-python test_race_eligibility_gender.py    # Test race eligibility logic
+cd infrastructure
+make test                # Run all tests
+make test-backend        # Run backend integration tests
+make test-coverage       # Run tests with coverage report
 ```
 
 ## Important Notes
 
-- Always use the Makefile commands instead of running CDK directly
+- Always use the Makefile commands instead of running scripts directly
 - The Makefile handles virtual environment activation automatically
 - Test on dev environment before deploying to production
 - Use `make describe-infra` to get configuration for frontend .env file
+- All scripts are now organized in `/scripts/` directory with clear categorization
+

@@ -818,11 +818,11 @@ db-export:
 	echo "   ✓ Exported $$ITEM_COUNT items to $$JSON_FILE"; \
 	echo ""; \
 	echo "2. Converting to CSV..."; \
-	chmod +x export-db.py; \
-	./export-db.py $$JSON_FILE; \
+	chmod +x ../scripts/database/export-db.py; \
+	../scripts/database/export-db.py $$JSON_FILE; \
 	echo ""; \
 	echo "3. Splitting by entity type..."; \
-	./export-db.py $$JSON_FILE --split --output-dir exports; \
+	../scripts/database/export-db.py $$JSON_FILE --split --output-dir exports; \
 	echo ""; \
 	echo "=========================================="
 	@echo "✓ Export complete!"
@@ -976,7 +976,7 @@ delete-team-manager:
 	@echo "⚠️  WARNING: This will permanently delete $(EMAIL) and ALL related data!"
 	@echo ""
 	@. venv/bin/activate && \
-		python3 scripts/delete_team_manager.py $(EMAIL) --environment $(ENV)
+		python3 ../scripts/database/delete_team_manager.py $(EMAIL) --environment $(ENV)
 	@echo ""
 
 
@@ -991,21 +991,21 @@ db-migrate:
 		echo "Usage: make db-migrate MIGRATION=your_migration [TEAM_MANAGER_ID=your-id]"; \
 		echo ""; \
 		echo "Available migrations:"; \
-		if ls ../functions/migrations/*.py 2>/dev/null | grep -v __pycache__ >/dev/null; then \
-			ls -1 ../functions/migrations/*.py 2>/dev/null | grep -v __pycache__ | xargs -n1 basename | sed 's/.py//' | sed 's/^/  - /'; \
+		if ls ../scripts/database/*.py 2>/dev/null | grep -v __pycache__ | grep -E '(add_|update_|migrate_|delete_|reset_|load_|calculate_|generate_|remove_)' >/dev/null; then \
+			ls -1 ../scripts/database/*.py 2>/dev/null | grep -v __pycache__ | grep -E '(add_|update_|migrate_|delete_|reset_|load_|calculate_|generate_|remove_)' | xargs -n1 basename | sed 's/.py//' | sed 's/^/  - /'; \
 		else \
-			echo "  (none - see functions/migrations/README.md for template)"; \
+			echo "  (none - see scripts/database/MIGRATIONS.md for template)"; \
 		fi; \
 		exit 1; \
 	fi
-	@if [ ! -f "../functions/migrations/$(MIGRATION).py" ]; then \
+	@if [ ! -f "../scripts/database/$(MIGRATION).py" ]; then \
 		echo "❌ Error: Migration '$(MIGRATION)' not found"; \
 		echo ""; \
 		echo "Available migrations:"; \
-		if ls ../functions/migrations/*.py 2>/dev/null | grep -v __pycache__ >/dev/null; then \
-			ls -1 ../functions/migrations/*.py 2>/dev/null | grep -v __pycache__ | xargs -n1 basename | sed 's/.py//' | sed 's/^/  - /'; \
+		if ls ../scripts/database/*.py 2>/dev/null | grep -v __pycache__ | grep -E '(add_|update_|migrate_|delete_|reset_|load_|calculate_|generate_|remove_)' >/dev/null; then \
+			ls -1 ../scripts/database/*.py 2>/dev/null | grep -v __pycache__ | grep -E '(add_|update_|migrate_|delete_|reset_|load_|calculate_|generate_|remove_)' | xargs -n1 basename | sed 's/.py//' | sed 's/^/  - /'; \
 		else \
-			echo "  (none - see functions/migrations/README.md for template)"; \
+			echo "  (none - see scripts/database/MIGRATIONS.md for template)"; \
 		fi; \
 		exit 1; \
 	fi
@@ -1024,7 +1024,7 @@ db-migrate:
 	fi
 	@echo ""
 	@echo "Running migration..."
-	@cd ../functions/migrations && \
+	@cd ../scripts/database && \
 		export TABLE_NAME=impressionnistes-registration-$(ENV) && \
 		export TEAM_MANAGER_ID=$(TEAM_MANAGER_ID) && \
 		export AWS_PROFILE=$(AWS_PROFILE) && \
@@ -1095,7 +1095,7 @@ db-reset:
 	@echo "✓ Configuration deleted"
 	@echo ""
 	@echo "Step 4: Reinitializing configuration..."
-	@$(PYTHON) scripts/reinit_config.py eu-west-3
+	@$(PYTHON) ../scripts/database/reinit_config.py eu-west-3
 	@echo ""
 	@echo "=========================================="
 	@echo "✓ Database reset complete!"
