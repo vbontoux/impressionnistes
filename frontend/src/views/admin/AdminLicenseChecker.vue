@@ -331,7 +331,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, shallowRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import ListHeader from '@/components/shared/ListHeader.vue'
 import ListFilters from '@/components/shared/ListFilters.vue'
@@ -362,7 +362,8 @@ watch(cookieString, (newValue) => {
   }
 })
 
-const crewMembers = ref([])
+// Use shallowRef for large arrays to reduce reactivity overhead
+const crewMembers = shallowRef([])
 const selectedMembers = ref(new Set())
 const checkProgress = ref({ current: 0, total: 0 })
 const unsavedChanges = ref(new Map()) // Track unsaved verification changes
@@ -380,20 +381,28 @@ const sortDirection = ref('asc')
 
 // Computed
 const teamManagers = computed(() => {
+  console.log('Computing teamManagers...') // Debug log
   const managers = new Map()
-  crewMembers.value.forEach(crew => {
-    if (crew.team_manager_id && crew.team_manager_name) {
+  const members = crewMembers.value || []
+  
+  for (let i = 0; i < members.length; i++) {
+    const crew = members[i]
+    if (crew.team_manager_id && crew.team_manager_name && !managers.has(crew.team_manager_id)) {
       managers.set(crew.team_manager_id, {
         id: crew.team_manager_id,
         name: crew.team_manager_name
       })
     }
-  })
-  return Array.from(managers.values()).sort((a, b) => a.name.localeCompare(b.name))
+  }
+  
+  const result = Array.from(managers.values()).sort((a, b) => a.name.localeCompare(b.name))
+  console.log('Team managers computed:', result.length) // Debug log
+  return result
 })
 
 const filteredCrewMembers = computed(() => {
-  let filtered = crewMembers.value
+  console.log('Computing filteredCrewMembers...') // Debug log
+  let filtered = crewMembers.value || []
 
   // Search filter
   if (searchTerm.value) {
@@ -440,8 +449,8 @@ const filteredCrewMembers = computed(() => {
     })
   }
 
-  // Sort
-  filtered.sort((a, b) => {
+  // Sort - create a copy to avoid mutating the filtered array
+  const sorted = [...filtered].sort((a, b) => {
     let aVal = a[sortField.value] || ''
     let bVal = b[sortField.value] || ''
     
@@ -457,7 +466,8 @@ const filteredCrewMembers = computed(() => {
     }
   })
 
-  return filtered
+  console.log('Filtered crew members:', sorted.length) // Debug log
+  return sorted
 })
 
 // No pagination - show all filtered results
@@ -495,6 +505,7 @@ const hasUnsavedChanges = computed(() => {
 
 // Methods
 const loadCrewMembers = async () => {
+  console.log('Loading crew members...') // Debug log
   loading.value = true
   error.value = ''
   
@@ -508,12 +519,16 @@ const loadCrewMembers = async () => {
       return
     }
     
-    crewMembers.value = response.crew_members.map(crew => ({
+    // Process crew members - add temporary fields
+    const crewMembersData = response.crew_members.map(crew => ({
       ...crew,
       _licenseStatus: null,
       _licenseDetails: null,
       _checking: false
     }))
+    
+    // Use shallowRef assignment to trigger update
+    crewMembers.value = crewMembersData
     
     console.log('Loaded crew members:', crewMembers.value.length) // Debug log
   } catch (err) {
@@ -521,6 +536,7 @@ const loadCrewMembers = async () => {
     error.value = err.response?.data?.message || t('admin.licenseChecker.loadError')
   } finally {
     loading.value = false
+    console.log('Loading complete') // Debug log
   }
 }
 
