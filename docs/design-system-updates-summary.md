@@ -5,7 +5,9 @@
 This document summarizes the updates made to align the design system documentation and tasks with the permanent Design System Showcase page.
 
 **Date:** January 12, 2026  
-**Related Spec:** `.kiro/specs/ui-consistency/`
+**Related Spec:** `.kiro/specs/impressionnistes-registration-system/` (NFR-7: UI Consistency Requirements)
+
+> **Note:** The original `ui-consistency` spec has been consolidated into the main spec as of May 2026.
 
 ## Changes Made
 

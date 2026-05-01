@@ -33,7 +33,7 @@ The `test-results/` directory contains detailed test results for individual comp
 
 ### For Reference
 
-- **Specification:** `.kiro/specs/mobile-responsiveness/`
+- **Specification:** `.kiro/specs/impressionnistes-registration-system/` (NFR-8: Mobile Responsiveness Standards)
   - `requirements.md` - Requirements document
   - `design.md` - Design document
   - `tasks.md` - Implementation tasks

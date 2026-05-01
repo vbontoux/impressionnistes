@@ -143,6 +143,4 @@ Potential areas for additional testing:
 ## Related Documentation
 
 - [Admin Impersonation Guide](./admin-impersonation.md)
-- [Requirements Document](../../../.kiro/specs/admin-impersonation/requirements.md)
-- [Design Document](../../../.kiro/specs/admin-impersonation/design.md)
-- [Tasks Document](../../../.kiro/specs/admin-impersonation/tasks.md)
+- [Requirements Document](../../../.kiro/specs/impressionnistes-registration-system/requirements.md) (FR-16: Admin Impersonation)

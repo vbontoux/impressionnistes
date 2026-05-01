@@ -48,7 +48,7 @@ The Course des Impressionnistes Registration System is a web application that en
 - **Access_Control_System**: Centralized system determining permitted actions based on user role, event phase, and data state
 - **Temporary_Access_Grant**: Time-limited permission granted by admin to bypass date restrictions
 - **Impersonation_Mode**: Admin accessing system as a specific club manager
-- **Boat_Club_Display**: Calculated club name shown for a boat (single club or "Multi-Club")
+- **Boat_Club_Display**: Comma-separated list of unique clubs represented in a boat's crew, sorted alphabetically
 - **Club_List**: Unique clubs represented in a boat's crew
 - **Boat_Identifier**: Unique identifier for boats (boat number or hull assignment)
 - **Hull_Assignment**: Physical boat assigned to a registration
@@ -56,6 +56,11 @@ The Course des Impressionnistes Registration System is a web application that en
 - **Payment_Balance**: Difference between paid seats and registered seats
 - **Design_System**: Collection of reusable UI components and style guidelines
 - **Export_Formatter**: Frontend utility transforming JSON to specific export formats
+- **Boat_Number**: Unique identifier for boats in format [M/SM].[display_order].[sequence] (e.g., "SM.15.1")
+- **Crew_License_Status**: Aggregated license verification status for all crew members in a boat (Verified, Invalid, or unassigned)
+- **Self_Hosted_Authentication**: Custom authentication pages hosted within the application, replacing Cognito Hosted UI
+- **Cookie_Consent**: User's explicit agreement to the use of non-essential cookies on the website
+- **Consent_Version**: Tracked version of the privacy policy and consent text to ensure users have agreed to the current version
 
 ### Pricing Terminology
 
@@ -83,15 +88,22 @@ These requirements define what the system does from a business and user perspect
 
 ### FR-1: Club Manager Authentication
 
-**User Story:** As a club manager, I want to register and authenticate securely, so that I can manage my club's boat registrations for the competition.
+**User Story:** As a club manager, I want to register and authenticate securely using custom-branded pages, so that I can manage my club's boat registrations for the competition.
 
 #### Acceptance Criteria
 
-1. WHEN a club manager accesses the registration portal, THE Registration_System SHALL display authentication options including email/password and social login providers
-2. WHEN a club manager provides valid credentials, THE Registration_System SHALL authenticate the user and establish a secure session
-3. WHEN a club manager remains inactive for 30 minutes, THE Registration_System SHALL automatically log out the user for security
-4. WHEN a club manager requests password recovery, THE Registration_System SHALL send a secure reset link via email
-5. THE Registration_System SHALL store club manager profile information including first and last name, email, a rowing club affiliation, and a mobile number (required for emergency contact)
+1. WHEN a club manager accesses the registration portal, THE Registration_System SHALL display a custom self-hosted login form with email and password fields (no redirect to Cognito Hosted UI)
+2. WHEN a club manager provides valid credentials, THE Registration_System SHALL authenticate directly with AWS Cognito using the AWS SDK and establish a secure session
+3. WHEN a club manager remains inactive for 30 minutes, THE Registration_System SHALL automatically log out the user for security, displaying a clear expiration message
+4. WHEN a session reaches 5 hours of total activity, THE Registration_System SHALL expire the session and redirect to the login page
+5. WHEN a club manager requests password recovery, THE Registration_System SHALL display a forgot-password form, send a verification code via email, and allow password reset with the code
+6. THE Registration_System SHALL store club manager profile information including first and last name, email, a rowing club affiliation, and a mobile number (required for emergency contact)
+7. THE Registration_System SHALL require passwords to be at least 12 characters long, containing at least one uppercase letter, one lowercase letter, one number, and one special character
+8. THE Registration_System SHALL display a real-time password strength indicator during registration and password reset
+9. WHEN a user checks "Remember Me" during login, THE Registration_System SHALL persist the session beyond browser closure using localStorage
+10. THE Registration_System SHALL provide self-hosted pages for login, registration, email verification, forgot password, and password reset, all using the application's design system
+11. WHEN authentication errors occur, THE Registration_System SHALL display user-friendly inline error messages mapped from Cognito error codes (incorrect credentials, unverified account, rate limiting, network errors)
+12. THE Registration_System SHALL validate all authentication inputs on both frontend and backend, and SHALL NOT store passwords in browser storage
 
 ### FR-2: Crew Member Management
 
@@ -368,26 +380,31 @@ These requirements define what the system does from a business and user perspect
 
 #### Acceptance Criteria
 
-1. WHEN all assigned crew members belong to the team manager's club, THE Registration_System SHALL set boat_club_display to the team manager's club name
-2. WHEN assigned crew members belong to multiple different clubs, THE Registration_System SHALL set boat_club_display to "{team_manager_club} (Multi-Club)"
-3. WHEN all assigned crew members belong to a single club different from the team manager's club, THE Registration_System SHALL set boat_club_display to "{team_manager_club} ({crew_club})"
-4. WHEN a boat has no assigned crew members, THE Registration_System SHALL set boat_club_display to the team manager's club
-5. WHEN comparing club affiliations, THE Registration_System SHALL use case-insensitive comparison
-6. THE Registration_System SHALL store boat_club_display as a string field on each boat registration
-7. THE Registration_System SHALL update boat_club_display whenever crew assignments change
+1. WHEN all assigned crew members belong to the same club, THE Registration_System SHALL set boat_club_display to that club name
+2. WHEN assigned crew members belong to multiple different clubs, THE Registration_System SHALL set boat_club_display to a comma-separated list of unique club names sorted alphabetically (e.g., "Club Elite, RCPM, SN Versailles")
+3. WHEN a boat has no assigned crew members, THE Registration_System SHALL set boat_club_display to the team manager's club
+4. WHEN comparing club affiliations, THE Registration_System SHALL use case-insensitive comparison while preserving original case in display
+5. WHEN a crew member has an empty or null club_affiliation, THE Registration_System SHALL exclude them from the club calculation
+6. THE Registration_System SHALL store boat_club_display as a string field and club_list as an array field on each boat registration
+7. THE Registration_System SHALL update boat_club_display and club_list whenever crew assignments change
+8. THE Registration_System SHALL maintain an is_multi_club_crew boolean field for backward compatibility and pricing calculations
 
 ### FR-20: Boat Identifier Management
 
-**User Story:** As a system, I want to assign and manage boat identifiers, so that boats can be uniquely identified.
+**User Story:** As a system, I want to assign and manage boat identifiers, so that boats can be uniquely identified during race organization and timing.
 
 #### Acceptance Criteria
 
-1. WHEN a boat registration is created, THE Registration_System SHALL automatically assign a unique boat number
-2. WHEN an Admin_User assigns a hull to a boat, THE Registration_System SHALL store the hull assignment
-3. WHEN a boat has a hull assignment, THE Registration_System SHALL display the hull prominently alongside the boat number
-4. THE Registration_System SHALL include both boat number and hull assignment in exports
-5. THE Registration_System SHALL allow boats to proceed without hull assignment (hull assignment is optional)
-6. THE Registration_System SHALL maintain boat number as the primary identifier even when hull is assigned
+1. WHEN a boat is assigned to a race, THE Registration_System SHALL generate a boat_number in the format `[M/SM].[display_order].[sequence]` where M=Marathon (42km), SM=Semi-Marathon (21km), display_order is the race's display order number, and sequence is an incrementing counter starting at 1 for each race
+2. WHEN a boat is the first boat in a race with display_order 15, THE boat_number SHALL be "SM.15.1"
+3. WHEN a boat's race assignment is changed, THE Registration_System SHALL regenerate the boat_number for the new race
+4. WHEN a boat has no race assigned, THE boat_number SHALL be null or empty
+5. WHEN an Admin_User assigns a hull to a boat, THE Registration_System SHALL store the hull assignment identifier and optional comment
+6. WHEN a boat has a hull assignment, THE Registration_System SHALL display the hull prominently alongside the boat number
+7. THE Registration_System SHALL include both boat number and hull assignment in all exports (CSV, CrewTimer, event program)
+8. THE Registration_System SHALL allow boats to proceed without hull assignment (hull assignment is optional)
+9. THE Registration_System SHALL maintain boat number as the primary identifier even when hull is assigned
+10. THE Registration_System SHALL display boat numbers with blue semibold styling throughout the interface
 
 ### FR-21: Enhanced Export Architecture
 
@@ -414,13 +431,18 @@ These requirements define what the system does from a business and user perspect
 
 #### Acceptance Criteria
 
-1. WHEN an Admin_User requests event program export, THE Registration_System SHALL generate a multi-sheet Excel file
-2. THE Registration_System SHALL include Sheet 1 with crew member list containing all crew member details
-3. THE Registration_System SHALL include Sheet 2 with race schedule containing race names, bow numbers, and boat details
-4. THE Registration_System SHALL include only eligible boats (status: complete, paid, or free; not forfait)
-5. THE Registration_System SHALL assign race numbers sequentially based on race display order
-6. THE Registration_System SHALL assign bow numbers sequentially within each race
-7. THE Registration_System SHALL apply professional formatting suitable for printing
+1. WHEN an Admin_User requests event program export, THE Registration_System SHALL generate a 4-sheet Excel file
+2. THE Registration_System SHALL include Sheet 1 (Crew Member List) with enhanced crew member details: race number, race name, crew number, last name, first name, club, age, gender, license number, seat position, bow number, and assigned boat
+3. THE Registration_System SHALL include Sheet 2 (Race Schedule) with race names, start times, and race order (preserved from existing format)
+4. THE Registration_System SHALL include Sheet 3 (Crews in Races) listing all crews organized by race with full member details for each crew
+5. THE Registration_System SHALL include Sheet 4 (Synthesis) providing club manager summary with boat counts, crew member counts, and payment balance per manager
+6. THE Registration_System SHALL include only eligible boats (status: complete, paid, or free; not forfait)
+7. THE Registration_System SHALL assign race numbers sequentially based on race display order
+8. THE Registration_System SHALL assign bow numbers sequentially within each race
+9. THE Registration_System SHALL apply professional formatting suitable for printing
+10. THE Registration_System SHALL support both French and English column headers and sheet names based on locale
+11. WHEN a crew member has no assigned boat, THE Registration_System SHALL display an empty value in the Assigned Boat column
+12. WHEN displaying assigned boat information, THE Registration_System SHALL format it as "boat_name - comment" when both are available
 
 ### FR-23: GDPR Compliance Features
 
@@ -428,13 +450,17 @@ These requirements define what the system does from a business and user perspect
 
 #### Acceptance Criteria
 
-1. WHEN a user requests data export, THE Registration_System SHALL provide all user data in a downloadable format
-2. WHEN a user requests account deletion, THE Registration_System SHALL process the deletion request
-3. WHEN an account is deleted, THE Registration_System SHALL anonymize all personal data
-4. THE Registration_System SHALL maintain a 5-year retention period for deleted user data
-5. THE Registration_System SHALL track and record user consent for data processing
-6. THE Registration_System SHALL display privacy policy and require acceptance
-7. THE Registration_System SHALL enforce data retention policies automatically
+1. WHEN a user registers, THE Registration_System SHALL obtain explicit consent before processing personal data, clearly stating what data is collected and for what purpose
+2. WHEN consent is given, THE Registration_System SHALL record the timestamp, consent version, and store proof that consent was obtained
+3. THE Registration_System SHALL display a privacy policy accessible from all pages, available in both French and English, identifying the data controller, listing all personal data collected, explaining purposes, legal basis, and retention periods
+4. THE Registration_System SHALL display a cookie consent banner on first visit, allowing users to accept or reject non-essential cookies
+5. WHEN a user requests data export, THE Registration_System SHALL provide all user data in a downloadable machine-readable format (JSON)
+6. WHEN a user requests account deletion, THE Registration_System SHALL process the deletion request and anonymize all personal data
+7. THE Registration_System SHALL enforce data retention policies: user accounts indefinite while active, registration data 5 years, payment records 7 years, consent records 3 years after withdrawal
+8. THE Registration_System SHALL track and record user consent for data processing with versioning
+9. THE Registration_System SHALL require privacy policy acceptance during registration
+10. THE Registration_System SHALL provide users with a data management interface to view, export, and request deletion of their data
+11. THE Registration_System SHALL NOT process personal data for non-essential purposes without explicit consent
 
 ### FR-24: License Verification Persistence
 
@@ -466,17 +492,32 @@ These requirements define what the system does from a business and user perspect
 
 ### FR-26: Boat Hull Assignment Requests
 
-**User Story:** As a club manager, I want to request specific hull assignments, so that I can use preferred boats.
+**User Story:** As a club manager, I want to optionally request a boat (hull) assignment from the organizers, so that my crew can use a physical boat provided by the organization.
 
 #### Acceptance Criteria
 
-1. WHEN a club manager creates or edits a boat registration, THE Registration_System SHALL allow requesting a hull assignment (optional)
-2. WHEN a hull assignment is requested, THE Registration_System SHALL notify admins for review
-3. WHEN an Admin_User approves a hull request, THE Registration_System SHALL assign the hull to the boat and update the boat identifier
-4. WHEN an Admin_User rejects a hull request, THE Registration_System SHALL notify the club manager
-5. THE Registration_System SHALL track hull assignment request history
-6. THE Registration_System SHALL check hull availability before allowing assignment
-7. THE Registration_System SHALL allow boats to proceed without hull assignment
+1. WHEN a club manager creates or edits a boat registration, THE Registration_System SHALL display an optional toggle to enable a boat (hull) request
+2. WHEN the boat request toggle is enabled, THE Registration_System SHALL display a text area for the club manager to describe their boat requirements (up to 500 characters)
+3. WHEN the boat request toggle is disabled, THE Registration_System SHALL clear any existing request comment
+4. WHEN an Admin_User views boat registrations with active requests, THE Registration_System SHALL display the request comment and provide a text input to assign a specific boat identifier and optional comment
+5. WHEN an Admin_User assigns a boat, THE Registration_System SHALL store the assigned_boat_identifier and assigned_boat_comment on the registration
+6. THE Registration_System SHALL display the assigned boat information (read-only) to the club manager when a boat has been assigned
+7. THE Registration_System SHALL allow boats to proceed without hull assignment (hull assignment is optional)
+8. THE Registration_System SHALL store boat_request_enabled, boat_request_comment, assigned_boat_identifier, and assigned_boat_comment fields on each boat registration
+
+### FR-27: Admin Boat License Status
+
+**User Story:** As an admin user, I want to see a combined license verification status for each boat registration, so that I can quickly identify boats with unverified crew members.
+
+#### Acceptance Criteria
+
+1. WHEN an Admin_User views the boat registration list, THE Registration_System SHALL display a "License" column showing the aggregated license verification status of all crew members in each boat
+2. WHEN all crew members in a boat have valid licenses (verified_valid or manually_verified_valid), THE Registration_System SHALL display a "Verified" badge in green
+3. WHEN any crew member in a boat has an invalid or unverified license, THE Registration_System SHALL display an "Invalid" badge in red
+4. WHEN a boat has no crew members assigned, THE Registration_System SHALL display "-" in the license column
+5. THE Registration_System SHALL display the combined license status in both table view and card view
+6. THE Registration_System SHALL update the combined license status automatically when individual crew member verification statuses change
+7. THE combined license status badge SHALL be informational only (not clickable)
 
 ---
 

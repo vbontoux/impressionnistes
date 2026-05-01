@@ -11,9 +11,14 @@ Welcome to the Course des Impressionnistes Registration System documentation.
 
 ### Reference
 - [API Endpoints](reference/api-endpoints.md) - Complete API documentation
+- [Authentication](reference/auth.md) - Cognito setup and self-hosted auth
+- [Authentication API](reference/auth-api.md) - Auth Lambda functions
 - [Project Structure](reference/project-structure.md) - Codebase organization
 - [Consent Schema](reference/consent-schema.md) - GDPR consent storage
-- [Terminology](reference/terminology.md) - Standard terminology and pricing definitions
+- [Terminology](reference/terminology.md) - Standard terminology, pricing, boat identifiers
+- [CrewTimer Export](reference/crewtimer-export.md) - CrewTimer export format
+- [Event Program Export](reference/event-program-export.md) - 4-sheet Excel export for race day
+- [Commands](reference/commands.md) - CLI commands reference
 
 ### Design System
 - [Design System Documentation](design-system.md) - Complete design system reference with components, tokens, and patterns
@@ -23,14 +28,24 @@ Welcome to the Course des Impressionnistes Registration System documentation.
 
 ### Guides
 - [GDPR Compliance](guides/GDPR_COMPLIANCE.md) - Privacy and consent implementation
-- [Payment History](guides/payment-history.md) - **NEW** View payment history and download invoices
+- [Payment History](guides/payment-history.md) - View payment history and download invoices
+- [Boat Rental Management](guides/boat-rental-management.md) - Boat rental requests and pricing
+- [Hull Assignment](guides/hull-assignment.md) - Request and assign physical boats to crews
+- [Flagged Issues](guides/flagged-issues.md) - Flag and resolve registration issues
+- [Notifications](guides/notifications.md) - Notification channels and configuration
 - [Email System](guides/EMAIL_SYSTEM_SUMMARY.md) - Email configuration and usage
 - [Payment Testing](guides/PAYMENT_TESTING.md) - Test payment flows
 
 ### Admin Guides
-- [Payment Analytics](guides/admin/payment-analytics.md) - **NEW** View payment analytics and revenue trends
-- [Centralized Access Control](guides/admin/centralized-access-control.md) - Permission management
+- [Payment Analytics](guides/admin/payment-analytics.md) - View payment analytics and revenue trends
+- [Centralized Access Control](guides/admin/centralized-access-control.md) - Permission management and event phases
+- [Event Phases](guides/admin/event-phases.md) - Event phase restrictions and temporary access
 - [Admin Impersonation](guides/admin/admin-impersonation.md) - Impersonate team managers
+- [Admin Club Managers](guides/admin/admin-club-managers.md) - View and contact club managers
+- [Admin Crew Members](guides/admin/admin-crew-members.md) - Manage crew members across all clubs
+- [Admin Boat Registrations](guides/admin/admin-boat-registrations.md) - Manage boats and forfaits
+- [License Verification](guides/admin/license-verification.md) - License verification and persistence
+- [License Checker](guides/admin/license-checker-guide.md) - FFAviron license checker tool
 
 ## Documentation Structure
 
@@ -79,9 +94,11 @@ See the [GDPR Compliance Guide](guides/GDPR_COMPLIANCE.md) for complete document
 ## Key Features
 
 ### Authentication & Authorization
-- AWS Cognito for user management
+- AWS Cognito for user management with self-hosted authentication pages
 - JWT token-based authentication
 - Role-based access control (team managers, admins)
+- Centralized event phase-based access control
+- Admin impersonation of team managers
 
 ### Registration System
 - Crew member management
@@ -228,7 +245,7 @@ make describe-infra
 ### Documentation
 - Browse guides in `docs/guides/`
 - Check reference docs in `docs/reference/`
-- Review spec files in `.kiro/specs/`
+- Review spec files in `.kiro/specs/impressionnistes-registration-system/`
 
 ### Development
 - Check CloudWatch logs for errors
@@ -238,7 +255,7 @@ make describe-infra
 ### Legal
 - Consult legal counsel for GDPR questions
 - Review [GDPR Compliance Guide](guides/GDPR_COMPLIANCE.md)
-- Check requirements in `.kiro/specs/gdpr-compliance/`
+- Check requirements in `.kiro/specs/impressionnistes-registration-system/requirements.md` (FR-23)
 
 ## Contributing
 
@@ -271,9 +288,8 @@ make describe-infra
 - [GDPR](https://gdpr-info.eu/)
 
 ### Internal Specs
-- [Main Requirements](.kiro/specs/impressionnistes-registration-system/requirements.md)
-- [GDPR Requirements](.kiro/specs/gdpr-compliance/requirements.md)
-- [Design Documents](.kiro/specs/)
+- [Main Requirements](../.kiro/specs/impressionnistes-registration-system/requirements.md)
+- [Design Document](../.kiro/specs/impressionnistes-registration-system/design.md)
 
 ## License
 
@@ -285,6 +301,6 @@ make describe-infra
 
 ---
 
-**Last Updated**: January 16, 2026
+**Last Updated**: May 1, 2026
 
-**Documentation Version**: 2.1 (Added Payment History & Analytics)
+**Documentation Version**: 3.0 (V2 Consolidation — unified spec, self-hosted auth, updated terminology)

@@ -65,10 +65,8 @@ Visit: http://localhost:3000
 ## Test Login
 
 1. Go to http://localhost:3000/login
-2. Click "Login with Cognito"
-3. You'll be redirected to Cognito Hosted UI
-4. Enter your credentials
-5. After login, you'll be redirected to dashboard
+2. Enter your email and password on the self-hosted login form
+3. After login, you'll be redirected to dashboard
 
 ## Makefile Commands
 

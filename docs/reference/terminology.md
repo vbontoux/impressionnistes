@@ -85,6 +85,68 @@ This document defines the standard terminology used throughout the Course des Im
 
 ---
 
+## Boat Club Display
+
+### How It Works
+
+The `boat_club_display` field shows which clubs are represented in a boat's crew. It is calculated automatically whenever crew assignments change.
+
+**Rules:**
+- Comma-separated list of unique club names, sorted alphabetically (case-insensitive sort, original case preserved)
+- Empty or null club affiliations are excluded
+- If no crew members are assigned, defaults to the team manager's club
+
+**Database Fields:**
+| Field | Type | Description |
+|-------|------|-------------|
+| `boat_club_display` | String | Comma-separated club names for display |
+| `club_list` | Array | List of unique club names |
+| `is_multi_club_crew` | Boolean | `true` if crew has members from 2+ clubs |
+
+**Examples:**
+- Single club crew: `"RCPM"`
+- Multi-club crew: `"Club Elite, RCPM, SN Versailles"`
+- Two clubs: `"RCPM, SN Versailles"`
+- No crew assigned: `"RCPM"` (team manager's club)
+
+---
+
+## Boat Number
+
+### Format
+
+Boat numbers follow the format: `[M/SM].[display_order].[sequence]`
+
+| Component | Description | Values |
+|-----------|-------------|--------|
+| Prefix | Event type | `M` = Marathon (42km), `SM` = Semi-Marathon (21km) |
+| display_order | Race's display order number | 1–55 |
+| sequence | Incrementing counter per race | 1, 2, 3... |
+
+**Examples:**
+- `M.1.1` — First boat in marathon race with display_order 1
+- `M.1.3` — Third boat in the same marathon race
+- `SM.15.1` — First boat in semi-marathon race with display_order 15
+- `SM.15.42` — 42nd boat in that semi-marathon race
+
+**Rules:**
+- Generated when a boat is assigned to a race
+- Regenerated when race assignment changes
+- Null/empty when no race is assigned
+- Displayed with blue semibold styling in the UI
+
+### Hull Assignment
+
+Hull assignment is separate from boat number:
+| Field | Description |
+|-------|-------------|
+| `assigned_boat_identifier` | Physical boat name/number assigned by admin |
+| `assigned_boat_comment` | Optional admin comment about the assignment |
+
+When both exist, displayed as: `"boat_name - comment"`
+
+---
+
 ## Related Documentation
 
 - [Requirements](../.kiro/specs/impressionnistes-registration-system/requirements.md)

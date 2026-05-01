@@ -25,7 +25,7 @@ The CrewTimer export generates an Excel file compatible with [CrewTimer.com](htt
 | Event | Full translated race name | `WOMEN-MASTER-COXED QUAD SCULL YOLETTE` (EN)<br>`FEMMES-MASTER-QUATRE DE COUPLE BARRÉ YOLETTE` (FR) |
 | Event Abbrev | Translated short name code | `MW4X+Y` (EN)<br>`MF4X+Y` (FR) |
 | Crew | Comma-separated list of clubs from crew members | `RCPM`, `Club Elite, RCPM, SN Versailles` |
-| Crew Abbrev | Full boat club display (may include Multi-Club or external crew indicators) | `RCPM`, `RCPM (Multi-Club)`, `RCPM (SN Versailles)` |
+| Crew Abbrev | Full boat club display (comma-separated list of unique clubs) | `RCPM`, `Club Elite, RCPM, SN Versailles` |
 | Stroke | Last name of stroke seat rower | `Wilson` |
 | Bow | Global sequential bow number | 1, 2, 3... |
 | Race Info | Race type | `Head` |
@@ -237,11 +237,11 @@ The CrewTimer export uses a specific approach for club names to provide comprehe
 
 **Crew Abbrev Column:**
 - Contains the full `boat_club_display` value
-- May include indicators for multi-club or external crews
+- Comma-separated list of unique clubs, sorted alphabetically
 - Examples:
   - Single club: `RCPM`
-  - Multi-club crew: `RCPM (Multi-Club)`
-  - External crew: `RCPM (SN Versailles)`
+  - Multi-club crew: `Club Elite, RCPM, SN Versailles`
+  - Two clubs: `RCPM, SN Versailles`
 
 **Note Column:**
 - Contains comma-separated list of all crew member names
@@ -290,7 +290,7 @@ Average age is calculated by the backend in the `crew_composition` object:
 
 ### 2026-01-02: Club Name Handling for CrewTimer Compatibility
 - Changed Crew column to contain only team manager's club name (for CrewTimer software compatibility)
-- Changed Crew Abbrev column to contain full boat_club_display (including Multi-Club or external crew indicators)
+- Changed Crew Abbrev column to contain full boat_club_display (comma-separated list of unique clubs)
 - This ensures CrewTimer software can properly parse the club name while preserving full club information in Crew Abbrev
 
 ### 2026-01-02: Additional Export Columns

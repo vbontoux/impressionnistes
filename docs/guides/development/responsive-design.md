@@ -564,7 +564,5 @@ When implementing responsive features, verify:
 ## Spec Documents
 
 For the complete mobile responsiveness implementation plan:
-- Design document: `.kiro/specs/mobile-responsiveness/design.md`
-- Requirements: `.kiro/specs/mobile-responsiveness/requirements.md`
-- Tasks: `.kiro/specs/mobile-responsiveness/tasks.md`
+- Main spec: `.kiro/specs/impressionnistes-registration-system/requirements.md` (NFR-8: Mobile Responsiveness Standards)
 

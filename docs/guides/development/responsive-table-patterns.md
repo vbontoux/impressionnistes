@@ -515,5 +515,5 @@ All interactive elements must be at least 44x44px.
 
 - [Responsive Design Guide](./responsive-design.md) - Main responsive design documentation
 - [Frontend Testing Guide](./frontend-testing.md) - Testing responsive components
-- Mobile Responsiveness Spec: `.kiro/specs/mobile-responsiveness/`
+- Mobile Responsiveness Spec: `.kiro/specs/impressionnistes-registration-system/requirements.md` (NFR-8)
 

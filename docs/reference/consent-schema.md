@@ -331,8 +331,8 @@ Consent records provide audit trail showing:
 - [GDPR Compliance Guide](../guides/GDPR_COMPLIANCE.md)
 - [API Endpoints](./api-endpoints.md#post-authregister)
 - [Project Structure](./project-structure.md#gdpr-compliance)
-- [Requirements](../../.kiro/specs/gdpr-compliance/requirements.md)
-- [Design](../../.kiro/specs/gdpr-compliance/design.md)
+- [Requirements](../../.kiro/specs/impressionnistes-registration-system/requirements.md) (FR-23)
+- [Design](../../.kiro/specs/impressionnistes-registration-system/design.md)
 
 ---
 

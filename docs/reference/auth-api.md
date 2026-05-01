@@ -203,10 +203,11 @@ Confirms password reset with verification code.
 - `500 INTERNAL_ERROR`: Server error
 
 **Password Requirements**:
-- Minimum 8 characters
+- Minimum 12 characters
 - At least one uppercase letter
 - At least one lowercase letter
 - At least one number
+- At least one special character
 
 ---
 

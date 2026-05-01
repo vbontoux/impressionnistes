@@ -38,7 +38,7 @@ Register a new club manager account.
 
 **Required Fields**:
 - `email`: Valid email address
-- `password`: Minimum 8 characters
+- `password`: Minimum 12 characters, must include uppercase, lowercase, number, and special character
 - `first_name`: User's first name
 - `last_name`: User's last name
 - `club_affiliation`: Rowing club name
@@ -258,7 +258,7 @@ POST /auth/register
 → Email sent with verification code
 ```
 
-### 2. Verify Email (via Cognito Hosted UI or AWS CLI)
+### 2. Verify Email (via verification code on self-hosted page)
 
 ```bash
 aws cognito-idp confirm-sign-up \
@@ -267,9 +267,9 @@ aws cognito-idp confirm-sign-up \
   --confirmation-code 123456
 ```
 
-### 3. Login (via Cognito Hosted UI or AWS SDK)
+### 3. Login (via self-hosted login page or AWS SDK)
 
-Use Cognito Hosted UI or AWS Amplify to get JWT token.
+Use the self-hosted login page or AWS SDK to authenticate and get JWT token.
 
 ### 4. Use JWT Token
 

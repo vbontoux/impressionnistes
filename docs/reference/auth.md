@@ -1,16 +1,16 @@
 ## Authentication with Amazon Cognito
 
-Complete guide for user authentication using Amazon Cognito.
+Complete guide for user authentication using Amazon Cognito with self-hosted authentication pages.
 
 ## Overview
 
 The authentication system uses Amazon Cognito User Pool with:
-- **Email/password authentication**
-- **Social login** (Google, Facebook) - requires configuration
-- **Hosted UI** for easy integration
-- **30-minute session timeout**
+- **Email/password authentication** via self-hosted custom pages
+- **Self-hosted login, registration, forgot password, and password reset pages** (no Cognito Hosted UI)
+- **30-minute inactivity timeout** and **5-hour maximum session duration**
 - **MFA support** (optional for users)
 - **Password policies** and security features
+- **Real-time password strength indicator**
 
 ## Cognito User Pool
 
@@ -22,16 +22,17 @@ The authentication system uses Amazon Cognito User Pool with:
 - **Email verification**: Required (verification code)
 
 ### Password Policy
-- Minimum length: 8 characters
-- Requires: lowercase, uppercase, digits
-- Symbols: Optional (for better UX)
+- Minimum length: 12 characters
+- Requires: lowercase, uppercase, digits, special characters
+- Real-time password strength indicator in UI
 - Temporary password validity: 3 days
 
 ### Session Configuration
 - **Access token**: 30 minutes
 - **ID token**: 30 minutes
 - **Refresh token**: 30 days
-- **Auto logout**: After 30 minutes of inactivity
+- **Inactivity timeout**: 30 minutes (auto logout with clear message)
+- **Maximum session duration**: 5 hours (auto logout with clear message)
 
 ### User Attributes
 
@@ -49,7 +50,9 @@ The authentication system uses Amazon Cognito User Pool with:
 - **Mode**: Optional (users can enable)
 - **Methods**: SMS, TOTP (authenticator app)
 
-## Hosted UI
+## Hosted UI (DEPRECATED)
+
+> **⚠️ DEPRECATED:** The Cognito Hosted UI has been replaced by self-hosted authentication pages. The application now uses custom login, registration, forgot password, and password reset pages that communicate directly with Cognito via the AWS SDK. See the "Self-Hosted Authentication" section below for current implementation details.
 
 **Domain**: `https://impressionnistes-{env}.auth.{region}.amazoncognito.com`
 
@@ -61,7 +64,9 @@ The authentication system uses Amazon Cognito User Pool with:
 - Development: `http://localhost:3000/`
 - Production: `https://impressionnistes-{env}.rcpm-aviron.fr/`
 
-## Social Login Configuration
+## Social Login Configuration (DEPRECATED)
+
+> **⚠️ DEPRECATED:** Social login via Cognito Hosted UI is no longer used. Authentication is handled entirely through self-hosted email/password pages.
 
 ### Google OAuth (Optional)
 
@@ -89,6 +94,49 @@ The authentication system uses Amazon Cognito User Pool with:
 5. Get App ID and App Secret
 6. Uncomment Facebook provider in `auth_stack.py`
 7. Add credentials to secrets.json or Secrets Manager
+
+## Self-Hosted Authentication
+
+The application uses custom-built authentication pages that communicate directly with AWS Cognito via the AWS SDK. No redirect to Cognito Hosted UI occurs at any point.
+
+### Authentication Pages
+
+| Page | Route | Purpose |
+|------|-------|---------|
+| Login | `/login` | Email/password login with "Remember Me" option |
+| Register | `/register` | New account creation with consent checkboxes |
+| Email Verification | `/verify-email` | Enter verification code sent by email |
+| Forgot Password | `/forgot-password` | Request password reset code |
+| Reset Password | `/reset-password` | Enter code + new password |
+
+### Authentication Flow
+
+1. **Registration**: User fills custom form → Cognito `signUp` → verification email sent → user enters code on verify page → account confirmed
+2. **Login**: User enters email/password on custom form → Cognito `signIn` via AWS SDK → JWT tokens stored → redirect to dashboard
+3. **Forgot Password**: User enters email → Cognito `forgotPassword` → code sent → user enters code + new password on reset page → Cognito `confirmForgotPassword`
+
+### Session Management
+
+- **Default storage**: `sessionStorage` (cleared on browser close)
+- **"Remember Me" checked**: `localStorage` (persists across browser sessions)
+- **Inactivity timeout**: 30 minutes — displays message: "Votre session a expiré après 30 minutes d'inactivité"
+- **Maximum duration**: 5 hours — displays message: "Votre session a expiré après 5 heures d'activité"
+- **No countdown timer** is displayed for session timeout
+
+### Password Strength Indicator
+
+All password fields (registration and reset) display a real-time strength indicator:
+- **Requirements**: 12+ characters, uppercase, lowercase, number, special character
+- **Visual feedback**: Color-coded strength bar (weak → strong)
+- **Inline validation**: Missing requirements listed as user types
+
+### Error Handling
+
+Cognito errors are mapped to user-friendly messages:
+- Incorrect credentials → "Email ou mot de passe incorrect"
+- Unverified account → Message with link to verification page
+- Rate limiting → "Trop de tentatives. Veuillez réessayer plus tard"
+- Network error → "Erreur de connexion. Veuillez vérifier votre connexion internet"
 
 ## Using Cognito in Your Application
 
@@ -320,21 +368,15 @@ aws cognito-idp admin-set-user-mfa-preference \
 
 ## Testing Authentication
 
-### Test Hosted UI
+### Test Self-Hosted Login
 ```bash
-# Get User Pool ID and Client ID from outputs
-USER_POOL_ID=$(aws cloudformation describe-stacks \
-  --stack-name ImpressionnistesAuth-dev \
-  --query 'Stacks[0].Outputs[?OutputKey==`UserPoolId`].OutputValue' \
-  --output text)
+# Start the frontend dev server
+cd frontend && npm run dev
 
-CLIENT_ID=$(aws cloudformation describe-stacks \
-  --stack-name ImpressionnistesAuth-dev \
-  --query 'Stacks[0].Outputs[?OutputKey==`UserPoolClientId`].OutputValue' \
-  --output text)
-
-# Open hosted UI in browser
-open "https://impressionnistes-dev.auth.eu-west-3.amazoncognito.com/login?client_id=$CLIENT_ID&response_type=code&redirect_uri=http://localhost:3000/callback"
+# Navigate to http://localhost:3000/login
+# Test login with valid credentials
+# Test forgot password flow
+# Test registration flow
 ```
 
 ### Test Sign Up via CLI

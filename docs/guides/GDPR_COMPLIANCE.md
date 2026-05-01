@@ -583,7 +583,7 @@ make test
 - Consent withdrawal mechanism
 - Data portability (JSON export)
 
-**Requirements**: See `.kiro/specs/gdpr-compliance/requirements.md` Requirements 4, 5, 10
+**Requirements**: See `.kiro/specs/impressionnistes-registration-system/requirements.md` FR-23 (GDPR Compliance Features)
 
 ### Phase 3: Operational Compliance
 
@@ -599,7 +599,7 @@ make test
 - Audit logging for data access
 - Admin dashboard for consent management
 
-**Requirements**: See `.kiro/specs/gdpr-compliance/requirements.md` Requirements 6, 7, 8
+**Requirements**: See `.kiro/specs/impressionnistes-registration-system/requirements.md` FR-23 (GDPR Compliance Features)
 
 ---
 
@@ -737,7 +737,7 @@ If issues occur after deployment:
 
 For questions about GDPR compliance implementation:
 - Review this documentation
-- Check `.kiro/specs/gdpr-compliance/` for detailed specs
+- Check `.kiro/specs/impressionnistes-registration-system/requirements.md` (FR-23) for detailed requirements
 - Consult with legal counsel for legal questions
 - Contact development team for technical questions
 
@@ -748,9 +748,7 @@ For questions about GDPR compliance implementation:
 - [GDPR Official Text](https://gdpr-info.eu/)
 - [ePrivacy Directive](https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:32002L0058)
 - [CNIL (French Data Protection Authority)](https://www.cnil.fr/)
-- [Requirements Document](../../.kiro/specs/gdpr-compliance/requirements.md)
-- [Design Document](../../.kiro/specs/gdpr-compliance/design.md)
-- [Implementation Tasks](../../.kiro/specs/gdpr-compliance/tasks.md)
+- [Requirements Document](../../.kiro/specs/impressionnistes-registration-system/requirements.md) (FR-23: GDPR Compliance Features)
 
 ---
 

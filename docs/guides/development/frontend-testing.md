@@ -35,10 +35,8 @@ Visit: http://localhost:3000
 ## Test the Login Flow
 
 1. Go to http://localhost:3000/login
-2. Click "Login with Cognito"
-3. You'll be redirected to Cognito Hosted UI
-4. Login with your credentials
-5. After successful login, you'll be redirected back
+2. Enter your email and password on the self-hosted login form
+3. After successful login, you'll be redirected back
 
 ## Components Created
 
