@@ -1,4 +1,4 @@
-.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws list describe-infra costs costs-all costs-by-tag db-export db-view db-reset db-migrate cognito-create-admin cognito-list-users cognito-add-to-group ses-verify-email ses-list-verified ses-check-email ses-get-quota ses-get-statistics ses-request-production ses-verify-domain ses-get-domain-token ses-enable-dkim ses-check-domain secrets-list secrets-get secrets-create secrets-update test-setup test test-coverage test-email cleanoduction clean test test-backend test-frontend test-email test-setup test-clean test-coverage
+.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws clean-aws-dev clean-aws-prod list describe-infra costs costs-all costs-by-tag db-export db-view db-reset db-migrate cognito-create-admin cognito-list-users cognito-add-to-group ses-verify-email ses-list-verified ses-check-email ses-get-quota ses-get-statistics ses-request-production ses-verify-domain ses-get-domain-token ses-enable-dkim ses-check-domain secrets-list secrets-get secrets-create secrets-update test-setup test test-coverage test-email cleanoduction clean test test-backend test-frontend test-email test-setup test-clean test-coverage
 
 # Virtual environment paths
 VENV = venv
@@ -18,9 +18,11 @@ CDK = cdk
 ENV ?= dev
 
 # AWS Profile configuration
-# Automatically use 'rcpm' profile for prod environment
+# Explicit profile per environment - no default fallback
 ifeq ($(ENV),prod)
-    export AWS_PROFILE=rcpm
+    export AWS_PROFILE=rcpm-prod
+else ifeq ($(ENV),dev)
+    export AWS_PROFILE=rcpm-dev
 endif
 
 help:
@@ -113,7 +115,9 @@ help:
 	@echo ""
 	@echo "Troubleshooting:"
 	@echo "  make fix-stuck-stack - Fix stuck CloudFormation stack"
-	@echo "  make clean-aws      - Complete AWS cleanup (stacks + orphaned resources)"
+	@echo "  make clean-aws      - Complete AWS cleanup (stacks + retained + orphaned resources)"
+	@echo "  make clean-aws-dev  - Complete AWS cleanup for dev"
+	@echo "  make clean-aws-prod - Complete AWS cleanup for prod (with confirmation)"
 	@echo ""
 	@echo "Cleanup:"
 	@echo "  make clean          - Remove venv and cache files"
@@ -525,8 +529,14 @@ fix-stuck-stack:
 
 clean-aws:
 	@echo "Complete AWS cleanup for $(ENV) environment..."
-	@chmod +x clean-all-aws.sh
-	@./clean-all-aws.sh $(ENV)
+	@chmod +x ../scripts/deployment/clean-all-aws.sh
+	@../scripts/deployment/clean-all-aws.sh --profile $(AWS_PROFILE) --env $(ENV)
+
+clean-aws-dev:
+	@$(MAKE) clean-aws ENV=dev
+
+clean-aws-prod:
+	@$(MAKE) clean-aws ENV=prod
 
 
 redeploy:
@@ -1606,7 +1616,7 @@ secrets-delete-all:
 	@echo "=========================================="
 
 secrets-delete-all-prod:
-	@$(MAKE) secrets-delete-all ENV=prod AWS_PROFILE=rcpm
+	@$(MAKE) secrets-delete-all ENV=prod
 
 destroy-secrets:
 	@echo "=========================================="

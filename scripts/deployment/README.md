@@ -28,43 +28,30 @@ make deploy-prod
 
 ---
 
-### destroy.sh
-Destroy all infrastructure stacks.
-
-**Usage:**
-```bash
-./destroy.sh [dev|prod]
-```
-
-**Warning:** Destructive operation! Production requires confirmation.
-
-**Recommended:** Use Makefile instead:
-```bash
-cd infrastructure
-make destroy-dev
-make destroy-prod
-```
-
----
-
 ### clean-all-aws.sh
-Complete AWS cleanup including orphaned resources.
+Complete AWS cleanup: destroys stacks, retained resources, and orphaned resources.
 
 **Usage:**
 ```bash
-./clean-all-aws.sh [dev|prod]
+./clean-all-aws.sh --profile <aws-profile> [--env dev|prod]
 ```
 
-**What it cleans:**
-- CloudFormation stacks
-- Orphaned DynamoDB tables
-- Orphaned Lambda functions
-- Orphaned CloudWatch log groups
+**`--profile` is required** — no default profile is used.
+
+**What it cleans (in order):**
+1. CloudFormation stacks (handles stuck/failed stacks)
+2. DynamoDB table (retained by RemovalPolicy)
+3. Cognito User Pool + domain (retained by RemovalPolicy)
+4. Secrets Manager secrets (retained by RemovalPolicy)
+5. Orphaned Lambda functions
+6. Orphaned CloudWatch log groups
+
+Each destructive step prompts for confirmation. Production requires typing `DELETE PRODUCTION`.
 
 **Recommended:** Use Makefile instead:
 ```bash
 cd infrastructure
-make clean-aws ENV=dev
+make clean-aws PROFILE=my-profile ENV=dev
 ```
 
 ---
@@ -110,7 +97,7 @@ make clear-cache ENV=dev
 1. **Always use Makefile commands** when available
 2. **Test on dev first** before deploying to prod
 3. **Check AWS credentials** before running (`aws sts get-caller-identity`)
-4. **Use correct AWS profile** for prod (set in Makefile)
+4. **Use correct AWS profile** — `clean-all-aws.sh` requires explicit `--profile`
 5. **Wait for deployments to complete** before making changes
 
 ## Troubleshooting
@@ -122,7 +109,7 @@ make clear-cache ENV=dev
 - Run `make setup` in infrastructure directory
 
 **Error: "Stack is in failed state"**
-- Use `make fix-stuck-stack` or `make clean-aws`
+- Use `make fix-stuck-stack` or `make clean-aws PROFILE=<profile>`
 
 **Deployment takes too long**
 - Check CloudFormation console for stack status
