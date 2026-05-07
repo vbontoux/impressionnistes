@@ -377,7 +377,14 @@ def lambda_handler(event, context):
         stripe_event = verify_webhook_signature(body, signature, webhook_secret)
         
         event_type = stripe_event['type']
-        event_data = stripe_event['data']
+        
+        # Stripe SDK 7+ returns typed objects, not plain dicts
+        # Use to_dict_recursive() or JSON serialization for clean dict conversion
+        try:
+            raw_event = json.loads(body)
+            event_data = raw_event['data']
+        except (json.JSONDecodeError, KeyError):
+            event_data = stripe_event['data']
         
         logger.info(f"Processing webhook event: {event_type}")
         

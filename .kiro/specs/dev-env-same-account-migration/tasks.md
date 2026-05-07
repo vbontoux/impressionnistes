@@ -146,8 +146,8 @@ Migrate the dev environment into the same AWS account as production by replacing
     - Verify deployment: `cd infrastructure && make describe-infra ENV=dev`
     - _Requirements: 1.1, 2.1, 2.2, 2.4, 4.1, 5.3_
 
-- [ ] 11. Verify Slack notifications on dev environment
-  - [ ] 11.1 Trigger a Slack notification and verify delivery
+- [x] 11. Verify Slack notifications on dev environment
+  - [x] 11.1 Trigger a Slack notification and verify delivery
     - Verify `make secrets-show ENV=dev` shows the Slack webhook URLs correctly from S3
     - Trigger an action in the dev environment that sends a Slack notification (e.g., create a test user registration, or invoke a Lambda that calls `get_slack_admin_webhook()` / `get_slack_devops_webhook()`)
     - Check the Slack channels to confirm notifications are received
