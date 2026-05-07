@@ -3,7 +3,7 @@
 #
 # This script performs a full teardown:
 #   1. Destroys all CloudFormation stacks (handles stuck/failed stacks)
-#   2. Cleans up retained resources (DynamoDB, Cognito, Secrets Manager)
+#   2. Cleans up retained resources (DynamoDB, Cognito, S3 secrets bucket)
 #   3. Removes orphaned resources (Lambda functions, CloudWatch log groups)
 #
 # Usage: ./clean-all-aws.sh --profile <aws-profile> [--env dev|prod]
@@ -155,7 +155,6 @@ delete_stack "${STACK_PREFIX}Api-$ENV"
 delete_stack "${STACK_PREFIX}Auth-$ENV"
 delete_stack "${STACK_PREFIX}Monitoring-$ENV"
 delete_stack "${STACK_PREFIX}Database-$ENV"
-delete_stack "${STACK_PREFIX}Secrets-$ENV"
 echo ""
 
 # ==========================================
@@ -218,40 +217,26 @@ fi
 echo ""
 
 # ==========================================
-# 4. Secrets Manager (retained by RemovalPolicy)
+# 4. S3 Secrets Bucket
 # ==========================================
-echo "4. Secrets Manager Secrets"
+SECRETS_BUCKET="rcpm-impressionnistes-secrets-$ENV"
+echo "4. S3 Secrets Bucket: $SECRETS_BUCKET"
 
-SECRETS=(
-    "impressionnistes/stripe/api_key"
-    "impressionnistes/stripe/webhook_secret"
-    "impressionnistes/slack/admin_webhook"
-    "impressionnistes/slack/devops_webhook"
-)
-
-FOUND_SECRETS=()
-for SECRET_NAME in "${SECRETS[@]}"; do
-    if $AWS secretsmanager describe-secret --secret-id "$SECRET_NAME" > /dev/null 2>&1; then
-        echo "   Found: $SECRET_NAME"
-        FOUND_SECRETS+=("$SECRET_NAME")
-    fi
-done
-
-if [ ${#FOUND_SECRETS[@]} -eq 0 ]; then
-    echo "   No secrets found, skipping"
-else
-    echo ""
-    read -p "   Delete all ${#FOUND_SECRETS[@]} secrets? (y/n): " confirm
+if $AWS s3api head-bucket --bucket "$SECRETS_BUCKET" 2>/dev/null; then
+    OBJECT_COUNT=$($AWS s3 ls s3://$SECRETS_BUCKET/ --recursive --summarize 2>/dev/null | grep "Total Objects" | awk '{print $3}')
+    echo "   Found bucket ($OBJECT_COUNT objects)"
+    read -p "   Delete bucket and all contents? (y/n): " confirm
     if [ "$confirm" = "y" ]; then
-        for SECRET_NAME in "${FOUND_SECRETS[@]}"; do
-            $AWS secretsmanager delete-secret \
-                --secret-id "$SECRET_NAME" \
-                --force-delete-without-recovery > /dev/null
-            echo "   ✓ Deleted: $SECRET_NAME"
-        done
+        echo "   Removing all objects..."
+        $AWS s3 rm s3://$SECRETS_BUCKET/ --recursive 2>/dev/null || true
+        echo "   Deleting bucket..."
+        $AWS s3api delete-bucket --bucket "$SECRETS_BUCKET" 2>/dev/null || true
+        echo "   ✓ Bucket deleted"
     else
         echo "   Skipped"
     fi
+else
+    echo "   Not found, skipping"
 fi
 echo ""
 
@@ -304,4 +289,4 @@ echo "To verify nothing remains:"
 echo "  $AWS cloudformation list-stacks --query \"StackSummaries[?contains(StackName, 'Impressionnistes') && StackStatus!='DELETE_COMPLETE'].StackName\""
 echo "  $AWS dynamodb list-tables --query 'TableNames[?contains(@, \`impressionnistes\`)]'"
 echo "  $AWS cognito-idp list-user-pools --max-results 10 --query 'UserPools[?contains(Name, \`impressionnistes\`)]'"
-echo "  $AWS secretsmanager list-secrets --query 'SecretList[?contains(Name, \`impressionnistes\`)]'"
+echo "  $AWS s3api head-bucket --bucket rcpm-impressionnistes-secrets-$ENV 2>/dev/null && echo 'Bucket exists' || echo 'Bucket not found'"

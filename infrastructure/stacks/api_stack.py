@@ -65,7 +65,8 @@ class ApiStack(Stack):
             'TABLE_NAME': database_stack.table.table_name,
             'USER_POOL_ID': auth_stack.user_pool.user_pool_id,
             'USER_POOL_CLIENT_ID': auth_stack.user_pool_client.user_pool_client_id,
-            'ENVIRONMENT': self.env_name
+            'ENVIRONMENT': self.env_name,
+            'SECRETS_BUCKET': database_stack.secrets_bucket.bucket_name,
         }
         
         # Lambda functions dictionary
@@ -158,12 +159,12 @@ class ApiStack(Stack):
             )
         )
         
-        # Grant Secrets Manager permissions for Slack webhooks
+        # Grant S3 read access for Slack webhook secrets
         function.add_to_role_policy(
             iam.PolicyStatement(
-                actions=['secretsmanager:GetSecretValue'],
+                actions=['s3:GetObject'],
                 resources=[
-                    f'arn:aws:secretsmanager:{self.region}:{self.account}:secret:impressionnistes/slack/*'
+                    f'{self.database_stack.secrets_bucket.bucket_arn}/slack/*'
                 ]
             )
         )
@@ -329,12 +330,12 @@ class ApiStack(Stack):
             timeout=30
         )
         
-        # Grant Secrets Manager permissions for Stripe API key
+        # Grant S3 read access for Stripe secrets
         payment_intent_function.add_to_role_policy(
             iam.PolicyStatement(
-                actions=['secretsmanager:GetSecretValue'],
+                actions=['s3:GetObject'],
                 resources=[
-                    f'arn:aws:secretsmanager:{self.region}:{self.account}:secret:impressionnistes/stripe/*'
+                    f'{self.database_stack.secrets_bucket.bucket_arn}/stripe/*'
                 ]
             )
         )
@@ -349,12 +350,12 @@ class ApiStack(Stack):
             timeout=30
         )
         
-        # Grant Secrets Manager permissions for webhook secret
+        # Grant S3 read access for Stripe secrets
         webhook_function.add_to_role_policy(
             iam.PolicyStatement(
-                actions=['secretsmanager:GetSecretValue'],
+                actions=['s3:GetObject'],
                 resources=[
-                    f'arn:aws:secretsmanager:{self.region}:{self.account}:secret:impressionnistes/stripe/*'
+                    f'{self.database_stack.secrets_bucket.bucket_arn}/stripe/*'
                 ]
             )
         )

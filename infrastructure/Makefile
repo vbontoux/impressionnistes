@@ -1,4 +1,4 @@
-.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws clean-aws-dev clean-aws-prod list describe-infra costs costs-all costs-by-tag db-export db-view db-reset db-migrate cognito-create-admin cognito-list-users cognito-add-to-group ses-verify-email ses-list-verified ses-check-email ses-get-quota ses-get-statistics ses-request-production ses-verify-domain ses-get-domain-token ses-enable-dkim ses-check-domain secrets-list secrets-get secrets-create secrets-update test-setup test test-coverage test-email cleanoduction clean test test-backend test-frontend test-email test-setup test-clean test-coverage
+.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws clean-aws-dev clean-aws-prod list describe-infra costs costs-all costs-by-tag db-export db-view db-reset db-migrate cognito-create-admin cognito-list-users cognito-add-to-group ses-verify-email ses-list-verified ses-check-email ses-get-quota ses-get-statistics ses-request-production ses-verify-domain ses-get-domain-token ses-enable-dkim ses-check-domain secrets-list secrets-show secrets-show-stripe secrets-update-stripe secrets-sync secrets-sync-dev secrets-sync-prod secrets-delete-all secrets-delete-all-prod test-setup test test-backend test-frontend test-email test-coverage test-clean clean
 
 # Virtual environment paths
 VENV = venv
@@ -16,6 +16,9 @@ CDK = cdk
 
 # Default environment
 ENV ?= dev
+
+# S3 bucket for secrets storage
+SECRETS_BUCKET = rcpm-impressionnistes-secrets-$(ENV)
 
 # AWS Profile configuration
 # Explicit profile per environment - no default fallback
@@ -45,7 +48,6 @@ help:
 	@echo "  make deploy         - Deploy all stacks (default: dev)"
 	@echo "  make deploy-dev     - Deploy to dev environment"
 	@echo "  make deploy-prod    - Deploy to prod environment"
-	@echo "  make deploy-secrets - Deploy only secrets stack (Stripe, Slack, etc.)"
 	@echo "  make deploy-auth    - Deploy only auth stack"
 	@echo "  make redeploy       - Quick redeploy (destroy + deploy for dev)"
 	@echo ""
@@ -75,20 +77,16 @@ help:
 	@echo "  make cognito-add-to-group EMAIL=user@example.com GROUP=admins - Add user to group"
 	@echo "  make delete-team-manager EMAIL=user@example.com  - Delete team manager and all data (⚠️  destructive!)"
 	@echo ""
-	@echo "Secrets Management:"
-	@echo "  make secrets-list                                    - List all secrets"
-	@echo "  make secrets-show                                    - Show all secret values (⚠️  sensitive!)"
+	@echo "Secrets Management (S3):"
+	@echo "  make secrets-list                                    - List all secrets in S3"
+	@echo "  make secrets-show                                    - Show all secret values from S3 (⚠️  sensitive!)"
 	@echo "  make secrets-show-stripe                             - Show Stripe secrets (partial)"
-	@echo "  make secrets-sync ENV=dev                            - Sync all secrets from secrets.ENV.json to AWS"
+	@echo "  make secrets-sync ENV=dev                            - Sync all secrets from secrets.ENV.json to S3"
 	@echo "  make secrets-sync-dev                                - Sync secrets from secrets.dev.json"
 	@echo "  make secrets-sync-prod                               - Sync secrets from secrets.prod.json (with confirmation)"
-	@echo "  make secrets-delete-all ENV=dev                      - Delete all 4 secrets from AWS (with confirmation)"
-	@echo "  make secrets-delete-all-prod                         - Delete all 4 secrets from PROD (with confirmation)"
-	@echo "  make secrets-update-stripe STRIPE_API_KEY=sk_xxx     - Update Stripe API key manually"
-	@echo ""
-	@echo "Stack Management:"
-	@echo "  make destroy-secrets ENV=dev                         - Destroy Secrets stack (with confirmation)"
-	@echo "  make destroy-secrets-prod                            - Destroy Secrets stack in PROD (with confirmation)"
+	@echo "  make secrets-delete-all ENV=dev                      - Delete all secrets from S3 (with confirmation)"
+	@echo "  make secrets-delete-all-prod                         - Delete all secrets from S3 PROD (with confirmation)"
+	@echo "  make secrets-update-stripe STRIPE_API_KEY=sk_xxx     - Update Stripe API key in S3"
 	@echo ""
 	@echo "Email/SES Management:"
 	@echo "  make ses-verify-email EMAIL=your@email.com           - Verify email address in SES"
@@ -213,7 +211,7 @@ deploy-prod:
 deploy-backend: build-layer
 	@echo "Deploying backend stacks to $(ENV) environment..."
 	@echo "Excluding: ImpressiornistesFrontend-$(ENV)"
-	@. $(VENV)/bin/activate && $(CDK) deploy ImpressionnistesSecrets-$(ENV) ImpressionnistesDatabase-$(ENV) ImpressionnistesAuth-$(ENV) ImpressionnistesApi-$(ENV) ImpressionnistesMonitoring-$(ENV) --context env=$(ENV) --require-approval never
+	@. $(VENV)/bin/activate && $(CDK) deploy ImpressionnistesDatabase-$(ENV) ImpressionnistesAuth-$(ENV) ImpressionnistesApi-$(ENV) ImpressionnistesMonitoring-$(ENV) --context env=$(ENV) --require-approval never
 	@echo "✓ Backend deployment complete"
 
 deploy-backend-dev:
@@ -327,53 +325,6 @@ describe-infra-dev:
 
 describe-infra-prod:
 	@$(MAKE) describe-infra ENV=prod
-
-deploy-secrets:
-	@echo "=========================================="
-	@echo "Deploying Secrets Stack"
-	@echo "Environment: $(ENV)"
-	@echo "=========================================="
-	@echo ""
-	@if [ ! -f "secrets.json" ]; then \
-		echo "❌ Error: secrets.json not found"; \
-		echo ""; \
-		echo "Please create secrets.json from secrets.json.example:"; \
-		echo "  cp secrets.json.example secrets.json"; \
-		echo "  # Edit secrets.json with your actual secrets"; \
-		echo ""; \
-		exit 1; \
-	fi
-	@echo "✓ Found secrets.json"
-	@echo ""
-	@echo "This will create/update the following secrets in AWS Secrets Manager:"
-	@echo "  - impressionnistes/stripe/api_key"
-	@echo "  - impressionnistes/stripe/webhook_secret"
-	@echo "  - impressionnistes/slack/admin_webhook"
-	@echo "  - impressionnistes/slack/devops_webhook"
-	@echo ""
-	@echo "Deploying secrets..."
-	@echo ""
-	@. $(VENV)/bin/activate && $(CDK) deploy ImpressionnistesSecrets-$(ENV) --context env=$(ENV) --require-approval never
-	@echo ""
-	@echo "=========================================="
-	@echo "✓ Secrets deployed successfully!"
-	@echo ""
-	@echo "Secrets are now available in AWS Secrets Manager."
-	@echo "Lambda functions will automatically retrieve them at runtime."
-	@echo "=========================================="
-
-deploy-secrets-dev:
-	@$(MAKE) deploy-secrets ENV=dev
-
-deploy-secrets-prod:
-	@echo "⚠️  WARNING: Deploying Secrets to PRODUCTION"
-	@read -p "Type 'DEPLOY PROD' to confirm: " confirm; \
-	if [ "$$confirm" = "DEPLOY PROD" ]; then \
-		$(MAKE) deploy-secrets ENV=prod; \
-	else \
-		echo "Deployment cancelled"; \
-		exit 1; \
-	fi
 
 deploy-auth:
 	@echo "Deploying Auth stack for $(ENV) environment..."
@@ -521,7 +472,6 @@ clean:
 	@find . -type f -name "*.pyc" -delete 2>/dev/null || true
 	@echo "✓ Cleanup complete"
 
-
 fix-stuck-stack:
 	@echo "Fixing stuck CloudFormation stack..."
 	@chmod +x fix-stuck-stack.sh
@@ -538,7 +488,6 @@ clean-aws-dev:
 clean-aws-prod:
 	@$(MAKE) clean-aws ENV=prod
 
-
 redeploy:
 	@echo "Quick redeploy for $(ENV) environment..."
 	@echo "This will destroy and redeploy all stacks"
@@ -548,7 +497,6 @@ redeploy:
 	@sleep 5
 	@$(MAKE) deploy ENV=$(ENV)
 	@echo "✓ Redeploy complete"
-
 
 costs:
 	@echo "=========================================="
@@ -843,7 +791,6 @@ db-export:
 	@echo "To view: open exports/"
 	@echo "=========================================="
 
-
 cognito-create-admin:
 	@echo "=========================================="
 	@echo "Creating Admin User in Cognito"
@@ -962,7 +909,6 @@ cognito-add-to-group:
 	echo "✓ User added to group successfully!"
 	@echo "=========================================="
 
-
 delete-team-manager:
 	@echo "=========================================="
 	@echo "Delete Team Manager Account"
@@ -988,7 +934,6 @@ delete-team-manager:
 	@. venv/bin/activate && \
 		python3 ../scripts/database/delete_team_manager.py $(EMAIL) --environment $(ENV)
 	@echo ""
-
 
 db-migrate:
 	@echo "=========================================="
@@ -1043,7 +988,6 @@ db-migrate:
 	@echo "=========================================="
 	@echo "✓ Migration complete!"
 	@echo "=========================================="
-
 
 db-reset:
 	@echo "=========================================="
@@ -1120,7 +1064,6 @@ db-reset:
 	@echo "  1. Users need to re-register"
 	@echo "  2. Check configuration: make db-view"
 	@echo "  3. Verify races: aws dynamodb query --table-name impressionnistes-registration-$(ENV) --key-condition-expression 'PK = :pk' --expression-attribute-values '{\":pk\":{\"S\":\"RACE\"}}' --query 'Count'"
-
 
 db-cleanup-rental-boats:
 	@echo "=========================================="
@@ -1403,83 +1346,59 @@ ses-check-domain:
 	@echo "=========================================="
 
 # ==========================================
-# Secrets Management Commands
+# Secrets Management Commands (S3-based)
 # ==========================================
 
 secrets-list:
 	@echo "=========================================="
-	@echo "Listing Secrets"
+	@echo "Listing Secrets in S3"
 	@echo "Environment: $(ENV)"
+	@echo "Bucket: $(SECRETS_BUCKET)"
 	@echo "=========================================="
 	@echo ""
-	@echo "Stripe Secrets:"
-	@aws secretsmanager list-secrets \
-		--filters Key=name,Values=impressionnistes/stripe \
-		--query 'SecretList[].{Name:Name,LastChanged:LastChangedDate}' \
-		--output table
-	@echo ""
-	@echo "Slack Secrets:"
-	@aws secretsmanager list-secrets \
-		--filters Key=name,Values=impressionnistes/slack \
-		--query 'SecretList[].{Name:Name,LastChanged:LastChangedDate}' \
-		--output table
+	@aws s3 ls s3://$(SECRETS_BUCKET)/ --recursive
 
 secrets-show:
 	@echo "=========================================="
-	@echo "Showing All Secret Values"
+	@echo "Showing All Secret Values from S3"
 	@echo "Environment: $(ENV)"
+	@echo "Bucket: $(SECRETS_BUCKET)"
 	@echo "=========================================="
 	@echo ""
 	@echo "⚠️  WARNING: This will display sensitive secret values!"
 	@echo ""
 	@echo "Stripe API Key:"
-	@aws secretsmanager get-secret-value \
-		--secret-id impressionnistes/stripe/api_key \
-		--query 'SecretString' \
-		--output text | python3 -m json.tool
+	@aws s3 cp s3://$(SECRETS_BUCKET)/stripe/api_key - | python3 -m json.tool
 	@echo ""
 	@echo "Stripe Webhook Secret:"
-	@aws secretsmanager get-secret-value \
-		--secret-id impressionnistes/stripe/webhook_secret \
-		--query 'SecretString' \
-		--output text | python3 -m json.tool
+	@aws s3 cp s3://$(SECRETS_BUCKET)/stripe/webhook_secret - | python3 -m json.tool
 	@echo ""
 	@echo "Slack Admin Webhook:"
-	@aws secretsmanager get-secret-value \
-		--secret-id impressionnistes/slack/admin_webhook \
-		--query 'SecretString' \
-		--output text | python3 -m json.tool
+	@aws s3 cp s3://$(SECRETS_BUCKET)/slack/admin_webhook - | python3 -m json.tool
 	@echo ""
 	@echo "Slack DevOps Webhook:"
-	@aws secretsmanager get-secret-value \
-		--secret-id impressionnistes/slack/devops_webhook \
-		--query 'SecretString' \
-		--output text | python3 -m json.tool
+	@aws s3 cp s3://$(SECRETS_BUCKET)/slack/devops_webhook - | python3 -m json.tool
 
 secrets-show-stripe:
 	@echo "=========================================="
-	@echo "Showing Stripe Secrets"
+	@echo "Showing Stripe Secrets from S3"
 	@echo "Environment: $(ENV)"
+	@echo "Bucket: $(SECRETS_BUCKET)"
 	@echo "=========================================="
 	@echo ""
 	@echo "Stripe API Key:"
-	@aws secretsmanager get-secret-value \
-		--secret-id impressionnistes/stripe/api_key \
-		--query 'SecretString' \
-		--output text | python3 -c "import json, sys; data=json.load(sys.stdin); print(f\"  API Key: {data['api_key'][:20]}...{data['api_key'][-4:]}\")"
+	@aws s3 cp s3://$(SECRETS_BUCKET)/stripe/api_key - | python3 -c "import json, sys; data=json.load(sys.stdin); print(f\"  API Key: {data['api_key'][:20]}...{data['api_key'][-4:]}\")"
 	@echo ""
 	@echo "Stripe Webhook Secret:"
-	@aws secretsmanager get-secret-value \
-		--secret-id impressionnistes/stripe/webhook_secret \
-		--query 'SecretString' \
-		--output text | python3 -c "import json, sys; data=json.load(sys.stdin); print(f\"  Webhook Secret: {data['webhook_secret'][:20]}...{data['webhook_secret'][-4:]}\")"
+	@aws s3 cp s3://$(SECRETS_BUCKET)/stripe/webhook_secret - | python3 -c "import json, sys; data=json.load(sys.stdin); print(f\"  Webhook Secret: {data['webhook_secret'][:20]}...{data['webhook_secret'][-4:]}\")"
 	@echo ""
 	@echo "Note: Showing partial values for security. Use 'make secrets-show' to see full values."
 
 secrets-update-stripe:
 	@echo "=========================================="
-	@echo "Update Stripe Secrets"
+	@echo "Update Stripe Secrets in S3"
 	@echo "Environment: $(ENV)"
+	@echo "Bucket: $(SECRETS_BUCKET)"
 	@echo "=========================================="
 	@echo ""
 	@if [ -z "$(STRIPE_API_KEY)" ]; then \
@@ -1491,20 +1410,14 @@ secrets-update-stripe:
 		echo ""; \
 		exit 1; \
 	fi
-	@echo "Updating Stripe API Key..."
-	@aws secretsmanager update-secret \
-		--secret-id impressionnistes/stripe/api_key \
-		--secret-string '{"api_key":"$(STRIPE_API_KEY)"}' \
-		--output text > /dev/null
-	@echo "✓ Stripe API Key updated"
+	@echo "Uploading Stripe API Key..."
+	@echo '{"api_key":"$(STRIPE_API_KEY)"}' | aws s3 cp - s3://$(SECRETS_BUCKET)/stripe/api_key
+	@echo "✓ Stripe API Key uploaded"
 	@if [ -n "$(STRIPE_WEBHOOK_SECRET)" ]; then \
 		echo ""; \
-		echo "Updating Stripe Webhook Secret..."; \
-		aws secretsmanager update-secret \
-			--secret-id impressionnistes/stripe/webhook_secret \
-			--secret-string '{"webhook_secret":"$(STRIPE_WEBHOOK_SECRET)"}' \
-			--output text > /dev/null; \
-		echo "✓ Stripe Webhook Secret updated"; \
+		echo "Uploading Stripe Webhook Secret..."; \
+		echo '{"webhook_secret":"$(STRIPE_WEBHOOK_SECRET)"}' | aws s3 cp - s3://$(SECRETS_BUCKET)/stripe/webhook_secret; \
+		echo "✓ Stripe Webhook Secret uploaded"; \
 	fi
 	@echo ""
 	@echo "=========================================="
@@ -1513,53 +1426,47 @@ secrets-update-stripe:
 
 secrets-sync:
 	@echo "=========================================="
-	@echo "Sync Secrets from secrets.$(ENV).json to AWS"
+	@echo "Sync Secrets from secrets.$(ENV).json to S3"
 	@echo "Environment: $(ENV)"
+	@echo "Bucket: $(SECRETS_BUCKET)"
 	@echo "=========================================="
 	@echo ""
 	@if [ ! -f "secrets.$(ENV).json" ]; then \
 		echo "❌ Error: secrets.$(ENV).json not found"; \
 		echo ""; \
 		echo "Please create secrets.$(ENV).json with your secrets"; \
+		echo "Expected keys: stripe_secret_key, stripe_webhook_secret, slack_webhook_admin, slack_webhook_devops"; \
 		exit 1; \
 	fi
 	@echo "Reading secrets from secrets.$(ENV).json..."
 	@echo ""
-	@STRIPE_API_KEY=$$(python3 -c "import json; f=open('secrets.$(ENV).json'); data=json.load(f); print(data.get('stripe_secret_key', ''))"); \
-	STRIPE_WEBHOOK=$$(python3 -c "import json; f=open('secrets.$(ENV).json'); data=json.load(f); print(data.get('stripe_webhook_secret', ''))"); \
-	SLACK_ADMIN=$$(python3 -c "import json; f=open('secrets.$(ENV).json'); data=json.load(f); print(data.get('slack_webhook_admin', ''))"); \
-	SLACK_DEVOPS=$$(python3 -c "import json; f=open('secrets.$(ENV).json'); data=json.load(f); print(data.get('slack_webhook_devops', ''))"); \
-	if [ -n "$$STRIPE_API_KEY" ]; then \
-		echo "Updating Stripe API Key..."; \
-		aws secretsmanager update-secret \
-			--secret-id impressionnistes/stripe/api_key \
-			--secret-string "{\"api_key\":\"$$STRIPE_API_KEY\"}" \
-			--output text > /dev/null && echo "  ✓ Stripe API Key updated"; \
+	@STRIPE_KEY=$$(python3 -c "import json; data=json.load(open('secrets.$(ENV).json')); print(data.get('stripe_secret_key', ''))"); \
+	STRIPE_WEBHOOK=$$(python3 -c "import json; data=json.load(open('secrets.$(ENV).json')); print(data.get('stripe_webhook_secret', ''))"); \
+	SLACK_ADMIN=$$(python3 -c "import json; data=json.load(open('secrets.$(ENV).json')); print(data.get('slack_webhook_admin', ''))"); \
+	SLACK_DEVOPS=$$(python3 -c "import json; data=json.load(open('secrets.$(ENV).json')); print(data.get('slack_webhook_devops', ''))"); \
+	if [ -n "$$STRIPE_KEY" ]; then \
+		echo "Uploading stripe/api_key..."; \
+		echo "{\"api_key\":\"$$STRIPE_KEY\"}" | aws s3 cp - s3://$(SECRETS_BUCKET)/stripe/api_key; \
+		echo "  ✓ stripe/api_key uploaded"; \
 	fi; \
 	if [ -n "$$STRIPE_WEBHOOK" ]; then \
-		echo "Updating Stripe Webhook Secret..."; \
-		aws secretsmanager update-secret \
-			--secret-id impressionnistes/stripe/webhook_secret \
-			--secret-string "{\"webhook_secret\":\"$$STRIPE_WEBHOOK\"}" \
-			--output text > /dev/null && echo "  ✓ Stripe Webhook Secret updated"; \
+		echo "Uploading stripe/webhook_secret..."; \
+		echo "{\"webhook_secret\":\"$$STRIPE_WEBHOOK\"}" | aws s3 cp - s3://$(SECRETS_BUCKET)/stripe/webhook_secret; \
+		echo "  ✓ stripe/webhook_secret uploaded"; \
 	fi; \
 	if [ -n "$$SLACK_ADMIN" ]; then \
-		echo "Updating Slack Admin Webhook..."; \
-		aws secretsmanager update-secret \
-			--secret-id impressionnistes/slack/admin_webhook \
-			--secret-string "{\"webhook_url\":\"$$SLACK_ADMIN\"}" \
-			--output text > /dev/null && echo "  ✓ Slack Admin Webhook updated"; \
+		echo "Uploading slack/admin_webhook..."; \
+		echo "{\"webhook_url\":\"$$SLACK_ADMIN\"}" | aws s3 cp - s3://$(SECRETS_BUCKET)/slack/admin_webhook; \
+		echo "  ✓ slack/admin_webhook uploaded"; \
 	fi; \
 	if [ -n "$$SLACK_DEVOPS" ]; then \
-		echo "Updating Slack DevOps Webhook..."; \
-		aws secretsmanager update-secret \
-			--secret-id impressionnistes/slack/devops_webhook \
-			--secret-string "{\"webhook_url\":\"$$SLACK_DEVOPS\"}" \
-			--output text > /dev/null && echo "  ✓ Slack DevOps Webhook updated"; \
+		echo "Uploading slack/devops_webhook..."; \
+		echo "{\"webhook_url\":\"$$SLACK_DEVOPS\"}" | aws s3 cp - s3://$(SECRETS_BUCKET)/slack/devops_webhook; \
+		echo "  ✓ slack/devops_webhook uploaded"; \
 	fi
 	@echo ""
 	@echo "=========================================="
-	@echo "✓ All secrets synced from secrets.$(ENV).json!"
+	@echo "✓ All secrets synced from secrets.$(ENV).json to S3!"
 	@echo "=========================================="
 
 secrets-sync-dev:
@@ -1577,15 +1484,12 @@ secrets-sync-prod:
 
 secrets-delete-all:
 	@echo "=========================================="
-	@echo "Delete All Secrets from AWS Secrets Manager"
+	@echo "Delete All Secrets from S3"
 	@echo "Environment: $(ENV)"
+	@echo "Bucket: $(SECRETS_BUCKET)"
 	@echo "=========================================="
 	@echo ""
-	@echo "⚠️  WARNING: This will delete all 4 secrets:"
-	@echo "  - impressionnistes/stripe/api_key"
-	@echo "  - impressionnistes/stripe/webhook_secret"
-	@echo "  - impressionnistes/slack/admin_webhook"
-	@echo "  - impressionnistes/slack/devops_webhook"
+	@echo "⚠️  WARNING: This will delete all secrets from s3://$(SECRETS_BUCKET)/"
 	@echo ""
 	@if [ "$(ENV)" = "prod" ]; then \
 		echo "⚠️  PRODUCTION ENVIRONMENT"; \
@@ -1602,52 +1506,15 @@ secrets-delete-all:
 		fi; \
 	fi
 	@echo ""
-	@echo "Deleting secrets (force delete, no recovery)..."
-	@for secret in "impressionnistes/stripe/api_key" "impressionnistes/stripe/webhook_secret" "impressionnistes/slack/admin_webhook" "impressionnistes/slack/devops_webhook"; do \
-		echo "Deleting $$secret..."; \
-		aws secretsmanager delete-secret \
-			--secret-id $$secret \
-			--force-delete-without-recovery \
-			--output text > /dev/null 2>&1 && echo "  ✓ Deleted $$secret" || echo "  ⚠️  $$secret not found or already deleted"; \
-	done
+	@echo "Deleting all secrets from S3..."
+	@aws s3 rm s3://$(SECRETS_BUCKET)/ --recursive
 	@echo ""
 	@echo "=========================================="
-	@echo "✓ All secrets deleted!"
+	@echo "✓ All secrets deleted from S3!"
 	@echo "=========================================="
 
 secrets-delete-all-prod:
 	@$(MAKE) secrets-delete-all ENV=prod
-
-destroy-secrets:
-	@echo "=========================================="
-	@echo "Destroy Secrets Stack"
-	@echo "Environment: $(ENV)"
-	@echo "=========================================="
-	@echo ""
-	@if [ "$(ENV)" = "prod" ]; then \
-		echo "⚠️  WARNING: Destroying PRODUCTION Secrets Stack"; \
-		read -p "Type 'DESTROY PROD' to confirm: " confirm; \
-		if [ "$$confirm" != "DESTROY PROD" ]; then \
-			echo "Destruction cancelled"; \
-			exit 1; \
-		fi; \
-	else \
-		read -p "Type 'DESTROY' to confirm: " confirm; \
-		if [ "$$confirm" != "DESTROY" ]; then \
-			echo "Destruction cancelled"; \
-			exit 1; \
-		fi; \
-	fi
-	@echo ""
-	@echo "Destroying ImpressionnistesSecrets-$(ENV) stack..."
-	@. $(VENV)/bin/activate && $(CDK) destroy ImpressionnistesSecrets-$(ENV) --context env=$(ENV) --force
-	@echo ""
-	@echo "=========================================="
-	@echo "✓ Secrets stack destroyed!"
-	@echo "=========================================="
-
-destroy-secrets-prod:
-	@$(MAKE) destroy-secrets ENV=prod
 
 # ==========================================
 # Boat Payment Management (Debug/Demo)

@@ -10,6 +10,7 @@ from aws_cdk import (
     aws_dynamodb as dynamodb,
     aws_lambda as lambda_,
     aws_iam as iam,
+    aws_s3 as s3,
 )
 from constructs import Construct
 from aws_cdk.custom_resources import Provider
@@ -102,6 +103,18 @@ class DatabaseStack(Stack):
             projection_type=dynamodb.ProjectionType.KEYS_ONLY,
         )
         
+        # S3 bucket for application secrets (replaces Secrets Manager)
+        self.secrets_bucket = s3.Bucket(
+            self,
+            "SecretsBucket",
+            bucket_name=f"rcpm-impressionnistes-secrets-{env_name}",
+            block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
+            encryption=s3.BucketEncryption.S3_MANAGED,
+            versioned=True,
+            removal_policy=RemovalPolicy.DESTROY if env_name == "dev" else RemovalPolicy.RETAIN,
+            auto_delete_objects=True if env_name == "dev" else False,
+        )
+
         # Create Lambda function for table initialization
         init_function = lambda_.Function(
             self,
