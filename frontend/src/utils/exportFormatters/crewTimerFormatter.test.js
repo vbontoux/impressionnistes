@@ -85,7 +85,7 @@ describe('CrewTimer Formatter', () => {
       expect(result.length).toBe(4);
       expect(marathonRows.length).toBe(2);
       expect(semiRows.length).toBe(2);
-      expect(marathonRows.every(r => r.Event.includes('Marathon Race'))).toBe(true);
+      expect(marathonRows.every(r => r.Event === '1x Marathon')).toBe(true);
       expect(semiRows.every(r => r.Event.includes('Semi Race'))).toBe(true);
     });
   });
@@ -185,7 +185,7 @@ describe('CrewTimer Formatter', () => {
       };
 
       const strokeName = getStrokeSeatName(seats, crewDict);
-      expect(strokeName).toBe('Wilson');
+      expect(strokeName).toBe('Diana Wilson');
     });
 
     test('should handle skiff with single rower', () => {
@@ -197,7 +197,7 @@ describe('CrewTimer Formatter', () => {
       };
 
       const strokeName = getStrokeSeatName(seats, crewDict);
-      expect(strokeName).toBe('Smith');
+      expect(strokeName).toBe('Alice Smith');
     });
 
     test('should return empty string for empty seats', () => {
@@ -356,7 +356,7 @@ describe('CrewTimer Formatter', () => {
       expect(result[1]['Event Num']).toBe(2);
       expect(result[0].Bow).toBe(1);
       expect(result[1].Bow).toBe(41);
-      expect(result[0].Event).toBe('1X SENIOR MAN');
+      expect(result[0].Event).toBe('1x Marathon');
       expect(result[0]['Event Abbrev']).toBe('');
       expect(result[1].Event).toBe('WOMEN-JUNIOR J16-COXED SWEEP FOUR');
       expect(result[1]['Event Abbrev']).toBe('');
@@ -364,8 +364,8 @@ describe('CrewTimer Formatter', () => {
       expect(result[0]['Crew Abbrev']).toBe('M.1.1');
       expect(result[1].Crew).toBe('Club Elite');
       expect(result[1]['Crew Abbrev']).toBe('SM.2.1');
-      expect(result[0].Stroke).toBe('Doe');
-      expect(result[1].Stroke).toBe('Wilson');
+      expect(result[0].Stroke).toBe('John Doe');
+      expect(result[1].Stroke).toBe('Charlie Wilson');
       expect(result[0].Age).toBe(35);
       expect(result[1].Age).toBe(16);
       expect(result[0].Handicap).toBe('');
@@ -785,5 +785,499 @@ describe('CrewTimer Formatter', () => {
       expect(result[3]['Event Time']).toBe('9:00:30 AM');
       expect(result[4]['Event Time']).toBe('9:01:00 AM');
     });
+  });
+});
+
+/**
+ * Preservation tests: Semi-marathon behavior unchanged
+ * These tests verify that semi-marathon boats retain their current behavior.
+ * They should PASS on unfixed code (confirming baseline to preserve).
+ * 
+ * Validates: Requirements 3.1, 3.2, 3.3, 3.4, 3.5
+ */
+describe('Preservation: Semi-marathon behavior unchanged', () => {
+  const makeTestData = (races, boats, crewMembers = [], teamManagers = []) => ({
+    success: true,
+    data: {
+      config: {
+        competition_date: '2025-05-01',
+        marathon_start_time: '07:45',
+        semi_marathon_start_time: '09:00',
+        semi_marathon_interval_seconds: 30,
+        marathon_bow_start: 1,
+        semi_marathon_bow_start: 41
+      },
+      races,
+      boats,
+      crew_members: crewMembers,
+      team_managers: teamManagers
+    }
+  });
+
+  test('Test 1: Semi-marathon boat Event value equals full translated race name', () => {
+    const testData = makeTestData(
+      [
+        {
+          race_id: 'SM1',
+          name: 'WOMEN-MASTER-COXED QUAD SCULL YOLETTE',
+          distance: 21,
+          event_type: '21km',
+          boat_type: '4x+',
+          display_order: 5
+        }
+      ],
+      [
+        {
+          boat_registration_id: 'b1',
+          race_id: 'SM1',
+          registration_status: 'complete',
+          forfait: false,
+          seats: [
+            { position: 1, type: 'rower', crew_member_id: 'crew-1' },
+            { position: 2, type: 'rower', crew_member_id: 'crew-2' },
+            { position: 3, type: 'rower', crew_member_id: 'crew-3' },
+            { position: 4, type: 'rower', crew_member_id: 'crew-4' },
+            { position: 5, type: 'cox', crew_member_id: 'crew-5' }
+          ],
+          crew_composition: { avg_age: 52 },
+          club_list: ['Club Nautique'],
+          boat_number: 'SM.5.1'
+        }
+      ],
+      [
+        { crew_member_id: 'crew-1', first_name: 'Marie', last_name: 'Dupont', age: 55 },
+        { crew_member_id: 'crew-2', first_name: 'Sophie', last_name: 'Martin', age: 50 },
+        { crew_member_id: 'crew-3', first_name: 'Claire', last_name: 'Bernard', age: 53 },
+        { crew_member_id: 'crew-4', first_name: 'Anne', last_name: 'Leroy', age: 51 },
+        { crew_member_id: 'crew-5', first_name: 'Lucie', last_name: 'Petit', age: 48 }
+      ]
+    );
+
+    const result = formatRacesToCrewTimer(testData);
+    expect(result.length).toBe(1);
+    // Semi-marathon boats display the full translated race name in Event column
+    expect(result[0]['Event']).toBe('WOMEN-MASTER-COXED QUAD SCULL YOLETTE');
+  });
+
+  test('Test 2: Semi-marathon boat Race Type value equals "Head"', () => {
+    const testData = makeTestData(
+      [
+        {
+          race_id: 'SM1',
+          name: 'MEN-SENIOR-COXED EIGHT',
+          distance: 21,
+          event_type: '21km',
+          boat_type: '8+',
+          display_order: 3
+        }
+      ],
+      [
+        {
+          boat_registration_id: 'b1',
+          race_id: 'SM1',
+          registration_status: 'paid',
+          forfait: false,
+          seats: [],
+          crew_composition: { avg_age: 28 },
+          club_list: ['RCPM'],
+          boat_number: 'SM.3.1'
+        }
+      ]
+    );
+
+    const result = formatRacesToCrewTimer(testData);
+    expect(result.length).toBe(1);
+    // After fix, the column key is "Race Type" with value "Head" for semi-marathon
+    expect(result[0]['Race Type']).toBe('Head');
+  });
+
+  test('Test 3: Mixed data — semi-marathon rows retain full race name and "Head", other columns correct', () => {
+    const testData = makeTestData(
+      [
+        {
+          race_id: 'M1',
+          name: '1X SENIOR MAN',
+          distance: 42,
+          event_type: '42km',
+          boat_type: 'skiff',
+          display_order: 1
+        },
+        {
+          race_id: 'SM1',
+          name: 'WOMEN-JUNIOR J16-COXED SWEEP FOUR',
+          distance: 21,
+          event_type: '21km',
+          boat_type: '4+',
+          display_order: 10
+        }
+      ],
+      [
+        {
+          boat_registration_id: 'b1',
+          race_id: 'M1',
+          registration_status: 'complete',
+          forfait: false,
+          seats: [{ position: 1, type: 'rower', crew_member_id: 'crew-1' }],
+          crew_composition: { avg_age: 35 },
+          club_list: ['RCPM'],
+          boat_number: 'M.1.1'
+        },
+        {
+          boat_registration_id: 'b2',
+          race_id: 'SM1',
+          registration_status: 'complete',
+          forfait: false,
+          seats: [
+            { position: 1, type: 'rower', crew_member_id: 'crew-2' },
+            { position: 2, type: 'rower', crew_member_id: 'crew-3' },
+            { position: 3, type: 'rower', crew_member_id: 'crew-4' },
+            { position: 4, type: 'rower', crew_member_id: 'crew-5' },
+            { position: 5, type: 'cox', crew_member_id: 'crew-6' }
+          ],
+          crew_composition: { avg_age: 16 },
+          club_list: ['Club Elite'],
+          boat_number: 'SM.10.1'
+        }
+      ],
+      [
+        { crew_member_id: 'crew-1', first_name: 'John', last_name: 'Doe', age: 35 },
+        { crew_member_id: 'crew-2', first_name: 'Jane', last_name: 'Smith', age: 16 },
+        { crew_member_id: 'crew-3', first_name: 'Bob', last_name: 'Jones', age: 16 },
+        { crew_member_id: 'crew-4', first_name: 'Alice', last_name: 'Brown', age: 17 },
+        { crew_member_id: 'crew-5', first_name: 'Charlie', last_name: 'Wilson', age: 16 },
+        { crew_member_id: 'crew-6', first_name: 'Eve', last_name: 'Cox', age: 15 }
+      ]
+    );
+
+    const result = formatRacesToCrewTimer(testData);
+    expect(result.length).toBe(2);
+
+    // Marathon boat is first (Event Num 1)
+    const marathonRow = result[0];
+    expect(marathonRow['Event Num']).toBe(1);
+    expect(marathonRow['Bow']).toBe(1);
+
+    // Semi-marathon boat is second (Event Num 2)
+    const semiRow = result[1];
+    // Semi-marathon retains full race name in Event
+    expect(semiRow['Event']).toBe('WOMEN-JUNIOR J16-COXED SWEEP FOUR');
+    // Semi-marathon retains "Head" in Race Type (updated key after fix)
+    expect(semiRow['Race Type']).toBe('Head');
+    // Other columns are correct
+    expect(semiRow['Event Time']).toBe('9:00:00 AM');
+    expect(semiRow['Event Num']).toBe(2);
+    expect(semiRow['Bow']).toBe(41);
+    expect(semiRow['Stroke']).toBe('Charlie Wilson');
+    expect(semiRow['Age']).toBe(16);
+    expect(semiRow['Note']).toBe('Jane Smith, Bob Jones, Alice Brown, Charlie Wilson, Eve Cox');
+  });
+
+  test('Test 4: Sorting preservation — output order is by Event Num then Bow (display_order then avg_age)', () => {
+    const testData = makeTestData(
+      [
+        {
+          race_id: 'SM2',
+          name: 'MEN-SENIOR-DOUBLE SCULL',
+          distance: 21,
+          event_type: '21km',
+          boat_type: '2x',
+          display_order: 12
+        },
+        {
+          race_id: 'SM1',
+          name: 'WOMEN-MASTER-SINGLE SCULL',
+          distance: 21,
+          event_type: '21km',
+          boat_type: '1x',
+          display_order: 8
+        }
+      ],
+      [
+        // SM1 boats (display_order 8 → assigned first → Event Num 2)
+        {
+          boat_registration_id: 'b1',
+          race_id: 'SM1',
+          registration_status: 'complete',
+          forfait: false,
+          seats: [{ position: 1, type: 'rower', crew_member_id: 'crew-1' }],
+          crew_composition: { avg_age: 45 },
+          club_list: ['Club A'],
+          boat_number: 'SM.8.1'
+        },
+        {
+          boat_registration_id: 'b2',
+          race_id: 'SM1',
+          registration_status: 'complete',
+          forfait: false,
+          seats: [{ position: 1, type: 'rower', crew_member_id: 'crew-2' }],
+          crew_composition: { avg_age: 55 },
+          club_list: ['Club B'],
+          boat_number: 'SM.8.2'
+        },
+        // SM2 boats (display_order 12 → assigned second → Event Num 3)
+        {
+          boat_registration_id: 'b3',
+          race_id: 'SM2',
+          registration_status: 'complete',
+          forfait: false,
+          seats: [
+            { position: 1, type: 'rower', crew_member_id: 'crew-3' },
+            { position: 2, type: 'rower', crew_member_id: 'crew-4' }
+          ],
+          crew_composition: { avg_age: 30 },
+          club_list: ['Club C'],
+          boat_number: 'SM.12.1'
+        },
+        {
+          boat_registration_id: 'b4',
+          race_id: 'SM2',
+          registration_status: 'complete',
+          forfait: false,
+          seats: [
+            { position: 1, type: 'rower', crew_member_id: 'crew-5' },
+            { position: 2, type: 'rower', crew_member_id: 'crew-6' }
+          ],
+          crew_composition: { avg_age: 25 },
+          club_list: ['Club D'],
+          boat_number: 'SM.12.2'
+        }
+      ],
+      [
+        { crew_member_id: 'crew-1', first_name: 'Marie', last_name: 'Dupont', age: 45 },
+        { crew_member_id: 'crew-2', first_name: 'Sophie', last_name: 'Martin', age: 55 },
+        { crew_member_id: 'crew-3', first_name: 'Pierre', last_name: 'Leroy', age: 32 },
+        { crew_member_id: 'crew-4', first_name: 'Jean', last_name: 'Blanc', age: 28 },
+        { crew_member_id: 'crew-5', first_name: 'Luc', last_name: 'Noir', age: 26 },
+        { crew_member_id: 'crew-6', first_name: 'Marc', last_name: 'Vert', age: 24 }
+      ]
+    );
+
+    const result = formatRacesToCrewTimer(testData);
+    expect(result.length).toBe(4);
+
+    // SM1 (display_order 8) gets Event Num 2, boats sorted by avg_age descending
+    // b2 (avg_age 55) comes before b1 (avg_age 45)
+    expect(result[0]['Event Num']).toBe(2);
+    expect(result[0]['Bow']).toBe(41);
+    expect(result[0]['Stroke']).toBe('Sophie Martin'); // b2 (older) first
+
+    expect(result[1]['Event Num']).toBe(2);
+    expect(result[1]['Bow']).toBe(42);
+    expect(result[1]['Stroke']).toBe('Marie Dupont'); // b1 (younger) second
+
+    // SM2 (display_order 12) gets Event Num 3, boats sorted by avg_age descending
+    // b3 (avg_age 30) comes before b4 (avg_age 25)
+    expect(result[2]['Event Num']).toBe(3);
+    expect(result[2]['Bow']).toBe(43);
+    expect(result[2]['Stroke']).toBe('Jean Blanc'); // b3 stroke is highest position rower
+
+    expect(result[3]['Event Num']).toBe(3);
+    expect(result[3]['Bow']).toBe(44);
+    expect(result[3]['Stroke']).toBe('Marc Vert'); // b4 stroke is highest position rower
+  });
+});
+
+/**
+ * Bug condition exploration tests
+ * These tests encode the EXPECTED (correct) behavior for marathon boats.
+ * They are expected to FAIL on unfixed code, confirming the bug exists.
+ * 
+ * Validates: Requirements 1.1, 1.2, 1.3
+ */
+describe('Bug condition: Marathon export formatting', () => {
+  const makeMarathonTestData = (races, boats, crewMembers = []) => ({
+    success: true,
+    data: {
+      config: {
+        competition_date: '2025-05-01',
+        marathon_start_time: '07:45',
+        semi_marathon_start_time: '09:00',
+        semi_marathon_interval_seconds: 30,
+        marathon_bow_start: 1,
+        semi_marathon_bow_start: 41
+      },
+      races,
+      boats,
+      crew_members: crewMembers,
+      team_managers: []
+    }
+  });
+
+  test('Test 1: Marathon boat Event column should be "1x Marathon"', () => {
+    const testData = makeMarathonTestData(
+      [
+        {
+          race_id: 'M1',
+          name: '1X SENIOR MAN',
+          distance: 42,
+          event_type: '42km',
+          boat_type: 'skiff',
+          display_order: 1
+        }
+      ],
+      [
+        {
+          boat_registration_id: 'b1',
+          race_id: 'M1',
+          registration_status: 'complete',
+          forfait: false,
+          seats: [{ position: 1, type: 'rower', crew_member_id: 'crew-1' }],
+          crew_composition: { avg_age: 35 },
+          club_list: ['RCPM'],
+          boat_number: 'M.1.1'
+        }
+      ],
+      [{ crew_member_id: 'crew-1', first_name: 'John', last_name: 'Doe', age: 35 }]
+    );
+
+    const result = formatRacesToCrewTimer(testData);
+    expect(result.length).toBe(1);
+    // Expected behavior: marathon boats should display "1x Marathon" in Event column
+    // Bug: currently outputs the individual race name like "1X SENIOR MAN"
+    expect(result[0]['Event']).toBe('1x Marathon');
+  });
+
+  test('Test 2: Marathon boat Race Type column should be "Sprint"', () => {
+    const testData = makeMarathonTestData(
+      [
+        {
+          race_id: 'M1',
+          name: '1X SENIOR MAN',
+          distance: 42,
+          event_type: '42km',
+          boat_type: 'skiff',
+          display_order: 1
+        }
+      ],
+      [
+        {
+          boat_registration_id: 'b1',
+          race_id: 'M1',
+          registration_status: 'complete',
+          forfait: false,
+          seats: [{ position: 1, type: 'rower', crew_member_id: 'crew-1' }],
+          crew_composition: { avg_age: 30 },
+          club_list: ['Club A'],
+          boat_number: 'M.1.1'
+        }
+      ],
+      [{ crew_member_id: 'crew-1', first_name: 'Alice', last_name: 'Smith', age: 30 }]
+    );
+
+    const result = formatRacesToCrewTimer(testData);
+    expect(result.length).toBe(1);
+    // Expected behavior: marathon boats should have Race Type = "Sprint"
+    // Bug: currently outputs "Head" under key "Race Info"
+    expect(result[0]['Race Type']).toBe('Sprint');
+  });
+
+  test('Test 3: All rows should use column key "Race Type" not "Race Info"', () => {
+    const testData = makeMarathonTestData(
+      [
+        {
+          race_id: 'SM1',
+          name: 'WOMEN-MASTER-COXED QUAD SCULL YOLETTE',
+          distance: 21,
+          event_type: '21km',
+          boat_type: '4+',
+          display_order: 2
+        }
+      ],
+      [
+        {
+          boat_registration_id: 'b1',
+          race_id: 'SM1',
+          registration_status: 'complete',
+          forfait: false,
+          seats: [],
+          crew_composition: { avg_age: 45 },
+          club_list: ['Club B'],
+          boat_number: 'SM.2.1'
+        }
+      ]
+    );
+
+    const result = formatRacesToCrewTimer(testData);
+    expect(result.length).toBe(1);
+    // Expected behavior: column key should be "Race Type"
+    // Bug: currently uses "Race Info"
+    expect(result[0]).toHaveProperty('Race Type');
+    expect(result[0]).not.toHaveProperty('Race Info');
+  });
+
+  test('Test 4: Multiple marathon boats from different race categories all get Event "1x Marathon"', () => {
+    const testData = makeMarathonTestData(
+      [
+        {
+          race_id: 'M1',
+          name: '1X SENIOR MAN',
+          distance: 42,
+          event_type: '42km',
+          boat_type: 'skiff',
+          display_order: 1
+        },
+        {
+          race_id: 'M2',
+          name: '1X MASTER F WOMAN',
+          distance: 42,
+          event_type: '42km',
+          boat_type: 'skiff',
+          display_order: 2
+        },
+        {
+          race_id: 'M3',
+          name: '1X JUNIOR J18 MAN',
+          distance: 42,
+          event_type: '42km',
+          boat_type: 'skiff',
+          display_order: 3
+        }
+      ],
+      [
+        {
+          boat_registration_id: 'b1',
+          race_id: 'M1',
+          registration_status: 'complete',
+          forfait: false,
+          seats: [{ position: 1, type: 'rower', crew_member_id: 'crew-1' }],
+          crew_composition: { avg_age: 28 },
+          club_list: ['Club A'],
+          boat_number: 'M.1.1'
+        },
+        {
+          boat_registration_id: 'b2',
+          race_id: 'M2',
+          registration_status: 'paid',
+          forfait: false,
+          seats: [{ position: 1, type: 'rower', crew_member_id: 'crew-2' }],
+          crew_composition: { avg_age: 55 },
+          club_list: ['Club B'],
+          boat_number: 'M.2.1'
+        },
+        {
+          boat_registration_id: 'b3',
+          race_id: 'M3',
+          registration_status: 'complete',
+          forfait: false,
+          seats: [{ position: 1, type: 'rower', crew_member_id: 'crew-3' }],
+          crew_composition: { avg_age: 17 },
+          club_list: ['Club C'],
+          boat_number: 'M.3.1'
+        }
+      ],
+      [
+        { crew_member_id: 'crew-1', first_name: 'Bob', last_name: 'Martin', age: 28 },
+        { crew_member_id: 'crew-2', first_name: 'Marie', last_name: 'Dupont', age: 55 },
+        { crew_member_id: 'crew-3', first_name: 'Lucas', last_name: 'Bernard', age: 17 }
+      ]
+    );
+
+    const result = formatRacesToCrewTimer(testData);
+    expect(result.length).toBe(3);
+    // Expected behavior: ALL marathon boats should display "1x Marathon" regardless of race category
+    // Bug: currently outputs individual race names like "1X SENIOR MAN", "1X MASTER F WOMAN", etc.
+    expect(result[0]['Event']).toBe('1x Marathon');
+    expect(result[1]['Event']).toBe('1x Marathon');
+    expect(result[2]['Event']).toBe('1x Marathon');
   });
 });

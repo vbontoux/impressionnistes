@@ -126,11 +126,11 @@ export function calculateAverageAge(crewMembers) {
 }
 
 /**
- * Get the last name of the stroke seat rower
+ * Get the full name (first + last) of the stroke seat rower
  * The stroke seat is the highest position rower (not cox)
  * @param {Array} seats - Array of seat objects
  * @param {Object} crewMembersDict - Dictionary mapping crew_member_id to crew member data
- * @returns {string} - Last name of stroke seat rower
+ * @returns {string} - Full name of stroke seat rower
  */
 export function getStrokeSeatName(seats, crewMembersDict) {
   if (!seats || !crewMembersDict) {
@@ -160,7 +160,9 @@ export function getStrokeSeatName(seats, crewMembersDict) {
     return ''
   }
   
-  return crewMember.last_name || ''
+  const firstName = crewMember.first_name || ''
+  const lastName = crewMember.last_name || ''
+  return `${firstName} ${lastName}`.trim()
 }
 
 /**
@@ -262,13 +264,13 @@ export function formatRacesToCrewTimer(jsonData, locale = 'en', t = null) {
     const row = {
       'Event Time': eventTime,
       'Event Num': assignment.raceNumber,
-      'Event': fullRaceName,
+      'Event': raceAssignment.isMarathon ? '1x Marathon' : fullRaceName,
       'Event Abbrev': translatedShortName,
       'Crew': crewValue,
       'Crew Abbrev': crewAbbrevValue,
       'Stroke': strokeName,
       'Bow': assignment.bowNumber,
-      'Race Info': 'Head',
+      'Race Type': raceAssignment.isMarathon ? 'Sprint' : 'Head',
       'Status': '',
       'Age': avgAge,
       'Handicap': '',
