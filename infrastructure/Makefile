@@ -187,8 +187,13 @@ synth:
 	@. $(VENV)/bin/activate && $(CDK) synth --context env=$(ENV)
 
 diff:
-	@echo "Showing changes for $(ENV) environment..."
-	@. $(VENV)/bin/activate && $(CDK) diff --all --context env=$(ENV)
+	@if [ -n "$(STACK)" ]; then \
+		echo "Showing changes for $(STACK) in $(ENV) environment..."; \
+		. $(VENV)/bin/activate && $(CDK) diff $(STACK) --context env=$(ENV); \
+	else \
+		echo "Showing changes for $(ENV) environment (all stacks)..."; \
+		. $(VENV)/bin/activate && $(CDK) diff --all --context env=$(ENV); \
+	fi
 
 deploy: build-layer 
 	@echo "Deploying to $(ENV) environment..."
@@ -222,24 +227,6 @@ deploy-backend-prod:
 	@read -p "Type 'DEPLOY BACKEND PROD' to confirm: " confirm; \
 	if [ "$$confirm" = "DEPLOY BACKEND PROD" ]; then \
 		$(MAKE) deploy-backend ENV=prod; \
-	else \
-		echo "Deployment cancelled"; \
-		exit 1; \
-	fi
-
-deploy-frontend:
-	@echo "Deploying frontend stack to $(ENV) environment..."
-	@. $(VENV)/bin/activate && $(CDK) deploy ImpressiornistesFrontend-$(ENV) --context env=$(ENV) --require-approval never
-	@echo "✓ Frontend deployment complete"
-
-deploy-frontend-dev:
-	@$(MAKE) deploy-frontend ENV=dev
-
-deploy-frontend-prod:
-	@echo "⚠️  WARNING: Deploying FRONTEND to PRODUCTION"
-	@read -p "Type 'DEPLOY FRONTEND PROD' to confirm: " confirm; \
-	if [ "$$confirm" = "DEPLOY FRONTEND PROD" ]; then \
-		$(MAKE) deploy-frontend ENV=prod; \
 	else \
 		echo "Deployment cancelled"; \
 		exit 1; \
@@ -326,6 +313,24 @@ describe-infra-dev:
 describe-infra-prod:
 	@$(MAKE) describe-infra ENV=prod
 
+deploy-database:
+	@echo "Deploying Database stack for $(ENV) environment..."
+	@. $(VENV)/bin/activate && $(CDK) deploy ImpressionnistesDatabase-$(ENV) --context env=$(ENV) --require-approval never
+	@echo "✓ Database stack deployed"
+
+deploy-database-dev:
+	@$(MAKE) deploy-database ENV=dev
+
+deploy-database-prod:
+	@echo "⚠️  WARNING: Deploying Database to PRODUCTION"
+	@read -p "Type 'DEPLOY PROD' to confirm: " confirm; \
+	if [ "$$confirm" = "DEPLOY PROD" ]; then \
+		$(MAKE) deploy-database ENV=prod; \
+	else \
+		echo "Deployment cancelled"; \
+		exit 1; \
+	fi
+
 deploy-auth:
 	@echo "Deploying Auth stack for $(ENV) environment..."
 	@$(CDK) deploy ImpressionnistesAuth-$(ENV) --context env=$(ENV)
@@ -351,7 +356,7 @@ build-layer:
 
 deploy-api: build-layer
 	@echo "Deploying API stack for $(ENV) environment..."
-	@$(CDK) deploy ImpressionnistesApi-$(ENV) --context env=$(ENV)
+	@. $(VENV)/bin/activate && $(CDK) deploy ImpressionnistesApi-$(ENV) --context env=$(ENV) --require-approval never
 	@echo "✓ API stack deployed"
 
 deploy-api-dev:
@@ -1744,7 +1749,7 @@ test-slack: test-setup
 	@echo ""
 	@echo "Running Slack notification tests..."
 	@echo ""
-	@cd .. && ENVIRONMENT=$(ENV) $(TEST_PYTHON) functions/shared/test_slack_utils.py
+	@cd .. && ENVIRONMENT=$(ENV) SECRETS_BUCKET=$(SECRETS_BUCKET) $(TEST_PYTHON) functions/shared/test_slack_utils.py
 	@echo ""
 	@echo "=========================================="
 	@echo "✓ Slack test complete!"

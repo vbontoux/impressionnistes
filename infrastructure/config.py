@@ -36,7 +36,8 @@ class EnvironmentConfig:
         "api_throttle_burst_limit": 2000,
         # CloudFront custom domain configuration
         "custom_domain": "impressionnistes.aviron-rcpm.fr",
-        "certificate_arn": "arn:aws:acm:us-east-1:206478392268:certificate/dbdc7ccc-f905-45b0-94e3-906fcbb2aabe",
+        # Wildcard certificate (*.aviron-rcpm.fr) shared across all environments
+        "certificate_arn": "arn:aws:acm:us-east-1:206478392268:certificate/38b35b2f-317e-48e6-9e1a-08a625f9fd62",
     }
     
     @classmethod
