@@ -150,7 +150,7 @@
           </div>
           <div class="detail-row">
             <span class="label">{{ $t('crew.form.gender') }}&nbsp;:</span>
-            <span class="value">{{ crew.gender === 'M' ? $t('crew.form.male') : $t('crew.form.female') }}</span>
+            <span class="value">{{ crew.gender }}</span>
           </div>
           <div class="detail-row">
             <span class="label">{{ $t('crew.card.club') }}&nbsp;:</span>
