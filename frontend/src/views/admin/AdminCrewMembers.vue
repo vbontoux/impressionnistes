@@ -97,7 +97,7 @@
 
         <!-- Custom cell: Assigned Status -->
         <template #cell-assigned="{ row }">
-          <span v-if="row._original.assigned_boat_id" class="badge badge-assigned">{{ $t('crew.card.assigned') }}</span>
+          <span v-if="row._original.assigned_boat_id" class="badge badge-assigned">{{ row._original.boat_number || $t('crew.card.assigned') }}</span>
           <span v-else class="badge badge-unassigned">{{ $t('crew.card.unassigned') }}</span>
         </template>
 
@@ -127,7 +127,7 @@
             <span class="license">{{ crew.license_number }}</span>
           </div>
           <div class="badges">
-            <span v-if="crew.assigned_boat_id" class="badge badge-assigned">{{ $t('crew.card.assigned') }}</span>
+            <span v-if="crew.assigned_boat_id" class="badge badge-assigned">{{ crew.boat_number || $t('crew.card.assigned') }}</span>
             <span v-else class="badge badge-unassigned">{{ $t('crew.card.unassigned') }}</span>
           </div>
         </div>
@@ -422,7 +422,7 @@ export default {
         key: 'assigned',
         label: t('crew.card.assigned'),
         sortable: false,
-        width: '120px',
+        width: '130px',
         align: 'center',
         responsive: 'always'
       },

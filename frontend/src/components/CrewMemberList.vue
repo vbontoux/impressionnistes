@@ -84,6 +84,7 @@
         v-for="member in sortedCrewMembers"
         :key="member.crew_member_id"
         :crew-member="member"
+        :boat-number="getBoatNumber(member.assigned_boat_id)"
         @edit="handleEdit"
         @delete="handleDelete"
       />
@@ -126,7 +127,7 @@
 
         <!-- Custom cell: Assigned status -->
         <template #cell-assigned="{ row }">
-          <span v-if="row.assigned_boat_id" class="badge badge-assigned">{{ $t('crew.card.assigned') }}</span>
+          <span v-if="row.assigned_boat_id" class="badge badge-assigned">{{ getBoatNumber(row.assigned_boat_id) }}</span>
           <span v-else class="badge badge-unassigned">{{ $t('crew.card.unassigned') }}</span>
         </template>
 
@@ -192,6 +193,7 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useCrewStore } from '../stores/crewStore';
+import { useBoatStore } from '../stores/boatStore';
 import { calculateAge, getAgeCategory, getMasterCategory } from '../utils/raceEligibility';
 import { usePermissions } from '../composables/usePermissions';
 import { useConfirm } from '../composables/useConfirm';
@@ -207,6 +209,7 @@ import SortableTable from './composite/SortableTable.vue';
 
 const { t } = useI18n();
 const crewStore = useCrewStore();
+const boatStore = useBoatStore();
 const { canPerformAction, getPermissionMessage, initialize: initializePermissions, loading: permissionsLoading } = usePermissions();
 const { confirm } = useConfirm();
 
@@ -263,7 +266,7 @@ const tableColumns = computed(() => [
     key: 'assigned',
     label: t('crew.card.assigned'),
     sortable: true,
-    width: '120px',
+    width: '130px',
     responsive: 'always'
   },
   {
@@ -288,6 +291,21 @@ const tableColumns = computed(() => [
 const unassignedCount = computed(() => {
   return crewStore.crewMembers.filter(member => !member.assigned_boat_id).length;
 });
+
+// Lookup boat number from boat_registration_id
+const boatNumberMap = computed(() => {
+  const map = {};
+  for (const boat of boatStore.boatRegistrations) {
+    if (boat.boat_number) {
+      map[boat.boat_registration_id] = boat.boat_number;
+    }
+  }
+  return map;
+});
+
+const getBoatNumber = (boatId) => {
+  return boatNumberMap.value[boatId] || t('crew.card.assigned');
+};
 // Load view mode from localStorage or default to 'cards'
 const viewMode = ref(localStorage.getItem('crewViewMode') || 'cards');
 const showCreateForm = ref(false);
@@ -377,7 +395,11 @@ onMounted(async () => {
   
   try {
     console.log('Fetching crew members...');
-    await crewStore.fetchCrewMembers();
+    // Fetch crew members and boat registrations in parallel
+    await Promise.all([
+      crewStore.fetchCrewMembers(),
+      boatStore.fetchBoatRegistrations()
+    ]);
     console.log('Crew members loaded successfully');
     console.log('Crew members data:', crewStore.crewMembers);
     if (crewStore.crewMembers.length > 0) {

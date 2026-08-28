@@ -7,7 +7,7 @@
           <span class="license">{{ crewMember.license_number }}</span>
         </div>
         <div class="badges">
-          <span v-if="isAssigned" class="badge badge-assigned">{{ $t('crew.card.assigned') }}</span>
+          <span v-if="isAssigned" class="badge badge-assigned">{{ boatNumber }}</span>
           <span v-else class="badge badge-unassigned">{{ $t('crew.card.unassigned') }}</span>
         </div>
       </div>
@@ -100,6 +100,10 @@ const props = defineProps({
   crewMember: {
     type: Object,
     required: true
+  },
+  boatNumber: {
+    type: String,
+    default: ''
   }
 });
 

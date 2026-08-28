@@ -88,6 +88,7 @@ def lambda_handler(event, context):
         # - license_verification_details
         # - license_verified_by
         team_manager_cache = {}
+        boat_cache = {}
         for crew in crew_members:
             team_manager_id = crew.get('PK', '').replace('TEAM#', '')
             
@@ -112,6 +113,26 @@ def lambda_handler(event, context):
             crew['team_manager_email'] = tm_info.get('email', '')
             crew['team_manager_club'] = tm_info.get('club_affiliation', '')
             crew['team_manager_id'] = team_manager_id
+            
+            # Add boat_number for assigned crew members
+            assigned_boat_id = crew.get('assigned_boat_id')
+            if assigned_boat_id:
+                boat_cache_key = f"{team_manager_id}#{assigned_boat_id}"
+                if boat_cache_key not in boat_cache:
+                    try:
+                        boat_response = db.table.get_item(
+                            Key={
+                                'PK': f'TEAM#{team_manager_id}',
+                                'SK': f'BOAT#{assigned_boat_id}'
+                            }
+                        )
+                        boat_cache[boat_cache_key] = boat_response.get('Item', {})
+                    except Exception as e:
+                        logger.warning(f"Could not fetch boat {assigned_boat_id}: {str(e)}")
+                        boat_cache[boat_cache_key] = {}
+                
+                boat_info = boat_cache[boat_cache_key]
+                crew['boat_number'] = boat_info.get('boat_number', '')
         
         # Apply filters
         if filter_club:
