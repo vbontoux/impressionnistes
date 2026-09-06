@@ -1,5 +1,26 @@
 # Development Tools and Commands
 
+## 🚨 MANDATORY: Everything Goes Through the Makefile
+
+Every test, build, deployment, database operation, script, and utility MUST be
+run via the `infrastructure/Makefile`. This is not optional.
+
+**The agent MUST NOT run any of the following directly:**
+- `npm` / `npx` / `yarn` / `pnpm` (build, test, lint, dev server, install)
+- `pytest` / `python` on test files or scripts
+- `cdk` (synth, deploy, diff, destroy)
+- Any shell script in `/scripts/` (`.sh` or `.py`)
+- Any ad-hoc build/test/deploy command
+
+**Instead, always use the corresponding `make` target** (run `make help` in
+`infrastructure/` to discover them). If the operation you need has no Makefile
+target, STOP and propose adding one to the Makefile — never bypass it with a raw
+command.
+
+The user runs `make` commands themselves whenever they choose. When a change
+requires a build/test/deploy, the agent's job is to tell the user which `make`
+command to run, not to run bypassing commands.
+
 ## Infrastructure Management
 
 All infrastructure and database tools are located in `infrastructure/Makefile`.
@@ -88,23 +109,25 @@ See `scripts/database/MIGRATIONS.md` for:
 
 **Note:** Delete migrations after running them in all environments (dev/prod).
 
-## Frontend Development
+## Frontend
 
-**Local Development:**
-```bash
-cd frontend
-npm run dev              # Start dev server
-npm run build            # Build for production
-npm run lint             # Lint code
-```
+All frontend build, test, and deploy operations MUST go through the Makefile:
 
-**Frontend Deployment:**
-All frontend deployment commands are also available in the infrastructure Makefile:
 ```bash
 cd infrastructure
-make deploy-frontend-dev  # Deploy frontend to dev environment
-make deploy-frontend-prod # Deploy frontend to production
+make build-frontend ENV=dev    # Build the frontend
+make test-frontend             # Run frontend formatter/unit tests
+make lint-frontend             # Lint frontend code (ESLint, auto-fix)
+make deploy-frontend-dev       # Build + deploy frontend to dev
+make deploy-frontend-prod      # Build + deploy frontend to production
 ```
+
+**The local dev server (`npm run dev`) is a long-running process that YOU run
+manually in your own terminal.** The agent must never start it.
+
+The agent must never run `npm`, `npx`, `pytest`, `cdk`, or any project script
+directly. If a needed operation has no Makefile target yet, the agent must
+propose adding a Makefile target rather than bypassing it with a raw command.
 
 ## Backend Testing
 
@@ -117,9 +140,10 @@ make test-coverage       # Run tests with coverage report
 
 ## Important Notes
 
-- Always use the Makefile commands instead of running scripts directly
+- ALWAYS use the Makefile commands. Never run `npm`, `pytest`, `cdk`, or scripts directly (see the mandatory rule at the top of this file).
 - The Makefile handles virtual environment activation automatically
 - Test on dev environment before deploying to production
 - Use `make describe-infra` to get configuration for frontend .env file
-- All scripts are now organized in `/scripts/` directory with clear categorization
+- All scripts are organized in the `/scripts/` directory with clear categorization
+- If you need an operation with no Makefile target, propose adding the target instead of bypassing the Makefile
 

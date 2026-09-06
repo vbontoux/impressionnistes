@@ -77,6 +77,16 @@
           <span class="label">{{ $t('payment.history.amount') }}:</span>
           <span class="value amount">{{ formatCurrency(payment.amount, payment.currency) }}</span>
         </div>
+
+        <div class="card-field">
+          <span class="label">{{ $t('payment.history.paymentId') }}:</span>
+          <span class="value code">{{ payment.payment_id }}</span>
+        </div>
+
+        <div v-if="payment.stripe_payment_intent_id" class="card-field">
+          <span class="label">{{ $t('payment.history.stripePaymentId') }}:</span>
+          <span class="value code">{{ payment.stripe_payment_intent_id }}</span>
+        </div>
         
         <div class="card-field">
           <span class="label">{{ $t('payment.history.crews') }}:</span>
@@ -130,6 +140,17 @@
           <span class="amount">{{ formatCurrency(row.amount, row.currency) }}</span>
         </template>
 
+        <!-- Internal Payment ID column -->
+        <template #cell-payment_id="{ row }">
+          <span class="code">{{ row.payment_id }}</span>
+        </template>
+
+        <!-- Stripe Payment ID column -->
+        <template #cell-stripe_payment_intent_id="{ row }">
+          <span v-if="row.stripe_payment_intent_id" class="code">{{ row.stripe_payment_intent_id }}</span>
+          <span v-else class="no-race-text">-</span>
+        </template>
+
         <!-- Crew Details column -->
         <template #cell-crew_details="{ row }">
           <div v-if="row.boat_details && row.boat_details.length > 0" class="crew-details">
@@ -175,6 +196,18 @@
     size="large"
     @close="showReceiptModal = false"
   >
+    <!-- Payment identifiers - always shown so both IDs are visible on the receipt -->
+    <div v-if="selectedPayment" class="receipt-identifiers">
+      <div class="detail-row">
+        <span class="detail-label">{{ $t('payment.history.paymentId') }}:</span>
+        <span class="detail-value code">{{ selectedPayment.payment_id }}</span>
+      </div>
+      <div v-if="selectedPayment.stripe_payment_intent_id" class="detail-row">
+        <span class="detail-label">{{ $t('payment.history.stripePaymentId') }}:</span>
+        <span class="detail-value code">{{ selectedPayment.stripe_payment_intent_id }}</span>
+      </div>
+    </div>
+
     <!-- Stripe Receipt iframe -->
     <div v-if="receiptUrl" class="receipt-container">
       <iframe
@@ -187,10 +220,6 @@
     <!-- Payment Details fallback -->
     <div v-else-if="selectedPayment" class="payment-details">
       <div class="detail-row">
-        <span class="detail-label">{{ $t('payment.history.paymentId') }}:</span>
-        <span class="detail-value">{{ selectedPayment.payment_id }}</span>
-      </div>
-      <div class="detail-row">
         <span class="detail-label">{{ $t('payment.history.date') }}:</span>
         <span class="detail-value">{{ formatDate(selectedPayment.paid_at) }}</span>
       </div>
@@ -201,10 +230,6 @@
       <div class="detail-row">
         <span class="detail-label">{{ $t('payment.history.crews') }}:</span>
         <span class="detail-value">{{ selectedPayment.boat_count || 0 }}</span>
-      </div>
-      <div v-if="selectedPayment.stripe_payment_intent_id" class="detail-row">
-        <span class="detail-label">Stripe Payment Intent:</span>
-        <span class="detail-value code">{{ selectedPayment.stripe_payment_intent_id }}</span>
       </div>
       
       <div class="detail-note">
@@ -262,6 +287,20 @@ const columns = computed(() => [
     width: '150px',
     minWidth: '120px',
     align: 'left'
+  },
+  {
+    key: 'payment_id',
+    label: t('payment.history.paymentId'),
+    sortable: false,
+    width: '300px',
+    minWidth: '240px'
+  },
+  {
+    key: 'stripe_payment_intent_id',
+    label: t('payment.history.stripePaymentId'),
+    sortable: false,
+    width: '260px',
+    minWidth: '200px'
   },
   {
     key: 'crew_details',
@@ -349,7 +388,8 @@ const filteredPayments = computed(() => {
     return (
       formatDate(payment.paid_at).toLowerCase().includes(query) ||
       formatCurrency(payment.amount, payment.currency).toLowerCase().includes(query) ||
-      payment.payment_id.toLowerCase().includes(query)
+      payment.payment_id.toLowerCase().includes(query) ||
+      (payment.stripe_payment_intent_id || '').toLowerCase().includes(query)
     );
   });
 });
@@ -606,6 +646,20 @@ onMounted(() => {
   font-weight: var(--font-weight-medium);
 }
 
+.card-field .value.code {
+  font-family: monospace;
+  font-size: var(--font-size-sm);
+  word-break: break-all;
+  text-align: right;
+}
+
+/* Monospace identifiers in the table cells */
+.code {
+  font-family: monospace;
+  font-size: var(--font-size-sm);
+  word-break: break-all;
+}
+
 .card-field .value.amount {
   color: var(--color-primary);
   font-weight: var(--font-weight-semibold);
@@ -644,6 +698,14 @@ onMounted(() => {
   height: 100%;
   border: none;
   border-radius: var(--border-radius);
+}
+
+/* Receipt identifiers (both internal and Stripe IDs, always visible) */
+.receipt-identifiers {
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin-bottom: var(--spacing-md);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
 }
 
 /* Payment Details */

@@ -1104,6 +1104,7 @@
       "amount": "Montant",
       "crews": "Équipages",
       "crewDetails": "Détails des équipages",
+      "stripePaymentId": "ID de paiement Stripe",
       "status": "Statut",
       "noPayments": "Aucun paiement trouvé",
       "viewReceipt": "Voir le reçu",

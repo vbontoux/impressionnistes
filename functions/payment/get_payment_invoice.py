@@ -257,7 +257,12 @@ def generate_text_invoice(payment, team_manager, boats):
     # Payment information
     lines.append("INFORMATIONS DE PAIEMENT / PAYMENT INFORMATION")
     lines.append("-" * 80)
-    lines.append(f"ID de paiement / Payment ID: {payment['payment_id']}")
+    stripe_payment_id = payment.get('stripe_payment_intent_id')
+    if stripe_payment_id:
+        lines.append(f"ID de paiement Stripe / Stripe Payment ID: {stripe_payment_id}")
+    else:
+        # Fallback for legacy payments without a stored Stripe ID
+        lines.append(f"ID de paiement / Payment ID: {payment['payment_id']}")
     lines.append(f"Date: {formatted_date}")
     lines.append(f"Montant / Amount: {float(payment['amount']):.2f} {payment['currency']}")
     lines.append(f"Statut / Status: {payment['status'].capitalize()}")

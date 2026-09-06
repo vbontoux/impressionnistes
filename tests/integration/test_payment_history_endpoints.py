@@ -269,7 +269,7 @@ def test_get_payment_invoice_returns_pdf(
     # Verify text content contains key information
     invoice_text = response['body']
     assert 'Course des Impressionnistes' in invoice_text
-    assert 'payment_000' in invoice_text
+    assert 'pi_test_000' in invoice_text  # Receipt shows the Stripe payment ID
     assert '50.00' in invoice_text  # Amount
 
 

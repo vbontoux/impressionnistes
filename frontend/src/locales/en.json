@@ -1104,6 +1104,7 @@
       "amount": "Amount",
       "crews": "Crews",
       "crewDetails": "Crew Details",
+      "stripePaymentId": "Stripe Payment ID",
       "status": "Status",
       "noPayments": "No payments found",
       "viewReceipt": "View Receipt",
