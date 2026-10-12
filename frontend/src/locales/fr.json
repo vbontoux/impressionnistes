@@ -599,6 +599,8 @@
         "notFoundByLicense": "Numéro de licence {license} non trouvé dans la base FFAviron (aucun résultat retourné)",
         "notFoundInResults": "Numéro de licence {license} non trouvé dans {count} résultat(s) de recherche. La recherche a retourné des résultats mais aucun ne correspond au numéro de licence.",
         "searchFailed": "Échec de la recherche du numéro de licence {license}. {error}",
+        "connectionError": "Impossible de vérifier la licence {license} : erreur de connexion au service FFAviron. La vérification n'a pas pu aboutir — réessayez plus tard.",
+        "cookieError": "Impossible de vérifier la licence : la session FFAviron est invalide ou expirée. Reconnectez-vous à l'intranet FFAviron et actualisez le cookie, puis relancez la vérification. La vérification n'a pas pu aboutir.",
         "noNameOrLicense": "Aucun nom ou numéro de licence fourni pour la recherche",
         "foundByNumber": "Licence trouvée par numéro. {details}",
         "and": "et"

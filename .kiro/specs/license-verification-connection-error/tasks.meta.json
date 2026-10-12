@@ -1,0 +1,22 @@
+{
+  "pbtResults": {
+    "1. Write bug condition exploration test": {
+      "status": "passed",
+      "failingExample": "Exploration test FAILED on unfixed code as expected (confirms bug). Counterexamples:\n- Case A (network, no response): details = \"[searchFailed](license=067741|error=Network Error)\" — expected \"[connectionError](license=067741)\".\n- Case A2 (HTTP 502): details = \"[searchFailed](license=067741|error=Request failed with status code 502)\" — expected connectionError.\n- Case B (HTTP 401 auth): details = \"[searchFailed](license=067741|error=Request failed with status code 401)\" — collapses to the SAME searchFailed shape as the connection case, proving auth and generic connection are indistinguishable today; expected \"[cookieError]\".\n- Case C (name + number both reject): details = \"[searchFailed](license=067741|error=Network Error)\".\n- Case D (batch): details derived from searchFailed/raw wrapped error, not distinct connectionError vs cookieError.\n- Scoped property shrank to {license:\"!\", message:\"Network Error\", isAuth:false}: got \"[searchFailed](license=!|error=Network Error)\" instead of \"[connectionError](license=!)\".\nRoot cause confirmed: lossy {success:false} shape in searchByQuery + caller conflation in checkLicense Strategy 2 + untranslated batch catch; HTTP status discarded so 401 cannot be told apart.",
+      "lastRunTimestamp": 1791641433533
+    },
+    "2. Write preservation property tests (BEFORE implementing fix)": {
+      "status": "passed",
+      "lastRunTimestamp": 1791642216969
+    },
+    "3.6 Verify bug condition exploration test now passes": {
+      "status": "passed",
+      "lastRunTimestamp": 1791642390618
+    },
+    "3.7 Verify preservation tests still pass": {
+      "status": "passed",
+      "lastRunTimestamp": 1791642391307
+    }
+  },
+  "executionHistory": {}
+}

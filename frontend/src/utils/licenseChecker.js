@@ -18,7 +18,7 @@ import apiClient from '@/services/apiClient'
  * Search FFAviron by query (name or license number)
  * @param {string} query - Search query
  * @param {string} cookieString - Cookie string
- * @returns {Promise<{success: boolean, rows: NodeList|null, error: string|null}>}
+ * @returns {Promise<{success: boolean, rows: NodeList|null, error: string|null, errorType?: 'auth'|'connection'}>}
  */
 async function searchByQuery(query, cookieString) {
   const searchQuery = encodeURIComponent(query)
@@ -66,7 +66,14 @@ async function searchByQuery(query, cookieString) {
 
     return { success: true, rows: rows, error: null }
   } catch (error) {
-    return { success: false, rows: null, error: error.message }
+    // Tag the thrown-error (connection/infrastructure) path with the HTTP-status
+    // discriminator. The /admin/html-proxy backend maps a FFAviron 401/403 to HTTP
+    // 401 (bad/expired session cookie), a connect failure to 502, and a timeout to
+    // 504; a pure network failure leaves error.response undefined. So 'auth' is set
+    // only for the identifiable 401 case and 'connection' for everything else.
+    // This is the single place the status->tag mapping lives for searchByQuery.
+    const errorType = error.response?.status === 401 ? 'auth' : 'connection'
+    return { success: false, rows: null, error: error.message, errorType }
   }
 }
 
@@ -453,6 +460,21 @@ export async function checkLicense(name, licenseNumber, cookieString, t) {
           })
         }
       } else {
+        // Connection/infrastructure failure (thrown-error path). Branch on the tag
+        // set by searchByQuery before falling through to the generic searchFailed.
+        if (licenseResult.errorType === 'auth') {
+          return {
+            valid: false,
+            details: t('admin.licenseChecker.messages.cookieError')
+          }
+        }
+        if (licenseResult.errorType === 'connection') {
+          return {
+            valid: false,
+            details: t('admin.licenseChecker.messages.connectionError', { license: licenseNumber })
+          }
+        }
+        // Parse-based failures (errorType undefined) keep the existing behavior.
         return {
           valid: false,
           details: t('admin.licenseChecker.messages.searchFailed', {
@@ -483,7 +505,12 @@ export async function checkLicense(name, licenseNumber, cookieString, t) {
 
   } catch (error) {
     console.error('License check error:', error)
-    throw new Error(`Request error: ${error.message}`)
+    // Preserve the connection/auth discriminator across the re-throw so the batch
+    // runner can branch. Strictly additive: adds a property to the Error object
+    // without altering the thrown value's message or any returned { valid, details }.
+    const wrapped = new Error(`Request error: ${error.message}`)
+    wrapped.errorType = error.response?.status === 401 ? 'auth' : 'connection'
+    throw wrapped
   }
 }
 
@@ -509,10 +536,18 @@ export async function checkLicensesBatch(members, cookieString, t, onProgress = 
         details: result.details
       })
     } catch (error) {
+      // Translate the thrown connection/infrastructure error by sub-case. An Error
+      // reaching here without an errorType (e.g. the up-front "Cookie string is
+      // required" throw) falls into the generic connectionError branch, no longer
+      // leaking the raw string as the primary message.
+      const details =
+        error.errorType === 'auth'
+          ? t('admin.licenseChecker.messages.cookieError')
+          : t('admin.licenseChecker.messages.connectionError', { license: member.license || '' })
       results.push({
         ...member,
         valid: false,
-        details: `Error: ${error.message}`
+        details
       })
     }
 

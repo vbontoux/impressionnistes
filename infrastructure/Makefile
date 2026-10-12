@@ -105,7 +105,7 @@ help:
 	@echo "  make test-setup     - Set up test environment (create venv, install deps)"
 	@echo "  make test           - Run all tests (backend + frontend)"
 	@echo "  make test-backend   - Run backend integration tests only"
-	@echo "  make test-frontend  - Run frontend formatter tests only"
+	@echo "  make test-frontend  - Run frontend formatter + vitest unit tests"
 	@echo "  make lint-frontend  - Lint frontend code (ESLint, auto-fix)"
 	@echo "  make test-email EMAIL=your@email.com - Test email notification system"
 	@echo "  make test-slack     - Test Slack notification system"
@@ -1794,6 +1794,12 @@ test-frontend:
 	@echo "=========================================="
 	@echo ""
 	@cd ../frontend/src/utils/exportFormatters && ./runTests.sh
+	@echo ""
+	@echo "=========================================="
+	@echo "Running Frontend Unit Tests (vitest)"
+	@echo "=========================================="
+	@echo ""
+	@cd ../frontend && npm run test
 	@echo ""
 	@echo "=========================================="
 	@echo "✓ Frontend tests complete!"
