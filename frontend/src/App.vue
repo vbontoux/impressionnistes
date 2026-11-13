@@ -209,6 +209,17 @@
           <span class="nav-text">{{ $t('nav.licenseChecker') }}</span>
         </router-link>
 
+        <router-link v-if="authStore.isAdmin" to="/admin/database" class="nav-item admin-item" @click="closeSidebarOnMobile">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <ellipse cx="12" cy="5" rx="9" ry="3" stroke="currentColor" stroke-width="2"/>
+              <path d="M3 5V19C3 20.66 7.03 22 12 22C16.97 22 21 20.66 21 19V5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M3 12C3 13.66 7.03 15 12 15C16.97 15 21 13.66 21 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="nav-text">{{ $t('nav.databaseManagement') }}</span>
+        </router-link>
+
       </nav>
     </aside>
 

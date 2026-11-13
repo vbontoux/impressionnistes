@@ -235,19 +235,27 @@ describe('LoginForm Component - Unit Tests', () => {
     expect(wrapper.vm.loading).toBe(false);
   });
 
-  test('has links to forgot password, register, and verify email', () => {
-    // Check that router-link components exist with correct 'to' props
+  test('has links to forgot password and verify email, and a register button', async () => {
+    // Forgot password and verify email are router-links
+    // (the register link became a button in commit b0783ae)
     const routerLinks = wrapper.findAllComponents({ name: 'RouterLink' });
-    
-    expect(routerLinks.length).toBeGreaterThanOrEqual(3);
-    
+    expect(routerLinks.length).toBeGreaterThanOrEqual(2);
+
     // Find links by their 'to' prop
     const forgotPasswordLink = routerLinks.find(link => link.props('to') === '/forgot-password');
-    const registerLink = routerLinks.find(link => link.props('to') === '/register');
     const verifyEmailLink = routerLinks.find(link => link.props('to') === '/verify-email');
-    
+
     expect(forgotPasswordLink).toBeTruthy();
-    expect(registerLink).toBeTruthy();
     expect(verifyEmailLink).toBeTruthy();
+
+    // Register is a button that navigates to /register
+    const pushSpy = vi.spyOn(router, 'push').mockResolvedValue();
+    const registerButton = wrapper
+      .findAll('button')
+      .find(button => button.text() === 'auth.login.registerLink');
+    expect(registerButton).toBeTruthy();
+
+    await registerButton.trigger('click');
+    expect(pushSpy).toHaveBeenCalledWith('/register');
   });
 });

@@ -926,6 +926,315 @@ curl -X GET "https://your-api-url/dev/admin/payments/analytics?group_by=week" \
 
 ---
 
+## Admin Database Backup Endpoints
+
+All five endpoints require a Cognito JWT token for a user in the `admins` group. They are served by the `manage_backups` Lambda (`functions/admin/manage_backups.py`, logic in `functions/shared/backup_service.py`).
+
+**Authentication**: Required (Cognito JWT token with admin role) for all endpoints below.
+
+**Headers**:
+```
+Authorization: Bearer <cognito-jwt-token>
+```
+
+**Backup ids**: the `backup_id` is also the S3 object key and the download file name.
+- Manual backup: `manual_<timestamp>.json`, e.g. `manual_2026-11-01T14-30-00Z.json`
+- Safety backup (created automatically before a restore): `safety-pre-restore_<timestamp>_before-restore-of_<category>_<timestamp>.json`, e.g. `safety-pre-restore_2026-11-02T09-00-00Z_before-restore-of_manual_2026-11-01T14-30-00Z.json`. The part after `_before-restore-of_` is the category and timestamp of the source backup (the full source id is returned in `source_backup_id`).
+- `<timestamp>` is UTC, formatted `YYYY-MM-DDTHH-MM-SSZ`.
+
+**Notes**:
+- Each backup creates two artifacts: a JSON file in the backup S3 bucket and an AWS native DynamoDB backup (`native_backup`). The native backup is not removed when the JSON backup is deleted.
+- Backups contain every item of the registration table (all partitions), in DynamoDB typed JSON.
+- Create, delete and restore are recorded as `AUDIT#DATABASE_BACKUP` items (action, admin identity, timestamp).
+
+---
+
+### POST /admin/backups
+
+Create a manual backup (JSON file + AWS native backup).
+
+**Path Parameters**: none
+
+**Request Body**: none
+
+**Response (201 Created)**:
+```json
+{
+  "success": true,
+  "data": {
+    "backup_id": "manual_2026-11-01T14-30-00Z.json",
+    "category": "manual",
+    "item_count": 1250,
+    "size_bytes": 834512,
+    "created_at": "2026-11-01T14:30:00Z",
+    "source_backup_id": null,
+    "native_backup": {
+      "name": "impressionnistes-registration-prod-manual_2026-11-01T14-30-00Z",
+      "arn": "arn:aws:dynamodb:eu-west-3:123456789012:table/impressionnistes-registration-prod/backup/01234567890123-abcdef01",
+      "status": "CREATING"
+    }
+  },
+  "timestamp": "2026-11-01T14:30:05Z"
+}
+```
+
+**Errors**:
+
+| HTTP | Code | When |
+|------|------|------|
+| 401 | `UNAUTHORIZED` | No valid token |
+| 403 | `FORBIDDEN` | User is not in the `admins` group |
+| 500 | `JSON_BACKUP_FAILED` | Table scan or S3 write failed; nothing was stored (`details.failed_artifact = "json"`) |
+| 502 | `NATIVE_BACKUP_FAILED` | JSON backup was stored but the native backup failed (`details.failed_artifact = "aws_native"`, `details.backup_id` = the stored JSON backup) |
+
+---
+
+### GET /admin/backups
+
+List JSON backups, newest first. Files in the bucket that are not valid backup ids are ignored.
+
+**Path Parameters**: none
+
+**Request Body**: none
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "backups": [
+      {
+        "backup_id": "safety-pre-restore_2026-11-02T09-00-00Z_before-restore-of_manual_2026-11-01T14-30-00Z.json",
+        "category": "safety-pre-restore",
+        "created_at": "2026-11-02T09:00:00Z",
+        "item_count": 1250,
+        "size_bytes": 834512,
+        "created_by": "admin@example.com",
+        "source_backup_id": "manual_2026-11-01T14-30-00Z.json",
+        "source_ref": "manual_2026-11-01T14-30-00Z"
+      },
+      {
+        "backup_id": "manual_2026-11-01T14-30-00Z.json",
+        "category": "manual",
+        "created_at": "2026-11-01T14:30:00Z",
+        "item_count": 1250,
+        "size_bytes": 834512,
+        "created_by": "admin@example.com",
+        "source_backup_id": null,
+        "source_ref": null
+      }
+    ]
+  },
+  "timestamp": "2026-11-02T10:00:00Z"
+}
+```
+
+`category` is `manual` or `safety-pre-restore`. `source_ref` is parsed from the id (safety backups only); `source_backup_id` is the full source id from the S3 metadata (can be `null` if the metadata is missing). `item_count` and `created_by` can be `null` if the metadata is missing.
+
+**Errors**:
+
+| HTTP | Code | When |
+|------|------|------|
+| 401 | `UNAUTHORIZED` | No valid token |
+| 403 | `FORBIDDEN` | User is not in the `admins` group |
+| 500 | `LIST_FAILED` | S3 listing failed |
+
+---
+
+### GET /admin/backups/{backup_id}/download
+
+Return the full content of a backup so the client can save it as a file.
+
+**Path Parameters**:
+- `backup_id`: String - Backup id (e.g. `manual_2026-11-01T14-30-00Z.json`)
+
+**Request Body**: none
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "backup_id": "manual_2026-11-01T14-30-00Z.json",
+    "filename": "manual_2026-11-01T14-30-00Z.json",
+    "content": {
+      "format_version": 1,
+      "metadata": {
+        "backup_id": "manual_2026-11-01T14-30-00Z.json",
+        "category": "manual",
+        "created_at": "2026-11-01T14:30:00Z",
+        "created_by": "admin@example.com",
+        "item_count": 1,
+        "table_name": "impressionnistes-registration-prod",
+        "environment": "prod"
+      },
+      "items": [
+        {
+          "PK": {"S": "CONFIG"},
+          "SK": {"S": "SYSTEM"},
+          "registration_open": {"BOOL": true}
+        }
+      ]
+    }
+  },
+  "timestamp": "2026-11-02T10:00:00Z"
+}
+```
+
+The backup file is validated before being returned (`format_version`, unique `PK`/`SK`, `item_count`). Binary values (`B`, `BS`) are base64 encoded. Backups contain all application data, including personal data: store downloaded files securely.
+
+**Errors**:
+
+| HTTP | Code | When |
+|------|------|------|
+| 400 | `INVALID_BACKUP_ID` | `backup_id` does not match the backup naming format |
+| 401 | `UNAUTHORIZED` | No valid token |
+| 403 | `FORBIDDEN` | User is not in the `admins` group |
+| 404 | `BACKUP_NOT_FOUND` | No backup with this id |
+| 422 | `BACKUP_INVALID` | The stored file is not valid JSON or fails validation |
+
+---
+
+### DELETE /admin/backups/{backup_id}
+
+Delete a JSON backup. The AWS native backup is kept.
+
+**Path Parameters**:
+- `backup_id`: String - Backup id
+
+**Request Body**: none
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "backup_id": "manual_2026-11-01T14-30-00Z.json",
+    "deleted": true
+  },
+  "timestamp": "2026-11-02T10:00:00Z"
+}
+```
+
+**Errors**:
+
+| HTTP | Code | When |
+|------|------|------|
+| 400 | `INVALID_BACKUP_ID` | `backup_id` does not match the backup naming format |
+| 401 | `UNAUTHORIZED` | No valid token |
+| 403 | `FORBIDDEN` | User is not in the `admins` group |
+| 404 | `BACKUP_NOT_FOUND` | No backup with this id |
+
+---
+
+### POST /admin/backups/{backup_id}/restore
+
+Restore the database from a backup. **This is a full replacement**: every item of the table is deleted and replaced by the content of the backup.
+
+**Path Parameters**:
+- `backup_id`: String - Backup to restore (manual or safety backup)
+
+**Request Body**:
+```json
+{
+  "confirmation_phrase": "RESTAURER LA BASE"
+}
+```
+
+The phrase must match exactly (case and spaces). A missing or different phrase is rejected before anything is read or changed.
+
+**Behavior** (in order):
+1. Validate the id and the confirmation phrase.
+2. Load and validate the source backup.
+3. Create a safety backup (JSON + AWS native) of the current table. If this fails, the restore is aborted and the table is not modified.
+4. Purge the table, except `AUDIT#DATABASE_BACKUP` records (backup audit history), which are always preserved. If the source contains audit records with the same key, the source version wins.
+5. Write the source items.
+6. Verify the item count: source items plus preserved audit records not present in the source.
+7. Write a `restore_backup` audit record.
+
+To undo a restore, restore the safety backup it returned.
+
+**Synchronous execution**: the restore runs inside the request. The Lambda timeout is 120 s but API Gateway cuts the response at 29 s. A **504** (or a network error) means the **outcome is unknown**: the restore may still be running or have completed. Do not retry blindly; check the backup list and the data first. Re-running the same restore is safe (full replacement is idempotent).
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "source_backup_id": "manual_2026-11-01T14-30-00Z.json",
+    "purged_count": 1240,
+    "preserved_audit_count": 10,
+    "restored_count": 1250,
+    "safety_backup": {
+      "backup_id": "safety-pre-restore_2026-11-02T09-00-00Z_before-restore-of_manual_2026-11-01T14-30-00Z.json",
+      "native_backup": {
+        "name": "impressionnistes-registration-prod-safety-pre-restore_2026-11-02T09-00-00Z",
+        "arn": "arn:aws:dynamodb:eu-west-3:123456789012:table/impressionnistes-registration-prod/backup/01234567890123-abcdef02"
+      }
+    },
+    "steps": [
+      {"name": "safety_backup", "status": "ok", "count": 1250},
+      {"name": "purge", "status": "ok", "count": 1240},
+      {"name": "write", "status": "ok", "count": 1250},
+      {"name": "verify", "status": "ok", "count": 1255}
+    ],
+    "audit_written": true,
+    "duration_ms": 8400
+  },
+  "timestamp": "2026-11-02T09:00:09Z"
+}
+```
+
+`purged_count` excludes the preserved audit records (`preserved_audit_count`). `audit_written: false` means the final audit record could not be written; the restore itself succeeded. Step `status` is `ok`, `failed` or `skipped`.
+
+**Errors**:
+
+| HTTP | Code | When | Table modified? |
+|------|------|------|-----------------|
+| 400 | `INVALID_BACKUP_ID` | `backup_id` does not match the backup naming format | No |
+| 400 | `INVALID_CONFIRMATION` | Phrase missing or different from `RESTAURER LA BASE` | No |
+| 401 | `UNAUTHORIZED` | No valid token | No |
+| 403 | `FORBIDDEN` | User is not in the `admins` group | No |
+| 404 | `BACKUP_NOT_FOUND` | No backup with this id | No |
+| 422 | `BACKUP_INVALID` | Source backup fails validation | No |
+| 500 | `SAFETY_BACKUP_FAILED` | Safety backup could not be created (`details.failed_artifact`, `details.source_backup_id`) | No |
+| 500 | `RESTORE_PARTIAL` | Failure during purge, write or verify | **Yes (partial)** |
+| 504 | (API Gateway timeout) | Response not returned within 29 s | Unknown |
+
+**RESTORE_PARTIAL (500)**: the restore failed after the purge started, so the table may be incomplete. Restore the safety backup (or re-run the same restore) to recover.
+```json
+{
+  "success": false,
+  "error": {
+    "code": "RESTORE_PARTIAL",
+    "message": "The restore failed after the purge started; restore the safety backup",
+    "details": {
+      "safety_backup_id": "safety-pre-restore_2026-11-02T09-00-00Z_before-restore-of_manual_2026-11-01T14-30-00Z.json",
+      "safety_native_backup": {
+        "name": "impressionnistes-registration-prod-safety-pre-restore_2026-11-02T09-00-00Z",
+        "arn": "arn:aws:dynamodb:eu-west-3:123456789012:table/impressionnistes-registration-prod/backup/01234567890123-abcdef02"
+      },
+      "source_backup_id": "manual_2026-11-01T14-30-00Z.json",
+      "stage": "write",
+      "purged_count": 1240,
+      "preserved_audit_count": 10,
+      "written_count": 600,
+      "steps": [
+        {"name": "safety_backup", "status": "ok", "count": 1250},
+        {"name": "purge", "status": "ok", "count": 1240},
+        {"name": "write", "status": "failed", "count": null},
+        {"name": "verify", "status": "skipped", "count": null}
+      ]
+    }
+  },
+  "timestamp": "2026-11-02T09:00:09Z"
+}
+```
+
+`stage` is `purge`, `write` or `verify`. Steps not reached are `skipped`.
+
+---
+
 ## Access Control
 
 ### Payment Permissions

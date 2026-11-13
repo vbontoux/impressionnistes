@@ -100,7 +100,7 @@
         <li>HDPI: 1440x900 or larger</li>
         <li>MDPI: 1024x768 to 1439x899</li>
         <li>Tablet: 768px to 1023px</li>
-        <li>Mobile: < 768px</li>
+        <li>Mobile: &lt; 768px</li>
       </ul>
     </div>
 

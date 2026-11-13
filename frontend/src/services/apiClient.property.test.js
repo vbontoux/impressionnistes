@@ -7,6 +7,15 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fc from 'fast-check';
 
+// Endpoint generator. fc.webPath() can emit paths such as '/.//' that URL
+// normalisation turns into '//' (a protocol-relative URL with an empty host),
+// which is not a valid API endpoint and made the properties flaky per seed.
+const safeEndpoint = () =>
+  fc.webPath().filter(path => {
+    if (path === '' || path === '/' || path.startsWith('//')) return false
+    return !new URL(path, 'http://localhost:3000').pathname.startsWith('//')
+  });
+
 // Mock localStorage
 const localStorageMock = {
   getItem: vi.fn(),
@@ -91,7 +100,7 @@ describe('API Client - Property-Based Tests', () => {
     fc.assert(
       fc.property(
         fc.record({
-          endpoint: fc.webPath().filter(path => path !== '' && path !== '/' && !path.startsWith('//')),
+          endpoint: safeEndpoint(),
           teamManagerId: fc.string({ minLength: 1, maxLength: 50 }).filter(id => id.trim().length > 0),
           isImpersonating: fc.constant(true),
         }),
@@ -132,7 +141,7 @@ describe('API Client - Property-Based Tests', () => {
     fc.assert(
       fc.property(
         fc.record({
-          endpoint: fc.webPath().filter(path => path !== '' && path !== '/' && !path.startsWith('//')),
+          endpoint: safeEndpoint(),
           teamManagerId: fc.string({ minLength: 1, maxLength: 50 }).filter(id => id.trim().length > 0),
           existingParams: fc.dictionary(
             fc.string({ minLength: 1, maxLength: 20 }).filter(key => key.trim().length > 0),
@@ -184,7 +193,7 @@ describe('API Client - Property-Based Tests', () => {
     fc.assert(
       fc.property(
         fc.record({
-          endpoint: fc.webPath().filter(path => path !== '' && path !== '/' && !path.startsWith('//')),
+          endpoint: safeEndpoint(),
           teamManagerId: fc.string({ minLength: 1, maxLength: 50 }).filter(id => id.trim().length > 0),
           method: fc.constantFrom('GET', 'POST', 'PUT', 'DELETE', 'PATCH'),
           headers: fc.dictionary(
@@ -237,7 +246,7 @@ describe('API Client - Property-Based Tests', () => {
     fc.assert(
       fc.property(
         fc.record({
-          endpoint: fc.webPath().filter(path => path !== '' && path !== '/' && !path.startsWith('//')),
+          endpoint: safeEndpoint(),
           isImpersonating: fc.constant(false),
         }),
         ({ endpoint, isImpersonating }) => {
@@ -273,7 +282,7 @@ describe('API Client - Property-Based Tests', () => {
     fc.assert(
       fc.property(
         fc.record({
-          endpoint: fc.webPath().filter(path => path !== '' && path !== '/' && !path.startsWith('//')),
+          endpoint: safeEndpoint(),
           teamManagerId: fc.constantFrom(null, '', undefined),
         }),
         ({ endpoint, teamManagerId }) => {

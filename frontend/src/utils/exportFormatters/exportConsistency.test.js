@@ -114,7 +114,7 @@ describe('Cross-Export Consistency', () => {
     }
   }
 
-  it('should produce identical race numbers across both exports', () => {
+  it('should use CrewTimer event numbers and programme display_order consistently across exports', () => {
     // Generate CrewTimer export
     const crewTimerData = formatRacesToCrewTimer(mockJsonData, 'fr')
 
@@ -125,24 +125,30 @@ describe('Cross-Export Consistency', () => {
       eligibleBoats,
       mockJsonData.data.config
     )
+
     const crewMemberList = generateCrewMemberList(mockJsonData, boatAssignments, raceAssignments, 'fr')
     const raceSchedule = generateRaceSchedule(mockJsonData, raceAssignments, 'fr')
 
-    // Extract race numbers from CrewTimer export
+    // CrewTimer event numbers: all marathons share event 1, semi-marathons get 2, 3, ...
+    // (race1 and race3 are marathons = 1, race2 is semi-marathon = 2)
     const crewTimerRaceNumbers = new Set(crewTimerData.map(row => row['Event Num']))
+    expect(Array.from(crewTimerRaceNumbers).sort()).toEqual([1, 2])
 
-    // Extract race numbers from Event Program exports
+    // Event Program race numbers: the printed programme uses the race display_order
+    // (commit 972301e), so each race keeps its own number (race1=1, race2=2, race3=3)
     const eventProgramRaceNumbers = new Set([
       ...crewMemberList.map(row => row['N° Course']),
       ...raceSchedule.map(row => row['N° Course'])
     ])
+    expect(Array.from(eventProgramRaceNumbers).sort()).toEqual([1, 2, 3])
 
-    // Race numbers should be identical
-    expect(crewTimerRaceNumbers).toEqual(eventProgramRaceNumbers)
-    // With the business rule: all marathons get 1, semi-marathons get 2, 3, 4...
-    // race1 (marathon) = 1, race2 (semi) = 2, race3 (marathon) = 1
-    // So we should have race numbers [1, 2]
-    expect(Array.from(crewTimerRaceNumbers).sort()).toEqual([1, 2])
+    // Both exports must cover the same races: every programme race number is a
+    // display_order of a race that has eligible boats
+    const racesWithBoats = new Set(eligibleBoats.map(boat => boat.race_id))
+    const expectedDisplayOrders = mockJsonData.data.races
+      .filter(race => racesWithBoats.has(race.race_id))
+      .map(race => race.display_order)
+    expect(Array.from(eventProgramRaceNumbers).sort()).toEqual(expectedDisplayOrders.sort())
   })
 
   it('should produce identical bow numbers across both exports', () => {

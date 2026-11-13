@@ -47,6 +47,10 @@ Welcome to the Course des Impressionnistes Registration System documentation.
 - [License Verification](guides/admin/license-verification.md) - License verification and persistence
 - [License Checker](guides/admin/license-checker-guide.md) - FFAviron license checker tool
 
+### Operations Guides
+- [Database Backup & Restore](guides/operations/database-backup-restore.md) - Create, download, restore and recover database backups
+- [Database Export](guides/operations/database-export.md) - Export DynamoDB data to CSV
+
 ## Documentation Structure
 
 ```

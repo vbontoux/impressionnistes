@@ -5,6 +5,9 @@ import os
 import sys
 import pytest
 import boto3
+# Preload the venv's s3transfer BEFORE sys.path is modified below: functions/layer/python
+# ships a newer s3transfer that is incompatible with the venv's botocore.
+import boto3.s3.transfer  # noqa: F401
 from moto import mock_dynamodb
 from decimal import Decimal
 

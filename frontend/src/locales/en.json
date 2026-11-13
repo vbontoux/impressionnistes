@@ -65,7 +65,8 @@
     "boatRegistrations": "Crews",
     "dataExports": "Data Exports",
     "paymentAnalytics": "Payment Analytics",
-    "licenseChecker": "License Checker"
+    "licenseChecker": "License Checker",
+    "databaseManagement": "Database management"
   },
   "admin": {
     "impersonation": {
@@ -604,6 +605,151 @@
         "noNameOrLicense": "No name or license number provided for search",
         "foundByNumber": "License found by number. {details}",
         "and": "and"
+      }
+    },
+    "database": {
+      "title": "Database management",
+      "subtitle": "Database backups and restore",
+      "backupSection": "Backup and restore",
+      "states": {
+        "idle": "Ready. {count} backup(s).",
+        "busy": "{operation} in progress…",
+        "busyRestoreHint": "Do not close the page. A restore usually takes less than 15 seconds.",
+        "readyToRestore": "Restoring {id}: type the confirmation phrase.",
+        "success": "Restore complete: {purged} item(s) removed, {restored} restored.",
+        "error": "The operation failed. Nothing was changed in the database.",
+        "partial": "PARTIAL STATE: the database is incomplete",
+        "operations": {
+          "loading": "Loading the list",
+          "creating": "Creating the backup",
+          "downloading": "Downloading",
+          "deleting": "Deleting",
+          "restoring": "Restoring"
+        }
+      },
+      "actions": {
+        "create": "Create a backup",
+        "refresh": "Refresh",
+        "retry": "Retry",
+        "close": "Close",
+        "download": "Download",
+        "delete": "Delete",
+        "restore": "Restore…",
+        "restoreConfirm": "Restore",
+        "cancel": "Cancel",
+        "confirmRestore": "Confirm restore",
+        "undoRestore": "Undo this restore",
+        "restoreSafety": "Restore the safety backup",
+        "dismiss": "Dismiss"
+      },
+      "category": {
+        "manual": "Manual",
+        "safety-pre-restore": "Safety before restore"
+      },
+      "list": {
+        "title": "Backups",
+        "empty": "No backups available",
+        "loading": "Loading backups…",
+        "id": "Identifier",
+        "category": "Category",
+        "createdAt": "Created on",
+        "itemCount": "Items",
+        "size": "Size",
+        "createdBy": "Created by",
+        "source": "Source",
+        "actions": "Actions",
+        "unknown": "-",
+        "sourceOf": "before restore of: {source}",
+        "deleteConfirmTitle": "Delete backup",
+        "deleteConfirmMessage": "Permanently delete backup {id}?",
+        "createSuccess": "Backup {id} created ({count} items).",
+        "deleteSuccess": "Backup {id} deleted."
+      },
+      "restore": {
+        "title": "Restore the database",
+        "selected": "Selected backup",
+        "category": "Category",
+        "source": "Source backup: {source}",
+        "impact": "All current data will be replaced by the {count} items of this backup. A safety backup is created before the restore. Cognito accounts are not restored.",
+        "phraseLabel": "Confirmation phrase",
+        "phraseHelp": "Type exactly: {phrase}",
+        "phrasePlaceholder": "{phrase}",
+        "button": "Restore",
+        "duration": "A restore usually takes less than 15 seconds.",
+        "modal": {
+          "title": "Confirm restore",
+          "replaceAll": "This action replaces ALL current data with the content of {id} ({count} items, category {category}).",
+          "safetyBefore": "A safety backup will be created first: {safetyName}",
+          "undoHint": "To undo: restore this safety backup after the restore.",
+          "cognito": "Cognito accounts are not restored. The application may show empty data for a few seconds. Restoring outside active registration periods is recommended.",
+          "cancel": "Cancel",
+          "confirm": "Confirm restore"
+        },
+        "steps": {
+          "title": "Steps",
+          "safety_backup": "Safety backup",
+          "purge": "Data removal",
+          "write": "Data write",
+          "verify": "Verification",
+          "ok": "done",
+          "failed": "failed",
+          "skipped": "skipped",
+          "count": "{count} item(s)"
+        },
+        "result": {
+          "successTitle": "Restore complete",
+          "counts": "{purged} item(s) removed, {restored} item(s) restored.",
+          "safetyBackup": "Safety backup: {id}",
+          "nativeBackup": "Native backup: {name}"
+        },
+        "undo": {
+          "title": "To undo this restore",
+          "description": "A safety backup was created before the restore. Restore it to go back to the previous state (the confirmation phrase is required).",
+          "button": "Undo this restore"
+        },
+        "error": {
+          "unchanged": "Nothing was changed in the database.",
+          "unknownOutcomeTitle": "Outcome unknown",
+          "unknownOutcome": "No response from the server. The restore may have completed or failed. Refresh the list and check the state of the database before taking any further action.",
+          "unknownOutcomeSteps": "Wait about 1 minute (processing can take up to 120 seconds), then click \"Refresh\". If a new \"Safety before restore\" backup appears, the restore has started: check the data. If it looks empty or wrong, restore that safety backup.",
+          "sessionExpired": "Your session has expired. After logging in again, refresh the list and check the state of the database before taking any further action."
+        },
+        "partial": {
+          "title": "Partial state",
+          "message": "The table has been purged but the restore is not complete.",
+          "stage": "Stage reached: {stage}",
+          "counts": "{purged} item(s) removed, {written} item(s) written.",
+          "safetyBackup": "Safety backup: {id}",
+          "nativeBackup": "Native backup: {name}",
+          "instructionsTitle": "What to do",
+          "step1": "Do not use the application until the database is recovered.",
+          "step2": "Restore the safety backup (type the confirmation phrase) or retry the restore with the source backup.",
+          "step3": "If that fails again, restore the native backup with the command: make db-restore-backup BACKUP_ARN=<arn>. Point-in-time recovery (PITR) is also enabled on the table.",
+          "restoreSafety": "Restore the safety backup",
+          "retrySource": "Retry with the source backup"
+        }
+      },
+      "errors": {
+        "UNAUTHORIZED": "You are not logged in. Please log in again.",
+        "FORBIDDEN": "Access denied: this action is reserved for administrators.",
+        "NOT_FOUND": "Unknown route. Nothing was changed in the database.",
+        "INVALID_BACKUP_ID": "Invalid backup identifier. Nothing was changed in the database.",
+        "INVALID_CONFIRMATION": "The confirmation phrase is incorrect. Nothing was changed in the database.",
+        "BACKUP_NOT_FOUND": "Backup not found. Nothing was changed in the database.",
+        "BACKUP_INVALID": "The backup file is invalid and cannot be restored. Nothing was changed in the database.",
+        "JSON_BACKUP_FAILED": "The backup was not created: writing the JSON file failed. Nothing was changed in the database.",
+        "NATIVE_BACKUP_FAILED": "The AWS native backup failed (the JSON file {backupId} was created). Nothing was changed in the database.",
+        "SAFETY_BACKUP_FAILED": "The safety backup failed: the restore was cancelled. Nothing was changed in the database.",
+        "RESTORE_PARTIAL": "The restore failed after the purge started: the database is in a partial state. Use the safety backup to recover the database.",
+        "LIST_FAILED": "Unable to load the backup list. Nothing was changed in the database.",
+        "INTERNAL_ERROR": "Internal error. Nothing was changed in the database.",
+        "UNKNOWN_OUTCOME": "No response from the server. The restore may have completed or failed. Refresh the list and check the state of the database before taking any further action.",
+        "DEFAULT": "An error occurred. Refresh the list and check the state of the database."
+      },
+      "reset": {
+        "placeholderTitle": "Database reset",
+        "placeholderBadge": "Coming soon",
+        "placeholderDescription": "This section will allow resetting the database. Coming soon."
       }
     }
   },

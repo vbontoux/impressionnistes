@@ -505,13 +505,15 @@ describe('generateRaceSchedule', () => {
     const eligibleBoats = filterEligibleBoats(boats)
     const { raceAssignments } = assignRaceAndBowNumbers(mockData.data.races, eligibleBoats, config)
 
-    const result = generateRaceSchedule(mockData, raceAssignments, 'fr')
+    const result = generateRaceSchedule({ data: { ...mockData.data, boats } }, raceAssignments, 'fr')
 
     expect(result).toHaveLength(1)
     expect(result[0]).toHaveProperty('Course (abrégé)')
     expect(result[0]).toHaveProperty('Course')
     expect(result[0]).toHaveProperty('N° Course')
     expect(result[0]).toHaveProperty('Heure de départ')
+    expect(result[0]['Nombre de bateaux']).toBe(1)
+    expect(result[0]['Nombre de participants']).toBe(0) // boat has no seats
   })
 
   it('should sort races by race number', () => {
@@ -522,7 +524,7 @@ describe('generateRaceSchedule', () => {
     const eligibleBoats = filterEligibleBoats(boats)
     const { raceAssignments } = assignRaceAndBowNumbers(mockData.data.races, eligibleBoats, config)
 
-    const result = generateRaceSchedule(mockData, raceAssignments, 'fr')
+    const result = generateRaceSchedule({ data: { ...mockData.data, boats } }, raceAssignments, 'fr')
 
     expect(result[0]['N° Course']).toBe(1)
     expect(result[1]['N° Course']).toBe(2)
@@ -536,7 +538,7 @@ describe('generateRaceSchedule', () => {
     const eligibleBoats = filterEligibleBoats(boats)
     const { raceAssignments } = assignRaceAndBowNumbers(mockData.data.races, eligibleBoats, config)
 
-    const result = generateRaceSchedule(mockData, raceAssignments, 'fr')
+    const result = generateRaceSchedule({ data: { ...mockData.data, boats } }, raceAssignments, 'fr')
 
     expect(result[0]['Heure de départ']).toBe('07:45') // Marathon
     expect(result[1]['Heure de départ']).toBe('09:00') // Semi-marathon
@@ -553,7 +555,7 @@ describe('generateRaceSchedule', () => {
     const eligibleBoats = filterEligibleBoats(boats)
     const { raceAssignments } = assignRaceAndBowNumbers(mockData.data.races, eligibleBoats, config)
 
-    const result = generateRaceSchedule(mockData, raceAssignments, 'fr')
+    const result = generateRaceSchedule({ data: { ...mockData.data, boats } }, raceAssignments, 'fr')
 
     // Race 1 (marathon) - all boats start at same time
     expect(result[0]['Heure de départ']).toBe('07:45')
@@ -571,7 +573,7 @@ describe('generateRaceSchedule', () => {
     const eligibleBoats = filterEligibleBoats(boats)
     const { raceAssignments } = assignRaceAndBowNumbers(mockData.data.races, eligibleBoats, config)
 
-    const result = generateRaceSchedule(mockData, raceAssignments, 'fr')
+    const result = generateRaceSchedule({ data: { ...mockData.data, boats } }, raceAssignments, 'fr')
 
     expect(result).toHaveLength(1)
     expect(result[0]['N° Course']).toBe(1)
@@ -669,8 +671,8 @@ describe('generateCrewsInRaces', () => {
     // Should have header row + 2 data rows
     expect(result).toHaveLength(3)
     
-    // Check header row has 50 columns (5 base + 45 member columns)
-    expect(result[0]).toHaveLength(50)
+    // Check header row has 52 columns (7 base + 45 member columns)
+    expect(result[0]).toHaveLength(52)
   })
 
   it('should have correct French headers', () => {
@@ -683,16 +685,18 @@ describe('generateCrewsInRaces', () => {
     const result = generateCrewsInRaces(mockData, boatAssignments, raceAssignments, 'fr')
 
     const headers = result[0]
-    expect(headers[0]).toBe('N° Course')
-    expect(headers[1]).toBe('Course')
-    expect(headers[2]).toBe('Course (abrégé)')
-    expect(headers[3]).toBe('N° Équipage')
-    expect(headers[4]).toBe('Bateau assigné')
-    expect(headers[5]).toBe('Équipier 1 Nom')
-    expect(headers[6]).toBe('Équipier 1 Prénom')
-    expect(headers[7]).toBe('Équipier 1 Club')
-    expect(headers[8]).toBe('Équipier 1 Âge')
-    expect(headers[9]).toBe('Équipier 1 Genre')
+    expect(headers[0]).toBe('Course')
+    expect(headers[1]).toBe('Heure de départ')
+    expect(headers[2]).toBe('N° Course')
+    expect(headers[3]).toBe('Course (abrégé)')
+    expect(headers[4]).toBe('N° Équipage')
+    expect(headers[5]).toBe('N° Dossard')
+    expect(headers[6]).toBe('Bateau assigné')
+    expect(headers[7]).toBe('Équipier 1 Nom')
+    expect(headers[8]).toBe('Équipier 1 Prénom')
+    expect(headers[9]).toBe('Équipier 1 Club')
+    expect(headers[10]).toBe('Équipier 1 Âge')
+    expect(headers[11]).toBe('Équipier 1 Genre')
   })
 
   it('should have correct English headers', () => {
@@ -705,16 +709,18 @@ describe('generateCrewsInRaces', () => {
     const result = generateCrewsInRaces(mockData, boatAssignments, raceAssignments, 'en')
 
     const headers = result[0]
-    expect(headers[0]).toBe('Race #')
-    expect(headers[1]).toBe('Race')
-    expect(headers[2]).toBe('Race (abbrev)')
-    expect(headers[3]).toBe('Crew #')
-    expect(headers[4]).toBe('Boat assignment')
-    expect(headers[5]).toBe('Member 1 Last Name')
-    expect(headers[6]).toBe('Member 1 First Name')
-    expect(headers[7]).toBe('Member 1 Club')
-    expect(headers[8]).toBe('Member 1 Age')
-    expect(headers[9]).toBe('Member 1 Gender')
+    expect(headers[0]).toBe('Race')
+    expect(headers[1]).toBe('Start Time')
+    expect(headers[2]).toBe('Race #')
+    expect(headers[3]).toBe('Race (abbrev)')
+    expect(headers[4]).toBe('Crew #')
+    expect(headers[5]).toBe('Bow #')
+    expect(headers[6]).toBe('Boat assignment')
+    expect(headers[7]).toBe('Member 1 Last Name')
+    expect(headers[8]).toBe('Member 1 First Name')
+    expect(headers[9]).toBe('Member 1 Club')
+    expect(headers[10]).toBe('Member 1 Age')
+    expect(headers[11]).toBe('Member 1 Gender')
   })
 
   it('should include crew member data for boats with varying crew sizes', () => {
@@ -729,19 +735,19 @@ describe('generateCrewsInRaces', () => {
 
     // First boat has 3 crew members
     const row1 = result[1]
-    expect(row1[5]).toBe('Doe') // Member 1 last name
-    expect(row1[6]).toBe('John') // Member 1 first name
-    expect(row1[7]).toBe('Club A') // Member 1 club
-    expect(row1[8]).toBe(25) // Member 1 age
-    expect(row1[9]).toBe('H') // Member 1 gender (H for Homme in French)
+    expect(row1[7]).toBe('Doe') // Member 1 last name
+    expect(row1[8]).toBe('John') // Member 1 first name
+    expect(row1[9]).toBe('Club A') // Member 1 club
+    expect(row1[10]).toBe(25) // Member 1 age
+    expect(row1[11]).toBe('H') // Member 1 gender (H for Homme in French)
     
-    expect(row1[10]).toBe('Smith') // Member 2 last name
-    expect(row1[15]).toBe('Johnson') // Member 3 last name
+    expect(row1[12]).toBe('Smith') // Member 2 last name
+    expect(row1[17]).toBe('Johnson') // Member 3 last name
     
     // Second boat has 1 crew member
     const row2 = result[2]
-    expect(row2[5]).toBe('Williams') // Member 1 last name
-    expect(row2[6]).toBe('Alice') // Member 1 first name
+    expect(row2[7]).toBe('Williams') // Member 1 last name
+    expect(row2[8]).toBe('Alice') // Member 1 first name
   })
 
   it('should fill empty strings for positions beyond crew size', () => {
@@ -757,11 +763,11 @@ describe('generateCrewsInRaces', () => {
     const row = result[1]
     
     // Member 1 should have data
-    expect(row[5]).toBe('Williams')
+    expect(row[7]).toBe('Williams')
     
     // Members 2-9 should be empty (5 fields each)
     for (let i = 2; i <= 9; i++) {
-      const baseIndex = 5 + ((i - 1) * 5)
+      const baseIndex = 7 + ((i - 1) * 5)
       expect(row[baseIndex]).toBe('') // Last name
       expect(row[baseIndex + 1]).toBe('') // First name
       expect(row[baseIndex + 2]).toBe('') // Club
@@ -781,8 +787,8 @@ describe('generateCrewsInRaces', () => {
     const result = generateCrewsInRaces(mockData, boatAssignments, raceAssignments, 'fr')
 
     // Should be sorted by race number (1, 2)
-    expect(result[1][0]).toBe(1) // First row race number
-    expect(result[2][0]).toBe(2) // Second row race number
+    expect(result[1][2]).toBe(1) // First row race number
+    expect(result[2][2]).toBe(2) // Second row race number
   })
 
   it('should format assigned boat correctly', () => {
@@ -796,10 +802,10 @@ describe('generateCrewsInRaces', () => {
     const result = generateCrewsInRaces(mockData, boatAssignments, raceAssignments, 'fr')
 
     // First boat has name and comment
-    expect(result[1][4]).toBe('Test Boat - Test Comment')
+    expect(result[1][6]).toBe('Test Boat - Test Comment')
     
     // Second boat has no assigned boat
-    expect(result[2][4]).toBe('')
+    expect(result[2][6]).toBe('')
   })
 
   it('should not include ineligible boats', () => {
@@ -843,7 +849,7 @@ describe('generateCrewsInRaces', () => {
 
     // Should only have header + 1 eligible boat
     expect(result).toHaveLength(2)
-    expect(result[1][5]).toBe('Smith') // Only boat2's crew member
+    expect(result[1][7]).toBe('Smith') // Only boat2's crew member
   })
 
   it('should handle boats with 9 crew members', () => {
@@ -887,7 +893,7 @@ describe('generateCrewsInRaces', () => {
     
     // Check all 9 members have data
     for (let i = 1; i <= 9; i++) {
-      const baseIndex = 5 + ((i - 1) * 5)
+      const baseIndex = 7 + ((i - 1) * 5)
       expect(row[baseIndex]).toBe(`Last${i}`) // Last name
       expect(row[baseIndex + 1]).toBe(`First${i}`) // First name
       expect(row[baseIndex + 2]).toBe('Club A') // Club
@@ -1110,7 +1116,7 @@ describe('Property Tests - Variable Crew Size Handling', () => {
 
       // Verify first N members have complete data (5 fields each)
       for (let j = 0; j < crewSize; j++) {
-        const baseIndex = 5 + (j * 5)
+        const baseIndex = 7 + (j * 5)
         expect(dataRow[baseIndex]).toBeTruthy() // Last name
         expect(dataRow[baseIndex + 1]).toBeTruthy() // First name
         expect(dataRow[baseIndex + 2]).toBeTruthy() // Club
@@ -1120,7 +1126,7 @@ describe('Property Tests - Variable Crew Size Handling', () => {
 
       // Verify remaining positions (crewSize to 9) are empty
       for (let j = crewSize; j < 9; j++) {
-        const baseIndex = 5 + (j * 5)
+        const baseIndex = 7 + (j * 5)
         expect(dataRow[baseIndex]).toBe('') // Last name
         expect(dataRow[baseIndex + 1]).toBe('') // First name
         expect(dataRow[baseIndex + 2]).toBe('') // Club
@@ -1168,11 +1174,11 @@ describe('Property Tests - Variable Crew Size Handling', () => {
     const row1 = result1[1]
 
     // First member should have data
-    expect(row1[5]).toBe('Doe')
+    expect(row1[7]).toBe('Doe')
     
     // Remaining 8 positions should be empty
     for (let i = 1; i < 9; i++) {
-      const baseIndex = 5 + (i * 5)
+      const baseIndex = 7 + (i * 5)
       expect(row1[baseIndex]).toBe('')
     }
 
@@ -1213,7 +1219,7 @@ describe('Property Tests - Variable Crew Size Handling', () => {
 
     // All 9 positions should have data
     for (let i = 0; i < 9; i++) {
-      const baseIndex = 5 + (i * 5)
+      const baseIndex = 7 + (i * 5)
       expect(row9[baseIndex]).toBe(`Last${i}`)
       expect(row9[baseIndex + 1]).toBe(`First${i}`)
     }
@@ -1292,7 +1298,7 @@ describe('Property Tests - Race Number Ordering', () => {
       const result = generateCrewsInRaces(mockData, boatAssignments, raceAssignments, 'fr')
 
       // Extract race numbers from data rows (skip header)
-      const raceNumbers = result.slice(1).map(row => row[0])
+      const raceNumbers = result.slice(1).map(row => row[2])
 
       // Verify ascending order
       for (let j = 1; j < raceNumbers.length; j++) {
@@ -1339,7 +1345,7 @@ describe('Property Tests - Race Number Ordering', () => {
 
     // Should have header + 1 data row
     expect(result1).toHaveLength(2)
-    expect(result1[1][0]).toBe(1)
+    expect(result1[1][2]).toBe(1)
 
     // Test with multiple boats in same race
     const multiBoatRace = [
@@ -1390,9 +1396,9 @@ describe('Property Tests - Race Number Ordering', () => {
     const result2 = generateCrewsInRaces(mockData2, ba2, ra2, 'fr')
 
     // All boats should have same race number
-    expect(result2[1][0]).toBe(1)
-    expect(result2[2][0]).toBe(1)
-    expect(result2[3][0]).toBe(1)
+    expect(result2[1][2]).toBe(1)
+    expect(result2[2][2]).toBe(1)
+    expect(result2[3][2]).toBe(1)
   })
 })
 
@@ -2608,7 +2614,7 @@ describe('Property Tests - Export Completeness', () => {
           
           const crewsInRacesBoatIds = new Set()
           crewsInRacesData.slice(1).forEach(row => {
-            const boatNumber = row[2] // Crew # column
+            const boatNumber = row[4] // Crew # column
             const boat = boats.find(b => b.boat_number === boatNumber)
             if (boat) {
               crewsInRacesBoatIds.add(boat.boat_registration_id)
@@ -2758,29 +2764,29 @@ describe('Property Tests - 4-Sheet Structure', () => {
           // Verify Sheet 1 (Crew Member List) has all required columns
           const crewListHeaders = Object.keys(crewMemberList[0])
           const expectedCrewListColumns = locale === 'en' 
-            ? ['Race #', 'Race', 'Race (abbrev)', 'Crew #', 'Last Name', 'First Name', 'Club', 'Age', 'Gender', 'License #', 'Place in boat', 'Bow #', 'Assigned Boat']
-            : ['N° Course', 'Course', 'Course (abrégé)', 'N° Équipage', 'Nom', 'Prénom', 'Club', 'Âge', 'Genre', 'N° Licence', 'Place dans le bateau', 'N° Dossard', 'Bateau assigné']
+            ? ['Race', 'Race #', 'Race (abbrev)', 'Crew #', 'Bow #', 'Last Name', 'First Name', 'Club', 'Age', 'Gender', 'License #', 'Place in boat', 'Assigned Boat']
+            : ['Course', 'N° Course', 'Course (abrégé)', 'N° Équipage', 'N° Dossard', 'Nom', 'Prénom', 'Club', 'Âge', 'Genre', 'N° Licence', 'Place dans le bateau', 'Bateau assigné']
           
           expect(crewListHeaders).toEqual(expectedCrewListColumns)
           
           // Verify Sheet 2 (Race Schedule) has all required columns
           const raceScheduleHeaders = Object.keys(raceSchedule[0])
           const expectedRaceScheduleColumns = locale === 'en'
-            ? ['Race (abbrev)', 'Race', 'Race #', 'Start Time']
-            : ['Course (abrégé)', 'Course', 'N° Course', 'Heure de départ']
+            ? ['Race (abbrev)', 'Race', 'Race #', 'Start Time', 'Number of Boats', 'Number of Participants']
+            : ['Course (abrégé)', 'Course', 'N° Course', 'Heure de départ', 'Nombre de bateaux', 'Nombre de participants']
           
           expect(raceScheduleHeaders).toEqual(expectedRaceScheduleColumns)
           
-          // Verify Sheet 3 (Crews in Races) has correct number of columns (50 total)
+          // Verify Sheet 3 (Crews in Races) has correct number of columns (52 total)
           const crewsInRacesHeaders = crewsInRacesData[0]
-          expect(crewsInRacesHeaders.length).toBe(50) // 5 base + 45 member columns (9 members × 5 fields)
+          expect(crewsInRacesHeaders.length).toBe(52) // 7 base + 45 member columns (9 members × 5 fields)
           
-          // Verify first 5 columns
+          // Verify first 7 columns
           const expectedCrewsInRacesBase = locale === 'en'
-            ? ['Race #', 'Race', 'Race (abbrev)', 'Crew #', 'Boat assignment']
-            : ['N° Course', 'Course', 'Course (abrégé)', 'N° Équipage', 'Bateau assigné']
+            ? ['Race', 'Start Time', 'Race #', 'Race (abbrev)', 'Crew #', 'Bow #', 'Boat assignment']
+            : ['Course', 'Heure de départ', 'N° Course', 'Course (abrégé)', 'N° Équipage', 'N° Dossard', 'Bateau assigné']
           
-          expect(crewsInRacesHeaders.slice(0, 5)).toEqual(expectedCrewsInRacesBase)
+          expect(crewsInRacesHeaders.slice(0, 7)).toEqual(expectedCrewsInRacesBase)
           
           // Verify Sheet 4 (Synthesis) has correct number of columns (7 total)
           const synthesisHeaders = synthesisData[0]
@@ -2930,15 +2936,15 @@ describe('Property Tests - Localization Consistency', () => {
           // Define expected headers for each locale
           const expectedHeaders = {
             fr: {
-              crewMemberList: ['N° Course', 'Course', 'Course (abrégé)', 'N° Équipage', 'Nom', 'Prénom', 'Club', 'Âge', 'Genre', 'N° Licence', 'Place dans le bateau', 'N° Dossard', 'Bateau assigné'],
-              raceSchedule: ['Course (abrégé)', 'Course', 'N° Course', 'Heure de départ'],
-              crewsInRacesBase: ['N° Course', 'Course', 'Course (abrégé)', 'N° Équipage', 'Bateau assigné'],
+              crewMemberList: ['Course', 'N° Course', 'Course (abrégé)', 'N° Équipage', 'N° Dossard', 'Nom', 'Prénom', 'Club', 'Âge', 'Genre', 'N° Licence', 'Place dans le bateau', 'Bateau assigné'],
+              raceSchedule: ['Course (abrégé)', 'Course', 'N° Course', 'Heure de départ', 'Nombre de bateaux', 'Nombre de participants'],
+              crewsInRacesBase: ['Course', 'Heure de départ', 'N° Course', 'Course (abrégé)', 'N° Équipage', 'N° Dossard', 'Bateau assigné'],
               synthesis: ['Club', 'Prénom + Nom', 'Email', 'N° Téléphone', 'Nombre de bateaux assignés', 'Nombre d\'équipages en marathon', 'Nombre d\'équipages en semi-marathon']
             },
             en: {
-              crewMemberList: ['Race #', 'Race', 'Race (abbrev)', 'Crew #', 'Last Name', 'First Name', 'Club', 'Age', 'Gender', 'License #', 'Place in boat', 'Bow #', 'Assigned Boat'],
-              raceSchedule: ['Race (abbrev)', 'Race', 'Race #', 'Start Time'],
-              crewsInRacesBase: ['Race #', 'Race', 'Race (abbrev)', 'Crew #', 'Boat assignment'],
+              crewMemberList: ['Race', 'Race #', 'Race (abbrev)', 'Crew #', 'Bow #', 'Last Name', 'First Name', 'Club', 'Age', 'Gender', 'License #', 'Place in boat', 'Assigned Boat'],
+              raceSchedule: ['Race (abbrev)', 'Race', 'Race #', 'Start Time', 'Number of Boats', 'Number of Participants'],
+              crewsInRacesBase: ['Race', 'Start Time', 'Race #', 'Race (abbrev)', 'Crew #', 'Bow #', 'Boat assignment'],
               synthesis: ['Club', 'First name + Last name', 'Email', 'Phone #', 'Number of assigned boats', 'Number of crews in marathon', 'Number of crews in semi-marathon']
             }
           }
@@ -2959,7 +2965,7 @@ describe('Property Tests - Localization Consistency', () => {
           
           // Verify Sheet 3 (Crews in Races) base headers
           const crewsInRacesHeaders = crewsInRacesData[0]
-          expect(crewsInRacesHeaders.slice(0, 5)).toEqual(expectedHeaders[locale].crewsInRacesBase)
+          expect(crewsInRacesHeaders.slice(0, 7)).toEqual(expectedHeaders[locale].crewsInRacesBase)
           
           // Verify member column headers follow pattern
           for (let i = 1; i <= 9; i++) {
@@ -2972,7 +2978,7 @@ describe('Property Tests - Localization Consistency', () => {
               `${memberPrefix} ${locale === 'en' ? 'Gender' : 'Genre'}`
             ]
             
-            const startIdx = 5 + (i - 1) * 5
+            const startIdx = 7 + (i - 1) * 5
             const memberHeaders = crewsInRacesHeaders.slice(startIdx, startIdx + 5)
             expect(memberHeaders).toEqual(expectedMemberHeaders)
           }
@@ -3122,11 +3128,11 @@ describe('Race Abbreviation Translation', () => {
 
     // Test French locale
     const frenchCrews = generateCrewsInRaces(mockData, boatAssignments, raceAssignments, 'fr')
-    expect(frenchCrews[1][2]).toBe('MF4X+') // Row 1 (after headers), column 2 (race abbrev)
+    expect(frenchCrews[1][3]).toBe('MF4X+') // Row 1 (after headers), column 3 (race abbrev)
 
     // Test English locale
     const englishCrews = generateCrewsInRaces(mockData, boatAssignments, raceAssignments, 'en')
-    expect(englishCrews[1][2]).toBe('MW4X+')
+    expect(englishCrews[1][3]).toBe('MW4X+')
   })
 
   it('should translate various gender markers correctly', () => {
@@ -3300,15 +3306,15 @@ describe('Edge Cases - Missing Crew Member Data', () => {
     expect(result).toHaveLength(2)
     
     // First member should be John Doe
-    expect(result[1][5]).toBe('Doe') // Member 1 Last Name
-    expect(result[1][6]).toBe('John') // Member 1 First Name
+    expect(result[1][7]).toBe('Doe') // Member 1 Last Name
+    expect(result[1][8]).toBe('John') // Member 1 First Name
     
     // Second member should be placeholder
-    expect(result[1][10]).toBe('Inconnu') // Member 2 Last Name
-    expect(result[1][11]).toBe('') // Member 2 First Name
-    expect(result[1][12]).toBe('') // Member 2 Club
-    expect(result[1][13]).toBe('') // Member 2 Age
-    expect(result[1][14]).toBe('') // Member 2 Gender
+    expect(result[1][12]).toBe('Inconnu') // Member 2 Last Name
+    expect(result[1][13]).toBe('') // Member 2 First Name
+    expect(result[1][14]).toBe('') // Member 2 Club
+    expect(result[1][15]).toBe('') // Member 2 Age
+    expect(result[1][16]).toBe('') // Member 2 Gender
   })
 
   it('should handle seats without crew_member_id', () => {
@@ -3672,8 +3678,8 @@ describe('Edge Cases - Empty Assigned Boat Fields', () => {
 
     const result = generateCrewsInRaces(mockData, boatAssignments, raceAssignments, 'fr')
 
-    // Boat assignment is column 4 (index 4)
-    expect(result[1][4]).toBe('')
+    // Boat assignment is column 7 (index 6)
+    expect(result[1][6]).toBe('')
   })
 })
 

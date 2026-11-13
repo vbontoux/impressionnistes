@@ -133,3 +133,49 @@ make costs-by-tag
 # View all AWS account costs
 make costs-all
 ```
+
+## Database Backup and Restore
+
+All commands run from the `infrastructure/` directory. `ENV` defaults to the Makefile default (`dev`).
+
+```bash
+# Create an AWS native on-demand backup (waits until it is AVAILABLE)
+make db-backup ENV=dev
+
+# Export the whole table to a local JSON file (exports/backup-<env>-<timestamp>.json)
+make db-backup-local ENV=dev
+
+# List native backups of the table
+make db-list-backups ENV=dev
+
+# Restore a native backup into a NEW table (asks for confirmation)
+make db-restore-backup BACKUP_ARN=<arn> ENV=dev
+```
+
+### Relation to the admin page "Gestion de la base"
+
+The admin page "Gestion de la base" and the Makefile targets complement each other:
+
+- `make db-backup` creates the same kind of AWS native on-demand backup that the page creates alongside every JSON backup. When run from the Makefile, the backup is named `impressionnistes-<env>-<timestamp>`.
+- `make db-list-backups ENV=<env>` is where the native backups created by the page are visible. They are named `impressionnistes-registration-<env>-<category>_<timestamp>`. The page itself lists only JSON backups, not native ones.
+- `make db-restore-backup BACKUP_ARN=<arn>` restores a native backup into a NEW table named `impressionnistes-registration-<env>-restored`. It is the out-of-band fallback: the original table is untouched, and you must verify the restored data, then delete the old table and rename the restored one manually.
+- The page restores differently: it does an in-place full replacement of the table content from a JSON backup.
+
+## Testing and Linting
+
+```bash
+# Run all backend integration tests
+make test-backend
+
+# Run one backend test with full traceback (stops at first failure, verbose)
+make test-backend-one TEST=tests/integration/test_crew_member_api.py::test_create_crew_member
+
+# Run frontend formatter tests and unit tests (vitest)
+make test-frontend
+
+# Lint frontend code with ESLint
+make lint-frontend
+```
+
+- `make test-backend-one TEST=<path::test>` runs a single backend test (or a whole file if you omit `::test`) with `-x -vv --tb=long`, so you get the full traceback.
+- `make lint-frontend` now works. It uses `frontend/.eslintrc.cjs` for the rules and `frontend/.gitignore` for the files to skip.

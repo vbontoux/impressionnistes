@@ -1,0 +1,600 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Implement constants, naming, envelope and typed-JSON helpers": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068131765
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068138995
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794070712610
+      }
+    ],
+    "1.2 Write tests for naming, envelope and special types": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068131841
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071202882
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071371113
+      },
+      {
+        "executionId": "0f6cf32e-0497-4d23-a12c-a0c99cee505a",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794072192462
+      },
+      {
+        "executionId": "0f6cf32e-0497-4d23-a12c-a0c99cee505a",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794072238664
+      }
+    ],
+    "1.3 Implement S3 I/O, native backup, create, list, read, delete, audit": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068131888
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794070743861
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794070947760
+      }
+    ],
+    "1.4 Write tests for create, list, download, delete and audit": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068131969
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071374200
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071543549
+      }
+    ],
+    "1.5 Implement batch write, purge, verify, restore and `handle_*` adapters": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132002
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071049752
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071197483
+      },
+      {
+        "executionId": "f9e7a915-dc91-4183-975f-78770c62e1de",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794072620151
+      },
+      {
+        "executionId": "f9e7a915-dc91-4183-975f-78770c62e1de",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794072686094
+      }
+    ],
+    "1.6 Write tests for restore": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132034
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071546521
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071738550
+      },
+      {
+        "executionId": "b1ad3550-121b-446c-918d-6884c09c5442",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794148432838
+      },
+      {
+        "executionId": "b1ad3550-121b-446c-918d-6884c09c5442",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794148646965
+      }
+    ],
+    "2.1 Create `functions/admin/manage_backups.py`": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132066
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071203690
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071371051
+      }
+    ],
+    "2.2 Write handler tests": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132098
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071741745
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071861912
+      }
+    ],
+    "3.1 Add `backup_bucket` to `infrastructure/stacks/database_stack.py`": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132131
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068139419
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794070712677
+      }
+    ],
+    "3.2 Add the Lambda, routes and IAM in `infrastructure/stacks/api_stack.py` (after 2.1: the handler file must exist before synth)": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132158
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071375143
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071543583
+      }
+    ],
+    "4. Checkpoint - Backend and infrastructure": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132220
+      },
+      {
+        "executionId": "b1ad3550-121b-446c-918d-6884c09c5442",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794148655373
+      },
+      {
+        "executionId": "b1ad3550-121b-446c-918d-6884c09c5442",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794150232572
+      }
+    ],
+    "5.1 Create `frontend/src/utils/backupNaming.js`": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132251
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068140285
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794070738389
+      }
+    ],
+    "5.2 Write `frontend/src/utils/backupNaming.test.js`": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132288
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794070744707
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794070947883
+      }
+    ],
+    "5.3 Create `frontend/src/composables/useBackupRestore.js`": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132323
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794070745359
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794070892842
+      }
+    ],
+    "5.4 Write `frontend/src/composables/useBackupRestore.test.js`": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132352
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071049635
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071197584
+      }
+    ],
+    "5.5 Add i18n keys to `frontend/src/locales/fr.json` and `en.json`": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132383
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068140958
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794070712761
+      }
+    ],
+    "5.6 Create the components in `frontend/src/components/admin/`": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132407
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071049716
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071198088
+      }
+    ],
+    "5.7 Create the view, route, and navigation entries": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132440
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071204373
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071371082
+      }
+    ],
+    "5.8 Add `test_frontend_backend_constants_aligned` to `tests/integration/test_database_backup_restore.py`": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132471
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071865363
+      },
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071933247
+      }
+    ],
+    "6. Checkpoint - Frontend": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132500
+      },
+      {
+        "executionId": "b1ad3550-121b-446c-918d-6884c09c5442",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794150236928
+      },
+      {
+        "executionId": "311a5340-383b-406d-85cb-f9946ea06d39",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794515215842
+      },
+      {
+        "executionId": "311a5340-383b-406d-85cb-f9946ea06d39",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794515909748
+      }
+    ],
+    "7.1 Deploy to DEV": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132534
+      },
+      {
+        "executionId": "0e592b6e-95d5-441b-8568-2e1753a26361",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794158038640
+      },
+      {
+        "executionId": "1da754e6-5ad2-4c18-b453-b6a26d27632b",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794511923005
+      }
+    ],
+    "7.2 Run the manual verification checklist in DEV": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132564
+      },
+      {
+        "executionId": "311a5340-383b-406d-85cb-f9946ea06d39",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794515045375
+      }
+    ],
+    "7.3 Run failure drills in DEV (required)": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132600
+      },
+      {
+        "executionId": "311a5340-383b-406d-85cb-f9946ea06d39",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794515049882
+      }
+    ],
+    "8.1 Deploy to PROD": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132667
+      },
+      {
+        "executionId": "aef1d690-6147-4622-98ed-68c4aa593d92",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794606780116
+      }
+    ],
+    "8.2 Verify in PROD": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132693
+      },
+      {
+        "executionId": "aef1d690-6147-4622-98ed-68c4aa593d92",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794606780605
+      }
+    ],
+    "9.1 Update `docs/reference/api-endpoints.md` with the five `/admin/backups` endpoints, request/response examples and error codes": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132723
+      },
+      {
+        "executionId": "091cfed3-6b14-4f59-bb6a-9aee2f7eba3d",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794606922049
+      },
+      {
+        "executionId": "091cfed3-6b14-4f59-bb6a-9aee2f7eba3d",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794607009515
+      }
+    ],
+    "9.2 Update `docs/reference/project-structure.md` with `backup_service.py`, `functions/admin/manage_backups.py`, `components/admin/` additions and the Backup_Bucket": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132750
+      },
+      {
+        "executionId": "091cfed3-6b14-4f59-bb6a-9aee2f7eba3d",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794606922130
+      },
+      {
+        "executionId": "091cfed3-6b14-4f59-bb6a-9aee2f7eba3d",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794607010477
+      }
+    ],
+    "9.3 Add a short runbook in `docs/guides/operations/` covering create, restore, undo, partial-failure recovery (safety backup, `make db-restore-backup`, PITR) and the outcome-unknown case": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132776
+      },
+      {
+        "executionId": "091cfed3-6b14-4f59-bb6a-9aee2f7eba3d",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794606923397
+      },
+      {
+        "executionId": "091cfed3-6b14-4f59-bb6a-9aee2f7eba3d",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794607011679
+      }
+    ],
+    "9.4 Update `docs/reference/commands.md` with the relation of `db-backup`, `db-list-backups` and `db-restore-backup` to the feature": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794068132805
+      },
+      {
+        "executionId": "091cfed3-6b14-4f59-bb6a-9aee2f7eba3d",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794606924385
+      },
+      {
+        "executionId": "091cfed3-6b14-4f59-bb6a-9aee2f7eba3d",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794607012966
+      }
+    ],
+    "3. CDK infrastructure": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071543622
+      }
+    ],
+    "1. Backend service module `functions/shared/backup_service.py`": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071738613
+      }
+    ],
+    "2. Single Lambda handler": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071861951
+      }
+    ],
+    "5. Frontend": [
+      {
+        "executionId": "142bbed0-9e2e-4019-bf94-1689c604186f",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794071933314
+      }
+    ],
+    "7. DEV deployment and verification (manual, performed by the user, not for automated execution)": [
+      {
+        "executionId": "311a5340-383b-406d-85cb-f9946ea06d39",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794515049918
+      }
+    ],
+    "10.1 Preserve the `AUDIT#DATABASE_BACKUP` partition in `restore_backup`": [
+      {
+        "executionId": "311a5340-383b-406d-85cb-f9946ea06d39",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794515215877
+      },
+      {
+        "executionId": "311a5340-383b-406d-85cb-f9946ea06d39",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794515909784
+      }
+    ],
+    "10.2 Write tests for audit preservation": [
+      {
+        "executionId": "311a5340-383b-406d-85cb-f9946ea06d39",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794515914536
+      },
+      {
+        "executionId": "311a5340-383b-406d-85cb-f9946ea06d39",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794516147452
+      }
+    ],
+    "10.3 Redeploy and re-check in DEV (manual, performed by the user)": [
+      {
+        "executionId": "1a9bd7e1-3e6b-4248-9ac0-407d22b06b09",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794518991430
+      }
+    ],
+    "10. Preserve backup audit records across restore": [
+      {
+        "executionId": "1a9bd7e1-3e6b-4248-9ac0-407d22b06b09",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794518991469
+      }
+    ],
+    "8. PROD rollout (manual, user-driven, only after DEV is validated; not for automated execution)": [
+      {
+        "executionId": "aef1d690-6147-4622-98ed-68c4aa593d92",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794606780664
+      }
+    ],
+    "9. Documentation updates (ask the user to confirm before editing, per the `documentation-updates` and `requirements-sync` rules)": [
+      {
+        "executionId": "091cfed3-6b14-4f59-bb6a-9aee2f7eba3d",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794607013002
+      }
+    ]
+  }
+}

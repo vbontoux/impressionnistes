@@ -61,6 +61,11 @@ The Course des Impressionnistes Registration System is a web application that en
 - **Self_Hosted_Authentication**: Custom authentication pages hosted within the application, replacing Cognito Hosted UI
 - **Cookie_Consent**: User's explicit agreement to the use of non-essential cookies on the website
 - **Consent_Version**: Tracked version of the privacy policy and consent text to ensure users have agreed to the current version
+- **JSON_Backup**: Application-level export of every database table item as JSON, stored in the Backup_Bucket
+- **AWS_Native_Backup**: DynamoDB on-demand backup created together with each JSON_Backup
+- **Backup_Bucket**: Dedicated per-environment S3 bucket (`rcpm-impressionnistes-backups-{env}`) storing JSON_Backups
+- **Safety_Backup**: JSON_Backup of category "safety-pre-restore", created automatically before a restore and used to undo it
+- **Backup_Audit_History**: Audit records of backup, delete, and restore actions (partition `AUDIT#DATABASE_BACKUP`), preserved across restores
 
 ### Pricing Terminology
 
@@ -518,6 +523,26 @@ These requirements define what the system does from a business and user perspect
 5. THE Registration_System SHALL display the combined license status in both table view and card view
 6. THE Registration_System SHALL update the combined license status automatically when individual crew member verification statuses change
 7. THE combined license status badge SHALL be informational only (not clickable)
+
+### FR-28: Database Backup and Restore
+
+**User Story:** As an admin user, I want to back up and restore the whole database from an admin page, so that I can recover the system to a known good state.
+
+**Reference:** Detailed requirements and design are in `.kiro/specs/database-backup-restore/`.
+
+#### Acceptance Criteria
+
+1. THE Registration_System SHALL provide the Admin_User with a "Gestion de la base" page in the Admin menu, and SHALL reject backup and restore requests from users who are not in the admin role
+2. WHEN an Admin_User requests a backup, THE Registration_System SHALL write a JSON_Backup of every table item to the per-environment Backup_Bucket and SHALL create an AWS_Native_Backup of the table
+3. THE Registration_System SHALL assign each JSON_Backup a category of "manual" or "safety-pre-restore" and SHALL embed the category and a UTC timestamp in the backup name so that the category is identifiable from the name alone
+4. THE Registration_System SHALL allow the Admin_User to list, download, and delete JSON_Backups, and SHALL display the category of each JSON_Backup as a distinct label
+5. WHEN an Admin_User confirms a restore, THE Registration_System SHALL create a Safety_Backup of the current table state before purging any data
+6. IF the Safety_Backup cannot be created, THEN THE Registration_System SHALL abort the restore and leave the table unchanged
+7. THE Registration_System SHALL require the Admin_User to select a source JSON_Backup explicitly and to type the confirmation phrase "RESTAURER LA BASE" exactly before a restore can start
+8. WHEN a restore starts, THE Registration_System SHALL replace the full table contents with the selected JSON_Backup, except for the Backup_Audit_History, which SHALL be preserved
+9. WHEN a restore completes, THE Registration_System SHALL leave Cognito user accounts unchanged and SHALL offer the Safety_Backup as the way to undo the restore
+10. IF a restore fails after the table has been purged, THEN THE Registration_System SHALL report that the table is partially restored and SHALL display the Safety_Backup identifier
+11. WHEN a backup, delete, or restore action completes, THE Registration_System SHALL record an audit entry with the action, the Admin_User identity, and the timestamp in the Backup_Audit_History
 
 ---
 

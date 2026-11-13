@@ -43,9 +43,24 @@ frontend/
 │   └── main.js          # Application entry point
 ├── .env                 # Environment variables (local dev)
 ├── .env.production      # Production environment variables
+├── .eslintrc.cjs        # ESLint configuration (make lint-frontend)
+├── .gitignore           # Frontend gitignore
 ├── index.html           # HTML template
 ├── package.json         # Dependencies
 └── vite.config.js       # Vite configuration
+```
+
+Backup/restore additions (all under `frontend/src/`):
+
+```
+├── components/admin/
+│   ├── BackupRestoreSection.vue      # Backup list, create, download, delete
+│   ├── RestorePanel.vue              # Restore selection and confirmation phrase
+│   ├── RestoreResultPanel.vue        # Restore success, error and partial results
+│   └── DatabaseResetPlaceholder.vue  # "Bientôt disponible" placeholder
+├── composables/useBackupRestore.js   # Backup/restore state machine
+├── utils/backupNaming.js             # Backup id parsing, badges, confirmation phrase
+└── views/admin/AdminDatabaseManagement.vue # /admin/database "Gestion de la base"
 ```
 
 ### Backend Functions (`functions/`)
@@ -55,6 +70,7 @@ AWS Lambda functions organized by domain.
 ```
 functions/
 ├── admin/               # Admin-only operations
+│   └── manage_backups.py # Single Lambda routing the 5 /admin/backups routes
 ├── auth/                # Authentication (register, login, profile)
 ├── boat/                # Boat registration management
 ├── club/                # Club data
@@ -68,6 +84,7 @@ functions/
 └── shared/              # Shared utilities
     ├── access_control.py
     ├── auth_utils.py
+    ├── backup_service.py # Backup/restore: naming, S3 JSON and native DynamoDB backups, restore with safety backup and audit preservation
     ├── database.py
     ├── email_utils.py
     ├── payment_*.py
@@ -87,9 +104,9 @@ AWS CDK infrastructure as code.
 ```
 infrastructure/
 ├── stacks/              # CDK stack definitions
-│   ├── api_stack.py    # API Gateway + Lambda functions
+│   ├── api_stack.py    # API Gateway + Lambda functions (incl. ManageBackupsFunction)
 │   ├── auth_stack.py   # Cognito user pools
-│   ├── database_stack.py # DynamoDB tables
+│   ├── database_stack.py # DynamoDB tables + backup bucket (rcpm-impressionnistes-backups-{env}: encrypted, versioned, public access blocked, SSL enforced, RETAIN)
 │   ├── frontend_stack.py # S3 + CloudFront
 │   ├── monitoring_stack.py # CloudWatch alarms
 │   └── secrets_stack.py # Secrets Manager
@@ -139,6 +156,7 @@ tests/
 │   ├── test_auth_api.py
 │   ├── test_boat_registration_api.py
 │   ├── test_crew_member_api.py
+│   ├── test_database_backup_restore.py # Backup/restore service and handler tests
 │   ├── test_payment_*.py
 │   └── ...
 ├── unit/                # Unit tests

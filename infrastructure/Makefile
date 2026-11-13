@@ -1,4 +1,4 @@
-.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws clean-aws-dev clean-aws-prod list describe-infra costs costs-all costs-by-tag db-export db-view db-reset db-migrate cognito-create-admin cognito-list-users cognito-add-to-group ses-verify-email ses-list-verified ses-check-email ses-get-quota ses-get-statistics ses-request-production ses-verify-domain ses-get-domain-token ses-enable-dkim ses-check-domain secrets-list secrets-show secrets-show-stripe secrets-update-stripe secrets-sync secrets-sync-dev secrets-sync-prod secrets-delete-all secrets-delete-all-prod test-setup test test-backend test-frontend lint-frontend test-email test-coverage test-clean clean
+.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws clean-aws-dev clean-aws-prod list describe-infra costs costs-all costs-by-tag db-export db-view db-reset db-migrate cognito-create-admin cognito-list-users cognito-add-to-group ses-verify-email ses-list-verified ses-check-email ses-get-quota ses-get-statistics ses-request-production ses-verify-domain ses-get-domain-token ses-enable-dkim ses-check-domain secrets-list secrets-show secrets-show-stripe secrets-update-stripe secrets-sync secrets-sync-dev secrets-sync-prod secrets-delete-all secrets-delete-all-prod test-setup test test-backend test-backend-one test-frontend lint-frontend test-email test-coverage test-clean clean
 
 # Virtual environment paths
 VENV = venv
@@ -105,6 +105,7 @@ help:
 	@echo "  make test-setup     - Set up test environment (create venv, install deps)"
 	@echo "  make test           - Run all tests (backend + frontend)"
 	@echo "  make test-backend   - Run backend integration tests only"
+	@echo "  make test-backend-one TEST=<path::test>  - Run one backend test with full traceback"
 	@echo "  make test-frontend  - Run frontend formatter + vitest unit tests"
 	@echo "  make lint-frontend  - Lint frontend code (ESLint, auto-fix)"
 	@echo "  make test-email EMAIL=your@email.com - Test email notification system"
@@ -1787,6 +1788,9 @@ test-backend: test-setup
 	@echo "=========================================="
 	@echo "✓ Backend tests complete!"
 	@echo "=========================================="
+
+test-backend-one: test-setup
+	@cd .. && $(TEST_PYTEST) $(TEST) -x -vv --tb=long -p no:warnings
 
 test-frontend:
 	@echo "=========================================="

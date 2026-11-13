@@ -65,7 +65,8 @@
     "boatRegistrations": "Équipages",
     "dataExports": "Exports de Données",
     "paymentAnalytics": "Analytique des Paiements",
-    "licenseChecker": "Vérification Licences"
+    "licenseChecker": "Vérification Licences",
+    "databaseManagement": "Gestion de la base"
   },
   "admin": {
     "impersonation": {
@@ -604,6 +605,151 @@
         "noNameOrLicense": "Aucun nom ou numéro de licence fourni pour la recherche",
         "foundByNumber": "Licence trouvée par numéro. {details}",
         "and": "et"
+      }
+    },
+    "database": {
+      "title": "Gestion de la base",
+      "subtitle": "Sauvegardes et restauration de la base de données",
+      "backupSection": "Sauvegarde et restauration",
+      "states": {
+        "idle": "Prêt. {count} sauvegarde(s).",
+        "busy": "{operation} en cours…",
+        "busyRestoreHint": "Ne fermez pas la page. La restauration dure en général moins de 15 secondes.",
+        "readyToRestore": "Restauration de {id} : saisissez la phrase de confirmation.",
+        "success": "Restauration terminée : {purged} élément(s) supprimé(s), {restored} restauré(s).",
+        "error": "L'opération a échoué. Rien n'a été modifié dans la base.",
+        "partial": "ÉTAT PARTIEL : la base est incomplète",
+        "operations": {
+          "loading": "Chargement de la liste",
+          "creating": "Création de la sauvegarde",
+          "downloading": "Téléchargement",
+          "deleting": "Suppression",
+          "restoring": "Restauration"
+        }
+      },
+      "actions": {
+        "create": "Créer une sauvegarde",
+        "refresh": "Actualiser",
+        "retry": "Réessayer",
+        "close": "Fermer",
+        "download": "Télécharger",
+        "delete": "Supprimer",
+        "restore": "Restaurer…",
+        "restoreConfirm": "Restaurer",
+        "cancel": "Annuler",
+        "confirmRestore": "Confirmer la restauration",
+        "undoRestore": "Annuler cette restauration",
+        "restoreSafety": "Restaurer la sauvegarde de sécurité",
+        "dismiss": "Ignorer"
+      },
+      "category": {
+        "manual": "Manuelle",
+        "safety-pre-restore": "Sécurité avant restauration"
+      },
+      "list": {
+        "title": "Sauvegardes",
+        "empty": "Aucune sauvegarde disponible",
+        "loading": "Chargement des sauvegardes…",
+        "id": "Identifiant",
+        "category": "Catégorie",
+        "createdAt": "Créée le",
+        "itemCount": "Éléments",
+        "size": "Taille",
+        "createdBy": "Créée par",
+        "source": "Source",
+        "actions": "Actions",
+        "unknown": "-",
+        "sourceOf": "avant restauration de : {source}",
+        "deleteConfirmTitle": "Supprimer la sauvegarde",
+        "deleteConfirmMessage": "Supprimer définitivement la sauvegarde {id} ?",
+        "createSuccess": "Sauvegarde {id} créée ({count} éléments).",
+        "deleteSuccess": "Sauvegarde {id} supprimée."
+      },
+      "restore": {
+        "title": "Restaurer la base",
+        "selected": "Sauvegarde sélectionnée",
+        "category": "Catégorie",
+        "source": "Sauvegarde source : {source}",
+        "impact": "Toutes les données actuelles seront remplacées par les {count} éléments de cette sauvegarde. Une sauvegarde de sécurité est créée avant la restauration. Les comptes Cognito ne sont pas restaurés.",
+        "phraseLabel": "Phrase de confirmation",
+        "phraseHelp": "Saisissez exactement : {phrase}",
+        "phrasePlaceholder": "{phrase}",
+        "button": "Restaurer",
+        "duration": "La restauration dure en général moins de 15 secondes.",
+        "modal": {
+          "title": "Confirmer la restauration",
+          "replaceAll": "Cette action remplace TOUTES les données actuelles par le contenu de {id} ({count} éléments, catégorie {category}).",
+          "safetyBefore": "Une sauvegarde de sécurité sera créée avant : {safetyName}",
+          "undoHint": "Pour annuler : restaurez cette sauvegarde de sécurité après la restauration.",
+          "cognito": "Les comptes Cognito ne sont pas restaurés. L'application peut afficher des données vides pendant quelques secondes. Il est recommandé de restaurer en dehors des périodes d'inscription actives.",
+          "cancel": "Annuler",
+          "confirm": "Confirmer la restauration"
+        },
+        "steps": {
+          "title": "Étapes",
+          "safety_backup": "Sauvegarde de sécurité",
+          "purge": "Suppression des données",
+          "write": "Écriture des données",
+          "verify": "Vérification",
+          "ok": "terminée",
+          "failed": "échouée",
+          "skipped": "non exécutée",
+          "count": "{count} élément(s)"
+        },
+        "result": {
+          "successTitle": "Restauration terminée",
+          "counts": "{purged} élément(s) supprimé(s), {restored} élément(s) restauré(s).",
+          "safetyBackup": "Sauvegarde de sécurité : {id}",
+          "nativeBackup": "Sauvegarde native : {name}"
+        },
+        "undo": {
+          "title": "Pour annuler cette restauration",
+          "description": "Une sauvegarde de sécurité a été créée avant la restauration. Restaurez-la pour revenir à l'état précédent (la phrase de confirmation est requise).",
+          "button": "Annuler cette restauration"
+        },
+        "error": {
+          "unchanged": "Rien n'a été modifié dans la base.",
+          "unknownOutcomeTitle": "Résultat inconnu",
+          "unknownOutcome": "Aucune réponse du serveur. La restauration a pu se terminer ou échouer. Actualisez la liste et vérifiez l'état de la base avant toute action.",
+          "unknownOutcomeSteps": "Patientez environ 1 minute (le traitement peut durer jusqu'à 120 secondes), puis cliquez sur « Actualiser ». Si une nouvelle sauvegarde « Sécurité avant restauration » apparaît, la restauration a démarré : vérifiez les données. Si elles semblent vides ou incorrectes, restaurez cette sauvegarde de sécurité.",
+          "sessionExpired": "Votre session a expiré. Après reconnexion, actualisez la liste et vérifiez l'état de la base avant toute action."
+        },
+        "partial": {
+          "title": "État partiel",
+          "message": "La table a été purgée mais la restauration n'est pas terminée.",
+          "stage": "Étape atteinte : {stage}",
+          "counts": "{purged} élément(s) supprimé(s), {written} élément(s) écrit(s).",
+          "safetyBackup": "Sauvegarde de sécurité : {id}",
+          "nativeBackup": "Sauvegarde native : {name}",
+          "instructionsTitle": "Que faire",
+          "step1": "N'utilisez pas l'application tant que la base n'est pas rétablie.",
+          "step2": "Restaurez la sauvegarde de sécurité (saisissez la phrase de confirmation) ou relancez la restauration avec la sauvegarde source.",
+          "step3": "Si cela échoue encore, restaurez la sauvegarde native avec la commande : make db-restore-backup BACKUP_ARN=<arn>. La récupération à un instant donné (PITR) est également activée sur la table.",
+          "restoreSafety": "Restaurer la sauvegarde de sécurité",
+          "retrySource": "Réessayer avec la sauvegarde source"
+        }
+      },
+      "errors": {
+        "UNAUTHORIZED": "Vous n'êtes pas connecté. Veuillez vous reconnecter.",
+        "FORBIDDEN": "Accès refusé : cette action est réservée aux administrateurs.",
+        "NOT_FOUND": "Route inconnue. Rien n'a été modifié dans la base.",
+        "INVALID_BACKUP_ID": "Identifiant de sauvegarde invalide. Rien n'a été modifié dans la base.",
+        "INVALID_CONFIRMATION": "La phrase de confirmation est incorrecte. Rien n'a été modifié dans la base.",
+        "BACKUP_NOT_FOUND": "Sauvegarde introuvable. Rien n'a été modifié dans la base.",
+        "BACKUP_INVALID": "Le fichier de sauvegarde est invalide et ne peut pas être restauré. Rien n'a été modifié dans la base.",
+        "JSON_BACKUP_FAILED": "La sauvegarde n'a pas été créée : l'écriture du fichier JSON a échoué. Rien n'a été modifié dans la base.",
+        "NATIVE_BACKUP_FAILED": "La sauvegarde native AWS a échoué (le fichier JSON {backupId} a été créé). Rien n'a été modifié dans la base.",
+        "SAFETY_BACKUP_FAILED": "La sauvegarde de sécurité a échoué : la restauration a été annulée. Rien n'a été modifié dans la base.",
+        "RESTORE_PARTIAL": "La restauration a échoué après le début de la purge : la base est dans un état partiel. Utilisez la sauvegarde de sécurité pour rétablir la base.",
+        "LIST_FAILED": "Impossible de charger la liste des sauvegardes. Rien n'a été modifié dans la base.",
+        "INTERNAL_ERROR": "Erreur interne. Rien n'a été modifié dans la base.",
+        "UNKNOWN_OUTCOME": "Aucune réponse du serveur. La restauration a pu se terminer ou échouer. Actualisez la liste et vérifiez l'état de la base avant toute action.",
+        "DEFAULT": "Une erreur est survenue. Actualisez la liste et vérifiez l'état de la base."
+      },
+      "reset": {
+        "placeholderTitle": "Réinitialisation de la base",
+        "placeholderBadge": "Bientôt disponible",
+        "placeholderDescription": "Cette section permettra de réinitialiser la base de données. Bientôt disponible."
       }
     }
   },

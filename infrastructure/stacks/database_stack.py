@@ -115,6 +115,19 @@ class DatabaseStack(Stack):
             auto_delete_objects=True if env_name == "dev" else False,
         )
 
+        # S3 bucket for database backups (same removal policy as the table;
+        # no auto_delete_objects and no lifecycle rule so backups are never expired)
+        self.backup_bucket = s3.Bucket(
+            self,
+            "BackupBucket",
+            bucket_name=f"rcpm-impressionnistes-backups-{env_name}",
+            block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
+            encryption=s3.BucketEncryption.S3_MANAGED,
+            versioned=True,
+            enforce_ssl=True,
+            removal_policy=removal_policy,
+        )
+
         # Create Lambda function for table initialization
         init_function = lambda_.Function(
             self,

@@ -67,6 +67,7 @@ class ApiStack(Stack):
             'USER_POOL_CLIENT_ID': auth_stack.user_pool_client.user_pool_client_id,
             'ENVIRONMENT': self.env_name,
             'SECRETS_BUCKET': database_stack.secrets_bucket.bucket_name,
+            'BACKUP_BUCKET': database_stack.backup_bucket.bucket_name,
         }
         
         # Lambda functions dictionary
@@ -107,7 +108,7 @@ class ApiStack(Stack):
         # - /admin/* endpoints
         # - /contact endpoint
     
-    def _create_lambda_function(self, function_id, handler_path, description, timeout=30):
+    def _create_lambda_function(self, function_id, handler_path, description, timeout=30, memory_size=256):
         """
         Create a Lambda function with common configuration
         
@@ -116,6 +117,7 @@ class ApiStack(Stack):
             handler_path: Path to handler (e.g., 'auth/register')
             description: Function description
             timeout: Function timeout in seconds
+            memory_size: Function memory in MB
             
         Returns:
             Lambda function
@@ -133,7 +135,7 @@ class ApiStack(Stack):
             layers=[self.shared_layer],
             environment=self.common_env,
             timeout=Duration.seconds(timeout),
-            memory_size=256,
+            memory_size=memory_size,
             description=description
             # log_retention removed to stay under CloudFormation 500 resource limit
             # Logs will use AWS account default retention (can be set in CloudWatch console)
@@ -597,6 +599,27 @@ class ApiStack(Stack):
             'BulkUpdateLicenseVerificationFunction',
             'admin/bulk_update_license_verification',
             'Bulk update license verification status for multiple crew members (admin only)'
+        )
+        
+        # Database backup management function (single Lambda routing all /admin/backups routes)
+        manage_backups_function = self._create_lambda_function(
+            'ManageBackupsFunction',
+            'admin/manage_backups',
+            'Manage database backups (create, list, download, delete, restore)',
+            timeout=120,
+            memory_size=512
+        )
+        self.lambda_functions['manage_backups'] = manage_backups_function
+        
+        # Backup bucket read/write (table read/write is already granted)
+        self.database_stack.backup_bucket.grant_read_write(manage_backups_function)
+        
+        # Native DynamoDB backup (CreateBackup only, no Describe/List)
+        manage_backups_function.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=['dynamodb:CreateBackup'],
+                resources=[self.database_stack.table.table_arn]
+            )
         )
     
     def _create_public_functions(self):
@@ -1472,6 +1495,59 @@ class ApiStack(Stack):
         html_proxy_resource.add_method(
             'POST',
             html_proxy_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # Database backup routes (admin only, single Lambda routing on method + resource)
+        # /admin/backups resource
+        backups_resource = admin_resource.add_resource('backups')
+        manage_backups_integration = apigateway.LambdaIntegration(
+            self.lambda_functions['manage_backups'],
+            proxy=True
+        )
+        
+        # POST /admin/backups - Create a manual backup (admin only)
+        backups_resource.add_method(
+            'POST',
+            manage_backups_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # GET /admin/backups - List backups (admin only)
+        backups_resource.add_method(
+            'GET',
+            manage_backups_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # /admin/backups/{backup_id} resource
+        backup_id_resource = backups_resource.add_resource('{backup_id}')
+        
+        # DELETE /admin/backups/{backup_id} - Delete a backup (admin only)
+        backup_id_resource.add_method(
+            'DELETE',
+            manage_backups_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # GET /admin/backups/{backup_id}/download - Download a backup (admin only)
+        backup_download_resource = backup_id_resource.add_resource('download')
+        backup_download_resource.add_method(
+            'GET',
+            manage_backups_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # POST /admin/backups/{backup_id}/restore - Restore the database from a backup (admin only)
+        backup_restore_resource = backup_id_resource.add_resource('restore')
+        backup_restore_resource.add_method(
+            'POST',
+            manage_backups_integration,
             authorizer=self.authorizer,
             authorization_type=apigateway.AuthorizationType.COGNITO
         )
