@@ -147,6 +147,47 @@ When both exist, displayed as: `"boat_name - comment"`
 
 ---
 
+## Database Purge (Gestion de la base)
+
+The admin page `/admin/database` can selectively purge operational data. Logic lives in `functions/shared/reset_service.py` (mirrored in `frontend/src/utils/resetRules.js`). The confirmation phrase is `PURGER LA BASE` (exact, case-sensitive).
+
+### Purge sets
+
+| Id | Label (FR) | Keys deleted (PK, SK) |
+|----|-----------|------------------------|
+| `boats` | Équipages | `TEAM#*`, `BOAT#*` |
+| `payments` | Paiements | `TEAM#*`, `PAYMENT#*` |
+| `crew` | Équipiers | `TEAM#*`, `CREW#*` (not `CREW_MEMBER#`) |
+| `managers` | Team managers | `USER#*`, `PROFILE` and `USER#*`, `CONSENT#*` |
+| `temp_access` | Accès temporaires | `TEMP_ACCESS`, `USER#*` |
+| `audit_logs` | Journaux d'audit | PK `AUDIT#PERMISSION_BYPASS`, `AUDIT#PERMISSION_DENIAL`, `AUDIT#PERMISSION_CONFIG`, `AUDIT#TEMP_ACCESS_GRANT`, `AUDIT#TEMP_ACCESS_REVOKE` (any SK) |
+
+Deletion order: payments, boats, crew, temp_access, managers, audit_logs. The default selection is `boats`.
+
+### Dependency rules
+
+Selecting a set requires also selecting the sets that depend on it (a selection that is not closed is rejected with `INVALID_SELECTION`; the UI adds and locks them):
+
+| Selected | Also required |
+|----------|---------------|
+| `boats` | `payments` |
+| `crew` | `boats`, `payments` |
+| `managers` | `boats`, `payments`, `crew`, `temp_access` |
+
+`payments`, `temp_access` and `audit_logs` have no dependency.
+
+### Protected data
+
+Never purged, because no rule matches them: `CONFIG`, `RACE`, `CLUB` and `AUDIT#DATABASE_BACKUP` (backup history). Keys matching no rule are also kept.
+
+### Backup before purge
+
+- The pre-purge backup uses the category `safety-pre-reset` (label "Sécurité avant purge", id `safety-pre-reset_{timestamp}.json`, no source part). It can be restored like any backup; the resulting `safety-pre-restore` backup then references it as its source.
+- It is mandatory when `ENVIRONMENT` is `prod` (`BACKUP_REQUIRED` otherwise); optional in other environments. If the backup fails, nothing is deleted (`PRE_RESET_BACKUP_FAILED`).
+- Optional Cognito step: with `managers` selected, the accounts of purged team managers can be deleted from Cognito; members of the `admins` group are skipped.
+
+---
+
 ## Related Documentation
 
 - [Requirements](../.kiro/specs/impressionnistes-registration-system/requirements.md)

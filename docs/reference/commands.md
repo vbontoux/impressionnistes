@@ -161,6 +161,103 @@ The admin page "Gestion de la base" and the Makefile targets complement each oth
 - `make db-restore-backup BACKUP_ARN=<arn>` restores a native backup into a NEW table named `impressionnistes-registration-<env>-restored`. It is the out-of-band fallback: the original table is untouched, and you must verify the restored data, then delete the old table and rename the restored one manually.
 - The page restores differently: it does an in-place full replacement of the table content from a JSON backup.
 
+## Database Purge and Reset
+
+All commands run from the `infrastructure/` directory. The purge, the reset and the admin deletion with `WITH_PROFILE=1` take a `safety-pre-reset` backup first, so they can be undone from the admin page "Gestion de la base".
+
+### Selective purge: `make db-purge`
+
+```bash
+# Preview what would be deleted (no backup, no deletion, no Cognito call)
+make db-purge ENV=dev DRY_RUN=1
+
+# Purge boats (default) and the payments they imply
+make db-purge ENV=dev
+
+# Purge several sets
+make db-purge ENV=dev SETS=crew,temp_access
+
+# Purge team managers and also delete their Cognito accounts
+make db-purge ENV=dev SETS=managers DELETE_COGNITO=1
+```
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `ENV` | Makefile default (`dev`) | `dev` or `prod` |
+| `SETS` | `boats` | Comma-separated list of sets to purge |
+| `DELETE_COGNITO` | `0` | `1` also deletes the Cognito accounts of purged team managers (needs `managers`). Accounts in the `admins` group are always skipped |
+| `DRY_RUN` | `0` | `1` prints the sets and the item count of each, then stops |
+
+Available sets: `payments`, `boats`, `crew`, `temp_access`, `managers`, `audit_logs`.
+
+**Dependency closure:** a set is never purged without the sets that depend on it. The script prints the sets it added.
+
+| Selected set | Also purged |
+|--------------|-------------|
+| `boats` | `payments` |
+| `crew` | `boats`, `payments` |
+| `managers` | `crew`, `boats`, `payments`, `temp_access` |
+
+`payments`, `temp_access` and `audit_logs` imply nothing else. Configuration, race definitions, club data and the backup history (`AUDIT#DATABASE_BACKUP`) are never purged.
+
+**Confirmations:**
+- In `prod`, the Makefile first asks `Type 'PURGE PROD' to confirm`. This prompt is skipped for a dry run.
+- The script then asks you to type `PURGER LA BASE`. Any other text takes no backup and deletes nothing.
+- A `safety-pre-reset` backup is always taken before anything is deleted. If it fails, nothing is deleted.
+- The purge is recorded in the audit log (`reset_database`).
+
+### Alias: `make delete-all-data-keep-managers`
+
+```bash
+make delete-all-data-keep-managers ENV=dev
+```
+
+Equivalent to `make db-purge SETS=crew,temp_access,audit_logs`. Team managers are kept. Because `crew` implies `boats` and `payments`, those are purged too.
+
+### Full reset: `make db-reset`
+
+```bash
+make db-reset ENV=dev
+```
+
+Deletes all team manager and user data and resets the configuration to its defaults, keeping the race definitions. Behavior:
+
+- You type `PURGER LA BASE` to confirm (it used to be `RESET`).
+- A `safety-pre-reset` backup is taken first (`purge_database.py --backup-only`). If it fails, the target stops and nothing is modified.
+- The summary prints the real number of races kept, read from the table.
+- The backup history (`AUDIT#DATABASE_BACKUP`) is kept.
+
+### Delete an admin account: `make cognito-delete-admin`
+
+```bash
+make cognito-delete-admin EMAIL=admin@example.com ENV=dev
+
+# Also delete the admin's profile and consent items (takes a backup first)
+make cognito-delete-admin EMAIL=admin@example.com WITH_PROFILE=1 ENV=dev
+```
+
+| Variable | Description |
+|----------|-------------|
+| `EMAIL` | Required. Email of the admin account |
+| `ENV` | `dev` or `prod` |
+| `WITH_PROFILE` | `1` also deletes the `PROFILE` and `CONSENT#` items, after a `safety-pre-reset` backup. Without it, only the Cognito account is deleted |
+
+In `prod`, the Makefile first asks `Type 'DELETE ADMIN PROD' to confirm`. The script then stops without changing anything if:
+- the account does not exist,
+- the account is not in the `admins` group (use `make delete-team-manager` instead),
+- it is the last remaining admin,
+- the email you type to confirm does not match exactly.
+
+The deletion is recorded in the audit log (`delete_admin`).
+
+### `make delete-team-manager` and admins
+
+```bash
+make delete-team-manager EMAIL=user@example.com ENV=dev
+```
+
+`delete-team-manager` now refuses to delete an account that belongs to the `admins` group. Nothing is deleted. Use `make cognito-delete-admin` for admins.
+
 ## Testing and Linting
 
 ```bash

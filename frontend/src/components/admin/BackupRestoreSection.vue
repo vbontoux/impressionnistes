@@ -134,7 +134,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useBackupRestore } from '../../composables/useBackupRestore'
 import { categoryBadge } from '../../utils/backupNaming'
@@ -149,12 +149,41 @@ import RestorePanel from './RestorePanel.vue'
 import RestoreResultPanel from './RestoreResultPanel.vue'
 
 // The delete confirmation uses useConfirm; the global ConfirmDialog is rendered in App.vue.
+const props = defineProps({
+  // True while the reset section is busy: every action is disabled
+  externalBusy: { type: Boolean, default: false }
+})
+const emit = defineEmits(['busy-change'])
+
 const {
   state, busyLabel, busyLabelKey, backups, selected, phrase, result, error,
-  canRestore, actions, canSelect, canDelete,
-  load, create, download, remove, select, setPhrase,
-  confirmRestore, undoRestore, dismiss
+  canRestore: baseCanRestore, actions: baseActions,
+  canSelect: baseCanSelect, canDelete: baseCanDelete,
+  load: baseLoad, create: baseCreate, download: baseDownload, remove: baseRemove,
+  select: baseSelect, setPhrase: baseSetPhrase,
+  confirmRestore: baseConfirmRestore, undoRestore, dismiss
 } = useBackupRestore()
+
+// externalBusy disables every action (buttons and handlers)
+const actions = computed(() =>
+  props.externalBusy
+    ? Object.fromEntries(Object.keys(baseActions.value).map((k) => [k, false]))
+    : baseActions.value
+)
+const canRestore = computed(() => !props.externalBusy && baseCanRestore.value)
+const canSelect = (row) => !props.externalBusy && baseCanSelect(row)
+const canDelete = (row) => !props.externalBusy && baseCanDelete(row)
+const guard = (fn) => (...args) => (props.externalBusy ? undefined : fn(...args))
+const load = guard(baseLoad)
+const create = guard(baseCreate)
+const download = guard(baseDownload)
+const remove = guard(baseRemove)
+const select = guard(baseSelect)
+const setPhrase = guard(baseSetPhrase)
+const confirmRestore = guard(baseConfirmRestore)
+
+// Tell the reset section while a backup, download, delete, restore or list load is running
+watch(() => state.value === 'busy', (busy) => emit('busy-change', busy), { immediate: true })
 
 const { t, locale } = useI18n()
 const unknown = computed(() => t('admin.database.list.unknown'))
@@ -200,6 +229,9 @@ const cardFields = (row) => [
 const selectById = (id) => {
   select(backups.value.find((b) => b.backup_id === id) || { backup_id: id, category: id.split('_')[0] })
 }
+
+// For the view: reload the list, then select a backup for restoration
+defineExpose({ selectById, reload: load })
 
 const bannerType = computed(() => {
   if (state.value === 'partial' || state.value === 'error') return 'error'

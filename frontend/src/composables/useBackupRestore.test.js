@@ -374,6 +374,24 @@ describe('useBackupRestore transitions', () => {
       expect(c.selected.value.category).toBe('safety-pre-restore')
     })
 
+    it('restores a safety-pre-reset backup with the same phrase and flow', async () => {
+      const RESET_ID = 'safety-pre-reset_2026-11-04T08-00-00Z.json'
+      const reset = { backup_id: RESET_ID, category: 'safety-pre-reset', source_ref: null }
+      const c = await toIdle([manual, reset])
+      expect(c.canSelect(reset)).toBe(true)
+      c.select(reset)
+      expect(c.state.value).toBe('ready_to_restore')
+      c.setPhrase(CONFIRMATION_PHRASE)
+      expect(c.canRestore.value).toBe(true)
+      apiClient.post.mockResolvedValue({ data: { data: { safety_backup: { backup_id: SAFETY_ID } } } })
+      await c.confirmRestore()
+      expect(apiClient.post).toHaveBeenCalledWith(
+        `/admin/backups/${encodeURIComponent(RESET_ID)}/restore`,
+        { confirmation_phrase: CONFIRMATION_PHRASE }
+      )
+      expect(c.state.value).toBe('success')
+    })
+
     it('undoRestore is a no-op outside success', async () => {
       const c = await toIdle()
       c.undoRestore()

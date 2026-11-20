@@ -1,0 +1,923 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Add the category to `functions/shared/backup_service.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677792967
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677809497
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677913302
+      }
+    ],
+    "1.2 Write tests for the new category in `tests/integration/test_database_backup_restore.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793035
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677925491
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794678076788
+      }
+    ],
+    "1.3 Add the category to `frontend/src/utils/backupNaming.js`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793068
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677810645
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677914500
+      }
+    ],
+    "1.4 Write the category cases in `frontend/src/utils/backupNaming.test.js`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793100
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677925418
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794678077487
+      }
+    ],
+    "1.5 Update the backup alignment tests in `tests/integration/test_database_backup_restore.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793134
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794678269871
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794693716794
+      }
+    ],
+    "1.6 Add the category label to `frontend/src/locales/fr.json` and `en.json`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793199
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677811397
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677915335
+      }
+    ],
+    "1.7 Show and restore the new category in `frontend/src/components/admin/BackupRestoreSection.vue`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793245
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677926179
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794678078682
+      }
+    ],
+    "2.1 Move shared test fixtures and helpers out of `test_database_backup_restore.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793277
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794693774886
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794693908204
+      }
+    ],
+    "2.2 Implement purge sets, rules, classification, closure and counts": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793312
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677927453
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794678079480
+      }
+    ],
+    "2.3 Write tests for classification, closure and counts in `tests/integration/test_database_reset.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793346
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794693916060
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694029480
+      }
+    ],
+    "2.4 Implement request validation in `reset_service.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793379
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794678270674
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794693716180
+      }
+    ],
+    "2.5 Write tests for validation in `tests/integration/test_database_reset.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793413
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694033580
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694195165
+      }
+    ],
+    "2.6 Implement `execute_reset(body, user)` (without the Cognito step)": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793446
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794693774941
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794693909396
+      }
+    ],
+    "2.7 Write tests for execution in `tests/integration/test_database_reset.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793480
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694201636
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694464208
+      }
+    ],
+    "2.8 Implement the Cognito step in `reset_service.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793518
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794693916694
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694028730
+      }
+    ],
+    "2.9 Write tests for the Cognito step in `tests/integration/test_database_reset.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793563
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694474513
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694716323
+      }
+    ],
+    "2.10 Implement the adapters `handle_counts` and `handle_reset`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793597
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694034347
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694195905
+      }
+    ],
+    "2.11 Write tests for the adapters in `tests/integration/test_database_reset.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793629
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694720984
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694871830
+      }
+    ],
+    "3.1 Add two entries to `ROUTES` in `functions/admin/manage_backups.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793679
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694202539
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694464987
+      }
+    ],
+    "3.2 Write handler tests in `tests/integration/test_database_reset.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793743
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694875015
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794695025058
+      }
+    ],
+    "4.1 Add `/admin/reset` and the IAM statement": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793771
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694475633
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694716234
+      }
+    ],
+    "5. Checkpoint - Backend and infrastructure": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793810
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794764157746
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794764305803
+      }
+    ],
+    "6.1 Create `scripts/database/purge_database.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793845
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794695039124
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794761067011
+      }
+    ],
+    "6.2 Add the Makefile targets in `infrastructure/Makefile`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793881
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794761073735
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794763949412
+      }
+    ],
+    "6.3 Delete the old script and update references": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793913
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794763949445
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794764139278
+      }
+    ],
+    "6.4 Make `scripts/database/delete_team_manager.py` refuse admin accounts": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793946
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794695039403
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794761067771
+      }
+    ],
+    "6.5 Create `scripts/database/delete_admin.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677793977
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794761073897
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794763942526
+      }
+    ],
+    "6.6 Add `cognito-delete-admin` to `infrastructure/Makefile`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794010
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794763949643
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794764140071
+      }
+    ],
+    "6.7 Write tests for `purge_database.py` in `tests/integration/test_database_reset_scripts.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794043
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794761074688
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794763943028
+      }
+    ],
+    "6.8 Write tests for `delete_team_manager.py` and `delete_admin.py`, then run the backend suite": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794077
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794763950584
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794764140978
+      }
+    ],
+    "7.1 Create `frontend/src/utils/resetRules.js`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794109
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677812319
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677916485
+      }
+    ],
+    "7.2 Write `frontend/src/utils/resetRules.test.js`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794137
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794678166031
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794678259070
+      }
+    ],
+    "7.3 Create `frontend/src/composables/useDatabaseReset.js`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794175
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794678166648
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794678259149
+      },
+      {
+        "executionId": "abfc3be2-b46d-4edc-90ea-b95ebcea9f61",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794944194111
+      },
+      {
+        "executionId": "abfc3be2-b46d-4edc-90ea-b95ebcea9f61",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794944268999
+      }
+    ],
+    "7.4 Write `frontend/src/composables/useDatabaseReset.test.js`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794210
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794678271850
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794693714632
+      }
+    ],
+    "7.5 Add the reset i18n keys to `frontend/src/locales/fr.json` and `en.json`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794237
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677928083
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794678080769
+      }
+    ],
+    "7.6 Create `DatabaseResetSection.vue` and `DatabaseResetResultPanel.vue` in `frontend/src/components/admin/`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794276
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794678273093
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794693714980
+      }
+    ],
+    "7.7 Expose the backup section for the wiring in `frontend/src/components/admin/BackupRestoreSection.vue`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794311
+      },
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794678273801
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794693726260
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794693769330
+      }
+    ],
+    "7.8 Wire the page in `frontend/src/views/admin/AdminDatabaseManagement.vue` and delete the placeholder": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794345
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794693775653
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794693910011
+      }
+    ],
+    "7.9 Add `test_frontend_backend_reset_rules_aligned` to `tests/integration/test_database_reset.py`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794405
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794695040360
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794761068720
+      }
+    ],
+    "8. Checkpoint - Frontend": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794461
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794764157818
+      },
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794764306318
+      }
+    ],
+    "9.1 Deploy to DEV": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794496
+      },
+      {
+        "executionId": "7ddc6023-8f26-44f2-bfde-36e28c19ebf1",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026109472
+      }
+    ],
+    "9.2 Run the manual verification checklist in DEV": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794529
+      },
+      {
+        "executionId": "7ddc6023-8f26-44f2-bfde-36e28c19ebf1",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026109769
+      }
+    ],
+    "9.3 Run failure drills in DEV (required)": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794563
+      },
+      {
+        "executionId": "7ddc6023-8f26-44f2-bfde-36e28c19ebf1",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026110406
+      }
+    ],
+    "10.1 Deploy to PROD": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794599
+      }
+    ],
+    "10.2 Verify in PROD without purging": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794632
+      }
+    ],
+    "11.1 Update `docs/reference/api-endpoints.md` with `GET /admin/reset` and `POST /admin/reset`: request, response (`PurgeResult`), error codes": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794670
+      },
+      {
+        "executionId": "7b1aa1d4-9ed0-4f55-a6f1-28f7449ea02d",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026245187
+      },
+      {
+        "executionId": "21d18f41-4be3-4a5c-bc41-33da7da83988",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026283290
+      },
+      {
+        "executionId": "21d18f41-4be3-4a5c-bc41-33da7da83988",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026382435
+      }
+    ],
+    "11.2 Add the purge section to the runbook in `docs/guides/operations/`: end-of-edition purge, undo with the `safety-pre-reset` backup, partial-failure recovery, outcome-unknown case, admin deletion, and the scripts": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794710
+      },
+      {
+        "executionId": "7b1aa1d4-9ed0-4f55-a6f1-28f7449ea02d",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026246274
+      },
+      {
+        "executionId": "21d18f41-4be3-4a5c-bc41-33da7da83988",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026283942
+      },
+      {
+        "executionId": "21d18f41-4be3-4a5c-bc41-33da7da83988",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026383634
+      }
+    ],
+    "11.3 Update `docs/reference/commands.md` with `db-purge`, the alias `delete-all-data-keep-managers`, the `db-reset` changes (backup first, typed `PURGER LA BASE`, real race count) and `cognito-delete-admin`": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794752
+      },
+      {
+        "executionId": "7b1aa1d4-9ed0-4f55-a6f1-28f7449ea02d",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026247423
+      },
+      {
+        "executionId": "21d18f41-4be3-4a5c-bc41-33da7da83988",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026285573
+      },
+      {
+        "executionId": "21d18f41-4be3-4a5c-bc41-33da7da83988",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026385224
+      }
+    ],
+    "11.4 Update `docs/reference/project-structure.md` with `reset_service.py`, `purge_database.py`, `delete_admin.py`, the new components, and update `docs/reference/terminology.md` (purge sets, `safety-pre-reset`)": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794785
+      },
+      {
+        "executionId": "21d18f41-4be3-4a5c-bc41-33da7da83988",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026287186
+      },
+      {
+        "executionId": "21d18f41-4be3-4a5c-bc41-33da7da83988",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026386432
+      }
+    ],
+    "11.5 Complete `scripts/database/README.md` (first updated in task 6.3) and add the note of the third Backup_Category in the `database-backup-restore` spec ONLY after user confirmation": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794829
+      },
+      {
+        "executionId": "21d18f41-4be3-4a5c-bc41-33da7da83988",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026288073
+      },
+      {
+        "executionId": "21d18f41-4be3-4a5c-bc41-33da7da83988",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026388023
+      }
+    ],
+    "11.6 Sync `.kiro/specs/impressionnistes-registration-system/requirements.md` with a functional requirement entry for the selective purge, after explicit user confirmation": [
+      {
+        "executionId": "4697c4a3-f398-4736-9511-0544e3d61107",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794677794878
+      },
+      {
+        "executionId": "21d18f41-4be3-4a5c-bc41-33da7da83988",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026388917
+      },
+      {
+        "executionId": "21d18f41-4be3-4a5c-bc41-33da7da83988",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026441873
+      }
+    ],
+    "1. Backup category `safety-pre-reset` (backend and frontend naming)": [
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794693716846
+      }
+    ],
+    "4. CDK infrastructure in `infrastructure/stacks/api_stack.py`": [
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694716278
+      }
+    ],
+    "2. Reset service `functions/shared/reset_service.py`": [
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794694871875
+      }
+    ],
+    "3. Routing on the existing Lambda": [
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794695025143
+      }
+    ],
+    "7. Frontend": [
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794761068765
+      }
+    ],
+    "6. Command-line tools and Makefile": [
+      {
+        "executionId": "fe5741c2-eacc-46fe-99e2-65a2df9247f2",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1794764141011
+      }
+    ],
+    "9. DEV deployment and verification (manual, performed by the user, not for automated execution)": [
+      {
+        "executionId": "7ddc6023-8f26-44f2-bfde-36e28c19ebf1",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026110477
+      }
+    ],
+    "11. Documentation and requirements sync (ask the user to confirm before editing, per the `documentation-updates` and `requirements-sync` rules)": [
+      {
+        "executionId": "21d18f41-4be3-4a5c-bc41-33da7da83988",
+        "chatSessionId": "sess_a3e56ab2-fc13-47a4-a1a9-d62747a81339",
+        "timestamp": 1795026441954
+      }
+    ]
+  }
+}

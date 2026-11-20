@@ -11,6 +11,7 @@ import {
   CONFIRMATION_PHRASE,
   CATEGORY_MANUAL,
   CATEGORY_SAFETY,
+  CATEGORY_RESET,
   SOURCE_MARKER,
   parseBackupId,
   categoryBadge,
@@ -25,6 +26,7 @@ describe('constants', () => {
     expect(CONFIRMATION_PHRASE).toBe('RESTAURER LA BASE');
     expect(CATEGORY_MANUAL).toBe('manual');
     expect(CATEGORY_SAFETY).toBe('safety-pre-restore');
+    expect(CATEGORY_RESET).toBe('safety-pre-reset');
     expect(SOURCE_MARKER).toBe('_before-restore-of_');
   });
 });
@@ -61,6 +63,26 @@ describe('parseBackupId - valid ids', () => {
         sourceStem: 'safety-pre-restore_2026-11-02T09-15-45Z',
       },
     },
+    {
+      name: 'safety-pre-reset id without source',
+      id: 'safety-pre-reset_2026-11-04T08-00-00Z.json',
+      expected: {
+        category: 'safety-pre-reset',
+        timestamp: '2026-11-04T08-00-00Z',
+        sourceRef: null,
+        sourceStem: null,
+      },
+    },
+    {
+      name: 'safety-pre-restore whose source is a safety-pre-reset backup',
+      id: 'safety-pre-restore_2026-11-05T10-00-00Z_before-restore-of_safety-pre-reset_2026-11-04T08-00-00Z.json',
+      expected: {
+        category: 'safety-pre-restore',
+        timestamp: '2026-11-05T10-00-00Z',
+        sourceRef: 'safety-pre-reset_2026-11-04T08-00-00Z',
+        sourceStem: 'safety-pre-reset_2026-11-04T08-00-00Z',
+      },
+    },
   ];
 
   test.each(cases)('$name', ({ id, expected }) => {
@@ -88,6 +110,16 @@ describe('parseBackupId - invalid ids', () => {
       name: 'nested chain safety -> safety -> manual',
       id: 'safety-pre-restore_2026-11-03T10-00-00Z_before-restore-of_safety-pre-restore_2026-11-02T09-15-45Z_before-restore-of_manual_2026-11-01T14-30-00Z.json',
     },
+    {
+      name: 'safety-pre-reset with source',
+      id: `safety-pre-reset_2026-11-04T08-00-00Z_before-restore-of_${MANUAL_STEM}.json`,
+    },
+    {
+      name: 'safety-pre-reset with source (reset-sourced)',
+      id: 'safety-pre-reset_2026-11-05T08-00-00Z_before-restore-of_safety-pre-reset_2026-11-04T08-00-00Z.json',
+    },
+    { name: 'safety-pre-reset bad timestamp', id: 'safety-pre-reset_2026-11-04.json' },
+    { name: 'safety-pre-reset wrong extension', id: 'safety-pre-reset_2026-11-04T08-00-00Z.txt' },
     { name: 'missing .json extension', id: MANUAL_STEM },
     { name: 'wrong extension', id: `${MANUAL_STEM}.txt` },
     { name: 'bad timestamp (colons)', id: 'manual_2026-11-01T14:30:00Z.json' },
@@ -115,6 +147,11 @@ describe('categoryBadge', () => {
       name: 'safety-pre-restore',
       category: CATEGORY_SAFETY,
       expected: { status: 'incomplete', labelKey: 'admin.database.category.safety-pre-restore' },
+    },
+    {
+      name: 'safety-pre-reset',
+      category: CATEGORY_RESET,
+      expected: { status: 'forfait', labelKey: 'admin.database.category.safety-pre-reset' },
     },
     { name: 'unknown category', category: 'auto', expected: null },
     { name: 'empty string', category: '', expected: null },

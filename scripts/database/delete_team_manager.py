@@ -34,6 +34,22 @@ def get_user_sub_from_email(cognito_client, user_pool_id, email):
             return None
         raise
 
+def is_admin(cognito_client, user_pool_id, username):
+    """Return True if the Cognito user is a member of the `admins` group.
+
+    Errors are not swallowed: callers must treat a failure as "refuse" (fail closed).
+    """
+    groups = []
+    kwargs = {'UserPoolId': user_pool_id, 'Username': username}
+    while True:
+        response = cognito_client.admin_list_groups_for_user(**kwargs)
+        groups.extend(g['GroupName'] for g in response.get('Groups', []))
+        token = response.get('NextToken')
+        if not token:
+            break
+        kwargs['NextToken'] = token
+    return 'admins' in groups
+
 def delete_dynamodb_data(table, user_sub):
     """Delete all DynamoDB data for a user"""
     deleted_counts = {
@@ -212,6 +228,19 @@ def main():
         else:
             print(f"  Found user_sub: {user_sub}")
         
+        # Refuse admin accounts (fail closed if the group check fails)
+        if user_sub:
+            try:
+                admin_account = is_admin(cognito, user_pool_id, email)
+            except Exception as e:
+                print(f"\n❌ Could not verify that {email} is not an administrator: {e}")
+                print("   Refusing to delete. Nothing was deleted.")
+                sys.exit(1)
+            if admin_account:
+                print(f"\n❌ {email} is an administrator account. Refusing to delete it here.")
+                print("   Use `make cognito-delete-admin` instead. Nothing was deleted.")
+                sys.exit(1)
+
         # Delete from DynamoDB
         if user_sub:
             print(f"\nDeleting DynamoDB data...")

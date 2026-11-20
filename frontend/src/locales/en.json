@@ -644,7 +644,8 @@
       },
       "category": {
         "manual": "Manual",
-        "safety-pre-restore": "Safety before restore"
+        "safety-pre-restore": "Safety before restore",
+        "safety-pre-reset": "Safety before purge"
       },
       "list": {
         "title": "Backups",
@@ -741,15 +742,146 @@
         "NATIVE_BACKUP_FAILED": "The AWS native backup failed (the JSON file {backupId} was created). Nothing was changed in the database.",
         "SAFETY_BACKUP_FAILED": "The safety backup failed: the restore was cancelled. Nothing was changed in the database.",
         "RESTORE_PARTIAL": "The restore failed after the purge started: the database is in a partial state. Use the safety backup to recover the database.",
+        "INVALID_SELECTION": "The selection of data to purge is invalid. Nothing was changed in the database.",
+        "BACKUP_REQUIRED": "In production, the backup before the purge is mandatory. Nothing was changed in the database.",
+        "PRE_RESET_BACKUP_FAILED": "The backup before the purge failed: the purge was cancelled. Nothing was changed in the database.",
+        "RESET_PARTIAL": "The purge failed after deletion started: the database is in a partial state. Use the pre-purge backup to recover the database.",
         "LIST_FAILED": "Unable to load the backup list. Nothing was changed in the database.",
         "INTERNAL_ERROR": "Internal error. Nothing was changed in the database.",
         "UNKNOWN_OUTCOME": "No response from the server. The restore may have completed or failed. Refresh the list and check the state of the database before taking any further action.",
         "DEFAULT": "An error occurred. Refresh the list and check the state of the database."
       },
       "reset": {
-        "placeholderTitle": "Database reset",
-        "placeholderBadge": "Coming soon",
-        "placeholderDescription": "This section will allow resetting the database. Coming soon."
+        "title": "Database purge",
+        "subtitle": "Delete the data of the previous edition to prepare the next one. Configuration, races, clubs and backup history are never deleted.",
+        "sets": {
+          "boats": {
+            "label": "Boats",
+            "description": "Boat registrations (seats, paid status, boat number, boat rental request)."
+          },
+          "payments": {
+            "label": "Payments",
+            "description": "The Stripe payment history."
+          },
+          "crew": {
+            "label": "Crew members",
+            "description": "The crew members (rowers and coxswains) of the boats."
+          },
+          "managers": {
+            "label": "Team managers",
+            "description": "Team manager profiles and their GDPR consents."
+          },
+          "temp_access": {
+            "label": "Temporary access",
+            "description": "The temporary access grants given to users."
+          },
+          "audit_logs": {
+            "label": "Audit logs",
+            "description": "Permission and temporary access audit logs. The backup history is kept."
+          }
+        },
+        "count": "{count} item(s)",
+        "countUnavailable": "-",
+        "selectAll": "Purge everything",
+        "lockedBy": "required by {labels}",
+        "paymentsAuto": "\"Payments\" is checked automatically: deleting the boats without their payments would leave orphaned payments.",
+        "implied": "implied",
+        "cognito": {
+          "label": "Also delete the login accounts (Cognito)",
+          "irreversible": "Deleting Cognito accounts is irreversible.",
+          "notRestored": "Restoring a backup does not restore Cognito accounts.",
+          "adminsExcluded": "Admin accounts are always excluded from this deletion.",
+          "loginWithoutProfile": "If this option stays unchecked, the accounts of the purged team managers can still log in but will have no profile."
+        },
+        "backup": {
+          "label": "Create a full backup before the purge",
+          "prodLocked": "In production, the backup before the purge is mandatory and cannot be disabled.",
+          "noUndo": "Without a backup, the purge cannot be undone."
+        },
+        "phrase": {
+          "label": "Confirmation phrase",
+          "help": "Type exactly: {phrase}",
+          "placeholder": "{phrase}"
+        },
+        "button": "Purge…",
+        "actions": {
+          "refresh": "Refresh counts",
+          "retry": "Retry",
+          "finish": "Done",
+          "restoreBackup": "Restore this backup"
+        },
+        "modal": {
+          "title": "Confirm the purge",
+          "intro": "The following data will be permanently deleted from the database:",
+          "setLine": "{label}: {count} item(s)",
+          "keptTitle": "Data kept",
+          "keptSets": "Not selected: {labels}",
+          "protectedTitle": "Data always kept",
+          "protected": {
+            "config": "Configuration",
+            "races": "Races",
+            "clubs": "Clubs",
+            "backupHistory": "Backup history"
+          },
+          "cognito": "Cognito accounts: deletion of up to {count} accounts. This deletion is irreversible and admins are excluded.",
+          "cognitoNo": "Cognito accounts: kept.",
+          "backupYes": "A full backup is created before the purge.",
+          "backupNo": "No backup: the purge cannot be undone.",
+          "cancel": "Cancel",
+          "confirm": "Confirm the purge"
+        },
+        "states": {
+          "idle": "Ready. Select the data to purge.",
+          "busy": "{operation} in progress…",
+          "busyPurgeHint": "Do not close the page. The purge usually takes less than 30 seconds.",
+          "readyToPurge": "Purge of: {labels}. Type the confirmation phrase.",
+          "success": "Purge complete: {total} item(s) deleted.",
+          "error": "The purge was not performed. Nothing was changed in the database.",
+          "partial": "PARTIAL STATE: the purge is not complete",
+          "operations": {
+            "loading": "Loading counts",
+            "purging": "Purge"
+          }
+        },
+        "result": {
+          "successTitle": "Purge complete",
+          "total": "{total} item(s) deleted in total.",
+          "countLine": "{label}: {count} item(s) deleted",
+          "boatNumbering": "Boat numbering restarts from the first number of each race.",
+          "cognitoTitle": "Cognito accounts",
+          "cognitoDeleted": "{count} account(s) deleted",
+          "cognitoFailed": "{count} account(s) failed: {subs}",
+          "cognitoSkippedAdmins": "{count} admin account(s) skipped",
+          "cognitoNotFound": "{count} account(s) not found",
+          "cognitoNotRestored": "Restoring the backup does not restore the deleted Cognito accounts.",
+          "backupTitle": "To undo this purge",
+          "backupId": "Pre-purge backup: {id}",
+          "backupHint": "Restore this backup to return to the previous state (the restore confirmation phrase is required).",
+          "noBackup": "No backup was created: the purge cannot be undone.",
+          "reminderTitle": "Next edition",
+          "reminder": "Remember to update, in the event configuration, the registration dates, the payment deadline and the competition date. No configuration was changed automatically."
+        },
+        "partial": {
+          "title": "Partial state",
+          "message": "Deletion started but the purge is not complete.",
+          "stage": "Set being deleted: {stage}",
+          "counts": "Items deleted before the failure:",
+          "countLine": "{label}: {count} item(s)",
+          "cognitoNotAttempted": "Cognito accounts were not deleted.",
+          "backupId": "Pre-purge backup: {id}",
+          "noBackup": "No pre-purge backup: restore is not possible.",
+          "instructionsTitle": "What to do",
+          "step1": "Do not start new registrations until the database is in a consistent state.",
+          "step2": "Retry the purge (a new backup of the partial state is created) or restore the pre-purge backup.",
+          "step3": "If the failure persists, restore the native backup with the command: make db-restore-backup BACKUP_ARN=<arn>."
+        },
+        "error": {
+          "unchanged": "Nothing was changed in the database.",
+          "unknownOutcomeTitle": "Unknown outcome",
+          "unknownOutcome": "No response from the server. The purge may have completed or failed. Check the state of the database before taking any further action.",
+          "unknownOutcomeSteps": "Wait about 1 minute, then refresh the backup list. If a new \"Safety before purge\" backup appears, the purge has started: refresh the counts and check the data. If it is incomplete, restore that backup.",
+          "sessionExpired": "Your session has expired. After logging in again, refresh the backup list and check the state of the database before taking any further action."
+        }
       }
     }
   },

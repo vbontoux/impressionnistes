@@ -57,9 +57,12 @@ Backup/restore additions (all under `frontend/src/`):
 │   ├── BackupRestoreSection.vue      # Backup list, create, download, delete
 │   ├── RestorePanel.vue              # Restore selection and confirmation phrase
 │   ├── RestoreResultPanel.vue        # Restore success, error and partial results
-│   └── DatabaseResetPlaceholder.vue  # "Bientôt disponible" placeholder
+│   ├── DatabaseResetSection.vue      # Selective purge: set selection, options, confirmation phrase
+│   └── DatabaseResetResultPanel.vue  # Purge success, error and partial results
 ├── composables/useBackupRestore.js   # Backup/restore state machine
+├── composables/useDatabaseReset.js   # Purge state machine (counts, selection, purge)
 ├── utils/backupNaming.js             # Backup id parsing, badges, confirmation phrase
+├── utils/resetRules.js               # Purge set ids, dependency closure, phrase (mirrors reset_service.py)
 └── views/admin/AdminDatabaseManagement.vue # /admin/database "Gestion de la base"
 ```
 
@@ -70,7 +73,7 @@ AWS Lambda functions organized by domain.
 ```
 functions/
 ├── admin/               # Admin-only operations
-│   └── manage_backups.py # Single Lambda routing the 5 /admin/backups routes
+│   └── manage_backups.py # Single Lambda routing the 5 /admin/backups routes and GET/POST /admin/reset
 ├── auth/                # Authentication (register, login, profile)
 ├── boat/                # Boat registration management
 ├── club/                # Club data
@@ -90,6 +93,7 @@ functions/
     ├── payment_*.py
     ├── pricing.py
     ├── race_eligibility.py
+    ├── reset_service.py  # Selective purge: purge sets, dependency rules, counts, backup before purge, Cognito step, audit
     ├── responses.py
     ├── secrets_manager.py
     ├── slack_utils.py
@@ -133,6 +137,8 @@ scripts/
 │   ├── export-db.py
 │   ├── compare_config_details.py
 │   ├── delete_team_manager.py
+│   ├── delete_admin.py  # Delete an admin account (guards, optional profile removal)
+│   ├── purge_database.py # CLI selective purge (same code as the Lambda; --dry-run, --backup-only)
 │   ├── reinit_config.py
 │   ├── add_*.py        # Migration scripts
 │   ├── update_*.py     # Migration scripts
@@ -157,6 +163,10 @@ tests/
 │   ├── test_boat_registration_api.py
 │   ├── test_crew_member_api.py
 │   ├── test_database_backup_restore.py # Backup/restore service and handler tests
+│   ├── test_database_reset.py # Purge service, adapters and handler tests
+│   ├── test_database_reset_scripts.py # purge_database.py, delete_admin.py, delete_team_manager.py tests
+│   ├── conftest.py      # Shared fixtures (backup bucket, Cognito pool)
+│   ├── backup_helpers.py # Shared helpers (clear_table, put_typed_items, table_state...)
 │   ├── test_payment_*.py
 │   └── ...
 ├── unit/                # Unit tests

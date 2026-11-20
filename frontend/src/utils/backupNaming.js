@@ -9,15 +9,18 @@
 export const CONFIRMATION_PHRASE = 'RESTAURER LA BASE';
 export const CATEGORY_MANUAL = 'manual';
 export const CATEGORY_SAFETY = 'safety-pre-restore';
+export const CATEGORY_RESET = 'safety-pre-reset';
 export const SOURCE_MARKER = '_before-restore-of_';
 
-// Same pattern as the backend design (validated before any S3 access)
+// Same pattern as the backend design (validated before any S3 access).
+// The source of a safety-pre-restore may itself be a safety-pre-reset backup.
 const BACKUP_ID_REGEX =
-  /^(manual|safety-pre-restore)_(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z)(_before-restore-of_(manual|safety-pre-restore)_\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z)?\.json$/;
+  /^(manual|safety-pre-restore|safety-pre-reset)_(\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z)(_before-restore-of_(manual|safety-pre-restore|safety-pre-reset)_\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z)?\.json$/;
 
 /**
  * Parse a backup id.
- * A safety id must contain the source part, a manual id must not.
+ * A safety-pre-restore id must contain the source part; manual and
+ * safety-pre-reset ids must not.
  *
  * The source reference embedded in a safety id is always bounded to
  * `{source_category}_{source_timestamp}`. It identifies the source but is NOT
@@ -42,7 +45,7 @@ export function parseBackupId(backupId) {
   const category = match[1];
   const hasSource = match[3] !== undefined;
 
-  if (category === CATEGORY_MANUAL && hasSource) {
+  if ((category === CATEGORY_MANUAL || category === CATEGORY_RESET) && hasSource) {
     return null;
   }
   if (category === CATEGORY_SAFETY && !hasSource) {
@@ -63,7 +66,7 @@ export function parseBackupId(backupId) {
  * Get the StatusBadge status and i18n label key for a backup category.
  * The label key is `admin.database.category.<category id>`
  * (i.e. ...category.manual or ...category.safety-pre-restore).
- * @param {string} category - CATEGORY_MANUAL or CATEGORY_SAFETY
+ * @param {string} category - CATEGORY_MANUAL, CATEGORY_SAFETY or CATEGORY_RESET
  * @returns {Object|null} - { status, labelKey } or null for unknown category
  */
 export function categoryBadge(category) {
@@ -72,6 +75,9 @@ export function categoryBadge(category) {
   }
   if (category === CATEGORY_SAFETY) {
     return { status: 'incomplete', labelKey: `admin.database.category.${category}` };
+  }
+  if (category === CATEGORY_RESET) {
+    return { status: 'forfait', labelKey: `admin.database.category.${category}` };
   }
   return null;
 }

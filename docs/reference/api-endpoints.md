@@ -940,6 +940,7 @@ Authorization: Bearer <cognito-jwt-token>
 **Backup ids**: the `backup_id` is also the S3 object key and the download file name.
 - Manual backup: `manual_<timestamp>.json`, e.g. `manual_2026-11-01T14-30-00Z.json`
 - Safety backup (created automatically before a restore): `safety-pre-restore_<timestamp>_before-restore-of_<category>_<timestamp>.json`, e.g. `safety-pre-restore_2026-11-02T09-00-00Z_before-restore-of_manual_2026-11-01T14-30-00Z.json`. The part after `_before-restore-of_` is the category and timestamp of the source backup (the full source id is returned in `source_backup_id`).
+- Pre-reset backup (created automatically before a database purge): `safety-pre-reset_<timestamp>.json`, e.g. `safety-pre-reset_2026-11-02T09-00-00Z.json`. It has no source part. Restoring it creates a `safety-pre-restore` backup whose source is the `safety-pre-reset` id.
 - `<timestamp>` is UTC, formatted `YYYY-MM-DDTHH-MM-SSZ`.
 
 **Notes**:
@@ -1029,7 +1030,7 @@ List JSON backups, newest first. Files in the bucket that are not valid backup i
 }
 ```
 
-`category` is `manual` or `safety-pre-restore`. `source_ref` is parsed from the id (safety backups only); `source_backup_id` is the full source id from the S3 metadata (can be `null` if the metadata is missing). `item_count` and `created_by` can be `null` if the metadata is missing.
+`category` is `manual`, `safety-pre-restore` or `safety-pre-reset` (see [Admin Database Reset Endpoints](#admin-database-reset-endpoints)). `source_ref` is parsed from the id (`safety-pre-restore` backups only); `source_backup_id` is the full source id from the S3 metadata (can be `null` if the metadata is missing). `item_count` and `created_by` can be `null` if the metadata is missing.
 
 **Errors**:
 
@@ -1232,6 +1233,222 @@ To undo a restore, restore the safety backup it returned.
 ```
 
 `stage` is `purge`, `write` or `verify`. Steps not reached are `skipped`.
+
+---
+
+## Admin Database Reset Endpoints
+
+Selective purge of operational data. Both endpoints require a Cognito JWT token for a user in the `admins` group. They are served by the same `manage_backups` Lambda as the backup endpoints (`functions/admin/manage_backups.py`, logic in `functions/shared/reset_service.py`).
+
+**Authentication**: Required (Cognito JWT token with admin role) for all endpoints below.
+
+**Headers**:
+```
+Authorization: Bearer <cognito-jwt-token>
+```
+
+**Purge sets** (ids used in `counts`, `sets` and `deleted`):
+
+| Id | Content |
+|----|---------|
+| `boats` | Crew registrations (`TEAM#*` / `BOAT#*`) |
+| `payments` | Payments (`TEAM#*` / `PAYMENT#*`) |
+| `crew` | Crew members (`TEAM#*` / `CREW#*`) |
+| `managers` | Team manager profiles and consents (`USER#*` / `PROFILE`, `CONSENT#*`) |
+| `temp_access` | Temporary access grants (`TEMP_ACCESS` / `USER#*`) |
+| `audit_logs` | Permission and temporary-access audit logs (five `AUDIT#` partitions) |
+
+**Dependency rules**: a selection must be closed under these rules. The API never adds sets for you; a selection that is not closed is rejected.
+- `boats` requires `payments`
+- `crew` requires `boats` and `payments`
+- `managers` requires `boats`, `payments`, `crew` and `temp_access`
+
+**Protected data** is never purged: `CONFIG`, `RACE`, `CLUB` and the `AUDIT#DATABASE_BACKUP` records (backup audit history), as well as any key that matches no purge set.
+
+---
+
+### GET /admin/reset
+
+Return the number of items in each purge set and the environment flags used by the reset page.
+
+**Path Parameters**: none
+
+**Request Body**: none
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "environment": "prod",
+    "backup_required": true,
+    "counts": {
+      "boats": 120,
+      "payments": 95,
+      "crew": 640,
+      "managers": 70,
+      "temp_access": 3,
+      "audit_logs": 410
+    },
+    "cognito_accounts_max": 35
+  },
+  "timestamp": "2026-11-02T10:00:00Z"
+}
+```
+
+`environment` comes from the Lambda configuration. `backup_required` is `true` only in `prod`. `cognito_accounts_max` is the number of `USER#<sub>` / `PROFILE` items, which is the maximum number of Cognito accounts a purge of `managers` can delete.
+
+**Errors**:
+
+| HTTP | Code | When |
+|------|------|------|
+| 401 | `UNAUTHORIZED` | No valid token |
+| 403 | `FORBIDDEN` | User is not in the `admins` group |
+| 500 | `INTERNAL_ERROR` | Table scan failed |
+
+---
+
+### POST /admin/reset
+
+Delete the selected purge sets. **This is irreversible except through the pre-reset backup.**
+
+**Path Parameters**: none
+
+**Request Body**:
+```json
+{
+  "sets": ["boats", "payments"],
+  "delete_cognito": false,
+  "backup_before": true,
+  "confirmation_phrase": "PURGER LA BASE"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `sets` | Array of String | Yes | Non-empty list of purge set ids, closed under the dependency rules |
+| `delete_cognito` | Boolean | No (default `false`) | Also delete the Cognito accounts of the purged team managers. Only allowed when `managers` is in `sets` |
+| `backup_before` | Boolean | No (default `true`) | Take a `safety-pre-reset` backup (JSON + AWS native) before deleting. Must not be `false` in `prod` |
+| `confirmation_phrase` | String | Yes | Must be exactly `PURGER LA BASE` (case and spaces) |
+
+The environment is read from the Lambda configuration; a value sent in the request is ignored.
+
+**Behavior** (in order):
+1. Validate the request: confirmation phrase, selection, Cognito flag, backup rule. Nothing is read or changed if it is rejected.
+2. Create the pre-reset backup (always in `prod`, otherwise when `backup_before` is `true`). If this fails, the purge is aborted and nothing is deleted.
+3. Delete the selected sets, dependents first: `payments`, `boats`, `crew`, `temp_access`, `managers`, `audit_logs`. If a deletion fails, the purge stops and the Cognito step is not run.
+4. If `delete_cognito` is `true`, delete the Cognito accounts of the purged managers. Accounts in the `admins` group are always skipped. If the group check fails for an account, that account is skipped and reported in `failed`.
+5. Write a `reset_database` audit record (`AUDIT#DATABASE_BACKUP` partition) with the outcome, sets, counts, Cognito counts, backup id and admin identity.
+
+To undo a purge, restore the pre-reset backup with `POST /admin/backups/{backup_id}/restore`.
+
+**Synchronous execution**: the purge runs inside the request. A **504** (or a network error) means the **outcome is unknown**: check the counts (`GET /admin/reset`) and the backup list before retrying. Re-running the same purge is safe.
+
+**Response (200 OK)**:
+```json
+{
+  "success": true,
+  "data": {
+    "sets": ["payments", "boats"],
+    "deleted": {
+      "payments": 95,
+      "boats": 120
+    },
+    "total_deleted": 215,
+    "cognito": {
+      "requested": false,
+      "deleted": 0,
+      "skipped_admins": 0,
+      "not_found": 0,
+      "failed": []
+    },
+    "pre_reset_backup": {
+      "backup_id": "safety-pre-reset_2026-11-02T09-00-00Z.json",
+      "native_backup": {
+        "name": "impressionnistes-registration-prod-safety-pre-reset_2026-11-02T09-00-00Z",
+        "arn": "arn:aws:dynamodb:eu-west-3:123456789012:table/impressionnistes-registration-prod/backup/01234567890123-abcdef03"
+      }
+    },
+    "audit_written": true,
+    "duration_ms": 3200
+  },
+  "timestamp": "2026-11-02T09:00:04Z"
+}
+```
+
+`sets` lists the purged sets in deletion order. `deleted` holds the number of items deleted per set. `pre_reset_backup` is `null` when no backup was taken (non-prod with `backup_before: false`). When `delete_cognito` is `true`, `cognito` reports:
+- `deleted`: accounts deleted
+- `skipped_admins`: accounts kept because they belong to the `admins` group
+- `not_found`: profiles without a Cognito account
+- `failed`: list of `{"sub": "...", "code": "..."}` for accounts that could not be processed (the other accounts are still processed)
+
+`audit_written: false` means the audit record could not be written; the purge itself succeeded.
+
+**Errors**:
+
+| HTTP | Code | When | Database modified? |
+|------|------|------|--------------------|
+| 400 | `INVALID_CONFIRMATION` | Body missing or not valid JSON, or phrase missing or different from `PURGER LA BASE` | No |
+| 400 | `INVALID_SELECTION` | `sets` empty or not a list, unknown id (`details.unknown`), selection not closed under the dependency rules (`details.missing`), `delete_cognito` without `managers` (`details.missing = ["managers"]`), or a non-boolean flag | No |
+| 400 | `BACKUP_REQUIRED` | `backup_before` is `false` in `prod` | No |
+| 401 | `UNAUTHORIZED` | No valid token | No |
+| 403 | `FORBIDDEN` | User is not in the `admins` group | No |
+| 500 | `PRE_RESET_BACKUP_FAILED` | The pre-reset backup could not be created (`details.failed_artifact` = `json` or `aws_native`, `details.database_modified` = `false`) | No |
+| 500 | `RESET_PARTIAL` | A deletion failed after the purge started | **Yes (partial)** |
+| 500 | `INTERNAL_ERROR` | Unexpected failure before any deletion (`details.database_modified` = `false`) | No |
+| 504 | (API Gateway timeout) | Response not returned within 29 s | Unknown |
+
+**INVALID_SELECTION (400)** example, `boats` selected without `payments`:
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_SELECTION",
+    "message": "The selection is not closed under the dependency rules",
+    "details": {
+      "missing": ["payments"]
+    }
+  },
+  "timestamp": "2026-11-02T09:00:01Z"
+}
+```
+
+**PRE_RESET_BACKUP_FAILED (500)** example:
+```json
+{
+  "success": false,
+  "error": {
+    "code": "PRE_RESET_BACKUP_FAILED",
+    "message": "The pre-reset backup failed: nothing was deleted",
+    "details": {
+      "failed_artifact": "aws_native",
+      "database_modified": false
+    }
+  },
+  "timestamp": "2026-11-02T09:00:03Z"
+}
+```
+
+**RESET_PARTIAL (500)**: the purge failed after it started, so some sets may be partly or fully deleted. `stage` is the set being deleted when the failure occurred, `deleted` the items deleted so far per set, and `cognito` is always `"not_attempted"`. A `reset_database` audit record with outcome `partial` is written. Re-run the same purge to finish it, or restore `pre_reset_backup_id` (`null` if no backup was taken) to recover.
+```json
+{
+  "success": false,
+  "error": {
+    "code": "RESET_PARTIAL",
+    "message": "The purge failed before completion",
+    "details": {
+      "stage": "boats",
+      "deleted": {
+        "payments": 95,
+        "boats": 40
+      },
+      "pre_reset_backup_id": "safety-pre-reset_2026-11-02T09-00-00Z.json",
+      "cognito": "not_attempted"
+    }
+  },
+  "timestamp": "2026-11-02T09:00:04Z"
+}
+```
 
 ---
 

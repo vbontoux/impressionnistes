@@ -173,6 +173,8 @@ The Lambda timeout (120 s) is deliberately longer than the API Gateway limit: if
 - **Bounded**: ids are about 110 chars at any restore/undo depth; the native backup name `{table_name}-{category}_{timestamp}` is also bounded (about 74 chars).
 - **Validated** before touching S3 (prevents key injection): `^(manual|safety-pre-restore)_\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z(_before-restore-of_(manual|safety-pre-restore)_\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z)?\.json$`. A safety id must contain exactly one source reference, a manual id none.
 
+> **Note (database-reset spec):** a third category `safety-pre-reset` exists, introduced by the `database-reset` spec. Id `safety-pre-reset_{timestamp}.json` (no source part, like `manual`), native name `{table_name}-safety-pre-reset_{timestamp}`, badge "Sécurité avant purge". The id regex alternation becomes `manual|safety-pre-restore|safety-pre-reset`, also for the `source_ref` of a `safety-pre-restore` (a `safety-pre-reset` backup can be the source of a safety-pre-restore, the undo of a purge). A source part is required for `safety-pre-restore` only.
+
 ### Backup file format (envelope)
 
 ```json

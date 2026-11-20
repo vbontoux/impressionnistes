@@ -644,7 +644,8 @@
       },
       "category": {
         "manual": "Manuelle",
-        "safety-pre-restore": "Sécurité avant restauration"
+        "safety-pre-restore": "Sécurité avant restauration",
+        "safety-pre-reset": "Sécurité avant purge"
       },
       "list": {
         "title": "Sauvegardes",
@@ -741,15 +742,146 @@
         "NATIVE_BACKUP_FAILED": "La sauvegarde native AWS a échoué (le fichier JSON {backupId} a été créé). Rien n'a été modifié dans la base.",
         "SAFETY_BACKUP_FAILED": "La sauvegarde de sécurité a échoué : la restauration a été annulée. Rien n'a été modifié dans la base.",
         "RESTORE_PARTIAL": "La restauration a échoué après le début de la purge : la base est dans un état partiel. Utilisez la sauvegarde de sécurité pour rétablir la base.",
+        "INVALID_SELECTION": "La sélection de données à purger est invalide. Rien n'a été modifié dans la base.",
+        "BACKUP_REQUIRED": "En production, la sauvegarde avant purge est obligatoire. Rien n'a été modifié dans la base.",
+        "PRE_RESET_BACKUP_FAILED": "La sauvegarde avant purge a échoué : la purge a été annulée. Rien n'a été modifié dans la base.",
+        "RESET_PARTIAL": "La purge a échoué après le début de la suppression : la base est dans un état partiel. Utilisez la sauvegarde avant purge pour rétablir la base.",
         "LIST_FAILED": "Impossible de charger la liste des sauvegardes. Rien n'a été modifié dans la base.",
         "INTERNAL_ERROR": "Erreur interne. Rien n'a été modifié dans la base.",
         "UNKNOWN_OUTCOME": "Aucune réponse du serveur. La restauration a pu se terminer ou échouer. Actualisez la liste et vérifiez l'état de la base avant toute action.",
         "DEFAULT": "Une erreur est survenue. Actualisez la liste et vérifiez l'état de la base."
       },
       "reset": {
-        "placeholderTitle": "Réinitialisation de la base",
-        "placeholderBadge": "Bientôt disponible",
-        "placeholderDescription": "Cette section permettra de réinitialiser la base de données. Bientôt disponible."
+        "title": "Purge de la base",
+        "subtitle": "Supprimez les données de l'édition précédente pour préparer la suivante. La configuration, les courses, les clubs et l'historique des sauvegardes ne sont jamais supprimés.",
+        "sets": {
+          "boats": {
+            "label": "Équipages",
+            "description": "Les inscriptions de bateaux (places, statut payé, numéro de bateau, demande de bateau de location)."
+          },
+          "payments": {
+            "label": "Paiements",
+            "description": "L'historique des paiements Stripe."
+          },
+          "crew": {
+            "label": "Équipiers",
+            "description": "Les équipiers (rameurs et barreurs) des équipages."
+          },
+          "managers": {
+            "label": "Team managers",
+            "description": "Les profils des team managers et leurs consentements RGPD."
+          },
+          "temp_access": {
+            "label": "Accès temporaires",
+            "description": "Les accès temporaires accordés à des utilisateurs."
+          },
+          "audit_logs": {
+            "label": "Journaux d'audit",
+            "description": "Les journaux d'audit des permissions et des accès temporaires. L'historique des sauvegardes est conservé."
+          }
+        },
+        "count": "{count} élément(s)",
+        "countUnavailable": "-",
+        "selectAll": "Tout purger",
+        "lockedBy": "requis par {labels}",
+        "paymentsAuto": "« Paiements » est coché automatiquement : supprimer les équipages sans leurs paiements laisserait des paiements orphelins.",
+        "implied": "impliqué",
+        "cognito": {
+          "label": "Supprimer aussi les comptes de connexion (Cognito)",
+          "irreversible": "La suppression des comptes Cognito est irréversible.",
+          "notRestored": "La restauration d'une sauvegarde ne restaure pas les comptes Cognito.",
+          "adminsExcluded": "Les comptes administrateurs sont toujours exclus de cette suppression.",
+          "loginWithoutProfile": "Si cette option reste décochée, les comptes des team managers purgés pourront toujours se connecter, mais n'auront plus de profil."
+        },
+        "backup": {
+          "label": "Créer une sauvegarde complète avant la purge",
+          "prodLocked": "En production, la sauvegarde avant purge est obligatoire et ne peut pas être désactivée.",
+          "noUndo": "Sans sauvegarde, la purge ne pourra pas être annulée."
+        },
+        "phrase": {
+          "label": "Phrase de confirmation",
+          "help": "Saisissez exactement : {phrase}",
+          "placeholder": "{phrase}"
+        },
+        "button": "Purger…",
+        "actions": {
+          "refresh": "Actualiser les comptes",
+          "retry": "Réessayer",
+          "finish": "Terminer",
+          "restoreBackup": "Restaurer cette sauvegarde"
+        },
+        "modal": {
+          "title": "Confirmer la purge",
+          "intro": "Les données suivantes seront définitivement supprimées de la base :",
+          "setLine": "{label} : {count} élément(s)",
+          "keptTitle": "Données conservées",
+          "keptSets": "Non sélectionné : {labels}",
+          "protectedTitle": "Données toujours conservées",
+          "protected": {
+            "config": "Configuration",
+            "races": "Courses",
+            "clubs": "Clubs",
+            "backupHistory": "Historique des sauvegardes"
+          },
+          "cognito": "Comptes Cognito : suppression de jusqu'à {count} comptes. Cette suppression est irréversible et les administrateurs sont exclus.",
+          "cognitoNo": "Comptes Cognito : conservés.",
+          "backupYes": "Une sauvegarde complète est créée avant la purge.",
+          "backupNo": "Aucune sauvegarde : la purge ne pourra pas être annulée.",
+          "cancel": "Annuler",
+          "confirm": "Confirmer la purge"
+        },
+        "states": {
+          "idle": "Prêt. Sélectionnez les données à purger.",
+          "busy": "{operation} en cours…",
+          "busyPurgeHint": "Ne fermez pas la page. La purge dure en général moins de 30 secondes.",
+          "readyToPurge": "Purge de : {labels}. Saisissez la phrase de confirmation.",
+          "success": "Purge terminée : {total} élément(s) supprimé(s).",
+          "error": "La purge n'a pas été effectuée. Rien n'a été modifié dans la base.",
+          "partial": "ÉTAT PARTIEL : la purge n'est pas terminée",
+          "operations": {
+            "loading": "Chargement des comptes",
+            "purging": "Purge"
+          }
+        },
+        "result": {
+          "successTitle": "Purge terminée",
+          "total": "{total} élément(s) supprimé(s) au total.",
+          "countLine": "{label} : {count} élément(s) supprimé(s)",
+          "boatNumbering": "La numérotation des bateaux repart du premier numéro de chaque course.",
+          "cognitoTitle": "Comptes Cognito",
+          "cognitoDeleted": "{count} compte(s) supprimé(s)",
+          "cognitoFailed": "{count} compte(s) en échec : {subs}",
+          "cognitoSkippedAdmins": "{count} compte(s) administrateur ignoré(s)",
+          "cognitoNotFound": "{count} compte(s) introuvable(s)",
+          "cognitoNotRestored": "La restauration de la sauvegarde ne restaure pas les comptes Cognito supprimés.",
+          "backupTitle": "Pour annuler cette purge",
+          "backupId": "Sauvegarde avant purge : {id}",
+          "backupHint": "Restaurez cette sauvegarde pour revenir à l'état précédent (la phrase de confirmation de restauration est requise).",
+          "noBackup": "Aucune sauvegarde n'a été créée : la purge ne peut pas être annulée.",
+          "reminderTitle": "Prochaine édition",
+          "reminder": "Pensez à mettre à jour dans la configuration de l'événement les dates d'inscription, la date limite de paiement et la date de la compétition. Aucune configuration n'a été modifiée automatiquement."
+        },
+        "partial": {
+          "title": "État partiel",
+          "message": "La suppression a commencé mais la purge n'est pas terminée.",
+          "stage": "Ensemble en cours de suppression : {stage}",
+          "counts": "Éléments supprimés avant l'échec :",
+          "countLine": "{label} : {count} élément(s)",
+          "cognitoNotAttempted": "Les comptes Cognito n'ont pas été supprimés.",
+          "backupId": "Sauvegarde avant purge : {id}",
+          "noBackup": "Aucune sauvegarde de pré-purge : restauration impossible.",
+          "instructionsTitle": "Que faire",
+          "step1": "Ne lancez pas de nouvelle inscription tant que la base n'est pas dans un état cohérent.",
+          "step2": "Relancez la purge (une nouvelle sauvegarde de l'état partiel est créée) ou restaurez la sauvegarde avant purge.",
+          "step3": "Si l'échec persiste, restaurez la sauvegarde native avec la commande : make db-restore-backup BACKUP_ARN=<arn>."
+        },
+        "error": {
+          "unchanged": "Rien n'a été modifié dans la base.",
+          "unknownOutcomeTitle": "Résultat inconnu",
+          "unknownOutcome": "Aucune réponse du serveur. La purge a pu se terminer ou échouer. Vérifiez l'état de la base avant toute action.",
+          "unknownOutcomeSteps": "Patientez environ 1 minute, puis actualisez la liste des sauvegardes. Si une nouvelle sauvegarde « Sécurité avant purge » apparaît, la purge a démarré : actualisez les comptes et vérifiez les données. Si elles sont incomplètes, restaurez cette sauvegarde.",
+          "sessionExpired": "Votre session a expiré. Après reconnexion, actualisez la liste des sauvegardes et vérifiez l'état de la base avant toute action."
+        }
       }
     }
   },

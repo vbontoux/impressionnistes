@@ -621,6 +621,18 @@ class ApiStack(Stack):
                 resources=[self.database_stack.table.table_arn]
             )
         )
+        
+        # Database reset: optional deletion of team manager Cognito accounts
+        # (ManageBackups role only; admins are skipped by the code via the group check)
+        manage_backups_function.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=[
+                    'cognito-idp:AdminDeleteUser',
+                    'cognito-idp:AdminListGroupsForUser'
+                ],
+                resources=[self.auth_stack.user_pool.user_pool_arn]
+            )
+        )
     
     def _create_public_functions(self):
         """Create public Lambda functions (no authentication required)"""
@@ -1546,6 +1558,25 @@ class ApiStack(Stack):
         # POST /admin/backups/{backup_id}/restore - Restore the database from a backup (admin only)
         backup_restore_resource = backup_id_resource.add_resource('restore')
         backup_restore_resource.add_method(
+            'POST',
+            manage_backups_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # /admin/reset resource (selective database purge, same Lambda as the backups)
+        reset_resource = admin_resource.add_resource('reset')
+        
+        # GET /admin/reset - Item counts per purge set (admin only)
+        reset_resource.add_method(
+            'GET',
+            manage_backups_integration,
+            authorizer=self.authorizer,
+            authorization_type=apigateway.AuthorizationType.COGNITO
+        )
+        
+        # POST /admin/reset - Purge the selected sets (admin only)
+        reset_resource.add_method(
             'POST',
             manage_backups_integration,
             authorizer=self.authorizer,

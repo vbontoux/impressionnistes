@@ -36,18 +36,22 @@ logger.setLevel(logging.INFO)
 # ---------------------------------------------------------------------------
 CATEGORY_MANUAL = "manual"
 CATEGORY_SAFETY = "safety-pre-restore"
+CATEGORY_RESET = "safety-pre-reset"
 CONFIRMATION_PHRASE = "RESTAURER LA BASE"
 SOURCE_MARKER = "_before-restore-of_"
 FORMAT_VERSION = 1
 AUDIT_PK = "AUDIT#DATABASE_BACKUP"
 
-CATEGORIES = (CATEGORY_MANUAL, CATEGORY_SAFETY)
+CATEGORIES = (CATEGORY_MANUAL, CATEGORY_SAFETY, CATEGORY_RESET)
 
 TIMESTAMP_FORMAT = "%Y-%m-%dT%H-%M-%SZ"
 _TS = r"\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z"
-_STEM = rf"(?:manual|safety-pre-restore)_{_TS}"
+# One alternation for the id category and the source stem: the source of a
+# safety-pre-restore may be a safety-pre-reset backup (undo of a purge).
+_CAT = r"manual|safety-pre-restore|safety-pre-reset"
+_STEM = rf"(?:{_CAT})_{_TS}"
 BACKUP_ID_PATTERN = re.compile(
-    rf"^(?P<category>manual|safety-pre-restore)_(?P<timestamp>{_TS})"
+    rf"^(?P<category>{_CAT})_(?P<timestamp>{_TS})"
     rf"(?:{re.escape(SOURCE_MARKER)}(?P<source>{_STEM}))?\.json\Z"
 )
 
@@ -114,28 +118,30 @@ def make_backup_id(category: str, moment: Optional[datetime] = None,
     Build a backup id (also the S3 key).
 
     manual: manual_{timestamp}.json
-    safety: safety-pre-restore_{timestamp}_before-restore-of_{source_category}_{source_timestamp}.json
+    safety-pre-restore: safety-pre-restore_{timestamp}_before-restore-of_{source_category}_{source_timestamp}.json
+        (the source may be any category, including safety-pre-reset)
+    safety-pre-reset: safety-pre-reset_{timestamp}.json (no source part)
 
     The embedded source reference is always {source_category}_{source_timestamp}
     (never the full source id), so ids stay short at any chain depth. The full
     real source id is kept in the object metadata, envelope and audit record.
 
     Raises:
-        InvalidBackupId: unknown category, safety without source,
-        manual with source, or invalid source id
+        InvalidBackupId: unknown category, safety-pre-restore without source,
+        manual or safety-pre-reset with source, or invalid source id
     """
     if category not in CATEGORIES:
         raise InvalidBackupId(f"Unknown backup category: {category}")
 
     timestamp = format_timestamp(moment)
 
-    if category == CATEGORY_MANUAL:
+    if category != CATEGORY_SAFETY:
         if source_id:
-            raise InvalidBackupId("A manual backup cannot have a source backup")
+            raise InvalidBackupId(f"A {category} backup cannot have a source backup")
         backup_id = f"{category}_{timestamp}.json"
     else:
         if not source_id:
-            raise InvalidBackupId("A safety backup requires a source backup")
+            raise InvalidBackupId("A safety-pre-restore backup requires a source backup")
         source = parse_backup_id(source_id)
         source_ref = f"{source['category']}_{source['timestamp']}"
         backup_id = f"{category}_{timestamp}{SOURCE_MARKER}{source_ref}.json"
@@ -151,7 +157,8 @@ def parse_backup_id(backup_id: Any) -> Dict[str, Optional[str]]:
 
     Returns:
         dict with category, timestamp, created_at (ISO-8601 UTC),
-        source_ref ({source_category}_{source_timestamp}, None for manual)
+        source_ref ({source_category}_{source_timestamp}, None for manual
+        and safety-pre-reset)
         and source_stem (same value, kept for compatibility). The full real
         source id is not derivable from the key; it lives in the metadata.
 
@@ -169,11 +176,12 @@ def parse_backup_id(backup_id: Any) -> Dict[str, Optional[str]]:
     timestamp = match.group('timestamp')
     source_stem = match.group('source')
 
-    # A safety id must contain the source part, a manual id must not
+    # Only a safety-pre-restore id has a source part; manual and
+    # safety-pre-reset ids must not
     if category == CATEGORY_SAFETY and not source_stem:
-        raise InvalidBackupId("A safety backup id must contain its source")
-    if category == CATEGORY_MANUAL and source_stem:
-        raise InvalidBackupId("A manual backup id cannot contain a source")
+        raise InvalidBackupId("A safety-pre-restore backup id must contain its source")
+    if category != CATEGORY_SAFETY and source_stem:
+        raise InvalidBackupId(f"A {category} backup id cannot contain a source")
 
     try:
         created = datetime.strptime(timestamp, TIMESTAMP_FORMAT)

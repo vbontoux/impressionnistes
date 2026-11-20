@@ -4,6 +4,7 @@ Admin only - routes on API Gateway httpMethod + resource to backup_service handl
 OPTIONS preflight is handled by API Gateway, not here.
 """
 import backup_service
+import reset_service
 from auth_utils import require_admin, get_user_from_event
 from responses import handle_exceptions, error_response
 
@@ -13,6 +14,8 @@ ROUTES = {
     ('GET', '/admin/backups/{backup_id}/download'): backup_service.handle_download,
     ('DELETE', '/admin/backups/{backup_id}'): backup_service.handle_delete,
     ('POST', '/admin/backups/{backup_id}/restore'): backup_service.handle_restore,
+    ('GET', '/admin/reset'): reset_service.handle_counts,
+    ('POST', '/admin/reset'): reset_service.handle_reset,
 }
 
 

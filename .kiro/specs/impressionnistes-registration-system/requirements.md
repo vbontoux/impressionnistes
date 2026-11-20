@@ -544,6 +544,40 @@ These requirements define what the system does from a business and user perspect
 10. IF a restore fails after the table has been purged, THEN THE Registration_System SHALL report that the table is partially restored and SHALL display the Safety_Backup identifier
 11. WHEN a backup, delete, or restore action completes, THE Registration_System SHALL record an audit entry with the action, the Admin_User identity, and the timestamp in the Backup_Audit_History
 
+### FR-29: Selective Database Purge
+
+**User Story:** As an admin user, I want to purge selected groups of operational data from the "Gestion de la base" page, so that I can prepare a new competition cycle without touching the configuration, races, clubs or backup history.
+
+**Reference:** Detailed requirements and design are in `.kiro/specs/database-reset/`. This feature extends FR-28 (same page, same backup service).
+
+#### Acceptance Criteria
+
+1. THE Registration_System SHALL provide the Purge section only to the Admin_User on the "Gestion de la base" page, and SHALL reject purge requests (item counts and purge) from users who are not in the admin role without deleting anything
+2. THE Registration_System SHALL offer six Purge_Sets, each with the current item count displayed before any purge: "Équipages" (boat registrations), "Paiements" (payment history), "Équipiers" (crew members, `CREW#` items), "Team managers" (profiles and GDPR consents), "Accès temporaires" (temporary access grants) and "Journaux d'audit" (permission and temporary-access audit logs), and a "Tout purger" control that selects all of them
+3. THE Registration_System SHALL apply automatic dependency rules: Équipages implies Paiements; Équipiers implies Équipages and Paiements; Team managers implies Équipages, Paiements, Équipiers and Accès temporaires
+4. WHILE a Purge_Set is required by another checked Purge_Set, THE Registration_System SHALL display it as checked and locked, name the set that requires it, and unlock it as soon as no checked set requires it
+5. THE Registration_System SHALL check "Équipages" by default, with "Paiements" checked and locked with it, and SHALL leave the other sets and the Cognito option unchecked
+6. WHEN a purge request violates a dependency rule, is empty, or names an unknown Purge_Set, THE Registration_System SHALL reject it with the error code INVALID_SELECTION without taking a backup or deleting any item
+7. THE Registration_System SHALL never delete the protected data: the system configuration (CONFIG), the race definitions (RACE), the club definitions (CLUB) and the backup history (AUDIT#DATABASE_BACKUP)
+8. THE Registration_System SHALL NOT keep a boat number counter, so that purging the boats restarts boat numbering from the first number of each race
+9. THE Registration_System SHALL require the Admin_User to type the confirmation phrase "PURGER LA BASE" exactly (distinct from "RESTAURER LA BASE") and to validate a confirmation modal that lists each selected set with its item count, marks the implied sets, and lists the data that is kept
+10. IF the typed phrase differs from "PURGER LA BASE", THEN THE Registration_System SHALL reject the request with the error code INVALID_CONFIRMATION without taking a backup or deleting any item
+11. WHEN a purge is confirmed with the backup option enabled, THE Registration_System SHALL create a full backup (JSON_Backup and AWS_Native_Backup) with the category "safety-pre-reset" before deleting any item, and SHALL display this category as a distinct label in the backup list
+12. WHILE the environment is production, THE Registration_System SHALL require the pre-purge backup, show the option checked and locked, and reject a request without it with the error code BACKUP_REQUIRED, the environment being read from the deployment configuration and not from the request
+13. IF the pre-purge backup fails, THEN THE Registration_System SHALL NOT delete any item and SHALL report which backup artifact failed and that the database was not modified
+14. WHEN a purge completes with a pre-purge backup, THE Registration_System SHALL offer that backup as the way to undo the purge, by selecting it for restoration in the Backup/Restore section; WHERE the backup option was disabled (non-production only), THE Registration_System SHALL state that the purge cannot be undone
+15. THE Registration_System SHALL offer, only when "Team managers" is selected, an option to also delete the matching Cognito login accounts, unchecked by default, with a warning that the deletion is irreversible and is not undone by a backup restore, and with the number of accounts to be deleted shown in the confirmation modal
+16. THE Registration_System SHALL never delete the Cognito account of a member of the admins group, SHALL delete Cognito accounts only after every database deletion has succeeded, and SHALL continue after an individual failure and report the accounts deleted and the accounts that failed
+17. WHEN a purge completes, THE Registration_System SHALL display the deleted counts per Purge_Set, the Cognito result, the pre-purge backup identifier, and a reminder to update the registration dates, payment deadline and competition date of the next edition, without changing any configuration value automatically
+18. IF a purge fails after deletion has started, THEN THE Registration_System SHALL stop, return the error code RESET_PARTIAL, display the banner "ÉTAT PARTIEL : la purge n'est pas terminée" with the counts reached and the pre-purge backup identifier, and offer to restore that backup or retry the purge
+19. IF the Registration_System receives no response to a purge request (network error or gateway timeout), THEN THE Registration_System SHALL report that the outcome is unknown and instruct the Admin_User to refresh the backup list, check for a new "safety-pre-reset" backup, and verify the database state before acting again
+20. WHILE a purge is running, THE Registration_System SHALL disable every other action of the page, including the Backup/Restore section, and WHILE a backup, download, delete or restore is running, THE Registration_System SHALL disable the purge action
+21. WHEN a purge completes or fails after deletion has started, THE Registration_System SHALL record a Backup_Audit_History entry with the action "reset_database", the outcome (partial after a failure), the selected sets including implied ones, the deleted counts per set, the Cognito option and accounts deleted, the pre-purge backup identifier (or its absence), the Admin_User identity and the timestamp
+22. THE Registration_System SHALL provide a command-line purge, `make db-purge` (parameters ENV, SETS, DELETE_COGNITO, DRY_RUN), that applies the same sets, dependency rules, protected data, Cognito option, pre-purge backup, confirmation phrase and audit record as the page, with a dry-run mode that only reports item counts and modifies nothing, and a confirmation "PURGE PROD" in production
+23. THE Registration_System SHALL keep the alias `make delete-all-data-keep-managers` (purge of everything except team managers, using the `CREW#` prefix and preserving the backup history), and SHALL correct `make db-reset` (reinitialization to defaults) so that it takes a pre-purge backup first, requires the phrase "PURGER LA BASE" and reports the real number of races
+24. THE Registration_System SHALL provide an admin account deletion command, `make cognito-delete-admin` (parameters EMAIL, ENV, WITH_PROFILE), with no equivalent on the page, that refuses an unknown account, an account outside the admins group and the last remaining admin, requires the operator to type the exact email (and "DELETE ADMIN PROD" in production), deletes only the Cognito account by default, deletes the admin profile items after a pre-purge backup when WITH_PROFILE=1, and records an audit entry with the action "delete_admin"
+25. THE Registration_System SHALL refuse, in the `delete-team-manager` command, to delete a Cognito account that belongs to the admins group
+
 ---
 
 ## 2. Non-Functional Requirements

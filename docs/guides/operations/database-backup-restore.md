@@ -17,6 +17,7 @@ The category is readable from the name alone and shown as a badge:
 |---|---|---|
 | Manuelle | `manual` | `manual_<UTC timestamp>.json` |
 | Sécurité avant restauration | `safety-pre-restore` | `safety-pre-restore_<UTC timestamp>_before-restore-of_<source>.json` |
+| Sécurité avant purge | `safety-pre-reset` | `safety-pre-reset_<UTC timestamp>.json` (see section 8) |
 
 - Timestamp format: `YYYY-MM-DDTHH-MM-SSZ` (UTC).
 - Safety backups are created automatically before every restore. The part after `_before-restore-of_` is the **source reference** (category + timestamp of the backup that was about to be restored). The list also shows it as "avant restauration de : ...".
@@ -101,7 +102,123 @@ make db-view ENV=<env>           # table contents and item count
 
 Native backups are named `{table}-{category}_{timestamp}`.
 
-## 8. Limits
+## 8. End-of-edition purge
+
+Same page (**Admin > Gestion de la base**), section "Purge de la base". It deletes the data of the previous edition and keeps everything else. Admin-only. Technical rules live in `functions/shared/reset_service.py` (the admin page and the CLI use the same code).
+
+**Never purged**: configuration (`CONFIG`), races, clubs, and the backup history (`AUDIT#DATABASE_BACKUP`).
+
+### Data sets
+
+| Set (page label) | Id | Content |
+|---|---|---|
+| Équipages | `boats` | Boat registrations (seats, paid status, boat number, rental request) |
+| Paiements | `payments` | Stripe payment history |
+| Équipiers | `crew` | Crew members (rowers and coxswains) |
+| Team managers | `managers` | Team manager profiles and GDPR consents |
+| Accès temporaires | `temp_access` | Temporary accesses granted to users |
+| Journaux d'audit | `audit_logs` | Permission and temporary-access audit logs |
+
+### Dependency locks
+
+Purging a set also requires purging the sets that depend on it:
+
+| If checked | Also required |
+|---|---|
+| Équipages | Paiements |
+| Équipiers | Équipages, Paiements |
+| Team managers | Équipages, Paiements, Équipiers, Accès temporaires |
+
+A set is **locked** (checked, "requis par ...", "impliqué") as soon as another checked set requires it. It is **unlocked** again when that set is unchecked. "Tout purger" checks every set. The server rejects a selection that is not closed under these rules (`INVALID_SELECTION`).
+
+### Step by step
+
+1. In production, purge outside registration hours. Read the item counts shown next to each set.
+2. Default selection: **Équipages + Paiements** ("Paiements" is checked automatically, to avoid orphaned payments). Adjust the sets.
+3. **Cognito option**: appears only when "Team managers" is checked, **unchecked by default**. If checked, the Cognito accounts of the purged team managers are deleted (irreversible). **Admins are never deleted**: members of the `admins` group are skipped.
+4. **Backup**: "Créer une sauvegarde complète avant la purge" is checked by default. In **production it is mandatory** and cannot be unchecked (decided by the server, `BACKUP_REQUIRED` otherwise). In dev it can be unchecked, but the purge then cannot be undone.
+5. Type `PURGER LA BASE` exactly (case-sensitive; the restore phrase is refused). Click "Purger…", read the modal, then "Confirmer la purge".
+6. Wait (usually under 30 s). Do not close the page.
+
+What happens: backup `safety-pre-reset` (JSON + native), deletion set by set, then Cognito accounts (only if every deletion succeeded), then an audit record `reset_database`. If the backup fails (`PRE_RESET_BACKUP_FAILED`), nothing is deleted.
+
+The result lists the items deleted per set and the Cognito outcome (deleted, admins skipped, not found, failed). No event configuration is changed: update the registration dates, the payment deadline and the competition date in the event configuration for the next edition.
+
+### License verifications
+
+License verification fields live on the **crew items**. They are kept if only Équipages (and Paiements) is purged, and deleted with Équipiers.
+
+### Undo a purge
+
+The result shows "Pour annuler cette purge" with the `safety-pre-reset` backup (badge "Sécurité avant purge", red).
+
+1. Click "Restaurer cette sauvegarde".
+2. Type `RESTAURER LA BASE` and confirm (this is a normal restore, see section 3; it creates its own safety backup).
+3. If the page was closed, restore the same backup from the backup list ("Restaurer…" on the `safety-pre-reset` row).
+
+**Cognito accounts are not restored by a restore.** If the Cognito option was used, the accounts stay deleted: restored team manager profiles have no login until the managers register again.
+
+### Partial failure (`RESET_PARTIAL`)
+
+The page shows the banner "ÉTAT PARTIEL : la purge n'est pas terminée" with the set being deleted, the counts reached and the `safety-pre-reset` backup id. Cognito accounts were **not** touched.
+
+1. Do not use the application.
+2. Either relaunch the purge (a purge is idempotent, and a new backup of the partial state is taken), or restore the `safety-pre-reset` backup.
+3. If it keeps failing, restore the native backup into a new table (`make db-restore-backup BACKUP_ARN=<arn> ENV=<env>`, see section 5).
+
+If no backup exists (dev, backup unchecked), only the retry is possible.
+
+### Outcome unknown (no response / 504)
+
+The page shows "Résultat inconnu". The purge may still be running.
+
+1. Wait about 1 minute.
+2. Click "Actualiser" on the backup list.
+3. Look for a **new** "Sécurité avant purge" backup. If present, the purge started: refresh the counts and check the data (`make db-view ENV=<env>`). If data is incomplete or wrong, restore that backup.
+4. If no new backup exists (and the backup was enabled), nothing was changed.
+
+After a session expiry, log back in and do the same checks.
+
+## 9. Delete an admin account
+
+Not available on the page. Command line only:
+
+```bash
+cd infrastructure
+make cognito-delete-admin EMAIL=admin@example.com ENV=<env>                  # Cognito account only
+make cognito-delete-admin EMAIL=admin@example.com WITH_PROFILE=1 ENV=<env>   # also profile and consents
+```
+
+Checks, in order. Any failure stops the command with nothing modified:
+
+1. The account exists.
+2. It is a member of `admins` (otherwise use `make delete-team-manager`, which refuses admin accounts).
+3. It is **not the last admin** (at least two admins are required).
+4. You type the admin's email exactly.
+5. In production, the Makefile also asks `DELETE ADMIN PROD`.
+
+By default only the Cognito account is deleted; the `PROFILE` and `CONSENT#` items stay in the table. With `WITH_PROFILE=1`, a `safety-pre-reset` backup is taken first (a backup failure aborts), then the profile and consent items, then the Cognito account. A `delete_admin` audit record is written.
+
+## 10. Purge from the CLI (fallback)
+
+Use when the page is unavailable. Same rules, same code, same audit record (identity `cli:<user>`).
+
+```bash
+cd infrastructure
+make db-purge ENV=dev SETS=boats DRY_RUN=1                       # counts only, nothing modified
+make db-purge ENV=dev SETS=crew,temp_access
+make db-purge ENV=prod SETS=boats DELETE_COGNITO=1
+```
+
+- `SETS`: comma-separated ids from the table above (default `boats`). Implied sets are added and printed before confirmation.
+- `DELETE_COGNITO=1`: delete Cognito accounts (needs `managers`; admins are skipped).
+- `DRY_RUN=1`: prints the counts, takes no backup, deletes nothing, writes no audit record.
+- Confirmation: in prod the Makefile asks `PURGE PROD` (skipped for a dry run), then the script asks `PURGER LA BASE`. Any other text takes no backup and deletes nothing.
+- A `safety-pre-reset` backup is taken (mandatory in prod). Undo it from the page (see "Undo a purge").
+- Alias `make delete-all-data-keep-managers ENV=<env>`: purges `crew`, `temp_access` and `audit_logs` (with the implied boats and payments) and **keeps the team managers**.
+- `make db-reset ENV=<env>` is a full reset to the initial state (not selective): it first takes a `safety-pre-reset` backup (the target stops if it fails), asks `PURGER LA BASE`, deletes all `TEAM#` and `USER#` data, then recreates the default configuration. Races and the backup history are kept; the final summary prints the real race count.
+
+## 11. Limits
 
 - Synchronous design sized for the current table (~1 250 items, ~630 KB). A restore takes about 8-10 s.
 - Revisit (asynchronous job) above ~10 000 items / 5 MB, or if a restore takes more than 15 s.

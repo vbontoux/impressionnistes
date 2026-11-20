@@ -26,6 +26,9 @@ Creating a backup produces two artifacts: an application-level JSON export writt
 - **Confirmation_Phrase**: A fixed text string the Admin must type exactly to authorize a Restore_Operation.
 - **Backup_Metadata**: The descriptive attributes of a JSON_Backup, consisting of timestamp, item count, size, the identity of the Admin who created it, and the Backup_Category; for a Safety_Backup, the Backup_Metadata also includes the identifier of the source JSON_Backup that the Restore_Operation was about to restore.
 
+
+> **Note (database-reset spec):** a third Backup_Category `safety-pre-reset` was introduced by the `database-reset` spec. Its Backup_Identifier is `safety-pre-reset_{timestamp}.json` (no source part), the page badge is "Sécurité avant purge", and it is created before a selective purge. It can be the source of a `safety-pre-restore` backup (restoring it is the undo of a purge). The two-category wording above is otherwise unchanged.
+
 ## Requirements
 
 ### Requirement 1: Database Management Page Access

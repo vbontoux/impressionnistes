@@ -27,15 +27,17 @@ from moto import mock_s3
 
 import backup_service
 from backup_service import (
-    CATEGORY_MANUAL, CATEGORY_SAFETY, CONFIRMATION_PHRASE, FORMAT_VERSION,
+    CATEGORY_MANUAL, CATEGORY_RESET, CATEGORY_SAFETY, CONFIRMATION_PHRASE, FORMAT_VERSION,
     SOURCE_MARKER, InvalidBackupEnvelope, InvalidBackupId, AUDIT_PK,
 )
 
-REGION = 'eu-west-3'
-BUCKET_NAME = 'test-backups'
+from tests.integration.backup_helpers import (
+    ADMIN_USER, BUCKET_NAME, REGION, clear_table, items_by_key, put_typed_items,
+    table_state, utc,
+)
+
 PROD_TABLE_NAME = 'impressionnistes-registration-prod'
 NATIVE_NAME_PATTERN = re.compile(r'^[a-zA-Z0-9_.-]{3,255}$')
-ADMIN_USER = {'user_id': 'u1', 'email': 'a@b.c'}
 
 MANUAL_ID = 'manual_2026-11-01T14-30-00Z.json'
 SAFETY_OF_MANUAL_ID = (
@@ -43,84 +45,15 @@ SAFETY_OF_MANUAL_ID = (
 SAFETY_OF_SAFETY_ID = (
     'safety-pre-restore_2026-11-02T09-05-00Z_before-restore-of_'
     'safety-pre-restore_2026-11-02T09-00-00Z.json')
+RESET_ID = 'safety-pre-reset_2026-11-01T14-30-00Z.json'
 
 
 # ---------------------------------------------------------------------------
 # 1. Shared fixtures and helpers
 # ---------------------------------------------------------------------------
-@pytest.fixture(autouse=True)
-def reset_backup_clients():
-    """Cached boto3 clients must be rebuilt inside each test's moto mock"""
-    backup_service._dynamodb_client = None
-    backup_service._s3_client = None
-    yield
-    backup_service._dynamodb_client = None
-    backup_service._s3_client = None
-
-
-@pytest.fixture
-def backup_bucket(dynamodb_table):
-    """Moto S3 bucket for backups (BACKUP_BUCKET); DynamoDB table comes from dynamodb_table"""
-    with mock_s3():
-        backup_service._dynamodb_client = None
-        backup_service._s3_client = None
-        s3 = boto3.client('s3', region_name=REGION)
-        s3.create_bucket(Bucket=BUCKET_NAME,
-                         CreateBucketConfiguration={'LocationConstraint': REGION})
-        os.environ['BACKUP_BUCKET'] = BUCKET_NAME
-        try:
-            yield BUCKET_NAME
-        finally:
-            os.environ.pop('BACKUP_BUCKET', None)
-            backup_service._dynamodb_client = None
-            backup_service._s3_client = None
-
-
-def clear_table(table):
-    """Delete the items seeded by dynamodb_table (exact-count / empty-table assertions)"""
-    keys = [{'PK': i['PK'], 'SK': i['SK']}
-            for i in table.scan(ConsistentRead=True)['Items']]
-    for key in keys:
-        table.delete_item(Key=key)
-
-
-def put_typed_items(items):
-    """Put typed (low-level) items, e.g. {'PK': {'S': 'x'}, 'n': {'N': '1'}}"""
-    client = boto3.client('dynamodb', region_name=REGION)
-    for item in items:
-        client.put_item(TableName=os.environ['TABLE_NAME'], Item=item)
-
-
-def _normalize(attr):
-    """Sort set members so comparisons ignore set ordering"""
-    (code, value), = attr.items()
-    if code in ('SS', 'NS', 'BS'):
-        return {code: sorted(value)}
-    if code == 'M':
-        return {code: {k: _normalize(v) for k, v in value.items()}}
-    if code == 'L':
-        return {code: [_normalize(v) for v in value]}
-    return attr
-
-
-def items_by_key(items, include_audit=True):
-    """Typed items as {(PK, SK): normalized item}"""
-    result = {}
-    for item in items:
-        key = (item['PK']['S'], item['SK']['S'])
-        if not include_audit and key[0] == backup_service.AUDIT_PK:
-            continue
-        result[key] = {k: _normalize(v) for k, v in item.items()}
-    return result
-
-
-def table_state(include_audit=False):
-    """Current table content (typed), keyed by (PK, SK)"""
-    return items_by_key(backup_service.scan_table(), include_audit=include_audit)
-
-
-def utc(minutes=0):
-    return datetime(2026, 11, 1, 14, 30, 0, tzinfo=timezone.utc) + timedelta(minutes=minutes)
+# Fixtures (reset_backup_clients, backup_bucket) are in tests/integration/conftest.py;
+# plain helpers (clear_table, put_typed_items, items_by_key, table_state, utc, ...) are
+# in tests/integration/backup_helpers.py.
 
 
 # ---------------------------------------------------------------------------
@@ -128,8 +61,10 @@ def utc(minutes=0):
 # ---------------------------------------------------------------------------
 @pytest.mark.parametrize('category, source_id', [
     (CATEGORY_MANUAL, None),
+    (CATEGORY_RESET, None),
     (CATEGORY_SAFETY, MANUAL_ID),
     (CATEGORY_SAFETY, SAFETY_OF_MANUAL_ID),
+    (CATEGORY_SAFETY, RESET_ID),
 ])
 def test_backup_id_roundtrip(category, source_id):
     """Property 2: id encodes category and time and parses back"""
@@ -143,7 +78,7 @@ def test_backup_id_roundtrip(category, source_id):
     assert backup_id.startswith(f'{category}_2026-11-02T09-00-00Z')
     assert backup_id.endswith('.json')
 
-    if category == CATEGORY_MANUAL:
+    if category in (CATEGORY_MANUAL, CATEGORY_RESET):
         assert SOURCE_MARKER not in backup_id
         assert parsed['source_ref'] is None
         assert parsed['source_stem'] is None
@@ -169,6 +104,9 @@ def test_backup_id_roundtrip(category, source_id):
     'safety-pre-restore_2026-11-02T09-00-00Z.json',
     # manual with source
     'manual_2026-11-02T09-00-00Z_before-restore-of_manual_2026-11-01T14-30-00Z.json',
+    # safety-pre-reset with source
+    'safety-pre-reset_2026-11-02T09-00-00Z_before-restore-of_manual_2026-11-01T14-30-00Z.json',
+    'safety-pre-reset_2026-11-02T09-00-00Z_before-restore-of_safety-pre-reset_2026-11-01T14-30-00Z.json',
     # nested chain id (source part is itself a safety id with a source)
     ('safety-pre-restore_2026-11-03T09-00-00Z_before-restore-of_'
      'safety-pre-restore_2026-11-02T09-00-00Z_before-restore-of_'
@@ -193,12 +131,30 @@ def test_backup_id_rejects_invalid(bad_id):
     ('weekly', None),
     (CATEGORY_SAFETY, None),
     (CATEGORY_MANUAL, MANUAL_ID),
+    (CATEGORY_RESET, MANUAL_ID),
+    (CATEGORY_RESET, RESET_ID),
     (CATEGORY_SAFETY, '../x.json'),
     (CATEGORY_SAFETY, 'not-a-backup'),
 ])
 def test_make_backup_id_rejects_invalid_combinations(category, source_id):
     with pytest.raises(InvalidBackupId):
         backup_service.make_backup_id(category, utc(), source_id)
+
+
+def test_reset_backup_id_naming():
+    """safety-pre-reset id has no source part, parses back, native name is valid"""
+    moment = utc()
+    backup_id = backup_service.make_backup_id(CATEGORY_RESET, moment)
+    assert re.match(r'^safety-pre-reset_\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z\.json$', backup_id)
+    assert backup_id == RESET_ID
+
+    parsed = backup_service.parse_backup_id(backup_id)
+    assert parsed['category'] == CATEGORY_RESET
+    assert parsed['timestamp'] == backup_service.format_timestamp(moment)
+    assert parsed['source_ref'] is None
+
+    native = f"{PROD_TABLE_NAME}-{parsed['category']}_{parsed['timestamp']}"
+    assert NATIVE_NAME_PATTERN.match(native)
 
 
 def test_make_backup_id_with_fixed_moment_is_deterministic():
@@ -221,6 +177,7 @@ def test_timestamp_converted_to_utc():
 @pytest.mark.parametrize('source_id, expected_ref', [
     (MANUAL_ID, 'manual_2026-11-01T14-30-00Z'),
     (SAFETY_OF_MANUAL_ID, 'safety-pre-restore_2026-11-02T09-00-00Z'),
+    (RESET_ID, 'safety-pre-reset_2026-11-01T14-30-00Z'),
 ])
 def test_safety_id_uses_bounded_source_reference(source_id, expected_ref):
     """The id embeds {source_category}_{source_timestamp}, never the full source id"""
@@ -236,7 +193,7 @@ def test_safety_id_uses_bounded_source_reference(source_id, expected_ref):
     assert backup_id.count(SOURCE_MARKER) == 1
 
 
-@pytest.mark.parametrize('backup_id', [MANUAL_ID, SAFETY_OF_MANUAL_ID, SAFETY_OF_SAFETY_ID])
+@pytest.mark.parametrize('backup_id', [MANUAL_ID, SAFETY_OF_MANUAL_ID, SAFETY_OF_SAFETY_ID, RESET_ID])
 def test_parse_backup_id_returns_source_ref_not_source_backup_id(backup_id):
     parsed = backup_service.parse_backup_id(backup_id)
     assert 'source_ref' in parsed
@@ -561,6 +518,43 @@ def test_restore_then_undo_returns_original_items(dynamodb_table, backup_bucket,
         assert NATIVE_NAME_PATTERN.match(native)
 
 
+def test_restore_of_reset_backup_returns_pre_purge_state(
+        dynamodb_table, backup_bucket, fake_clock):
+    """Undo of a purge: restoring a safety-pre-reset backup brings the pre-purge items back"""
+    clear_table(dynamodb_table)
+    pre_purge = [
+        _item('TEAM#t1', 'BOAT#b1', price={'N': '12.50'}, tags={'SS': ['a', 'b']}),
+        _item('USER#u1', 'PROFILE', name={'S': 'Éléonore'}),
+        _item('CLUB', 'c1', name={'S': 'club'}),
+    ]
+    put_typed_items(pre_purge)
+    pre_purge_state = table_state()
+
+    reset = backup_service.create_backup(CATEGORY_RESET, ADMIN_USER)
+    reset_id = reset['backup_id']
+    assert reset['category'] == CATEGORY_RESET
+
+    # Simulated purge, then new data
+    clear_table(dynamodb_table)
+    put_typed_items([_item('CLUB', 'c1', name={'S': 'club'}),
+                     _item('TEAM#t9', 'BOAT#b9', price={'N': '1'})])
+
+    result = backup_service.restore_backup(reset_id, CONFIRMATION_PHRASE, ADMIN_USER)
+    assert table_state() == pre_purge_state
+
+    safety_id = result['safety_backup']['backup_id']
+    reset_parsed = backup_service.parse_backup_id(reset_id)
+    safety = backup_service.parse_backup_id(safety_id)
+    expected_ref = f"{CATEGORY_RESET}_{reset_parsed['timestamp']}"
+    assert safety['category'] == CATEGORY_SAFETY
+    assert safety['source_ref'] == expected_ref
+    assert re.match(
+        rf'^safety-pre-restore_{backup_service._TS}_before-restore-of_{expected_ref}\.json$',
+        safety_id)
+    assert len(safety_id) < 150
+    assert backup_service.read_backup(safety_id)['metadata']['source_backup_id'] == reset_id
+
+
 # ---------------------------------------------------------------------------
 # 5. Create / list / download / delete / audit
 # ---------------------------------------------------------------------------
@@ -847,6 +841,18 @@ def test_list_backups_rows_newest_first(dynamodb_table, backup_bucket, fake_cloc
     assert safety_row['source_backup_id'] == first['backup_id']
     first_parsed = backup_service.parse_backup_id(first['backup_id'])
     assert safety_row['source_ref'] == f"{CATEGORY_MANUAL}_{first_parsed['timestamp']}"
+
+
+def test_list_shows_reset_category(dynamodb_table, backup_bucket, fake_clock):
+    clear_table(dynamodb_table)
+    put_typed_items([_item('CLUB', 'c1', name={'S': 'club'})])
+    created = backup_service.create_backup(CATEGORY_RESET, ADMIN_USER)
+
+    rows = backup_service.list_backups()
+    assert [r['backup_id'] for r in rows] == [created['backup_id']]
+    assert rows[0]['category'] == CATEGORY_RESET == 'safety-pre-reset'
+    assert rows[0]['source_ref'] is None
+    assert rows[0]['source_backup_id'] is None
 
 
 def test_list_backups_skips_invalid_keys_and_tolerates_missing_metadata(
@@ -1986,6 +1992,7 @@ def prepare_target_backup(table):
 # ---- Routes table -----------------------------------------------------------
 def test_routes_table_matches_design():
     from admin import manage_backups
+    import reset_service
 
     assert manage_backups.ROUTES == {
         ROUTE_CREATE: backup_service.handle_create,
@@ -1993,8 +2000,10 @@ def test_routes_table_matches_design():
         ROUTE_DOWNLOAD: backup_service.handle_download,
         ROUTE_DELETE: backup_service.handle_delete,
         ROUTE_RESTORE: backup_service.handle_restore,
+        ('GET', '/admin/reset'): reset_service.handle_counts,
+        ('POST', '/admin/reset'): reset_service.handle_reset,
     }
-    assert len(manage_backups.ROUTES) == 5
+    assert len(manage_backups.ROUTES) == 7
 
 
 # ---- Property 10: non-admin requests are rejected without effect ------------
@@ -2273,6 +2282,7 @@ def _load_locale(lang):
     ('CONFIRMATION_PHRASE', CONFIRMATION_PHRASE),
     ('CATEGORY_MANUAL', CATEGORY_MANUAL),
     ('CATEGORY_SAFETY', CATEGORY_SAFETY),
+    ('CATEGORY_RESET', CATEGORY_RESET),
     ('SOURCE_MARKER', SOURCE_MARKER),
 ])
 def test_frontend_backend_constants_aligned(name, backend_value):
@@ -2285,8 +2295,10 @@ def test_frontend_backup_id_regex_has_same_structure_as_backend_pattern():
     match = re.search(r"const BACKUP_ID_REGEX =\s*/(.*)/;", _frontend_naming_source())
     assert match, 'BACKUP_ID_REGEX literal not found in backupNaming.js'
     js_source = match.group(1)
-    alternation = f'{CATEGORY_MANUAL}|{CATEGORY_SAFETY}'
-    assert alternation == 'manual|safety-pre-restore'
+    alternation = f'{CATEGORY_MANUAL}|{CATEGORY_SAFETY}|{CATEGORY_RESET}'
+    assert alternation == 'manual|safety-pre-restore|safety-pre-reset'
+    assert backup_service.CATEGORIES == (CATEGORY_MANUAL, CATEGORY_SAFETY, CATEGORY_RESET)
+    assert len(backup_service.CATEGORIES) == 3
     # Category alternation used for the id and for the optional source reference
     assert js_source.count(f'({alternation})') == 2
     assert SOURCE_MARKER in js_source
@@ -2304,8 +2316,13 @@ _SHARED_VALID_IDS = [
     f'safety-pre-restore_2026-11-02T09-15-45Z_before-restore-of_{_SHARED_MANUAL_STEM}.json',
     'safety-pre-restore_2026-11-03T10-00-00Z_before-restore-of_'
     'safety-pre-restore_2026-11-02T09-15-45Z.json',
+    'safety-pre-reset_2026-11-02T09-15-45Z.json',
+    'safety-pre-restore_2026-11-03T10-00-00Z_before-restore-of_'
+    'safety-pre-reset_2026-11-02T09-15-45Z.json',
 ]
 _SHARED_INVALID_IDS = [
+    f'safety-pre-reset_2026-11-02T09-15-45Z_before-restore-of_{_SHARED_MANUAL_STEM}.json',
+    'safety-pre-reset_2026-11-02T09-15-45Z.txt',
     '../x.json',
     f'../{_SHARED_MANUAL_STEM}.json',
     '/',
@@ -2329,7 +2346,7 @@ _SHARED_INVALID_IDS = [
 @pytest.mark.parametrize('backup_id', _SHARED_VALID_IDS)
 def test_shared_valid_ids_parse_in_backend(backup_id):
     parsed = backup_service.parse_backup_id(backup_id)
-    assert parsed['category'] in (CATEGORY_MANUAL, CATEGORY_SAFETY)
+    assert parsed['category'] in (CATEGORY_MANUAL, CATEGORY_SAFETY, CATEGORY_RESET)
 
 
 @pytest.mark.parametrize('backup_id', _SHARED_INVALID_IDS)
@@ -2342,7 +2359,7 @@ def test_shared_invalid_ids_rejected_by_backend(backup_id):
 def test_locale_has_category_label_for_each_category(lang):
     """categoryBadge labelKey is admin.database.category.<category id>"""
     categories = _load_locale(lang)['admin']['database']['category']
-    for category in (CATEGORY_MANUAL, CATEGORY_SAFETY):
+    for category in (CATEGORY_MANUAL, CATEGORY_SAFETY, CATEGORY_RESET):
         assert isinstance(categories.get(category), str) and categories[category]
 
 

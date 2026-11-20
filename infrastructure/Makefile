@@ -1,4 +1,4 @@
-.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws clean-aws-dev clean-aws-prod list describe-infra costs costs-all costs-by-tag db-export db-view db-reset db-migrate cognito-create-admin cognito-list-users cognito-add-to-group ses-verify-email ses-list-verified ses-check-email ses-get-quota ses-get-statistics ses-request-production ses-verify-domain ses-get-domain-token ses-enable-dkim ses-check-domain secrets-list secrets-show secrets-show-stripe secrets-update-stripe secrets-sync secrets-sync-dev secrets-sync-prod secrets-delete-all secrets-delete-all-prod test-setup test test-backend test-backend-one test-frontend lint-frontend test-email test-coverage test-clean clean
+.PHONY: help check-prereqs setup venv install bootstrap synth diff deploy deploy-dev deploy-prod deploy-auth redeploy destroy destroy-dev destroy-prod fix-stuck-stack clean-aws clean-aws-dev clean-aws-prod list describe-infra costs costs-all costs-by-tag db-export db-view db-reset db-purge delete-all-data-keep-managers db-migrate cognito-create-admin cognito-delete-admin cognito-list-users cognito-add-to-group ses-verify-email ses-list-verified ses-check-email ses-get-quota ses-get-statistics ses-request-production ses-verify-domain ses-get-domain-token ses-enable-dkim ses-check-domain secrets-list secrets-show secrets-show-stripe secrets-update-stripe secrets-sync secrets-sync-dev secrets-sync-prod secrets-delete-all secrets-delete-all-prod test-setup test test-backend test-backend-one test-frontend lint-frontend test-email test-coverage test-clean clean
 
 # Virtual environment paths
 VENV = venv
@@ -64,7 +64,9 @@ help:
 	@echo "  make db-export         - Export DynamoDB table to CSV (default: dev)"
 	@echo "  make db-view           - View DynamoDB table contents (default: dev)"
 	@echo "  make db-migrate        - Run database migration (MIGRATION=script_name ENV=dev|prod)"
-	@echo "  make db-reset          - Reset database to initial state (⚠️  DELETES ALL DATA)"
+	@echo "  make db-reset          - Backup, then reset database to initial state (⚠️  DELETES ALL DATA, asks 'PURGER LA BASE')"
+	@echo "  make db-purge          - Selective purge (SETS=boats DELETE_COGNITO=0 DRY_RUN=0 ENV=dev|prod; sets: payments,boats,crew,temp_access,managers,audit_logs)"
+	@echo "  make delete-all-data-keep-managers - Purge crew, temp_access and audit_logs, keep team managers (alias of db-purge)"
 	@echo "  make db-cleanup-rental-boats-dry-run - Preview old RENTAL_BOAT records to delete"
 	@echo "  make db-cleanup-rental-boats         - Delete old RENTAL_BOAT records (⚠️  destructive!)"
 	@echo "  make destroy        - Destroy all stacks (default: dev)"
@@ -76,6 +78,7 @@ help:
 	@echo "  make cognito-list-users                          - List all Cognito users"
 	@echo "  make cognito-add-to-group EMAIL=user@example.com GROUP=admins - Add user to group"
 	@echo "  make delete-team-manager EMAIL=user@example.com  - Delete team manager and all data (⚠️  destructive!)"
+	@echo "  make cognito-delete-admin EMAIL=admin@example.com [WITH_PROFILE=1] ENV=dev|prod - Delete an admin account (⚠️  destructive!)"
 	@echo ""
 	@echo "Secrets Management (S3):"
 	@echo "  make secrets-list                                    - List all secrets in S3"
@@ -1010,15 +1013,20 @@ db-reset:
 	@echo "  - Delete all boat registrations"
 	@echo "  - Delete all payment records"
 	@echo "  - Reset configuration to defaults"
-	@echo "  - Keep race definitions (42 races)"
+	@echo "  - Keep race definitions"
+	@echo "  - Keep the backup history (AUDIT#DATABASE_BACKUP)"
 	@echo ""
+	@echo "A safety-pre-reset backup is taken first."
 	@echo "Table: impressionnistes-registration-$(ENV)"
 	@echo ""
-	@read -p "Type 'RESET' to confirm: " confirm; \
-	if [ "$$confirm" != "RESET" ]; then \
+	@read -p "Type 'PURGER LA BASE' to confirm: " confirm; \
+	if [ "$$confirm" != "PURGER LA BASE" ]; then \
 		echo "Reset cancelled"; \
 		exit 1; \
 	fi
+	@echo ""
+	@echo "Step 0: Creating safety-pre-reset backup..."
+	@$(PYTHON) ../scripts/database/purge_database.py --env $(ENV) --backup-only || { echo "❌ Backup failed, nothing was modified"; exit 1; }
 	@echo ""
 	@echo "Step 1: Scanning for user data..."
 	@aws dynamodb scan \
@@ -1065,12 +1073,52 @@ db-reset:
 	@echo "Summary:"
 	@echo "  - All user data deleted"
 	@echo "  - Configuration reset to defaults"
-	@echo "  - Race definitions preserved (42 races)"
+	@echo "  - Race definitions preserved ($$(aws dynamodb query --table-name impressionnistes-registration-$(ENV) --key-condition-expression 'PK = :pk' --expression-attribute-values '{":pk":{"S":"RACE"}}' --select COUNT --query Count --output text --region eu-west-3) races)"
 	@echo ""
 	@echo "Next steps:"
 	@echo "  1. Users need to re-register"
 	@echo "  2. Check configuration: make db-view"
 	@echo "  3. Verify races: aws dynamodb query --table-name impressionnistes-registration-$(ENV) --key-condition-expression 'PK = :pk' --expression-attribute-values '{\":pk\":{\"S\":\"RACE\"}}' --query 'Count'"
+
+db-purge:
+	@echo "=========================================="
+	@echo "Selective Database Purge"
+	@echo "Environment: $(ENV)"
+	@echo "Sets: $(or $(SETS),boats)  Delete Cognito: $(or $(DELETE_COGNITO),0)  Dry run: $(or $(DRY_RUN),0)"
+	@echo "=========================================="
+	@if [ "$(ENV)" = "prod" ] && [ "$(or $(DRY_RUN),0)" != "1" ]; then \
+		echo "⚠️  WARNING: Purging PRODUCTION data"; \
+		read -p "Type 'PURGE PROD' to confirm: " confirm; \
+		if [ "$$confirm" != "PURGE PROD" ]; then \
+			echo "Purge cancelled"; \
+			exit 1; \
+		fi; \
+	fi
+	@$(PYTHON) ../scripts/database/purge_database.py --env $(ENV) --sets $(or $(SETS),boats) $(if $(filter 1,$(DELETE_COGNITO)),--delete-cognito) $(if $(filter 1,$(DRY_RUN)),--dry-run)
+
+delete-all-data-keep-managers:
+	@$(MAKE) db-purge SETS=crew,temp_access,audit_logs
+
+cognito-delete-admin:
+	@echo "=========================================="
+	@echo "Delete Admin Account"
+	@echo "Environment: $(ENV)"
+	@echo "=========================================="
+	@if [ -z "$(EMAIL)" ]; then \
+		echo "❌ Error: EMAIL parameter required"; \
+		echo "Usage: make cognito-delete-admin EMAIL=admin@example.com ENV=dev"; \
+		echo "       make cognito-delete-admin EMAIL=admin@example.com WITH_PROFILE=1 ENV=prod"; \
+		exit 1; \
+	fi
+	@if [ "$(ENV)" = "prod" ]; then \
+		echo "⚠️  WARNING: Deleting an admin account in PRODUCTION"; \
+		read -p "Type 'DELETE ADMIN PROD' to confirm: " confirm; \
+		if [ "$$confirm" != "DELETE ADMIN PROD" ]; then \
+			echo "Deletion cancelled"; \
+			exit 1; \
+		fi; \
+	fi
+	@$(PYTHON) ../scripts/database/delete_admin.py "$(EMAIL)" --env $(ENV) $(if $(filter 1,$(WITH_PROFILE)),--with-profile)
 
 db-cleanup-rental-boats:
 	@echo "=========================================="
